@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Doctor Error diagnoses JavaScript and TypeScript errors with ranked causes, confidence scores, and fix paths. Get real solutions, not guesses." />
-  <meta property="og:title" content="Doctor Error - JavaScript & TypeScript Error Diagnosis" />
-  <meta property="og:description" content="Paste a JS/TS error. Get a diagnosis with ranked causes, confidence scores, and actionable fix paths." />
+  <meta name="description" content="Doctor Error diagnoses JavaScript and TypeScript errors with ranked causes, confidence scores, and fix paths. Beta. Get real solutions, not guesses." />
+  <meta property="og:title" content="Doctor Error - JavaScript & TypeScript Error Diagnosis (Beta)" />
+  <meta property="og:description" content="Early access. Paste a JS/TS error. Get a diagnosis with ranked causes, confidence scores, and actionable fix paths." />
   <meta property="og:type" content="website" />
   <meta name="theme-color" content="#0f172a" />
   <title>Doctor Error - JavaScript & TypeScript Error Diagnosis</title>
@@ -14,7 +14,10 @@
 <body>
   <header class="hero">
     <div class="hero__content">
-      <h1>Doctor Error</h1>
+      <div class="hero__header">
+        <h1>Doctor Error</h1>
+        <span class="beta-badge" title="Actively improving. Feedback welcome.">Beta</span>
+      </div>
       <p class="hero__subtitle">Paste a JavaScript error. Get a real diagnosis — not guesses.</p>
       <p class="hero__secondary">Deterministic analysis. Ranked causes. Actionable fix paths.</p>
       <div id="proStatus" class="pro-status"></div>
@@ -48,6 +51,14 @@
       </div>
       <div id="resultsBody" class="results-body">
         <p class="muted">No diagnosis yet. Paste an error and press Diagnose.</p>
+      </div>
+      <div id="quickFeedback" class="quick-feedback">
+        <p class="quick-feedback__prompt">Did this help?</p>
+        <div class="quick-feedback__buttons">
+          <button id="quickFeedbackYes" class="quick-feedback__btn">👍 Yes</button>
+          <button id="quickFeedbackNo" class="quick-feedback__btn">👎 No</button>
+        </div>
+        <div id="quickFeedbackMessage" class="quick-feedback__message"></div>
       </div>
       <div id="feedbackSection" class="feedback-section">
         <p class="feedback-prompt">Did this diagnosis help?</p>

@@ -19,6 +19,51 @@ const SERVER_START_TIME = Date.now();
 
 let totalDiagnoses = 0;
 
+// Rate limiting: in-memory IP-based rate limit for /api/diagnose
+// Max 30 requests per IP per 10 minutes
+const RATE_LIMIT_WINDOW = 10 * 60 * 1000; // 10 minutes
+const RATE_LIMIT_MAX_REQUESTS = 30;
+const rateLimitMap = new Map();
+
+function getClientIp(req) {
+  return req.ip || req.connection.remoteAddress || 'unknown';
+}
+
+function checkRateLimit(clientIp) {
+  const now = Date.now();
+  let record = rateLimitMap.get(clientIp);
+
+  if (!record) {
+    rateLimitMap.set(clientIp, { count: 1, startTime: now });
+    return { allowed: true };
+  }
+
+  const elapsed = now - record.startTime;
+
+  if (elapsed > RATE_LIMIT_WINDOW) {
+    // Window expired, reset
+    rateLimitMap.set(clientIp, { count: 1, startTime: now });
+    return { allowed: true };
+  }
+
+  record.count++;
+  if (record.count > RATE_LIMIT_MAX_REQUESTS) {
+    return { allowed: false, retryAfter: Math.ceil((RATE_LIMIT_WINDOW - elapsed) / 1000) };
+  }
+
+  return { allowed: true };
+}
+
+// Cleanup rate limit map every 5 minutes to avoid memory bloat
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of rateLimitMap.entries()) {
+    if (now - record.startTime > RATE_LIMIT_WINDOW) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000);
+
 let stripe = null;
 if (STRIPE_SECRET_KEY) {
   try {
@@ -99,6 +144,22 @@ function markPro(diagnosis) {
 }
 
 app.post('/api/diagnose', (req, res) => {
+  // Check rate limit
+  const clientIp = getClientIp(req);
+  const rateLimitCheck = checkRateLimit(clientIp);
+
+  if (!rateLimitCheck.allowed) {
+    return res.status(429).json({
+      error: 'Too many requests. Please try again later.',
+      retryAfter: rateLimitCheck.retryAfter
+    });
+  }
+
+  // Validate request body type
+  if (!req.body || typeof req.body !== 'object') {
+    return res.status(400).json({ error: 'Request body must be JSON object' });
+  }
+
   const raw = typeof req.body?.rawErrorText === 'string' ? req.body.rawErrorText : '';
   const trimmed = raw.trim();
 

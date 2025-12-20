@@ -13,6 +13,10 @@ const feedbackWorkedBtn = document.getElementById('feedbackWorked');
 const feedbackDidntWorkBtn = document.getElementById('feedbackDidntWork');
 const feedbackMessage = document.getElementById('feedbackMessage');
 const onboardingHint = document.getElementById('onboardingHint');
+const quickFeedback = document.getElementById('quickFeedback');
+const quickFeedbackYes = document.getElementById('quickFeedbackYes');
+const quickFeedbackNo = document.getElementById('quickFeedbackNo');
+const quickFeedbackMessage = document.getElementById('quickFeedbackMessage');
 
 const MAX_INPUT_CHARS = 20000;
 const PRO_TOKEN_KEY = 'doctorErrorProToken';
@@ -56,6 +60,7 @@ function clearResults() {
   resultSubtitle.textContent = '';
   currentDiagnosis = null;
   hideFeedback();
+  hideQuickFeedback();
   hideTrustSection();
 }
 
@@ -71,6 +76,18 @@ function hideTrustSection() {
   if (trustSection) {
     trustSection.style.display = 'none';
   }
+}
+
+function showQuickFeedback() {
+  quickFeedback.style.display = 'block';
+  quickFeedbackYes.disabled = false;
+  quickFeedbackNo.disabled = false;
+  quickFeedbackMessage.innerHTML = '';
+}
+
+function hideQuickFeedback() {
+  quickFeedback.style.display = 'none';
+  quickFeedbackMessage.innerHTML = '';
 }
 
 function showFeedback() {
@@ -219,6 +236,7 @@ function renderDiagnosis(diagnosis) {
   fragments.push(fixSection);
 
   resultsBody.replaceChildren(...fragments);
+  showQuickFeedback();
   showFeedback();
   showTrustSection();
 }
@@ -351,6 +369,28 @@ async function copyToClipboard(text, label) {
   }
 }
 
+async function submitQuickFeedback(outcome) {
+  if (!currentDiagnosis) return;
+
+  try {
+    const payload = {
+      errorSignature: currentDiagnosis.errorSignature,
+      errorTitle: currentDiagnosis.errorTitle,
+      isPro: currentDiagnosis.isPro === true,
+      outcome,
+      timestamp: Date.now()
+    };
+
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (err) {
+    console.error('Quick feedback submission failed:', err);
+  }
+}
+
 copyJsonButton.addEventListener('click', () => {
   if (!currentDiagnosis) {
     setStatus('Run a diagnosis before copying.', 'error');
@@ -379,6 +419,20 @@ copyBestFixButton.addEventListener('click', () => {
 
 feedbackWorkedBtn.addEventListener('click', () => submitFeedback('worked'));
 feedbackDidntWorkBtn.addEventListener('click', () => submitFeedback('didnt_work'));
+
+// Quick feedback buttons
+quickFeedbackYes.addEventListener('click', () => {
+  quickFeedbackYes.disabled = true;
+  quickFeedbackNo.disabled = true;
+  submitQuickFeedback('worked');
+});
+
+quickFeedbackNo.addEventListener('click', () => {
+  quickFeedbackYes.disabled = true;
+  quickFeedbackNo.disabled = true;
+  quickFeedbackMessage.innerHTML = '<span style="color: var(--muted);">Thanks — paste the full stack trace or try another cause.</span>';
+  submitQuickFeedback('didnt_work');
+});
 
 diagnoseButton.addEventListener('click', handleDiagnose);
 errorInput.addEventListener('keydown', (e) => {
