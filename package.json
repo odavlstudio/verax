@@ -1,0 +1,15 @@
+{
+  "name": "doctor-error",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Doctor Error CLI and web UI",
+  "main": "web/server.js",
+  "scripts": {
+    "start": "node web/server.js",
+    "dev": "node web/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "stripe": "^14.10.0"
+  }
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Error</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__content">
+      <h1>Doctor Error</h1>
+      <p>Paste a JS/TS error and get a diagnosis with actionable fixes.</p>
+      <div id="proStatus" class="pro-status"></div>
+    </div>
+  </header>
+  <main class="layout">
+    <section class="card input-card">
+      <label for="errorInput">Paste your error</label>
+      <textarea id="errorInput" placeholder="TypeError: Cannot read properties of undefined (reading 'map')" maxlength="20000"></textarea>
+      <div class="input-actions">
+        <span id="statusMessage" class="status"></span>
+        <button id="diagnoseButton">Diagnose</button>
+      </div>
+    </section>
+
+    <section class="card results-card" id="resultsCard">
+      <div class="results-header">
+        <div>
+          <h2 id="resultTitle">Diagnosis</h2>
+          <p id="resultSubtitle" class="subtitle"></p>
+        </div>
+        <div class="result-actions">
+          <button id="copyJsonButton" class="ghost">Copy JSON</button>
+          <button id="copyQuickFixButton" class="ghost">Copy Quick Fix</button>
+          <button id="copyBestFixButton" class="ghost pro-only">Copy Best Fix</button>
+        </div>
+      </div>
+      <div id="resultsBody" class="results-body">
+        <p class="muted">No diagnosis yet. Paste an error and press Diagnose.</p>
+      </div>
+      <div id="feedbackSection" class="feedback-section">
+        <p class="feedback-prompt">Did this diagnosis help?</p>
+        <div class="feedback-buttons">
+          <button id="feedbackWorked" class="feedback-btn feedback-btn--success">✓ Worked</button>
+          <button id="feedbackDidntWork" class="feedback-btn feedback-btn--danger">✗ Didn't work</button>
+        </div>
+        <div id="feedbackMessage" class="feedback-message"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./main.js"></script>
+</body>
+</html>
