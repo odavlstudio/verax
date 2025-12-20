@@ -15,6 +15,9 @@ const PRO_PRICE_CENTS = 4900;
 const FEEDBACK_LOG = path.join(__dirname, '../data/feedback.log');
 const MAX_SIGNATURE_LENGTH = 140;
 const MAX_TITLE_LENGTH = 80;
+const SERVER_START_TIME = Date.now();
+
+let totalDiagnoses = 0;
 
 let stripe = null;
 if (STRIPE_SECRET_KEY) {
@@ -65,7 +68,7 @@ function trimForFree(diagnosis) {
   const topCause = diagnosis.rankedCauses?.[0] || null;
   const quickSteps = diagnosis.fixPaths?.quickFix?.steps?.slice(0, 2) || [];
 
-  return {
+  const response = {
     errorTitle: diagnosis.errorTitle,
     errorSignature: diagnosis.errorSignature,
     confidence: diagnosis.confidence,
@@ -75,6 +78,19 @@ function trimForFree(diagnosis) {
     },
     isPro: false
   };
+
+  // Defensive assertion: never expose Pro features to Free users
+  if (response.fixPaths.bestFix !== undefined || response.fixPaths.verify !== undefined) {
+    console.warn('[SECURITY] Attempted to expose Pro features to Free user');
+    delete response.fixPaths.bestFix;
+    delete response.fixPaths.verify;
+  }
+  if (response.diagnosticQuestions !== undefined) {
+    console.warn('[SECURITY] Attempted to expose diagnosticQuestions to Free user');
+    delete response.diagnosticQuestions;
+  }
+
+  return response;
 }
 
 function markPro(diagnosis) {
@@ -86,19 +102,67 @@ app.post('/api/diagnose', (req, res) => {
   const raw = typeof req.body?.rawErrorText === 'string' ? req.body.rawErrorText : '';
   const trimmed = raw.trim();
 
+  // Validate input: non-empty and minimum length
   if (!trimmed) {
     return res.status(400).json({ error: 'rawErrorText is required' });
+  }
+  if (trimmed.length < 10) {
+    return res.status(400).json({ error: 'rawErrorText must be at least 10 characters' });
   }
   if (trimmed.length > MAX_INPUT_CHARS) {
     return res.status(413).json({ error: `rawErrorText too long (max ${MAX_INPUT_CHARS} chars)` });
   }
 
-  const diagnosis = diagnose(trimmed);
-  
+  let diagnosis = diagnose(trimmed);
+
+  // If no signature matches, return safe fallback diagnosis
+  if (!diagnosis) {
+    diagnosis = {
+      errorTitle: 'Unknown error',
+      errorSignature: 'unknown',
+      confidence: 0.1,
+      rankedCauses: [],
+      fixPaths: {
+        quickFix: {
+          steps: [
+            'The error pattern is not yet recognized by Doctor Error.',
+            'Try searching online for the exact error message, or check the official documentation.',
+            'If this error is recurring, please provide feedback so we can improve.'
+          ]
+        }
+      },
+      safetyNotes: undefined,
+      diagnosticQuestions: undefined
+    };
+  }
+
   const isPro = isProUser(req);
   const response = isPro ? markPro(diagnosis) : trimForFree(diagnosis);
+
+  // Increment telemetry counter
+  totalDiagnoses++;
   
   return res.json({ diagnosis: response });
+});
+
+app.get('/health', (req, res) => {
+  try {
+    const uptime = Math.floor((Date.now() - SERVER_START_TIME) / 1000);
+    return res.status(200).json({
+      status: 'ok',
+      service: 'doctor-error',
+      uptime: uptime,
+      totalDiagnoses: totalDiagnoses
+    });
+  } catch (err) {
+    // Even if something fails, /health should respond
+    return res.status(200).json({
+      status: 'ok',
+      service: 'doctor-error',
+      uptime: 0,
+      totalDiagnoses: totalDiagnoses
+    });
+  }
 });
 
 app.post('/api/checkout', async (req, res) => {
@@ -214,6 +278,18 @@ app.use(express.static(publicDir));
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
+});
+
+// Global error handler: catch any uncaught errors and return 500
+app.use((err, req, res, next) => {
+  console.error('[ERROR]', err.message || err);
+  if (NODE_ENV === 'production') {
+    return res.status(500).json({ error: 'Internal diagnosis failure' });
+  }
+  return res.status(500).json({
+    error: 'Internal diagnosis failure',
+    message: err.message
+  });
 });
 
 app.listen(PORT, () => {
