@@ -76,6 +76,81 @@ body {
 }
 .unlock-btn:hover { transform: translateY(-1px); }
 
+.pro-upgrade-block {
+  margin-top: 12px;
+}
+.pro-value-summary {
+  margin: 8px 0 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+.pro-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+  display: grid;
+  gap: 6px;
+}
+.pro-benefits li {
+  font-size: 13px;
+  color: var(--muted);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.4;
+}
+.pro-benefits li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--pro);
+  font-weight: 600;
+}
+.pro-pricing {
+  margin: 10px 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+}
+.free-vs-pro-hint {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.contextual-upgrade {
+  margin-top: 16px;
+  padding: 14px;
+  background: rgba(167, 139, 250, 0.08);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 10px;
+  text-align: center;
+}
+.contextual-upgrade__text {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+.contextual-upgrade__btn {
+  background: var(--pro);
+  color: #0b1220;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  box-shadow: 0 6px 18px rgba(167, 139, 250, 0.25);
+  transition: transform 0.08s ease;
+}
+.contextual-upgrade__btn:hover { transform: translateY(-1px); }
+
 .layout {
   max-width: 1000px;
   margin: 0 auto;

@@ -41,7 +41,19 @@ function updateProStatus() {
   if (isPro()) {
     proStatus.innerHTML = '<span class="pro-badge">✓ Pro Active</span>';
   } else {
-    proStatus.innerHTML = '<button id="unlockProButton" class="unlock-btn">Unlock Pro</button>';
+    proStatus.innerHTML = `
+      <div class="pro-upgrade-block">
+        <button id="unlockProButton" class="unlock-btn">Unlock Pro</button>
+        <p class="pro-value-summary">See all ranked causes. Get the best fix. Verify with confidence.</p>
+        <ul class="pro-benefits">
+          <li>All ranked causes (not just the most likely)</li>
+          <li>Best Fix + Verify steps for complete resolution</li>
+          <li>Diagnostic questions when available</li>
+        </ul>
+        <p class="pro-pricing">One-time unlock. No subscription. Instant access.</p>
+        <p class="free-vs-pro-hint">Free shows the most likely cause. Pro shows the full diagnosis.</p>
+      </div>
+    `;
     const unlockBtn = document.getElementById('unlockProButton');
     if (unlockBtn) {
       unlockBtn.addEventListener('click', handleUnlockPro);
@@ -234,6 +246,17 @@ function renderDiagnosis(diagnosis) {
   });
 
   fragments.push(fixSection);
+
+  // Add contextual upgrade prompt for Free users
+  if (!isProUser) {
+    const upgradePrompt = document.createElement('div');
+    upgradePrompt.className = 'contextual-upgrade';
+    upgradePrompt.innerHTML = `
+      <p class="contextual-upgrade__text">Want to see the remaining causes and the best fix?</p>
+      <button class="contextual-upgrade__btn" onclick="document.getElementById('unlockProButton')?.click()">Unlock Pro</button>
+    `;
+    fragments.push(upgradePrompt);
+  }
 
   resultsBody.replaceChildren(...fragments);
   showQuickFeedback();
