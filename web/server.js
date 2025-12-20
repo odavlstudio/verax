@@ -339,15 +339,17 @@ const sitemapPath = path.join(publicDir, 'sitemap.xml');
 
 // Explicit sitemap route to ensure Google gets XML, not the SPA shell
 app.get('/sitemap.xml', (req, res) => {
-  res.setHeader('Content-Type', 'application/xml');
-  res.sendFile(sitemapPath, (err) => {
+  try {
+    const xml = fs.readFileSync(sitemapPath, 'utf8');
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    return res.status(200).send(xml);
+  } catch (err) {
     if (err && err.code === 'ENOENT') {
-      res.status(404).send('Sitemap not found');
-    } else if (err) {
-      console.error('Sitemap serving error:', err);
-      res.status(500).send('Internal error');
+      return res.status(404).send('Sitemap not found');
     }
-  });
+    console.error('Sitemap serving error:', err);
+    return res.status(500).send('Internal error');
+  }
 });
 
 app.use(express.static(publicDir));
