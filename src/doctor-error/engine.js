@@ -1,4 +1,4 @@
-const { signatures } = require('./signatures');
+const { signatures } = require('./signatures/index.js');
 
 const LIMITS = {
   errorTitle: 80,
