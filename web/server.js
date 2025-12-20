@@ -7,7 +7,7 @@ const { diagnose } = require('../src/doctor-error/engine.js');
 const config = loadConfig();
 
 const app = express();
-const PORT = config.PORT;
+const PORT = parseInt(process.env.PORT || config.PORT, 10);
 const MAX_INPUT_CHARS = 20000;
 const STRIPE_SECRET_KEY = config.STRIPE_SECRET_KEY;
 const NODE_ENV = config.NODE_ENV;
