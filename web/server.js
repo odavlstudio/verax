@@ -336,6 +336,7 @@ app.get('/api/feedback/stats', (req, res) => {
 
 const publicDir = path.join(__dirname, 'public');
 const sitemapPath = path.join(publicDir, 'sitemap.xml');
+const robotsPath = path.join(publicDir, 'robots.txt');
 
 // Explicit sitemap route to ensure Google gets XML, not the SPA shell
 app.get('/sitemap.xml', (req, res) => {
@@ -348,6 +349,21 @@ app.get('/sitemap.xml', (req, res) => {
       return res.status(404).send('Sitemap not found');
     }
     console.error('Sitemap serving error:', err);
+    return res.status(500).send('Internal error');
+  }
+});
+
+// Explicit robots route to prevent SPA fallback hijacking
+app.get('/robots.txt', (req, res) => {
+  try {
+    const txt = fs.readFileSync(robotsPath, 'utf8');
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.status(200).send(txt);
+  } catch (err) {
+    if (err && err.code === 'ENOENT') {
+      return res.status(404).send('Robots file not found');
+    }
+    console.error('Robots serving error:', err);
     return res.status(500).send('Internal error');
   }
 });
