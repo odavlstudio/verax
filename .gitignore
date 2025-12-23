@@ -14,3 +14,9 @@ artifacts/
 test-artifacts/
 .odavl-guardian/
 tmp-artifacts/
+tmp-*
+test-manual*/
+verify-run-*/
+website/.next/
+playwright-report/
+trace.zip
