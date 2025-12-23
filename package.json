@@ -1,14 +1,45 @@
 {
-  "name": "odavl-guardian",
+  "name": "@odavl/guardian",
   "version": "0.1.0-rc1",
-  "private": true,
   "description": "ODAVL Guardian — Market Reality Testing Engine with Visual Diffs, Behavioral Signals, Auto-Discovery, Intelligence, and CI/CD Integration",
+  "license": "MIT",
+  "author": "ODAVL",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/odavlstudio/odavlguardian"
+  },
+  "keywords": [
+    "testing",
+    "browser-testing",
+    "reality-testing",
+    "playwright",
+    "cli",
+    "guardian",
+    "market-testing",
+    "quality-assurance"
+  ],
   "engines": {
     "node": ">=18.0.0"
   },
   "bin": {
     "guardian": "bin/guardian.js"
   },
+  "files": [
+    "bin/",
+    "src/",
+    "flows/",
+    "policies/",
+    "guardian.config.json",
+    "guardian.policy.json",
+    "guardian.profile.docs.yaml",
+    "guardian.profile.ecommerce.yaml",
+    "guardian.profile.marketing.yaml",
+    "guardian.profile.saas.yaml",
+    "guardian-contract-v1.md",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "test": "node test/mvp.test.js",
     "test:phase0": "node test/phase0-reality-lock.test.js",

@@ -8,6 +8,7 @@ build/
 coverage/
 .nyc_output/
 *.log
+*.tgz
 
 # Guardian artifacts
 artifacts/
