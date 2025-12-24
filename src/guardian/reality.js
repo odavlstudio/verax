@@ -18,6 +18,7 @@ const { aggregateIntelligence } = require('./breakage-intelligence');
 const { writeEnhancedHtml } = require('./enhanced-html-reporter');
 const { printCliSummary } = require('./cli-summary');
 const { sendWebhooks, getWebhookUrl, buildWebhookPayload } = require('./webhook');
+const { findContactOnPage, formatDetectionForReport } = require('./semantic-contact-finder');
 
 function generateRunId(prefix = 'market-run') {
   const now = new Date();
@@ -73,6 +74,8 @@ async function executeReality(config) {
 
   let crawlResult = null;
   let discoveryResult = null;
+  let pageLanguage = 'unknown';
+  let contactDetectionResult = null;
 
   // Optional: Crawl to discover URLs (lightweight, first N pages)
   if (enableCrawl) {
@@ -80,6 +83,18 @@ async function executeReality(config) {
     const browser = new GuardianBrowser();
     try {
       await browser.launch(timeout);
+      await browser.page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: timeout });
+
+      // Wave 1.1: Detect page language and contact
+      try {
+        contactDetectionResult = await findContactOnPage(browser.page, baseUrl);
+        pageLanguage = contactDetectionResult.language;
+        console.log(`\n${formatDetectionForReport(contactDetectionResult)}\n`);
+      } catch (detectionErr) {
+        // Language detection non-critical
+        console.warn(`⚠️  Language/contact detection failed: ${detectionErr.message}`);
+      }
+
       const crawler = new GuardianCrawler(baseUrl, maxPages, maxDepth);
       crawlResult = await crawler.crawl(browser);
       console.log(`✅ Crawl complete: discovered ${crawlResult.totalDiscovered}, visited ${crawlResult.totalVisited}`);
