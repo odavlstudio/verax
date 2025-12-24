@@ -5,8 +5,20 @@ if (process.platform === 'win32') {
   process.stderr.setEncoding('utf-8');
 }
 
+// PHASE 6: Early flag validation (before heavy module loads)
+const { validateFlags, reportFlagError } = require('../src/guardian/flag-validator');
+const validation = validateFlags(process.argv);
+if (!validation.valid) {
+  reportFlagError(validation);
+  process.exit(2);
+}
+
+// PHASE 6: First-run detection (lightweight)
+const { isFirstRun, markAsRun, printWelcome } = require('../src/guardian/first-run');
+
 const { runAttemptCLI } = require('../src/guardian/attempt');
 const { runRealityCLI } = require('../src/guardian/reality');
+const { runSmokeCLI } = require('../src/guardian/smoke');
 const { runGuardian } = require('../src/guardian');
 const { saveBaseline, checkBaseline } = require('../src/guardian/baseline');
 const { getDefaultAttemptIds } = require('../src/guardian/attempt-registry');
@@ -17,16 +29,8 @@ function parseArgs(argv) {
   const args = argv.slice(2);
   const subcommand = args[0];
 
-  // Validate subcommand early (Wave 0.5 fix)
-  const validSubcommands = [
-    'init', 'protect', 'reality', 'attempt', 'baseline',
-    'presets', 'evaluate', 'version', 'flow'
-  ];
-
-  if (subcommand && !validSubcommands.includes(subcommand)) {
-    console.error(`Error: Unknown command '${subcommand}'`);
-    process.exit(1);
-  }
+  // Note: Early flag validation in main() catches unknown commands
+  // so we don't need to re-validate here
 
   if (subcommand === 'init') {
     return { subcommand: 'init', config: parseInitArgs(args.slice(1)) };
@@ -46,6 +50,10 @@ function parseArgs(argv) {
 
   if (subcommand === 'reality') {
     return { subcommand: 'reality', config: parseRealityArgs(args.slice(1)) };
+  }
+
+  if (subcommand === 'smoke') {
+    return { subcommand: 'smoke', config: parseSmokeArgs(args.slice(1)) };
   }
 
   if (subcommand === 'baseline') {
@@ -134,7 +142,15 @@ function parseScanArgs(args) {
     enableTrace: true,
     enableScreenshots: true,
     // preset
-    preset: 'landing'
+    preset: 'landing',
+    watch: false,
+    // Phase 7.1: Performance modes
+    timeoutProfile: 'default',
+    failFast: false,
+    fast: false,
+    attemptsFilter: null,
+    // Phase 7.2: Parallel execution
+    parallel: 1
   };
 
   // First arg is URL if it doesn't start with --
@@ -153,6 +169,14 @@ function parseScanArgs(args) {
     else if (a === '--headful') { config.headful = true; }
     else if (a === '--no-trace') { config.enableTrace = false; }
     else if (a === '--no-screenshots') { config.enableScreenshots = false; }
+    else if (a === '--watch' || a === '-w') { config.watch = true; }
+    // Phase 7.1: Performance flags
+    else if (a === '--fast') { config.fast = true; config.timeoutProfile = 'fast'; config.enableScreenshots = false; }
+    else if (a === '--fail-fast') { config.failFast = true; }
+    else if (a === '--timeout-profile' && args[i + 1]) { config.timeoutProfile = args[i + 1]; i++; }
+    else if (a === '--attempts' && args[i + 1]) { config.attemptsFilter = args[i + 1]; i++; }
+    // Phase 7.2: Parallel execution
+    else if (a === '--parallel' && args[i + 1]) { config.parallel = args[i + 1]; i++; }
     else if (a === '--help' || a === '-h') { printHelpScan(); process.exit(0); }
   }
 
@@ -189,7 +213,15 @@ function parseRealityArgs(args) {
     enableDiscovery: false,
     includeUniversal: false,
     policy: null,
-    webhook: null
+    webhook: null,
+    watch: false,
+    // Phase 7.1: Performance modes
+    timeoutProfile: 'default',
+    failFast: false,
+    fast: false,
+    attemptsFilter: null,
+    // Phase 7.2: Parallel execution
+    parallel: 1
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -198,7 +230,8 @@ function parseRealityArgs(args) {
       i++;
     }
     if (args[i] === '--attempts' && args[i + 1]) {
-      config.attempts = args[i + 1].split(',').map(s => s.trim()).filter(Boolean);
+      // This becomes attemptsFilter for Phase 7.1
+      config.attemptsFilter = args[i + 1];
       i++;
     }
     if (args[i] === '--artifacts' && args[i + 1]) {
@@ -222,11 +255,32 @@ function parseRealityArgs(args) {
     if (args[i] === '--headful') {
       config.headful = true;
     }
+    if (args[i] === '--watch' || args[i] === '-w') {
+      config.watch = true;
+    }
     if (args[i] === '--no-trace') {
       config.enableTrace = false;
     }
     if (args[i] === '--no-screenshots') {
       config.enableScreenshots = false;
+    }
+    // Phase 7.1: Performance flags
+    if (args[i] === '--fast') {
+      config.fast = true;
+      config.timeoutProfile = 'fast';
+      config.enableScreenshots = false;
+    }
+    if (args[i] === '--fail-fast') {
+      config.failFast = true;
+    }
+    if (args[i] === '--timeout-profile' && args[i + 1]) {
+      config.timeoutProfile = args[i + 1];
+      i++;
+    }
+    // Phase 7.2: Parallel execution
+    if (args[i] === '--parallel' && args[i + 1]) {
+      config.parallel = args[i + 1];
+      i++;
     }
     if (args[i] === '--help' || args[i] === '-h') {
       printHelpReality();
@@ -237,6 +291,36 @@ function parseRealityArgs(args) {
   if (!config.baseUrl) {
     console.error('Error: --url is required');
     console.error('Usage: guardian reality --url <baseUrl> [options]');
+    process.exit(2);
+  }
+
+  return config;
+}
+
+function parseSmokeArgs(args) {
+  const config = {
+    baseUrl: undefined,
+    headful: false,
+    timeBudgetMs: null
+  };
+
+  // First arg may be URL
+  if (args.length > 0 && !args[0].startsWith('--')) {
+    config.baseUrl = args[0];
+    args = args.slice(1);
+  }
+
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '--url' && args[i + 1]) { config.baseUrl = args[i + 1]; i++; }
+    else if (a === '--headful') { config.headful = true; }
+    else if (a === '--budget-ms' && args[i + 1]) { config.timeBudgetMs = parseInt(args[i + 1], 10); i++; }
+    else if (a === '--help' || a === '-h') { printHelpSmoke(); process.exit(0); }
+  }
+
+  if (!config.baseUrl) {
+    console.error('Error: <url> is required');
+    console.error('Usage: guardian smoke <url>');
     process.exit(2);
   }
 
@@ -270,7 +354,15 @@ function parseProtectArgs(args) {
     enableTrace: true,
     enableScreenshots: true,
     policy: 'preset:startup',
-    webhook: null
+    webhook: null,
+    watch: false,
+    // Phase 7.1: Performance modes
+    timeoutProfile: 'default',
+    failFast: false,
+    fast: false,
+    attemptsFilter: null,
+    // Phase 7.2: Parallel execution
+    parallel: 1
   };
 
   // First arg is URL if it doesn't start with --
@@ -290,6 +382,31 @@ function parseProtectArgs(args) {
     }
     if (args[i] === '--webhook' && args[i + 1]) {
       config.webhook = args[i + 1];
+      i++;
+    }
+    if (args[i] === '--watch' || args[i] === '-w') {
+      config.watch = true;
+    }
+    // Phase 7.1: Performance flags
+    if (args[i] === '--fast') {
+      config.fast = true;
+      config.timeoutProfile = 'fast';
+      config.enableScreenshots = false;
+    }
+    if (args[i] === '--fail-fast') {
+      config.failFast = true;
+    }
+    if (args[i] === '--timeout-profile' && args[i + 1]) {
+      config.timeoutProfile = args[i + 1];
+      i++;
+    }
+    if (args[i] === '--attempts' && args[i + 1]) {
+      config.attemptsFilter = args[i + 1];
+      i++;
+    }
+    // Phase 7.2: Parallel execution
+    if (args[i] === '--parallel' && args[i + 1]) {
+      config.parallel = args[i + 1];
       i++;
     }
     if (args[i] === '--help' || args[i] === '-h') {
@@ -430,7 +547,6 @@ WHAT IT DOES:
 
 OPTIONS:
   --url <url>              Target URL (required)
-  --attempts <id1,id2>     Comma-separated attempt IDs (default: contact_form, language_switch, newsletter_signup)
   --artifacts <dir>        Artifacts directory (default: ./artifacts)
   --discover               Run deterministic CLI discovery and include in snapshot
   --universal              Include Universal Reality Pack attempt
@@ -439,6 +555,13 @@ OPTIONS:
   --headful                Run headed browser (default: headless)
   --no-trace               Disable trace recording
   --no-screenshots         Disable screenshots
+
+PERFORMANCE (Phase 7.1):
+  --fast                   Fast mode (timeout-profile=fast + no screenshots)
+  --fail-fast              Stop on FAILURE (not FRICTION)
+  --timeout-profile <name> fast | default | slow
+  --attempts <id1,id2>     Comma-separated attempt IDs (default: contact_form, language_switch, newsletter_signup)
+
   --help                   Show this help message
 
 EXIT CODES:
@@ -453,8 +576,8 @@ EXAMPLES:
   With policy preset:
     guardian reality --url https://example.com --policy preset:saas
   
-  With custom policy:
-    guardian reality --url https://example.com --policy ./my-policy.json
+  Fast mode (performance):
+    guardian reality --url https://example.com --fast --fail-fast
 `);
 }
 
@@ -491,11 +614,45 @@ OPTIONS:
   <url>                    Target URL (required)
   --policy <path|preset>   Override policy (default: preset:startup)
   --webhook <url>          Webhook URL for notifications
+
+PERFORMANCE (Phase 7.1):
+  --fast                   Fast mode (timeout-profile=fast + no screenshots)
+  --fail-fast              Stop on FAILURE (not FRICTION)
+  --timeout-profile <name> fast | default | slow
+  --attempts <id1,id2>     Comma-separated attempt IDs (filter)
+
   --help                   Show this help message
 
 EXAMPLES:
   guardian protect https://example.com
   guardian protect https://example.com --policy preset:enterprise
+  guardian protect https://example.com --fast --fail-fast
+`);
+}
+
+function printHelpSmoke() {
+  console.log(`
+Usage: guardian smoke <url>
+
+WHAT IT DOES:
+  Fast smoke validation under ~30s.
+  Runs only critical paths: homepage reachability, navigation probe,
+  auth (login or signup), and contact/support if present.
+
+FORCED SETTINGS:
+  timeout-profile=fast, fail-fast=on, parallel=2, browser reuse on,
+  retries=minimal, no baseline compare.
+
+EXIT CODES:
+  0  Smoke PASS
+  1  Smoke FRICTION
+  2  Smoke FAIL (including time budget exceeded)
+
+Options:
+  <url>             Target URL (required)
+  --headful         Run headed browser (default: headless)
+  --budget-ms <n>   Override time budget in ms (primarily for CI/tests)
+  --help, -h        Show this help message
 `);
 }
 
@@ -553,12 +710,19 @@ OPTIONS:
   --headful                Run headed browser
   --no-trace               Disable trace
   --no-screenshots         Disable screenshots
+
+PERFORMANCE (Phase 7.1):
+  --fast                   Fast mode (timeout-profile=fast + no screenshots)
+  --fail-fast              Stop on FAILURE (not FRICTION)
+  --timeout-profile <name> fast | default | slow
+  --attempts <list>        Comma-separated attempt IDs (filter)
+
   --help                   Show help
 
 EXAMPLES:
   guardian scan https://example.com --preset landing
   guardian scan https://example.com --preset saas
-  guardian scan https://example.com --preset shop
+  guardian scan https://example.com --fast --fail-fast
 `);
 }
 
@@ -619,6 +783,26 @@ Exit Codes:
 async function main() {
   const args = process.argv.slice(2);
 
+  // Minimal release flag: print version and exit
+  if (args.length === 1 && args[0] === '--version') {
+    try {
+      const pkg = require('../package.json');
+      console.log(pkg.version);
+      process.exit(0);
+    } catch (e) {
+      console.error('Version unavailable');
+      process.exit(1);
+    }
+  }
+
+  // PHASE 6: First-run welcome (only once)
+  if (args.length > 0 && !['--help', '-h', 'init', 'presets'].includes(args[0])) {
+    if (isFirstRun('.odavl-guardian')) {
+      printWelcome('ODAVL Guardian');
+      markAsRun('.odavl-guardian');
+    }
+  }
+
   if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
     console.log(`
 🛡️  ODAVL Guardian — Market Reality Testing Engine
@@ -628,6 +812,7 @@ Usage: guardian <subcommand> [options]
 QUICK START:
   init                     Initialize Guardian in current directory
   protect <url>            Quick reality check with startup policy
+  smoke <url>              30-second smoke validation (critical paths)
   reality                  Full Market Reality Snapshot
 
 OTHER COMMANDS:
@@ -664,6 +849,8 @@ Run 'guardian <subcommand> --help' for more information.
     process.exit(0);
   } else if (parsed.subcommand === 'protect') {
     await runRealityCLI(config);
+  } else if (parsed.subcommand === 'smoke') {
+    await runSmokeCLI(config);
   } else if (parsed.subcommand === 'attempt') {
     await runAttemptCLI(config);
   } else if (parsed.subcommand === 'reality') {

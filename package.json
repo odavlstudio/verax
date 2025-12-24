@@ -1,6 +1,6 @@
 {
   "name": "@odavl/guardian",
-  "version": "0.1.0-rc1",
+  "version": "0.2.0",
   "description": "ODAVL Guardian — Market Reality Testing Engine with Visual Diffs, Behavioral Signals, Auto-Discovery, Intelligence, and CI/CD Integration",
   "license": "MIT",
   "author": "ODAVL",
@@ -24,6 +24,7 @@
   "bin": {
     "guardian": "bin/guardian.js"
   },
+  "main": "src/guardian/index.js",
   "files": [
     "bin/",
     "src/",
@@ -59,11 +60,15 @@
     "test:phase5:evidence": "node test/phase5-evidence-run.test.js",
     "test:phase5:all": "node test/phase5-visual.test.js && node test/phase5-evidence-run.test.js",
     "test:phase6": "node test/phase6.test.js && node test/phase6-product.test.js",
+    "test:wave1-3": "npx mocha test/success-evaluator.unit.test.js test/wave1-3-success-e2e.test.js --timeout 30000",
     "test:all": "node test/phase0-reality-lock.test.js && node test/mvp.test.js && node test/phase2.test.js && node test/attempt.test.js && node test/reality.test.js && node test/baseline.test.js && node test/baseline-junit.test.js && node test/snapshot.test.js && node test/soft-failures.test.js && node test/market-criticality.test.js && node test/discovery.test.js && node test/phase5.test.js && node test/phase5-visual.test.js && node test/phase5-evidence-run.test.js && node test/phase6.test.js",
     "start": "node bin/guardian.js"
   },
   "dependencies": {
     "express": "^5.2.1",
     "playwright": "^1.48.2"
+  },
+  "devDependencies": {
+    "mocha": "^11.7.5"
   }
 }
