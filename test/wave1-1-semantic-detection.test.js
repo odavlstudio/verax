@@ -319,8 +319,12 @@ describe('Wave 1.1 — Semantic Detection', () => {
 
     it('should handle mixed case and diacritics', () => {
       const tokens = getTokensForTarget('contact');
-      assert(includesAnyToken(normalizeText('CONTÁCTANOS'), tokens));
-      assert(includesAnyToken(normalizeText('CoNtAkT'), tokens));
+      // Spanish with diacritics
+      assert(includesAnyToken(normalizeText('CONTÁCTANOS'), tokens), 'Should match Spanish contact');
+      // English with mixed case
+      assert(includesAnyToken(normalizeText('CoNTaCT'), tokens), 'Should match English contact');
+      // German with mixed case
+      assert(includesAnyToken(normalizeText('KoNTaKT'), tokens), 'Should match German contact');
     });
   });
 });
