@@ -71,20 +71,26 @@ function parsePolicyOption(policyOption) {
   }
 
   // Otherwise, treat as file path
-  if (fs.existsSync(optionStr)) {
-    try {
-      const content = fs.readFileSync(optionStr, 'utf-8');
-      const policy = JSON.parse(content);
-      console.log(`✅ Loaded policy from: ${optionStr}`);
-      return policy;
-    } catch (error) {
-      console.error(`⚠️  Failed to load policy from ${optionStr}: ${error.message}`);
-      return null;
-    }
+  // Fix for Wave 0.5: Validate policy file exists BEFORE attempting to load
+  if (!fs.existsSync(optionStr)) {
+    console.error(`Error: Policy file not found: ${optionStr}`);
+    console.error('');
+    console.error('Please provide a valid policy file or use a preset:');
+    console.error('  --policy preset:startup     (Permissive for fast-moving startups)');
+    console.error('  --policy preset:saas        (Balanced for SaaS products)');
+    console.error('  --policy preset:enterprise  (Strict for enterprise deployments)');
+    process.exit(1);
   }
 
-  console.warn(`⚠️  Policy file not found: ${optionStr}`);
-  return null;
+  try {
+    const content = fs.readFileSync(optionStr, 'utf-8');
+    const policy = JSON.parse(content);
+    console.log(`✅ Loaded policy from: ${optionStr}`);
+    return policy;
+  } catch (error) {
+    console.error(`Error: Failed to load policy from ${optionStr}: ${error.message}`);
+    process.exit(1);
+  }
 }
 
 /**

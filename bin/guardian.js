@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+// Windows UTF-8 encoding initialization
+if (process.platform === 'win32') {
+  process.stdout.setEncoding('utf-8');
+  process.stderr.setEncoding('utf-8');
+}
+
 const { runAttemptCLI } = require('../src/guardian/attempt');
 const { runRealityCLI } = require('../src/guardian/reality');
 const { runGuardian } = require('../src/guardian');
@@ -10,6 +16,17 @@ const { printPresets } = require('../src/guardian/preset-loader');
 function parseArgs(argv) {
   const args = argv.slice(2);
   const subcommand = args[0];
+
+  // Validate subcommand early (Wave 0.5 fix)
+  const validSubcommands = [
+    'init', 'protect', 'reality', 'attempt', 'baseline',
+    'presets', 'evaluate', 'version', 'flow'
+  ];
+
+  if (subcommand && !validSubcommands.includes(subcommand)) {
+    console.error(`Error: Unknown command '${subcommand}'`);
+    process.exit(1);
+  }
 
   if (subcommand === 'init') {
     return { subcommand: 'init', config: parseInitArgs(args.slice(1)) };

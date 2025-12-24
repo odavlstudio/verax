@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 1,
+  "guardianVersion": "unknown",
+  "baselineName": "test-baseline",
+  "createdAt": "2025-12-23T23:56:11.290Z",
+  "baseUrl": "http://localhost:9000?mode=ok",
+  "attempts": [
+    "contact_form",
+    "language_switch",
+    "newsletter_signup",
+    "signup",
+    "login",
+    "checkout"
+  ],
+  "flows": [
+    "signup_flow",
+    "login_flow",
+    "checkout_flow"
+  ],
+  "overallVerdict": "SUCCESS",
+  "perAttempt": [
+    {
+      "attemptId": "contact_form",
+      "attemptName": "Contact Form Submission",
+      "outcome": "SUCCESS",
+      "totalDurationMs": 780,
+      "totalRetries": 0,
+      "frictionSignals": [],
+      "steps": [
+        {
+          "stepId": "navigate_form",
+          "type": "navigate",
+          "durationMs": 352,
+          "retries": 0
+        },
+        {
+          "stepId": "open_contact_page",
+          "type": "click",
+          "durationMs": 87,
+          "retries": 0
+        },
+        {
+          "stepId": "fill_name",
+          "type": "type",
+          "durationMs": 15,
+          "retries": 0
+        },
+        {
+          "stepId": "fill_email",
+          "type": "type",
+          "durationMs": 9,
+          "retries": 0
+        },
+        {
+          "stepId": "fill_message",
+          "type": "type",
+          "durationMs": 10,
+          "retries": 0
+        },
+        {
+          "stepId": "submit_form",
+          "type": "click",
+          "durationMs": 51,
+          "retries": 0
+        }
+      ]
+    },
+    {
+      "attemptId": "language_switch",
+      "attemptName": "Language Toggle",
+      "outcome": "SUCCESS",
+      "totalDurationMs": 824,
+      "totalRetries": 0,
+      "frictionSignals": [],
+      "steps": [
+        {
+          "stepId": "navigate_home",
+          "type": "navigate",
+          "durationMs": 365,
+          "retries": 0
+        },
+        {
+          "stepId": "open_language_page",
+          "type": "click",
+          "durationMs": 76,
+          "retries": 0
+        },
+        {
+          "stepId": "open_language_toggle",
+          "type": "click",
+          "durationMs": 18,
+          "retries": 0
+        },
+        {
+          "stepId": "select_language",
+          "type": "click",
+          "durationMs": 23,
+          "retries": 0
+        },
+        {
+          "stepId": "verify_language",
+          "type": "waitFor",
+          "durationMs": 124,
+          "retries": 0
+        }
+      ]
+    },
+    {
+      "attemptId": "newsletter_signup",
+      "attemptName": "Newsletter Signup",
+      "outcome": "SUCCESS",
+      "totalDurationMs": 629,
+      "totalRetries": 0,
+      "frictionSignals": [],
+      "steps": [
+        {
+          "stepId": "navigate_home",
+          "type": "navigate",
+          "durationMs": 355,
+          "retries": 0
+        },
+        {
+          "stepId": "open_signup_page",
+          "type": "click",
+          "durationMs": 31,
+          "retries": 0
+        },
+        {
+          "stepId": "fill_email",
+          "type": "type",
+          "durationMs": 11,
+          "retries": 0
+        },
+        {
+          "stepId": "submit_signup",
+          "type": "click",
+          "durationMs": 41,
+          "retries": 0
+        }
+      ]
+    },
+    {
+      "attemptId": "signup",
+      "attemptName": "Account Signup",
+      "outcome": "SUCCESS",
+      "totalDurationMs": 1075,
+      "totalRetries": 0,
+      "frictionSignals": [],
+      "steps": [
+        {
+          "stepId": "navigate_home",
+          "type": "navigate",
+          "durationMs": 354,
+          "retries": 0
+        },
+        {
+          "stepId": "open_account_signup",
+          "type": "click",
+          "durationMs": 48,
+          "retries": 0
+        },
+        {
+          "stepId": "fill_signup_email",
+          "type": "type",
+          "durationMs": 13,
+          "retries": 0
+        },
+        {
+          "stepId": "fill_signup_password",
+          "type": "type",
+          "durationMs": 14,
+          "retries": 0
+        },
+        {
+          "stepId": "submit_signup_account",
+          "type": "click",
+          "durationMs": 38,
+          "retries": 0
+        },
+        {
+          "stepId": "wait_signup_success",
+          "type": "waitFor",
+          "durationMs": 359,
+          "retries": 0
+        }
+      ]
+    },
+    {
+      "attemptId": "login",
+      "attemptName": "Account Login",
+      "outcome": "SUCCESS",
+      "totalDurationMs": 835,
+      "totalRetries": 0,
+      "frictionSignals": [],
+      "steps": [
+        {
+          "stepId": "navigate_home",
+          "type": "navigate",
+          "durationMs": 357,
+          "retries": 0
+        },
+        {
+          "stepId": "open_login_page",
+          "type": "click",
+          "durationMs": 33,
+          "retries": 0
+        },
+        {
+          "stepId": "fill_login_email",
+          "type": "type",
+          "durationMs": 10,
+          "retries": 0
+        },
+        {
+          "stepId": "fill_login_password",
+          "type": "type",
+          "durationMs": 10,
+          "retries": 0
+        },
+        {
+          "stepId": "submit_login",
+          "type": "click",
+          "durationMs": 51,
+          "retries": 0
+        },
+        {
+          "stepId": "wait_login_success",
+          "type": "waitFor",
+          "durationMs": 122,
+          "retries": 0
+        }
+      ]
+    },
+    {
+      "attemptId": "checkout",
+      "attemptName": "Checkout Review",
+      "outcome": "SUCCESS",
+      "totalDurationMs": 1009,
+      "totalRetries": 0,
+      "frictionSignals": [],
+      "steps": [
+        {
+          "stepId": "navigate_home",
+          "type": "navigate",
+          "durationMs": 359,
+          "retries": 0
+        },
+        {
+          "stepId": "open_checkout",
+          "type": "click",
+          "durationMs": 47,
+          "retries": 0
+        },
+        {
+          "stepId": "place_order",
+          "type": "click",
+          "durationMs": 33,
+          "retries": 0
+        },
+        {
+          "stepId": "wait_order_success",
+          "type": "waitFor",
+          "durationMs": 272,
+          "retries": 0
+        }
+      ]
+    }
+  ],
+  "perFlow": [
+    {
+      "flowId": "signup_flow",
+      "flowName": "Intent: Account Signup",
+      "outcome": "SUCCESS",
+      "riskCategory": "LEAD",
+      "stepsExecuted": 6,
+      "stepsTotal": 6,
+      "durationMs": 3027,
+      "error": null
+    },
+    {
+      "flowId": "login_flow",
+      "flowName": "Intent: Account Login",
+      "outcome": "SUCCESS",
+      "riskCategory": "TRUST/UX",
+      "stepsExecuted": 6,
+      "stepsTotal": 6,
+      "durationMs": 2266,
+      "error": null
+    },
+    {
+      "flowId": "checkout_flow",
+      "flowName": "Intent: Checkout",
+      "outcome": "SUCCESS",
+      "riskCategory": "REVENUE",
+      "stepsExecuted": 4,
+      "stepsTotal": 4,
+      "durationMs": 421,
+      "error": null
+    }
+  ]
+}

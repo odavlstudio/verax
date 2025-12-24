@@ -88,9 +88,9 @@ node bin/guardian.js baseline check --url "http://127.0.0.1:3000?mode=ok" --name
 ## Exit Codes
 
 ```text
-0  READY            # Safe to proceed
-1  DO_NOT_LAUNCH    # Critical issue or insufficient confidence
-2  TOOL_ERROR       # Guardian crashed or misconfigured
+0  READY            # Safe to proceed - all checks passed
+1  DO_NOT_LAUNCH    # Critical issues found - do not deploy
+2  FRICTION         # Usability issues found - proceed with caution
 ```
 
 ---
