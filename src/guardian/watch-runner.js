@@ -24,12 +24,7 @@ function isIgnored(filePath, artifactsDir = './artifacts') {
 
 function collectWatchPaths(config) {
   const roots = [
-    'guardian.config.json',
-    'guardian.policy.json',
-    'guardian.profile.docs.yaml',
-    'guardian.profile.ecommerce.yaml',
-    'guardian.profile.marketing.yaml',
-    'guardian.profile.saas.yaml',
+    'config',
     'flows',
     'policies',
     'data',

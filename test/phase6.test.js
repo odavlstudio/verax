@@ -265,10 +265,10 @@ console.log('\n🚀 Testing Init Command...\n');
   
   const result = initGuardian({ cwd: testDir, preset: 'startup' });
   
-  assert(result.created.includes('guardian.policy.json'), 'Should create policy file');
-  assert(fs.existsSync(path.join(testDir, 'guardian.policy.json')), 'Policy file should exist');
+  assert(result.created.includes('config/guardian.policy.json'), 'Should create policy file');
+  assert(fs.existsSync(path.join(testDir, 'config/guardian.policy.json')), 'Policy file should exist');
   
-  const policyContent = fs.readFileSync(path.join(testDir, 'guardian.policy.json'), 'utf-8');
+  const policyContent = fs.readFileSync(path.join(testDir, 'config/guardian.policy.json'), 'utf-8');
   const policy = JSON.parse(policyContent);
   assert(policy.failOnSeverity === 'CRITICAL', 'Should use startup preset');
   
@@ -305,7 +305,7 @@ console.log('\n🚀 Testing Init Command...\n');
   
   initGuardian({ cwd: testDir, preset: 'saas' });
   
-  const policyContent = fs.readFileSync(path.join(testDir, 'guardian.policy.json'), 'utf-8');
+  const policyContent = fs.readFileSync(path.join(testDir, 'config/guardian.policy.json'), 'utf-8');
   const policy = JSON.parse(policyContent);
   assert(policy.maxWarnings === 1, 'Should use saas preset');
   

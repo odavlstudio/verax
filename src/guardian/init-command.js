@@ -27,10 +27,14 @@ function initGuardian(options = {}) {
 
   // 1. Create policy file
   try {
-    const policyPath = path.join(cwd, 'guardian.policy.json');
+    const configDir = path.join(cwd, 'config');
+    if (!fs.existsSync(configDir)) {
+      fs.mkdirSync(configDir, { recursive: true });
+    }
+    const policyPath = path.join(configDir, 'guardian.policy.json');
     
     if (fs.existsSync(policyPath)) {
-      console.log('⚠️  guardian.policy.json already exists. Skipping.');
+      console.log('⚠️  config/guardian.policy.json already exists. Skipping.');
     } else {
       // Load preset
       const presetsDir = path.join(__dirname, '../../policies');
@@ -56,8 +60,8 @@ function initGuardian(options = {}) {
       }
 
       fs.writeFileSync(policyPath, policyContent, 'utf-8');
-      result.created.push('guardian.policy.json');
-      console.log('✅ Created guardian.policy.json');
+      result.created.push('config/guardian.policy.json');
+      console.log('✅ Created config/guardian.policy.json');
     }
   } catch (error) {
     result.errors.push(`Failed to create policy: ${error.message}`);
@@ -105,7 +109,7 @@ function initGuardian(options = {}) {
   console.log('  3. Review the generated report:');
   console.log('     Check artifacts/ directory\n');
   console.log('  4. Customize policy:');
-  console.log('     Edit guardian.policy.json\n');
+    console.log('     Edit config/guardian.policy.json\n');
   console.log('  5. Integrate with CI/CD:');
   console.log('     Use .github/workflows/guardian.yml as template\n');
   console.log('━'.repeat(60) + '\n');

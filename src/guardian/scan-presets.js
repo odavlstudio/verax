@@ -29,6 +29,18 @@ function resolveScanPreset(name = 'landing') {
           visualGates: { CRITICAL: 0, WARNING: 999, maxDiffPercent: 25 }
         }
       };
+    case 'landing-demo':
+      return {
+        attempts: ['contact_form', 'language_switch'],
+        flows: [],
+        policy: {
+          // Strict on broken navigation and CTA, lenient on revenue-related issues
+          failOnSeverity: 'CRITICAL',
+          maxWarnings: 5,
+          failOnNewRegression: false,
+          visualGates: { CRITICAL: 0, WARNING: 999, maxDiffPercent: 30 }
+        }
+      };
     case 'saas':
       return {
         attempts: ['language_switch', 'contact_form', 'newsletter_signup'],

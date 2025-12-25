@@ -11,9 +11,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const { MarketReporter } = require('./src/guardian/market-reporter');
+const { MarketReporter } = require('../src/guardian/market-reporter');
 
-const testDir = path.join(__dirname, 'test-phase5-part3-output');
+const testDir = path.join(__dirname, '../test-phase5-part3-output');
 if (!fs.existsSync(testDir)) {
   fs.mkdirSync(testDir, { recursive: true });
 }

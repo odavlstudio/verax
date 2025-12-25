@@ -1,0 +1,22 @@
+{
+  "name": "Landing/Demo Policy",
+  "description": "Focused policy for landing pages, demo sites, and pre-launch products. Disables account and revenue flows, emphasizes navigation and CTA integrity.",
+  "failOnSeverity": "CRITICAL",
+  "maxWarnings": 5,
+  "maxInfo": 999,
+  "maxTotalRisk": 999,
+  "failOnNewRegression": false,
+  "failOnSoftFailures": false,
+  "softFailureThreshold": 999,
+  "requireBaseline": false,
+  "disabledAttempts": ["signup", "login", "checkout", "newsletter_signup"],
+  "focusAreas": {
+    "broken_pages": "CRITICAL",
+    "dead_links": "CRITICAL",
+    "seo_fundamentals": "WARNING",
+    "trust_signals": "WARNING",
+    "cta_integrity": "CRITICAL",
+    "performance": "WARNING"
+  },
+  "notes": "Landing/Demo sites should emphasize navigation integrity and CTA validity. Revenue-related issues are deprioritized. Account signup/login and checkout are marked NOT_APPLICABLE."
+}

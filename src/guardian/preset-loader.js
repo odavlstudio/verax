@@ -13,7 +13,7 @@ const path = require('path');
  * @returns {object|null} Policy object or null if not found
  */
 function loadPreset(presetName) {
-  const validPresets = ['startup', 'saas', 'enterprise'];
+  const validPresets = ['startup', 'saas', 'enterprise', 'landing-demo'];
   
   if (!presetName || !validPresets.includes(presetName.toLowerCase())) {
     console.warn(`⚠️  Invalid preset: ${presetName}. Valid presets: ${validPresets.join(', ')}`);

@@ -1,49 +1,28 @@
-import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-  weight: ["400", "500", "600", "700"]
-});
+import type { ReactNode } from "react";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ODAVL Guardian — Real Browser Flow Checks",
+  title: "ODAVL Guardian — Reality-based website checks before you ship",
   description:
-    "Runs real browser flows locally or in CI, detects breakage (navigation, submission, visual issues, timeouts), and produces human‑readable HTML reports.",
-  icons: {
-    icon: "/favicon.svg"
-  },
+    "Run fast, reality-based checks on your live website to catch broken pages, SEO gaps, and trust issues before launch.",
   openGraph: {
+    title: "ODAVL Guardian — Reality-based website checks before you ship",
+    description:
+      "Run fast, reality-based checks on your live website to catch broken pages, SEO gaps, and trust issues before launch.",
     type: "website",
-    title: "ODAVL Guardian — Real Browser Flow Checks",
-    description: "Runs real browser flows locally or in CI, detects breakage, and produces human‑readable HTML reports.",
-    siteName: "ODAVL Guardian",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "ODAVL Guardian"
-      }
-    ]
+    images: ["/og-placeholder.png"],
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "ODAVL Guardian — Real Browser Flow Checks",
-    description: "Runs real browser flows locally or in CI, detects breakage, and produces human‑readable HTML reports.",
-    images: ["/og-image.png"]
-  }
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${spaceGrotesk.variable} grain`}>
-        <a href="#main" className="skip-link">Skip to content</a>
-        {children}
+      <body className="premium-bg">
+        {/* Content wrapper ensures glow sits behind */}
+        <div style={{ position: "relative", minHeight: "100vh" }}>
+          {children}
+        </div>
       </body>
     </html>
   );

@@ -55,8 +55,9 @@ function loadPolicy(policyPath = null) {
   };
 
   if (!policyPath) {
-    // Try to find guardian.policy.json in current directory or .odavl-guardian/
+    // Try to find guardian.policy.json in current directory, config/, or .odavl-guardian/
     const candidates = [
+      'config/guardian.policy.json',
       'guardian.policy.json',
       '.odavl-guardian/policy.json',
       '.odavl-guardian/guardian.policy.json'
@@ -287,7 +288,7 @@ function formatPolicyOutput(evaluation) {
 /**
  * Create a default policy file
  */
-function createDefaultPolicyFile(outputPath = 'guardian.policy.json') {
+function createDefaultPolicyFile(outputPath = 'config/guardian.policy.json') {
   const defaultPolicy = {
     failOnSeverity: 'CRITICAL',
     maxWarnings: 0,

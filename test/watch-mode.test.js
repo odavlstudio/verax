@@ -63,7 +63,7 @@ function makeAsyncRunStub(exitCodes, resolveHooks) {
       }
     );
     await wait(20); // initial run
-    controller.simulateChange('guardian.config.json');
+    controller.simulateChange('config/guardian.config.json');
     await wait(30);
     assert.strictEqual(runRealityCalls.length >= 2, true, 'Rerun should occur after change');
     controller.stop();

@@ -199,7 +199,7 @@ function parseScanArgs(args) {
 
   if (!config.baseUrl) {
     console.error('Error: <url> is required');
-    console.error('Usage: guardian scan <url> [--preset <landing|saas|shop>]');
+    console.error('Usage: guardian scan <url> [--preset <landing|landing-demo|saas|shop>]');
     process.exit(2);
   }
 
@@ -604,7 +604,7 @@ Usage: guardian init [options]
 
 WHAT IT DOES:
   Initialize Guardian in the current directory:
-  - Creates guardian.policy.json (default: startup preset)
+  - Creates config/guardian.policy.json (default: startup preset)
   - Updates .gitignore to exclude Guardian artifacts
   - Prints next steps
 
@@ -721,7 +721,7 @@ WHAT IT DOES:
 
 OPTIONS:
   <url>                    Target URL (required)
-  --preset <name>          landing | saas | shop (opinionated defaults)
+  --preset <name>          landing | landing-demo | saas | shop (opinionated defaults)
   --policy <path|preset>   Override policy file or preset:name
   --artifacts <dir>        Artifacts directory (default: ./artifacts)
   --headful                Run headed browser
@@ -738,6 +738,7 @@ PERFORMANCE (Phase 7.1):
 
 EXAMPLES:
   guardian scan https://example.com --preset landing
+  guardian scan https://example.com --preset landing-demo
   guardian scan https://example.com --preset saas
   guardian scan https://example.com --fast --fail-fast
 `);
