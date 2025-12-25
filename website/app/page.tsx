@@ -115,6 +115,20 @@ export default function Page() {
           </div>
         </section>
 
+        <section className="section" id="use-cases">
+          <div>
+            <h2>REAL-WORLD USE CASES</h2>
+            <h3 style={{ marginTop: 16, fontSize: 16, fontWeight: 600 }}>Before Deployment</h3>
+            <p style={{ marginBottom: 12 }}>Run Guardian before a release to catch breakage before code goes live. It verifies critical flows in a real browser so issues are found before users encounter them.</p>
+            <h3 style={{ marginTop: 16, fontSize: 16, fontWeight: 600 }}>Before Marketing or Traffic Spikes</h3>
+            <p style={{ marginBottom: 12 }}>Validate real user paths before sending campaign traffic. Guardian exercises the site like a user and flags breakage so you avoid directing people into broken flows.</p>
+            <h3 style={{ marginTop: 16, fontSize: 16, fontWeight: 600 }}>After UI or Frontend Changes</h3>
+            <p style={{ marginBottom: 12 }}>Use Guardian after UI updates to detect navigation or submission regressions. It confirms that visual changes did not break interactive behavior in key journeys.</p>
+            <h3 style={{ marginTop: 16, fontSize: 16, fontWeight: 600 }}>In CI Pipelines</h3>
+            <p style={{ marginBottom: 12 }}>Run Guardian as a final reality check after tests pass but before merge or deploy. It executes flows in CI and fails the job when critical behavior does not meet expectations.</p>
+          </div>
+        </section>
+
         <section className="section" id="cta">
           <div className="panel">
             <h2>Try it now</h2>
