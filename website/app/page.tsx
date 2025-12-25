@@ -21,6 +21,7 @@ export default function Page() {
           <a href="#what" className="nav-link">What</a>
           <a href="#why" className="nav-link">Why</a>
           <a href="#when" className="nav-link">When</a>
+          <a href="#how" className="nav-link">How</a>
           <a href="https://github.com/odavlstudio/odavlguardian/blob/main/README.md" className="nav-link" target="_blank" rel="noopener noreferrer">Docs</a>
         </nav>
         <div className="nav-actions">
@@ -72,6 +73,44 @@ export default function Page() {
               <li className="list-item"><span className="dot" aria-hidden="true" /><span>Before marketing campaigns</span></li>
               <li className="list-item"><span className="dot" aria-hidden="true" /><span>After UI changes</span></li>
               <li className="list-item"><span className="dot" aria-hidden="true" /><span>In CI pipelines</span></li>
+            </ul>
+          </div>
+        </section>
+
+        <section className="section" id="how">
+          <div>
+            <h2>HOW GUARDIAN WORKS</h2>
+            <p>Guardian operates in five clear steps:</p>
+            
+            <h3 style={{ marginTop: 24, marginBottom: 8, fontSize: 16, fontWeight: 600 }}>Step 1 — You run Guardian</h3>
+            <p style={{ marginBottom: 16 }}>Execute Guardian locally via the CLI or through the VS Code Extension. You can also run it in a CI pipeline. Point it at your website and the flows you want to test.</p>
+            
+            <h3 style={{ marginTop: 24, marginBottom: 8, fontSize: 16, fontWeight: 600 }}>Step 2 — Guardian opens a real browser</h3>
+            <p style={{ marginBottom: 16 }}>Guardian uses a real browser engine—not mocks, not synthetic APIs. It launches a Chromium instance and interacts with your actual website the way a user would.</p>
+            
+            <h3 style={{ marginTop: 24, marginBottom: 8, fontSize: 16, fontWeight: 600 }}>Step 3 — Real user flows are executed</h3>
+            <p style={{ marginBottom: 16 }}>Guardian performs the exact steps you define: navigating to pages, filling forms, clicking buttons, submitting data, waiting for responses, and checking results. Every action is a real browser interaction.</p>
+            
+            <h3 style={{ marginTop: 24, marginBottom: 8, fontSize: 16, fontWeight: 600 }}>Step 4 — Guardian detects breakage</h3>
+            <p style={{ marginBottom: 16 }}>Guardian observes what happens during execution and flags issues:</p>
+            <ul className="list" role="list" style={{ marginTop: 8, marginBottom: 16 }}>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>Navigation failures — pages don't load or redirect incorrectly</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>Submission failures — forms fail to submit or error unexpectedly</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>Visual issues — elements don't appear or layout breaks</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>Timeouts — flows hang or take too long</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>Unexpected behavior — flows don't complete as expected</span></li>
+            </ul>
+            
+            <h3 style={{ marginTop: 24, marginBottom: 8, fontSize: 16, fontWeight: 600 }}>Step 5 — A human-readable report is generated</h3>
+            <p style={{ marginBottom: 16 }}>Guardian outputs an HTML report. No raw logs. No data dashboards. Just clear findings with screenshots, error messages, and context. The report is designed for developers and decision makers to act on immediately.</p>
+            
+            <h3 style={{ marginTop: 32, marginBottom: 12, fontSize: 16, fontWeight: 600, borderTop: "1px solid var(--border-color)", paddingTop: 24 }}>What Guardian does NOT do</h3>
+            <p style={{ marginBottom: 16 }}>Clarity matters. Here's what Guardian is not:</p>
+            <ul className="list" role="list" style={{ marginTop: 8 }}>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>It is not load testing — Guardian checks one flow at a time, not concurrent traffic patterns</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>It is not monitoring production traffic — Guardian runs when you trigger it, it doesn't watch live users</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>It is not a SaaS service — Guardian runs locally or in your CI. No cloud dependency. No accounts required</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>It does not replace unit or E2E tests — Guardian is a complement, testing the real flow end-to-end</span></li>
             </ul>
           </div>
         </section>
