@@ -22,6 +22,7 @@ export default function Page() {
           <a href="#why" className="nav-link">Why</a>
           <a href="#when" className="nav-link">When</a>
           <a href="#how" className="nav-link">How</a>
+          <a href="#use-cases" className="nav-link">Use Cases</a>
           <a href="#reports" className="nav-link">Reports</a>
           <a href="#positioning" className="nav-link">Positioning</a>
           <a href="https://github.com/odavlstudio/odavlguardian/blob/main/README.md" className="nav-link" target="_blank" rel="noopener noreferrer">Docs</a>
@@ -166,7 +167,7 @@ export default function Page() {
               <li className="list-item"><span className="dot" aria-hidden="true" /><span>A production monitoring system</span></li>
               <li className="list-item"><span className="dot" aria-hidden="true" /><span>A load or performance testing tool</span></li>
             </ul>
-            <h3 style={{ marginTop: 16, fontSize: 16, fontWeight: 600 }}>Guardian Complement</h3>
+            <h3 style={{ marginTop: 16, fontSize: 16, fontWeight: 600 }}>Guardian complements</h3>
             <ul className="list" role="list" style={{ marginTop: 8, marginBottom: 12 }}>
               <li className="list-item"><span className="dot" aria-hidden="true" /><span>Unit tests — logic correctness at the function and component level</span></li>
               <li className="list-item"><span className="dot" aria-hidden="true" /><span>E2E tests — verify expected flows under test definitions</span></li>

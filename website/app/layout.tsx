@@ -10,30 +10,30 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "ODAVL Guardian | Market Reality Testing Engine",
+  title: "ODAVL Guardian — Real Browser Flow Checks",
   description:
-    "Guardian simulates the first real user to decide READY or DO_NOT_LAUNCH before you ship to the market.",
+    "Runs real browser flows locally or in CI, detects breakage (navigation, submission, visual issues, timeouts), and produces human‑readable HTML reports.",
   icons: {
     icon: "/favicon.svg"
   },
   openGraph: {
     type: "website",
-    title: "ODAVL Guardian | Market Reality Testing Engine",
-    description: "Guardian simulates the first real user to decide READY or DO_NOT_LAUNCH before you ship to the market.",
+    title: "ODAVL Guardian — Real Browser Flow Checks",
+    description: "Runs real browser flows locally or in CI, detects breakage, and produces human‑readable HTML reports.",
     siteName: "ODAVL Guardian",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ODAVL Guardian - Market Reality Testing Engine"
+        alt: "ODAVL Guardian"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "ODAVL Guardian | Market Reality Testing Engine",
-    description: "Guardian simulates the first real user to decide READY or DO_NOT_LAUNCH before you ship to the market.",
+    title: "ODAVL Guardian — Real Browser Flow Checks",
+    description: "Runs real browser flows locally or in CI, detects breakage, and produces human‑readable HTML reports.",
     images: ["/og-image.png"]
   }
 };
