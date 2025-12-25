@@ -23,6 +23,7 @@ export default function Page() {
           <a href="#when" className="nav-link">When</a>
           <a href="#how" className="nav-link">How</a>
           <a href="#reports" className="nav-link">Reports</a>
+          <a href="#positioning" className="nav-link">Positioning</a>
           <a href="https://github.com/odavlstudio/odavlguardian/blob/main/README.md" className="nav-link" target="_blank" rel="noopener noreferrer">Docs</a>
         </nav>
         <div className="nav-actions">
@@ -151,6 +152,31 @@ export default function Page() {
               <li className="list-item"><span className="dot" aria-hidden="true" /><span>Review before deploy — confirm flows work in reality</span></li>
               <li className="list-item"><span className="dot" aria-hidden="true" /><span>Share with teammates — align on what failed and why</span></li>
               <li className="list-item"><span className="dot" aria-hidden="true" /><span>Attach to CI results — include the report in your pipeline output</span></li>
+            </ul>
+          </div>
+        </section>
+
+        <section className="section" id="positioning">
+          <div>
+            <h2>WHERE GUARDIAN FITS</h2>
+            <h3 style={{ marginTop: 16, fontSize: 16, fontWeight: 600 }}>Guardian is NOT</h3>
+            <ul className="list" role="list" style={{ marginTop: 8, marginBottom: 12 }}>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>A replacement for unit tests</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>A replacement for E2E test suites</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>A production monitoring system</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>A load or performance testing tool</span></li>
+            </ul>
+            <h3 style={{ marginTop: 16, fontSize: 16, fontWeight: 600 }}>Guardian Complement</h3>
+            <ul className="list" role="list" style={{ marginTop: 8, marginBottom: 12 }}>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>Unit tests — logic correctness at the function and component level</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>E2E tests — verify expected flows under test definitions</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>CI pipelines — a final reality check prior to merge or release</span></li>
+            </ul>
+            <h3 style={{ marginTop: 16, fontSize: 16, fontWeight: 600 }}>Guardian’s Unique Role</h3>
+            <ul className="list" role="list" style={{ marginTop: 8 }}>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>Verifies what users will experience in a real browser</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>Catches breakage that tests can miss in practice</span></li>
+              <li className="list-item"><span className="dot" aria-hidden="true" /><span>Provides evidence for release decisions through human-readable reports</span></li>
             </ul>
           </div>
         </section>
