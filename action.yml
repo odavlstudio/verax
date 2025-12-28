@@ -1,0 +1,127 @@
+name: "ODAVL Guardian"
+description: "Run ODAVL Guardian reality check against a URL and upload artifacts"
+branding:
+  color: blue
+  icon: shield
+
+inputs:
+  url:
+    description: "Target URL to evaluate (e.g., https://example.com)"
+    required: true
+  preset:
+    description: "Guardian preset (e.g., landing)"
+    required: false
+    default: "landing"
+  config:
+    description: "Path to guardian.config.json (optional)"
+    required: false
+  fail-on:
+    description: "Failure policy for verdicts: none | friction | risk | any"
+    required: false
+    default: "any"
+  artifacts:
+    description: "Artifacts output directory"
+    required: false
+    default: ".odavlguardian"
+
+outputs:
+  verdict:
+    description: "Final Guardian verdict (READY | FRICTION | DO_NOT_LAUNCH)"
+    value: "${{ steps.set.outputs.verdict }}"
+  exit-code:
+    description: "Guardian exit code"
+    value: "${{ steps.set.outputs.exit-code }}"
+  run-id:
+    description: "Guardian run identifier"
+    value: "${{ steps.set.outputs.run-id }}"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run Guardian
+      shell: bash
+      env:
+        ARTIFACT_DIR: "${{ inputs.artifacts }}"
+        URL: "${{ inputs.url }}"
+        PRESET: "${{ inputs.preset }}"
+        CONFIG: "${{ inputs.config }}"
+      run: |
+        set -e
+        mkdir -p "$ARTIFACT_DIR"
+        ARGS=(reality --url "$URL" --artifacts "$ARTIFACT_DIR")
+        if [ -n "$PRESET" ]; then ARGS+=(--preset "$PRESET"); fi
+        if [ -n "$CONFIG" ]; then ARGS+=(--config "$CONFIG"); fi
+        echo "Running: npx @odavl/guardian ${ARGS[*]}"
+        # Allow non-zero exit (e.g., FRICTION) so we can apply fail-on policy ourselves
+        npx -y @odavl/guardian "${ARGS[@]}" || true
+
+    - name: Extract decision and set outputs
+      id: set
+      shell: bash
+      env:
+        ARTIFACT_DIR: "${{ inputs.artifacts }}"
+      run: |
+        set -e
+        DECISION="$ARTIFACT_DIR/decision.json"
+        if [ ! -f "$DECISION" ]; then
+          DECISION=$(ls -1 "$ARTIFACT_DIR"/*/decision.json 2>/dev/null | head -n 1 || true)
+        fi
+        if [ -z "$DECISION" ] || [ ! -f "$DECISION" ]; then
+          echo "::warning::decision.json not found in $ARTIFACT_DIR"
+          echo "verdict=UNKNOWN" >> "$GITHUB_OUTPUT"
+          echo "exit-code=0" >> "$GITHUB_OUTPUT"
+          echo "run-id=" >> "$GITHUB_OUTPUT"
+        else
+          export DECISION
+          node -e '
+            const fs=require("fs");
+            const p=process.env.DECISION;
+            const j=JSON.parse(fs.readFileSync(p,"utf8"));
+            const v=j.finalVerdict||"UNKNOWN";
+            const e=typeof j.exitCode==="number"?j.exitCode:0;
+            const r=j.runId||"";
+            const out=process.env.GITHUB_OUTPUT;
+            fs.appendFileSync(out, `verdict=${v}\n`);
+            fs.appendFileSync(out, `exit-code=${e}\n`);
+            fs.appendFileSync(out, `run-id=${r}\n`);
+          '
+        fi
+
+    - name: Upload Guardian artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: "guardian-${{ steps.set.outputs.run-id }}"
+        path: "${{ inputs.artifacts }}"
+        if-no-files-found: warn
+
+    - name: Enforce fail-on policy
+      shell: bash
+      env:
+        VERDICT: "${{ steps.set.outputs.verdict }}"
+        FAIL_ON: "${{ inputs.fail-on }}"
+      run: |
+        set -e
+        echo "Verdict=$VERDICT, Fail-On=$FAIL_ON"
+        fail=0
+        case "$FAIL_ON" in
+          none)
+            fail=0
+            ;;
+          friction)
+            [ "$VERDICT" = "FRICTION" ] && fail=1 || fail=0
+            ;;
+          risk)
+            [ "$VERDICT" = "DO_NOT_LAUNCH" ] && fail=1 || fail=0
+            ;;
+          any)
+            { [ "$VERDICT" = "FRICTION" ] || [ "$VERDICT" = "DO_NOT_LAUNCH" ]; } && fail=1 || fail=0
+            ;;
+          *)
+            echo "::warning::Unknown fail-on '$FAIL_ON' (allowed: none|friction|risk|any)"
+            fail=0
+            ;;
+        esac
+        if [ "$fail" -eq 1 ]; then
+          echo "::error::Guardian verdict '$VERDICT' triggers failure per fail-on=$FAIL_ON"
+          exit 1
+        fi
