@@ -1,5 +1,10 @@
 # 🛡️ ODAVL Guardian
 
+![Release](https://img.shields.io/github/v/release/odavlstudio/odavlguardian?label=release&color=blue)
+![Reality Based](https://img.shields.io/badge/reality--based-verified-informational)
+![Results](https://img.shields.io/badge/results-PASS%20%7C%20WARN%20%7C%20DO__NOT__LAUNCH-orange)
+![Status](https://img.shields.io/badge/status-early%20but%20honest-lightgrey)
+
 The Reality Guard for Websites
 
 ODAVL Guardian does not test code.
