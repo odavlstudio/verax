@@ -42,6 +42,7 @@ jobs:
 
   remote-action:
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     permissions:
       contents: read
     steps:
@@ -50,17 +51,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check for published v1 tag
-        id: tag
-        run: |
-          if git ls-remote --tags origin v1 | grep -q "refs/tags/v1"; then
-            echo "has_tag=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_tag=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Run published action
-        if: steps.tag.outputs.has_tag == 'true'
         id: remote
         uses: odavlstudio/odavlguardian@v1
         with:
@@ -70,12 +61,7 @@ jobs:
           artifacts: .odavlguardian-selftest/remote
 
       - name: Assert published outputs
-        if: steps.tag.outputs.has_tag == 'true'
         run: |
           test -d .odavlguardian-selftest/remote || { echo "Published action artifacts missing" >&2; exit 1; }
           test -n "${{ steps.remote.outputs.verdict }}" || { echo "Missing verdict output" >&2; exit 1; }
           echo "Remote action succeeded with verdict: ${{ steps.remote.outputs.verdict }}"
-
-      - name: Skip note
-        if: steps.tag.outputs.has_tag != 'true'
-        run: echo "Tag v1 not present; skipping remote action test. Use the action-release workflow to publish v1."
