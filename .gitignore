@@ -14,12 +14,14 @@ coverage/
 artifacts/
 test-artifacts/
 test-output/
+.guardian/
 .odavl-guardian/
 tmp-artifacts/
 tmp-*
 tmp-live/
 tmp-live2/
 tmp-out/
+override-out/
 test-manual*/
 verify-run-*/
 website/.next/
