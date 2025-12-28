@@ -1,6 +1,7 @@
 {
   "name": "@odavl/guardian",
   "version": "1.0.0",
+  "releaseState": "stable",
   "description": "ODAVL Guardian — Market Reality Testing Engine with Visual Diffs, Behavioral Signals, Auto-Discovery, Intelligence, and CI/CD Integration",
   "license": "MIT",
   "author": "ODAVL",
@@ -74,6 +75,7 @@
     "template:verify": "node scripts/verify-templates.js"
   },
   "dependencies": {
+    "@odavl/guardian": "^1.0.0",
     "express": "^5.2.1",
     "playwright": "^1.48.2"
   },
