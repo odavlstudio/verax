@@ -34,10 +34,17 @@
     "guardian-contract-v1.md",
     "README.md",
     "LICENSE",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "MAINTAINERS.md",
+    "VERSIONING.md"
   ],
   "scripts": {
     "test": "node test/mvp.test.js",
+    "test:journey:unit": "node test/journey-scanner.unit.test.js",
+    "test:journey:integration": "node test/journey-scanner.integration.test.js",
+    "test:journey:all": "node test/journey-scanner.unit.test.js && node test/journey-scanner.integration.test.js",
     "test:phase0": "node test/phase0-reality-lock.test.js",
     "test:phase1": "node test/phase1-baseline-expansion.test.js",
     "test:phase2": "node test/phase2-auto-attempts.test.js",
@@ -55,15 +62,23 @@
     "test:phase5:evidence": "node test/phase5-evidence-run.test.js",
     "test:phase5:all": "node test/phase5-visual.test.js && node test/phase5-evidence-run.test.js",
     "test:phase6": "node test/phase6.test.js && node test/phase6-product.test.js",
+    "test:trust-seal": "node test/trust-seal.test.js",
+    "test:narrative-run": "node test/narrative-run.test.js",
+    "test:hardening": "node test/trust-seal.test.js && node test/narrative-run.test.js",
     "test:wave1-3": "npx mocha test/success-evaluator.unit.test.js test/wave1-3-success-e2e.test.js --timeout 30000",
-    "test:all": "node test/phase0-reality-lock.test.js && node test/mvp.test.js && node test/phase2.test.js && node test/attempt.test.js && node test/reality.test.js && node test/baseline.test.js && node test/baseline-junit.test.js && node test/snapshot.test.js && node test/soft-failures.test.js && node test/market-criticality.test.js && node test/discovery.test.js && node test/phase5.test.js && node test/phase5-visual.test.js && node test/phase5-evidence-run.test.js && node test/phase6.test.js",
-    "start": "node bin/guardian.js"
+    "test:all": "node test/phase0-reality-lock.test.js && node test/mvp.test.js && node test/phase2.test.js && node test/attempt.test.js && node test/reality.test.js && node test/baseline.test.js && node test/baseline-junit.test.js && node test/snapshot.test.js && node test/soft-failures.test.js && node test/market-criticality.test.js && node test/discovery.test.js && node test/phase5.test.js && node test/phase5-visual.test.js && node test/phase5-evidence-run.test.js && node test/phase6.test.js && node test/trust-seal.test.js && node test/narrative-run.test.js",
+    "release:dry": "npm run test:guardian && node bin/guardian.js --help && node bin/guardian.js --version",
+    "test:guardian": "npx jest test/guardian/stability-scorer.unit.test.js test/guardian/stability.integration.test.js test/guardian/alert-ledger.unit.test.js test/guardian/severity-classification.unit.test.js --testTimeout=50000",
+    "start": "node bin/guardian.js",
+    "sample:generate": "node scripts/generate-sample.js",
+    "template:verify": "node scripts/verify-templates.js"
   },
   "dependencies": {
     "express": "^5.2.1",
     "playwright": "^1.48.2"
   },
   "devDependencies": {
+    "archiver": "^6.0.1",
     "mocha": "^11.7.5"
   }
 }
