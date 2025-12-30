@@ -1,8 +1,8 @@
 {
   "name": "odavl-guardian",
   "displayName": "ODAVL Guardian",
-  "description": "Reality-grade browser checks that return a verdict you can ship with.",
-  "version": "1.0.0",
+  "description": "Launch decision engine that tests real user flows and returns a deploy verdict.",
+  "version": "1.1.0",
   "publisher": "odavl",
   "license": "MIT",
   "icon": "icon.png",

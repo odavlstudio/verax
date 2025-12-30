@@ -1,6 +1,6 @@
 # ODAVL Guardian — VS Code Extension
 
-Reality-grade browser checks that return a verdict you can ship with.
+Launch decision engine that tests real user flows and returns a deploy verdict.
 
 ## What it does
 
