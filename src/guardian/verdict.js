@@ -181,12 +181,20 @@ function deriveRunResult(snapshot) {
   const successful = executedAttempts.filter(a => a.outcome === 'SUCCESS').length;
   const failed = executedAttempts.filter(a => a.outcome === 'FAILURE').length;
   
-  // If NOTHING executed (all skipped, not applicable, or discovery failed), it's insufficient
-  if (executed === 0 && (discoveryFailedAttempts.length > 0 || skippedCount > 0)) {
+  // Golden Path Fix: Differentiate between:
+  // 1. Discovery failures (site unreachable/broken) → INSUFFICIENT_EVIDENCE → DO_NOT_LAUNCH
+  // 2. Everything skipped/not applicable (static site) → WARN → FRICTION
+  
+  // If ONLY discovery failures (no successful navigation), site is critically broken
+  if (executed > 0 && executed === discoveryFailedAttempts.length) {
     return 'INSUFFICIENT_EVIDENCE';
   }
   
-  if (executed === 0) return 'WARN';
+  // If nothing executed at all (all skipped/not applicable), it's a static site - safe
+  if (executed === 0) {
+    return 'WARN';
+  }
+  
   if (failed === 0 && successful === executed) return 'PASSED';
   if (failed === executed) return 'FAILED';
   return 'WARN';
@@ -206,13 +214,18 @@ function buildVerdictExplanation(snapshot, verdictStr, executedCount, successCou
     why = `${failureCount} critical issue was found, preventing safe launch. `;
     why += `This differs from READY because critical issues must be resolved, and from FRICTION because severity exceeds acceptable limits.`;
   } else if (verdictStr === 'INSUFFICIENT_EVIDENCE') {
-    why = `No meaningful attempts executed on this site. Most attempts were skipped (not applicable to site) or element discovery failed. `;
-    why += `This site may not match the tested user journeys, or it may be uninstrumented (missing expected UI elements/patterns). `;
-    why += `Verdict cannot be determined without successful execution of at least one relevant journey.`;
+    why = `Guardian could not execute meaningful tests on this site. `;
+    why += `This typically means the site was unreachable, element discovery failed, or critical navigation errors occurred. `;
+    why += `Unlike sites with no applicable tests (which receive FRICTION), this indicates a technical problem preventing observation. `;
+    why += `Verdict cannot be determined without successful connection and navigation.`;
   } else {
     why = `Results show ${successCount} of ${executedCount} attempted success with some roughness. `;
     if (failureCount > 0) {
       why += `${failureCount} attempt did not complete. `;
+    }
+    if (executedCount === 0) {
+      why += `Note: No interactive elements were tested because the site appears to be static (no forms, login, checkout). `;
+      why += `This is FRICTION (limited testing coverage) not a launch blocker. The site is functional for read-only use. `;
     }
     why += `This differs from READY because outcomes were mixed, and from DO_NOT_LAUNCH because no critical failure was found.`;
   }

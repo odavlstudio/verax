@@ -6,22 +6,21 @@
 ![Status](https://img.shields.io/badge/status-stable-green)
 ![Tests](https://github.com/odavlstudio/odavlguardian/actions/workflows/guardian.yml/badge.svg)
 
-## What Guardian Does
+**Launch Decision Engine for Websites**
 
-Guardian tests your website the way users actually use it.
-
-It opens a real browser, navigates your flows, and tells you if they work—before your users find the problems.
+Guardian tests your website with real browsers and returns a reality-based verdict (READY | FRICTION | DO_NOT_LAUNCH) to gate deployments.
 
 ```bash
-# Test your site in one command
+# Test your site, get a verdict
 guardian reality --url https://your-site.com
 
-# Get a verdict
-# Artifact: decision.json (verdict + triggered rules)
-# Artifact: summary.md (human-readable explanation)
+# Verdict determines deployment
+# Exit 0 = READY (ship it)
+# Exit 1 = FRICTION (investigate)
+# Exit 2 = DO_NOT_LAUNCH (block deployment)
 ```
 
-That's it.
+Artifacts: `decision.json` (machine-readable) + `summary.md` (human-readable)
 
 ## Why It Exists
 
@@ -31,7 +30,9 @@ And users still fail.
 
 Guardian finds these breaks before they become support tickets.
 
-## The Golden Command
+## Recommended First Run
+
+**The canonical command:**
 
 ```bash
 npm install -g @odavl/guardian
@@ -39,15 +40,39 @@ npm install -g @odavl/guardian
 guardian reality --url https://example.com
 ```
 
-Guardian produces:
+Guardian produces **canonical artifacts:**
 
 ```
 ✅ Verdict: READY (exit code 0)
 
 Artifacts:
-  - .odavlguardian/<timestamp>/decision.json
-  - .odavlguardian/<timestamp>/summary.md
+  - .odavlguardian/<timestamp>/decision.json  (machine-readable)
+  - .odavlguardian/<timestamp>/summary.md     (human-readable)
 ```
+
+**Canonical output:**
+```
+Verdict: READY | FRICTION | DO_NOT_LAUNCH
+Reason: <human explanation>
+Next: Deploy | Review | Fix before launch
+```
+
+**Use-case:** Pre-launch gating. Run Guardian before deploying. Block deployments on `DO_NOT_LAUNCH`.
+
+## Try Guardian in 30 Seconds
+
+Don't install. Just run:
+
+```bash
+npx @odavl/guardian reality --url https://your-site.com
+```
+
+**What you'll see:**
+- **READY** → All critical flows work. Safe to launch.
+- **FRICTION** → Some flows have issues. Review before launch.
+- **DO_NOT_LAUNCH** → Critical failure. Fix before deploying.
+
+[Read real examples](docs/DECISION_CONFIDENCE.md) of what each verdict means.
 
 ## What You Get
 
@@ -124,9 +149,9 @@ Guardian is not:
 
 Guardian complements those tools.
 
-## Philosophy
+## Honesty Contract
 
-ODAVL Guardian follows strict principles:
+Guardian never pretends success. Strict principles:
 
 - **No hallucination** — Only what Guardian observed
 - **No fake success** — Honest verdicts always
@@ -134,6 +159,8 @@ ODAVL Guardian follows strict principles:
 - **No silent failures** — If reality is broken, Guardian says so
 - **Evidence > explanation** — Verdicts are data-driven
 - **Reality > implementation** — What users experience matters most
+
+See [docs/PRODUCT.md](docs/PRODUCT.md) for complete product identity and workflows.
 
 ## Install
 
