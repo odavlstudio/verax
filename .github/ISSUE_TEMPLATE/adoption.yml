@@ -1,0 +1,64 @@
+name: Adoption Blocker
+description: Something prevented you from adding Guardian to your pipeline
+labels: ["adoption"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us understand adoption blockers. What prevented you from using Guardian in your pipeline?
+
+  - type: textarea
+    id: blocker
+    attributes:
+      label: What blocked you?
+      description: What did you try to do? Where did it fail?
+      placeholder: |
+        Example: I followed the quickstart but couldn't get Guardian to run in my GitHub Actions workflow. The error was...
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-you-tried
+    attributes:
+      label: What did you try?
+      description: The step-by-step actions you took
+      placeholder: |
+        1. Copied workflow.yml to .github/workflows/
+        2. Updated the URL to my staging site
+        3. Pushed to main
+        4. GitHub Actions failed with error: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Your environment
+      description: Guardian version, CI/CD system, site details
+      placeholder: |
+        - Guardian version: 1.0.0
+        - CI/CD: GitHub Actions
+        - Staging site type: Next.js app
+        - Site URL: https://staging.example.com
+    validations:
+      required: false
+
+  - type: textarea
+    id: next-step
+    attributes:
+      label: What would unblock you?
+      description: What needs to change for this to work?
+      placeholder: |
+        If [specific thing] worked differently, I could proceed.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Acknowledgment
+      options:
+        - label: I understand Guardian is in early soft launch and this is feedback on adoption
+          required: true

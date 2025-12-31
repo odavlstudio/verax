@@ -1,0 +1,87 @@
+name: Guardian Feedback
+description: Share your Guardian experience — what worked, what didn't, what seemed unfair
+title: "[Feedback] Your experience with Guardian"
+labels: ["feedback", "observation-mode"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for trying Guardian and giving us feedback.
+        
+        This helps us understand if Guardian works the way real developers expect.
+        
+        **What we're learning from:**
+        - Does the verdict match reality?
+        - Does the explanation make sense?
+        - What should Guardian catch that it missed?
+        - What verdict seemed unfair?
+
+  - type: input
+    id: url_tested
+    attributes:
+      label: "URL you tested"
+      description: "What website did you run Guardian on?"
+      placeholder: "https://example.com or https://staging.your-site.com"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: verdict_received
+    attributes:
+      label: "What verdict did Guardian give?"
+      options:
+        - READY (exit 0)
+        - FRICTION (exit 1)
+        - DO_NOT_LAUNCH (exit 2)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: verdict_fair
+    attributes:
+      label: "Was the verdict fair? Did it match reality?"
+      description: "What do you think — did Guardian get it right?"
+      options:
+        - "Yes, completely fair"
+        - "Mostly fair — had minor issues"
+        - "Partially fair — some accuracy questions"
+        - "Not fair — Guardian missed something or was wrong"
+        - "Not sure — hard to tell"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what_guardian_found
+    attributes:
+      label: "What did Guardian's report say?"
+      description: "Copy the summary or key findings from the report"
+      placeholder: "e.g., 'Homepage loaded successfully, contact form submit failed'"
+
+  - type: textarea
+    id: what_you_observed
+    attributes:
+      label: "What did you observe when you tried the flow yourself?"
+      description: "Did you see the same issues Guardian reported?"
+      placeholder: "e.g., 'Yes, the contact form took 5 seconds to submit and seemed to hang'"
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional context (optional)"
+      description: |
+        Anything else that would help us understand?
+        - Site type (e-commerce, SaaS, landing page, etc.)
+        - What flow you were testing
+        - Browser/environment details
+        - If you deployed despite the verdict, what happened?
+      placeholder: "Optional — but really helpful"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        **Thank you.** We read every response and use your feedback to improve Guardian.
+        
+        See [Observation Mode](../docs/OBSERVATION_MODE.md) for more context.

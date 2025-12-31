@@ -1,200 +1,154 @@
-# 🛡️ ODAVL Guardian
+# ODAVL Guardian — The Final Decision Authority Before Launch
 
-![Release](https://img.shields.io/github/v/release/odavlstudio/odavlguardian?label=release&color=blue)
-![Reality Based](https://img.shields.io/badge/reality--based-verified-informational)
-![Results](https://img.shields.io/badge/results-READY%20%7C%20FRICTION%20%7C%20DO__NOT__LAUNCH-orange)
-![Status](https://img.shields.io/badge/status-stable-green)
-![Tests](https://github.com/odavlstudio/odavlguardian/actions/workflows/guardian.yml/badge.svg)
+**What:** Guardian observes your website as real users experience it and issues a binding verdict on whether it's safe to launch.
 
-**Launch Decision Engine for Websites**
+**For:** CI/CD Pipeline Operators / Release Engineers (those responsible for gating production deployments)
 
-Guardian tests your website with real browsers and returns a reality-based verdict (READY | FRICTION | DO_NOT_LAUNCH) to gate deployments.
-
-```bash
-# Test your site, get a verdict
-guardian reality --url https://your-site.com
-
-# Verdict determines deployment
-# Exit 0 = READY (ship it)
-# Exit 1 = FRICTION (investigate)
-# Exit 2 = DO_NOT_LAUNCH (block deployment)
-```
-
-Artifacts: `decision.json` (machine-readable) + `summary.md` (human-readable)
-
-## Why It Exists
-
-Tests pass. Metrics look good. Code is clean.
-
-And users still fail.
-
-Guardian finds these breaks before they become support tickets.
-
-## Recommended First Run
-
-**The canonical command:**
-
-```bash
-npm install -g @odavl/guardian
-
-guardian reality --url https://example.com
-```
-
-Guardian produces **canonical artifacts:**
-
-```
-✅ Verdict: READY (exit code 0)
-
-Artifacts:
-  - .odavlguardian/<timestamp>/decision.json  (machine-readable)
-  - .odavlguardian/<timestamp>/summary.md     (human-readable)
-```
-
-**Canonical output:**
-```
-Verdict: READY | FRICTION | DO_NOT_LAUNCH
-Reason: <human explanation>
-Next: Deploy | Review | Fix before launch
-```
-
-**Use-case:** Pre-launch gating. Run Guardian before deploying. Block deployments on `DO_NOT_LAUNCH`.
-
-## Try Guardian in 30 Seconds
-
-Don't install. Just run:
-
-```bash
-npx @odavl/guardian reality --url https://your-site.com
-```
-
-**What you'll see:**
-- **READY** → All critical flows work. Safe to launch.
-- **FRICTION** → Some flows have issues. Review before launch.
-- **DO_NOT_LAUNCH** → Critical failure. Fix before deploying.
-
-[Read real examples](docs/DECISION_CONFIDENCE.md) of what each verdict means.
-
-## What You Get
-
-### decision.json (Machine-Readable)
-
-```json
-{
-  "finalVerdict": "READY",
-  "exitCode": 0,
-  "triggeredRules": ["all_goals_reached"],
-  "reasons": [
-    {
-      "ruleId": "all_goals_reached",
-      "message": "All critical flows executed successfully and goals reached",
-      "category": "COMPLIANCE",
-      "priority": 50
-    }
-  ],
-  "policySignals": {
-    "executedCount": 1,
-    "failedCount": 0,
-    "goalReached": true,
-    "domain": "example.com"
-  }
-}
-```
-
-### summary.md (Human-Readable)
-
-Human-friendly explanation of the verdict, what was tested, what Guardian couldn't confirm, and why.
-
-## The Three Verdicts
-
-- **READY** (exit 0) — Goal reached, no failures
-- **FRICTION** (exit 1) — Partial success, warnings, or near-misses
-- **DO_NOT_LAUNCH** (exit 2) — User failed or flow broken
-
-Guardian never pretends success.
-
-## What Guardian Does (Conceptually)
-
-1. **You define a scenario** — signup, checkout, landing, etc.
-2. **Guardian executes it** — real navigation, real waits, real interactions
-3. **Guardian evaluates** — did the human succeed?
-4. **Guardian produces a decision** — not logs, a verdict
-
-## When to Use Guardian
-
-- **Before launch** — Does signup actually work?
-- **Before scaling** — Does checkout really finish?
-- **Before campaigns** — Does the landing convert?
-- **Before localization** — Does language switching work?
-- **Before deployment** — Did this change break the flow?
-
-## How It Works
-
-Guardian uses a **rules engine** to evaluate reality:
-
-1. Scan results → Policy signals (execution counts, outcomes, etc.)
-2. Policy signals → Rules evaluation (deterministic, transparent)
-3. Rules → Final verdict (READY | FRICTION | DO_NOT_LAUNCH)
-
-**All rules are explicit.** No ML. No guessing. Transparency by design.
-
-## What Guardian Is NOT
-
-Guardian is not:
-
-- A unit test framework
-- A code quality tool
-- A performance benchmark
-- A security scanner
-- A Lighthouse replacement
-
-Guardian complements those tools.
-
-## Honesty Contract
-
-Guardian never pretends success. Strict principles:
-
-- **No hallucination** — Only what Guardian observed
-- **No fake success** — Honest verdicts always
-- **No optimistic assumptions** — Conservative by default
-- **No silent failures** — If reality is broken, Guardian says so
-- **Evidence > explanation** — Verdicts are data-driven
-- **Reality > implementation** — What users experience matters most
-
-See [docs/PRODUCT.md](docs/PRODUCT.md) for complete product identity and workflows.
-
-## Install
-
-```bash
-npm install -g @odavl/guardian
-```
-
-## Quick Start
-
-```bash
-# Test a website
-guardian reality --url https://example.com
-
-# Test with a preset (startup, custom, landing, full)
-guardian reality --url https://example.com --preset startup
-
-# See all options
-guardian --help
-```
-
-## VS Code Integration
-
-Command Palette → "Guardian: Run Reality Check"
-
-## Status
-
-**Early but real.** Opinionated. Built with honesty over hype.
-
-This is a foundation — not a marketing shell.
-
-## License
-
-MIT
+**Try it in 10 minutes:** [Quickstart: Guardian in GitHub Actions](docs/quickstart/CI_GITHUB_ACTION.md)
 
 ---
 
-Built with the belief that users matter more than code.
+## The Decision Guardian Makes
+
+Guardian answers one question before every launch:
+
+> "Will launching this now harm real users or the business?"
+
+Guardian observes your website **as a real user would** — navigates pages, fills forms, completes flows — then issues a binding verdict:
+
+- **READY** (exit 0) → All critical flows work. Safe to deploy.
+- **FRICTION** (exit 1) → Some issues found. Investigate before deploying.
+- **DO_NOT_LAUNCH** (exit 2) → Critical flow is broken. Deployment blocked.
+
+**This verdict cannot be overridden.**
+
+---
+
+## Status
+
+**Version:** 1.0.0 (Stable)  
+**Scope:** Decision Engine (Pre-Launch Authority)  
+**License:** MIT  
+**Maturity:** Production-ready for CI/CD deployment gating
+
+Guardian's decision engine is stable and production-ready. All core functionality (observe, decide, report) is in active use.
+
+---
+
+## How Guardian Is Used
+
+- Before launch: blocks deployment when reality is broken
+- After launch: monitors production and alerts when reality breaks
+
+## Watchdog Mode (After Launch)
+
+Guardian remains your authority after launch. It continues observing
+reality, detects when user flows break, and alerts your team immediately.
+Guardian does not auto-fix. Guardian does not deploy patches. Guardian reports
+what is broken. Your team responds. Same verdicts, same authority, same
+responsibility.
+
+## Verdicts (Non-Negotiable)
+
+- READY → Users can complete their critical goals. Safe to deploy.
+- FRICTION → investigate before proceeding
+- DO_NOT_LAUNCH → launch blocked
+
+Guardian verdicts cannot be overridden.
+
+## What Guardian Is Not
+
+- Not a testing tool
+- Not a bug scanner
+- Not a QA replacement
+- Not configurable to force approval
+
+## The Ethical Rule
+
+Guardian never allows READY
+if it cannot defend that decision
+to a real human user.
+
+## Quickstart (CI/CD)
+
+**Want to add Guardian to your deployment pipeline in <10 minutes?**
+
+Start here: **[Quickstart: Guardian in GitHub Actions](docs/quickstart/CI_GITHUB_ACTION.md)**
+
+This guide includes:
+- Minimal GitHub Actions workflow (copy/paste ready)
+- How to interpret verdicts in your pipeline
+- Where artifacts appear and what they mean
+- Troubleshooting common issues
+
+**Example:** [examples/github-action/](examples/github-action/)
+
+## Decision Statement
+
+ODAVL Guardian blocks launches when it cannot defensibly justify that real user reality supports safe deployment.
+
+## Quick Start: The Canonical Command
+
+```bash
+guardian reality --url https://example.com
+```
+
+**This is the only command you need for CI/CD deployment gating.**
+
+Guardian:
+1. Observes your site as real users would
+2. Issues a verdict: READY (exit 0), FRICTION (exit 1), or DO_NOT_LAUNCH (exit 2)
+3. Writes decision.json with full reasoning
+
+Your pipeline respects the exit code. If DO_NOT_LAUNCH, deployment is blocked.
+
+## When Guardian Says No (DO_NOT_LAUNCH)
+
+The flow is blocked. The decision is final. Here's what to do:
+
+1. Review the decision.json file for Guardian's reasons
+2. Fix the broken user flows in production candidate
+3. Rerun Guardian to get a new verdict
+4. Deployment proceeds only when verdict is READY or acceptable FRICTION
+
+**Guardian never forces approval. The authority model is absolute.**
+
+## Understanding Guardian's Output
+
+After Guardian runs, you'll get:
+- **decision.json** — Machine-readable verdict and reasons (use in your pipeline logic)
+- **HTML report** — Human-readable report with screenshots and flow details
+
+[Learn how to read Guardian artifacts](docs/ARTIFACT_ORIENTATION.md)
+
+---
+
+## How to Give Feedback
+
+We're learning how release engineers use Guardian. Your feedback shapes future development.
+
+**Report issues or suggest improvements:**
+- [Bug or clarity issue?](https://github.com/odavlstudio/odavlguardian/issues/new?template=clarity.yml)
+- [Adoption blockers?](https://github.com/odavlstudio/odavlguardian/issues/new?template=adoption.yml)
+
+**Tell us:**
+- What worked in the quickstart
+- What was confusing
+- Where the verdict was right or wrong
+- How Guardian fits (or doesn't) in your pipeline
+
+**We do not:**
+- Collect telemetry
+- Track usage
+- Share data with third parties
+
+All feedback stays on GitHub.
+
+---
+
+## Learn More
+
+- [Product Definition (ONE_LINER)](docs/ground-truth/ONE_LINER.md)
+- [Core Promise](docs/ground-truth/CORE_PROMISE.md)
+- [Full Technical Docs](docs/README.technical.md)
+

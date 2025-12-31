@@ -1,0 +1,50 @@
+name: Clarity Issue
+description: Something in Guardian's output, docs, or verdict is confusing
+labels: ["clarity"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve Guardian's clarity. Tell us what was confusing.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What was confusing?
+      description: Be specific. What did you expect? What did you see?
+      placeholder: |
+        Example: The error message said "Timeout 20s" but didn't explain what timed out or what to do next.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Guardian version, preset, site type, etc.
+      placeholder: |
+        - Guardian version: 1.0.0
+        - Preset: landing
+        - Site type: marketing site
+    validations:
+      required: false
+
+  - type: textarea
+    id: how-to-fix
+    attributes:
+      label: What would make it clearer?
+      description: What wording or explanation would help?
+      placeholder: |
+        The error message could include an example action, like "Check that your URL is accessible with curl https://your-site.com"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Acknowledgment
+      options:
+        - label: I understand Guardian is in early soft launch and this is feedback to improve clarity
+          required: true
