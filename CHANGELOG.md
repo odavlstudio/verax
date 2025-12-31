@@ -10,6 +10,47 @@ This project follows **semantic versioning**, with a strong emphasis on:
 
 ---
 
+## v1.0.0 — First Stable Release
+
+**Release date:** 2025-12-30  
+**Status:** Stable (production-ready)
+
+- Guardian is now the final decision authority before launch.
+- Introduced Observable Capabilities (VISIBLE = MUST WORK).
+- Absent features are not penalized (NOT_OBSERVED ≠ FAILURE).
+- Honest verdict enforcement with fair coverage calculation.
+- Deterministic verdicts: READY / FRICTION / DO_NOT_LAUNCH.
+- CLI, npm package, and VS Code extension aligned.
+- Read-only transparency via decision.json and artifacts.
+- No behavior overrides. No force-ready flags.
+
+## [1.0.1] — Patch Release
+
+**Release date:** 2025-12-31  
+**Status:** Stable (production-ready)
+
+### What's New
+
+**Watchdog Mode (Post-Launch Monitoring)**
+- Guardian now monitors production after launch
+- Create baselines from known-good state (`--baseline=create`)
+- Detect degradation automatically (`--watchdog`)
+- Alert on verdict downgrades, coverage drops, failing flows
+- Update baselines after fixes (`--baseline=update`)
+- Stored in `.guardian/watchdog-baselines/`
+
+**Site Intelligence Engine** (carried from early 1.0.1)
+- Automatic site understanding and capability detection
+- Non-applicable flows skipped intelligently
+- More accurate and human-aligned verdicts
+
+**Verdict Cards** (Stage 6)
+- Human-readable verdict summaries in decision.json
+- Business impact assessment
+- Evidence and confidence signals
+
+**No breaking changes** — All v1.0.0 behavior preserved
+
 ## [v1.0.0] — Stable Release - Market Reality Testing Engine
 
 **Release date:** 2025-12-29  

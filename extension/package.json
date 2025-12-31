@@ -1,10 +1,11 @@
 {
   "name": "odavl-guardian",
   "displayName": "ODAVL Guardian",
-  "description": "Launch decision engine that tests real user flows and returns a deploy verdict.",
-  "version": "1.1.0",
+  "description": "The final decision authority before launch. Observes real user reality and decides deployment safety.",
+  "version": "1.0.1",
   "publisher": "odavl",
   "license": "MIT",
+  "homepage": "https://github.com/odavlstudio/odavlguardian",
   "icon": "icon.png",
   "repository": {
     "type": "git",
@@ -17,18 +18,18 @@
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Testing",
     "Other"
   ],
   "keywords": [
-    "testing",
-    "browser",
-    "automation",
-    "quality",
+    "decision-gate",
+    "deployment-gate",
+    "launch-authority",
+    "production-safety",
     "guardian"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onCommand:odavlGuardian.runRealityCheck",
+    "onView:guardianVerdicts"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -45,19 +46,52 @@
     "commands": [
       {
         "command": "odavlGuardian.runRealityCheck",
-        "title": "Guardian: Run Reality Check"
+        "title": "Guardian: Check Deployment Safety"
       },
       {
         "command": "odavlGuardian.openLastReport",
         "title": "Guardian: Open Last Report"
+      },
+      {
+        "command": "odavlGuardian.openVerdictFile",
+        "title": "Guardian: Open Verdict File"
+      },
+      {
+        "command": "odavlGuardian.showDecisionReasoning",
+        "title": "Guardian: Show Decision Reasoning"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "guardianVerdicts",
+          "title": "Guardian Verdicts",
+          "icon": "media/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "guardianVerdicts": [
+        {
+          "id": "guardianVerdicts",
+          "name": "Recent Verdicts",
+          "type": "tree"
+        },
+        {
+          "id": "guardianDecision",
+          "name": "Why This Decision",
+          "type": "webview"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "lint": "eslint src --ext ts"
+    "lint": "eslint src --ext ts",
+    "extension:verify": "node scripts/verify-extension.js",
+    "extension:package": "npm run compile && npm run extension:verify"
   },
   "devDependencies": {
     "@types/node": "20.x",

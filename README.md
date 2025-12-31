@@ -26,10 +26,10 @@ Guardian observes your website **as a real user would** — navigates pages, fil
 
 ## Status
 
-**Version:** 1.0.0 (Stable)  
-**Scope:** Decision Engine (Pre-Launch Authority)  
+**Version:** 1.0.1 (Stable)  
+**Scope:** Decision Engine (Pre-Launch + Post-Launch Authority)  
 **License:** MIT  
-**Maturity:** Production-ready for CI/CD deployment gating
+**Maturity:** Production-ready for CI/CD deployment gating and production monitoring
 
 Guardian's decision engine is stable and production-ready. All core functionality (observe, decide, report) is in active use.
 
@@ -42,11 +42,41 @@ Guardian's decision engine is stable and production-ready. All core functionalit
 
 ## Watchdog Mode (After Launch)
 
-Guardian remains your authority after launch. It continues observing
-reality, detects when user flows break, and alerts your team immediately.
-Guardian does not auto-fix. Guardian does not deploy patches. Guardian reports
-what is broken. Your team responds. Same verdicts, same authority, same
-responsibility.
+Guardian remains your authority after launch. It continues observing reality, detects when user flows break, and alerts your team immediately.
+
+**How it works:**
+
+1. **Create baseline** from a known-good production state:
+   ```bash
+   guardian reality --url https://example.com --baseline create
+   ```
+
+2. **Monitor production** — Run Guardian on schedule (cron, GitHub Actions):
+   ```bash
+   guardian reality --url https://example.com --watchdog
+   ```
+   - Silent when everything works
+   - **Alerts on degradation:**
+     - Verdict downgrades (READY → FRICTION, READY → DO_NOT_LAUNCH)
+     - Coverage drops ≥20%
+     - Selector confidence drops ≥0.2
+     - Critical flows that start failing
+
+3. **Update baseline** after fixes or intentional changes:
+   ```bash
+   guardian reality --url https://example.com --baseline update
+   ```
+   - Only updates if current verdict is READY
+   - Preserves alert integrity
+
+**What Guardian does NOT do:**
+- Does not auto-fix issues
+- Does not deploy patches
+- Does not run continuously (you schedule it)
+
+**Your responsibility:** Guardian reports what broke. Your team responds.
+
+**Learn more:** `guardian reality --help` (see WATCHDOG MODE section)
 
 ## Verdicts (Non-Negotiable)
 

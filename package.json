@@ -1,8 +1,8 @@
 {
   "name": "@odavl/guardian",
-  "version": "1.1.0",
+  "version": "1.0.1",
   "releaseState": "stable",
-  "description": "ODAVL Guardian — Market Reality Testing Engine with Visual Diffs, Behavioral Signals, Auto-Discovery, Intelligence, and CI/CD Integration",
+  "description": "The final decision authority before launch. Observes your website as real users experience it, decides whether launch is safe, and continues watching after deployment to detect when reality breaks.",
   "license": "MIT",
   "author": "ODAVL",
   "repository": {
@@ -10,14 +10,14 @@
     "url": "git+https://github.com/odavlstudio/odavlguardian.git"
   },
   "keywords": [
-    "testing",
-    "browser-testing",
-    "reality-testing",
-    "playwright",
-    "cli",
-    "guardian",
-    "market-testing",
-    "quality-assurance"
+    "decision-gate",
+    "deployment-gate",
+    "launch-decision",
+    "production-safety",
+    "website-reliability",
+    "reality-check",
+    "deployment-blocker",
+    "launch-authority"
   ],
   "engines": {
     "node": ">=18.0.0"
@@ -43,7 +43,11 @@
   ],
   "scripts": {
     "test:freeze": "node scripts/freeze-gate.js",
-    "test": "node test/mvp.test.js",
+    "test": "node test/mvp.test.js && node test/stage4-security.test.js && node test/stage5-ci-gate.test.js && node test/stage5-error-handling.test.js && node test/stage6-verdict-card.test.js && node test/stage7-watchdog-simple.test.js",
+    "test:stage5:determinism": "node test/stage5-determinism.test.js",
+    "test:stage7:watchdog": "node test/stage7-watchdog-simple.test.js",
+    "test:stage6:verdict": "node test/stage6-verdict-card.test.js",
+    "test:stage6:integration": "node test/stage6-verdict-card-integration.test.js",
     "test:journey:unit": "node test/journey-scanner.unit.test.js",
     "test:journey:integration": "node test/journey-scanner.integration.test.js",
     "test:journey:all": "node test/journey-scanner.unit.test.js && node test/journey-scanner.integration.test.js",
