@@ -26,7 +26,7 @@ Guardian observes your website **as a real user would** — navigates pages, fil
 
 ## Status
 
-**Version:** 1.0.1 (Stable)  
+**Version:** 1.1.1 (Stable)  
 **Scope:** Decision Engine (Pre-Launch + Post-Launch Authority)  
 **License:** MIT  
 **Maturity:** Production-ready for CI/CD deployment gating and production monitoring

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.1] - 2025-12-31
+
+### Version Alignment & Reality Freeze
+
+- Guardian extension now aligned with CLI v1.1.1
+- All versions (npm, extension, docs) unified at 1.1.1
+- Reality freeze: no behavior changes, all observable behavior stable
+- Watchdog Mode (Stage 7) promoted to stable in main test suite
+- Post-launch monitoring fully integrated and tested
+
 ## [0.2.0] - 2025-12-24
 
 ### Added

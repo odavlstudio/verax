@@ -27,7 +27,7 @@ Verify installation:
 guardian --version
 ```
 
-Should show: `1.0.0` (or later)
+Should show: `1.1.1` (or later)
 
 ## Usage
 

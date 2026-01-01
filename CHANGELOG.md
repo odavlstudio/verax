@@ -10,6 +10,32 @@ This project follows **semantic versioning**, with a strong emphasis on:
 
 ---
 
+## [1.1.1] — Reality Freeze & Version Alignment Release
+
+**Release date:** 2025-12-31  
+**Status:** Stable (production-ready)
+
+### What's New
+
+**Version Alignment**
+- npm package @odavl/guardian: 1.1.1
+- VS Code extension (odavl-guardian): 1.1.1
+- Documentation aligned with single stable version
+- Establishes 1.1.1 as the canonical stable release
+
+**Watchdog Mode Promotion (Stage 7)**
+- Post-launch monitoring promoted to stable
+- Create baselines: `guardian --baseline=create`
+- Monitor production: `guardian --watchdog`
+- Detect and alert on degradation automatically
+- Integrated into main test suite
+
+**No Behavior Changes**
+- All 1.0.x behavior preserved and stable
+- No feature additions or removals
+- No test logic modifications
+- Reality freeze: all observable behavior locked for stability
+
 ## v1.0.0 — First Stable Release
 
 **Release date:** 2025-12-30  
