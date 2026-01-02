@@ -2,6 +2,8 @@
  * Guardian Attempt Mode
  * Single user attempt execution orchestration
  * Phase 2: Soft failure detection via validators
+ * 
+ * @typedef {import('./truth/attempt.contract.js').AttemptResult} AttemptResult
  */
 
 const { GuardianBrowser } = require('./browser');
@@ -17,6 +19,13 @@ const path = require('path');
  * Programmatic API for executing attempts
  * Returns result object instead of calling process.exit
  * @param {Object} config - Configuration
+ * @param {string} config.baseUrl - Base URL to test
+ * @param {string} [config.attemptId] - Attempt identifier
+ * @param {string} [config.artifactsDir] - Artifacts directory
+ * @param {boolean} [config.enableTrace] - Enable network trace
+ * @param {boolean} [config.headful] - Run in headful mode
+ * @param {boolean} [config.quiet] - Quiet mode
+ * @param {number} [config.timeout] - Timeout in milliseconds
  * @returns {Promise<Object>} Result with outcome, exitCode, paths, etc.
  */
 async function executeAttempt(config) {

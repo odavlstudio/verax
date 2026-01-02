@@ -1,6 +1,8 @@
 /**
  * Guardian Attempt Reporter
  * Generates JSON and HTML reports for single user attempts
+ * 
+ * @typedef {import('./truth/attempt.contract.js').AttemptResult} AttemptResult
  */
 
 const fs = require('fs');
@@ -9,6 +11,10 @@ const path = require('path');
 class AttemptReporter {
   /**
    * Create attempt report from execution result
+   * @param {AttemptResult} attemptResult - Attempt execution result
+   * @param {string} baseUrl - Base URL
+   * @param {string} attemptId - Attempt identifier
+   * @returns {Object} Report object
    */
   createReport(attemptResult, baseUrl, attemptId) {
     const { outcome, steps, startedAt, endedAt, totalDurationMs, friction, error, successReason } = attemptResult;

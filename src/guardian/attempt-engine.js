@@ -3,6 +3,14 @@
  * Executes a single user attempt and tracks outcome (SUCCESS, FAILURE, FRICTION, NOT_APPLICABLE, DISCOVERY_FAILED)
  * Phase 2: Soft failure detection via validators
  * Phase 3: Robust selector discovery with fallbacks
+ * 
+ * @typedef {import('./truth/attempt.contract.js').AttemptResult} AttemptResult
+ * @typedef {import('./truth/attempt.contract.js').AttemptStep} AttemptStep
+ * @typedef {import('./truth/attempt.contract.js').FrictionAnalysis} FrictionAnalysis
+ * @typedef {import('./truth/attempt.contract.js').AttemptOutcome} AttemptOutcome
+ * @typedef {import('./truth/attempt.contract.js').StepStatus} StepStatus
+ * @typedef {import('./truth/attempt.contract.js').FrictionSeverity} FrictionSeverity
+ * @typedef {import('./truth/attempt.contract.js').FrictionMetrics} FrictionMetrics
  */
 
 const fs = require('fs');
@@ -34,7 +42,12 @@ class AttemptEngine {
 
   /**
    * Execute a single attempt
-   * Returns: { outcome, steps, timings, friction, error, validators, softFailures }
+   * @param {Object} page - Playwright page object
+   * @param {string} attemptId - Attempt identifier
+   * @param {string} baseUrl - Base URL for attempt
+   * @param {string|null} artifactsDir - Artifacts directory path
+   * @param {Array|null} validatorSpecs - Validator specifications
+   * @returns {Promise<AttemptResult>} Attempt execution result
    */
   async executeAttempt(page, attemptId, baseUrl, artifactsDir = null, validatorSpecs = null) {
     const attemptDef = this.loadAttemptDefinition(attemptId);
@@ -100,7 +113,7 @@ class AttemptEngine {
           description: stepDef.description,
           startedAt: new Date().toISOString(),
           retries: 0,
-          status: 'pending',
+          status: /** @type {StepStatus} */ ('pending'),
           error: null,
           screenshots: []
         };
@@ -133,7 +146,7 @@ class AttemptEngine {
 
           currentStep.endedAt = new Date().toISOString();
           currentStep.durationMs = stepDurationMs;
-          currentStep.status = 'success';
+          currentStep.status = /** @type {StepStatus} */ ('success');
 
           // Check for friction signals in step timing
           if (stepDurationMs > this.frictionThresholds.stepDurationMs) {
@@ -144,7 +157,7 @@ class AttemptEngine {
               threshold: this.frictionThresholds.stepDurationMs,
               observedValue: stepDurationMs,
               affectedStepId: stepDef.id,
-              severity: 'medium'
+              severity: /** @type {FrictionSeverity} */ ('medium')
             });
             frictionReasons.push(`Step "${stepDef.id}" took ${stepDurationMs}ms (threshold: ${this.frictionThresholds.stepDurationMs}ms)`);
           }
@@ -157,7 +170,7 @@ class AttemptEngine {
               threshold: this.frictionThresholds.retryCount,
               observedValue: currentStep.retries,
               affectedStepId: stepDef.id,
-              severity: 'high'
+              severity: /** @type {FrictionSeverity} */ ('high')
             });
             frictionReasons.push(`Step "${stepDef.id}" required ${currentStep.retries} retries`);
           }
@@ -177,7 +190,7 @@ class AttemptEngine {
         } catch (err) {
           currentStep.endedAt = new Date().toISOString();
           currentStep.durationMs = Date.now() - stepStartTime;
-          currentStep.status = stepDef.optional ? 'optional_failed' : 'failed';
+          currentStep.status = /** @type {StepStatus} */ (stepDef.optional ? 'optional_failed' : 'failed');
           currentStep.error = err.message;
 
           if (stepDef.optional) {
@@ -189,7 +202,7 @@ class AttemptEngine {
               threshold: 0,
               observedValue: 1,
               affectedStepId: stepDef.id,
-              severity: 'low'
+              severity: /** @type {FrictionSeverity} */ ('low')
             });
             frictionReasons.push(`Optional step failed and was skipped: ${stepDef.id}`);
             if (artifactsDir) {
@@ -272,7 +285,7 @@ class AttemptEngine {
         page.removeListener('console', consoleHandler);
         page.removeListener('pageerror', pageErrorHandler);
         return {
-          outcome: 'FAILURE',
+          outcome: /** @type {AttemptOutcome} */ ('FAILURE'),
           steps,
           startedAt: startedAt.toISOString(),
           endedAt: endedAt.toISOString(),
@@ -283,7 +296,12 @@ class AttemptEngine {
             summary: null,
             reasons: [],
             thresholds: this.frictionThresholds,
-            metrics: {}
+            metrics: {
+              totalDurationMs,
+              stepCount: steps.length,
+              totalRetries: steps.reduce((sum, s) => sum + s.retries, 0),
+              maxStepDurationMs: Math.max(...steps.map(s => s.durationMs || 0), 0)
+            }
           },
           error: 'Success conditions not met after all steps completed',
           successReason: null,
@@ -326,7 +344,7 @@ class AttemptEngine {
           threshold: this.frictionThresholds.totalDurationMs,
           observedValue: totalDurationMs,
           affectedStepId: null,
-          severity: 'low'
+          severity: /** @type {FrictionSeverity} */ ('low')
         });
         frictionReasons.push(`Attempt took ${totalDurationMs}ms total (threshold: ${this.frictionThresholds.totalDurationMs}ms)`);
       }
@@ -340,7 +358,7 @@ class AttemptEngine {
 
       // Determine outcome based on friction signals
       const isFriction = frictionSignals.length > 0;
-      const outcome = isFriction ? 'FRICTION' : 'SUCCESS';
+      const outcome = /** @type {AttemptOutcome} */ (isFriction ? 'FRICTION' : 'SUCCESS');
 
       // Generate friction summary
       const frictionSummary = isFriction 
@@ -375,17 +393,25 @@ class AttemptEngine {
       const endedAt = new Date();
       page.removeListener('console', consoleHandler);
       page.removeListener('pageerror', pageErrorHandler);
+      const failureDurationMs = endedAt.getTime() - startedAt.getTime();
       return {
-        outcome: 'FAILURE',
+        outcome: /** @type {AttemptOutcome} */ ('FAILURE'),
         steps,
         startedAt: startedAt.toISOString(),
         endedAt: endedAt.toISOString(),
-        totalDurationMs: endedAt.getTime() - startedAt.getTime(),
+        totalDurationMs: failureDurationMs,
         friction: {
           isFriction: false,
+          signals: [],
+          summary: null,
           reasons: [],
           thresholds: this.frictionThresholds,
-          metrics: {}
+          metrics: {
+            totalDurationMs: failureDurationMs,
+            stepCount: steps.length,
+            totalRetries: steps.reduce((sum, s) => sum + s.retries, 0),
+            maxStepDurationMs: Math.max(...steps.map(s => s.durationMs || 0), 0)
+          }
         },
         error: `Step "${currentStep?.id}" failed: ${err.message}`,
         successReason: null,
@@ -666,7 +692,7 @@ class AttemptEngine {
         id: 'navigate_home',
         type: 'navigate',
         target: baseUrl,
-        status: 'success',
+        status: /** @type {StepStatus} */ ('success'),
         startedAt: startedAt.toISOString(),
         endedAt: new Date().toISOString(),
         durationMs: null,
@@ -681,7 +707,7 @@ class AttemptEngine {
         id: 'navigate_home',
         type: 'navigate',
         target: baseUrl,
-        status: 'failed',
+        status: /** @type {StepStatus} */ ('failed'),
         error: err.message,
         startedAt: startedAt.toISOString(),
         endedAt: new Date().toISOString(),
@@ -689,13 +715,27 @@ class AttemptEngine {
         retries: 0,
         screenshots: []
       });
+      const failureEndedAt = new Date();
+      const failureDurationMs = failureEndedAt.getTime() - startedAt.getTime();
       return {
-        outcome: 'FAILURE',
+        outcome: /** @type {AttemptOutcome} */ ('FAILURE'),
         steps,
         startedAt: startedAt.toISOString(),
-        endedAt: new Date().toISOString(),
-        totalDurationMs: new Date() - startedAt,
-        friction: { isFriction: false, signals: [], summary: null, reasons: [], thresholds: this.frictionThresholds, metrics: {} },
+        endedAt: failureEndedAt.toISOString(),
+        totalDurationMs: failureDurationMs,
+        friction: {
+          isFriction: false,
+          signals: [],
+          summary: null,
+          reasons: [],
+          thresholds: this.frictionThresholds,
+          metrics: {
+            totalDurationMs: failureDurationMs,
+            stepCount: steps.length,
+            totalRetries: steps.reduce((sum, s) => sum + (s.retries || 0), 0),
+            maxStepDurationMs: Math.max(...steps.map(s => s.durationMs || 0), 0)
+          }
+        },
         error: `Failed to load homepage: ${err.message}`,
         successReason: null,
         validators: [],
@@ -858,12 +898,12 @@ class AttemptEngine {
 
     if (ctaCandidates.length === 0) {
       return {
-        outcome: 'NOT_APPLICABLE',
+        outcome: /** @type {AttemptOutcome} */ ('NOT_APPLICABLE'),
         skipReason: 'No CTA elements detected',
         steps,
         startedAt: startedAt.toISOString(),
         endedAt: new Date().toISOString(),
-        totalDurationMs: new Date() - startedAt,
+        totalDurationMs: Date.now() - startedAt.getTime(),
         friction: { isFriction: false, signals: [], summary: null, reasons: [], thresholds: this.frictionThresholds, metrics: {} },
         error: null,
         successReason: null,
@@ -962,11 +1002,11 @@ class AttemptEngine {
 
     if (contactInfo.mailto) {
       return {
-        outcome: 'SUCCESS',
+        outcome: /** @type {AttemptOutcome} */ ('SUCCESS'),
         steps,
         startedAt: startedAt.toISOString(),
         endedAt: new Date().toISOString(),
-        totalDurationMs: new Date() - startedAt,
+        totalDurationMs: Date.now() - startedAt.getTime(),
         friction: { isFriction: false, signals: [], summary: null, reasons: [], thresholds: this.frictionThresholds, metrics: {} },
         error: null,
         successReason: `Found mailto: ${contactInfo.mailto}`,
@@ -978,12 +1018,12 @@ class AttemptEngine {
 
     if (contactInfo.contactLinks.length === 0) {
       return {
-        outcome: 'NOT_APPLICABLE',
+        outcome: /** @type {AttemptOutcome} */ ('NOT_APPLICABLE'),
         skipReason: 'No contact link or mailto detected',
         steps,
         startedAt: startedAt.toISOString(),
         endedAt: new Date().toISOString(),
-        totalDurationMs: new Date() - startedAt,
+        totalDurationMs: Date.now() - startedAt.getTime(),
         friction: { isFriction: false, signals: [], summary: null, reasons: [], thresholds: this.frictionThresholds, metrics: {} },
         error: null,
         successReason: null,

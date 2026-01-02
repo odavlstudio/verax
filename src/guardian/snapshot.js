@@ -1,6 +1,8 @@
 /**
  * Market Reality Snapshot Builder
  * Assembles crawl results, attempt results, evidence, and signals into a snapshot
+ * 
+ * @typedef {import('./truth/attempt.contract.js').AttemptResult} AttemptResult
  */
 
 const fs = require('fs');
@@ -51,6 +53,8 @@ class SnapshotBuilder {
 
   /**
    * Add attempt result to snapshot
+   * @param {AttemptResult} attemptResult - Attempt execution result
+   * @param {string} artifactDir - Artifact directory path
    */
   addAttempt(attemptResult, artifactDir) {
     // Handle NOT_APPLICABLE and DISCOVERY_FAILED attempts
@@ -62,10 +66,10 @@ class SnapshotBuilder {
         outcome: attemptResult.outcome,
         executed: false,
         skipReason: attemptResult.skipReason || (attemptResult.outcome === 'NOT_APPLICABLE' ? 'Feature not present' : 'Element discovery failed'),
-        skipReasonCode: attemptResult.skipReasonCode,
+        skipReasonCode: attemptResult.skipReason || 'NOT_APPLICABLE',
         discoverySignals: attemptResult.discoverySignals || {},
         totalDurationMs: attemptResult.totalDurationMs || 0,
-        stepCount: attemptResult.stepCount || 0,
+        stepCount: (attemptResult.steps || []).length,
         failedStepIndex: -1,
         friction: null
       });
@@ -81,7 +85,7 @@ class SnapshotBuilder {
         outcome: 'SKIPPED',
         executed: false,
         skipReason: attemptResult.skipReason || 'Prerequisites not met',
-        skipReasonCode: attemptResult.skipReasonCode,
+        skipReasonCode: attemptResult.skipReason || 'NOT_APPLICABLE',
         totalDurationMs: 0,
         stepCount: 0,
         failedStepIndex: -1,
@@ -102,31 +106,31 @@ class SnapshotBuilder {
       signal.details = attemptResult.error;
     }
 
-    this.snapshot.attempts.push({
-      attemptId: attemptResult.attemptId,
-      attemptName: attemptResult.attemptName,
-      goal: attemptResult.goal,
-      outcome: attemptResult.outcome,
-      executed: true,
-      discoverySignals: attemptResult.discoverySignals || {},
-      totalDurationMs: attemptResult.attemptResult?.totalDurationMs || 0,
-      stepCount: (attemptResult.steps || []).length,
-      failedStepIndex: (attemptResult.steps || []).findIndex(s => s.status === 'failed'),
-      friction: attemptResult.friction || null,
-      evidenceSummary: {
-        screenshots: (attemptResult.steps || []).reduce((sum, s) => sum + (Array.isArray(s.screenshots) ? s.screenshots.length : 0), 0),
-        validators: Array.isArray(attemptResult.validators) ? attemptResult.validators.length : 0,
-        tracesCaptured: attemptResult.tracePath ? 1 : 0
-      }
-    });
+      this.snapshot.attempts.push({
+        attemptId: attemptResult.attemptId || 'unknown',
+        attemptName: attemptResult.attemptName || 'Unknown Attempt',
+        goal: attemptResult.goal || 'Unknown goal',
+        outcome: attemptResult.outcome,
+        executed: true,
+        discoverySignals: attemptResult.discoverySignals || {},
+        totalDurationMs: attemptResult.totalDurationMs || 0,
+        stepCount: (attemptResult.steps || []).length,
+        failedStepIndex: (attemptResult.steps || []).findIndex(s => s.status === 'failed'),
+        friction: attemptResult.friction || null,
+        evidenceSummary: {
+          screenshots: (attemptResult.steps || []).reduce((sum, s) => sum + (Array.isArray(s.screenshots) ? s.screenshots.length : 0), 0),
+          validators: Array.isArray(attemptResult.validators) ? attemptResult.validators.length : 0,
+          tracesCaptured: (attemptResult.artifacts?.tracePath) ? 1 : 0
+        }
+      });
 
     // Track artifacts
     if (artifactDir) {
-      this.snapshot.evidence.attemptArtifacts[attemptResult.attemptId] = {
-        reportJson: path.join(attemptResult.attemptId, 'attempt-report.json'),
-        reportHtml: path.join(attemptResult.attemptId, 'attempt-report.html'),
-        screenshotDir: path.join(attemptResult.attemptId, 'attempt-screenshots'),
-        attemptJson: attemptResult.attemptJsonPath ? path.relative(artifactDir, attemptResult.attemptJsonPath) : undefined
+      this.snapshot.evidence.attemptArtifacts[attemptResult.attemptId || 'unknown'] = {
+        reportJson: path.join(attemptResult.attemptId || 'unknown', 'attempt-report.json'),
+        reportHtml: path.join(attemptResult.attemptId || 'unknown', 'attempt-report.html'),
+        screenshotDir: path.join(attemptResult.attemptId || 'unknown', 'attempt-screenshots'),
+        attemptJson: attemptResult.artifacts?.attemptJsonPath ? path.relative(artifactDir, attemptResult.artifacts.attemptJsonPath) : undefined
       };
     }
 
