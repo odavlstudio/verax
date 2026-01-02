@@ -1,0 +1,9 @@
+node_modules/
+artifacts/
+.odavl-guardian/
+logs/
+reports/
+extension/
+website/
+artifacts/**
+**/*.log

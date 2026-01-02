@@ -26,8 +26,8 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install @odavl/guardian (v0.3.0-beta)
-        run: npm install --global @odavl/guardian@0.3.0
+      - name: Install @odavl/guardian (v2.0.0)
+        run: npm install --global @odavl/guardian@2.0.0
 
       - name: Verify Guardian Installation
         run: guardian --version
@@ -120,8 +120,8 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install @odavl/guardian (v0.3.0-beta)
-        run: npm install --global @odavl/guardian@0.3.0
+      - name: Install @odavl/guardian (v2.0.0)
+        run: npm install --global @odavl/guardian@2.0.0
 
       - name: Run Guardian Reality Check - github.com
         id: reality-check

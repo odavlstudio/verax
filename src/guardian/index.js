@@ -1,3 +1,5 @@
+const os = require('os');
+const path = require('path');
 const { GuardianBrowser } = require('./browser');
 const { GuardianCrawler } = require('./crawler');
 const { GuardianReporter } = require('./reporter');
@@ -14,7 +16,7 @@ async function runGuardian(config) {
     maxPages = 25,
     maxDepth = 3,
     timeout = 20000,
-    artifactsDir = './artifacts',
+    artifactsDir = path.join(os.tmpdir(), 'odavlguardian-artifacts'),
     // Phase 2 features
     enableScreenshots = true,
     enableTrace = true,

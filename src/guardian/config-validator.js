@@ -258,6 +258,8 @@ function reportConfigIssues(validation) {
  * @returns {object} Default config values
  */
 function getDefaultConfig() {
+  const os = require('os');
+  const path = require('path');
   return {
     crawl: {
       maxPages: 10,
@@ -267,7 +269,7 @@ function getDefaultConfig() {
       navigationMs: 20000
     },
     output: {
-      dir: './.odavlguardian'
+      dir: path.join(os.tmpdir(), 'odavl-guardian')
     }
   };
 }

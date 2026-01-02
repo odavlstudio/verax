@@ -1,0 +1,243 @@
+{
+  "schemaVersion": "v1",
+  "meta": {
+    "schemaVersion": "v1",
+    "createdAt": "2025-12-23T15:45:22.123Z",
+    "toolVersion": "0.4.0-phase4",
+    "url": "https://example.com",
+    "runId": "discovery-run-20251223-154522",
+    "environment": "production"
+  },
+  "crawl": {
+    "discoveredUrls": [
+      "https://example.com/",
+      "https://example.com/products",
+      "https://example.com/pricing",
+      "https://example.com/about"
+    ],
+    "visitedCount": 4,
+    "failedCount": 0,
+    "safetyBlockedCount": 0,
+    "httpFailures": [],
+    "notes": "Discovered 4 URLs, visited 4"
+  },
+  "attempts": [
+    {
+      "attemptId": "checkout",
+      "attemptName": "Checkout Flow",
+      "goal": "Complete a purchase",
+      "outcome": "FAILURE",
+      "totalDurationMs": 12500,
+      "stepCount": 4,
+      "failedStepIndex": 3,
+      "validators": [
+        {
+          "id": "element_visible_success",
+          "type": "elementVisible",
+          "status": "FAIL",
+          "message": "Success button not visible on checkout page"
+        }
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "id": "attempt_checkout",
+      "severity": "high",
+      "type": "failure",
+      "description": "Checkout Flow: FAILURE"
+    }
+  ],
+  "marketImpactSummary": {
+    "highestSeverity": "CRITICAL",
+    "totalRiskCount": 2,
+    "countsBySeverity": {
+      "CRITICAL": 2,
+      "WARNING": 0,
+      "INFO": 0
+    },
+    "topRisks": [
+      {
+        "attemptId": "checkout",
+        "validatorId": "element_visible_success",
+        "category": "REVENUE",
+        "severity": "CRITICAL",
+        "impactScore": 95,
+        "humanReadableReason": "💰 Revenue: checkout - Success button not visible"
+      },
+      {
+        "attemptId": "checkout",
+        "validatorId": "outcome_checkout",
+        "category": "REVENUE",
+        "severity": "CRITICAL",
+        "impactScore": 90,
+        "humanReadableReason": "💰 Revenue: checkout - Attempt FAILED"
+      }
+    ]
+  },
+  "discovery": {
+    "pagesVisited": [
+      "https://example.com/",
+      "https://example.com/products",
+      "https://example.com/pricing",
+      "https://example.com/about"
+    ],
+    "pagesVisitedCount": 4,
+    "interactionsDiscovered": 28,
+    "interactionsExecuted": 15,
+    "interactionsByType": {
+      "NAVIGATE": 8,
+      "CLICK": 12,
+      "FORM_FILL": 3
+    },
+    "interactionsByRisk": {
+      "safe": 23,
+      "risky": 5
+    },
+    "results": [
+      {
+        "interactionId": "nav-0",
+        "pageUrl": "https://example.com/",
+        "type": "NAVIGATE",
+        "selector": "a[href=\"/products\"]",
+        "outcome": "SUCCESS",
+        "notes": "Navigated to /products",
+        "durationMs": 345,
+        "targetUrl": "https://example.com/products"
+      },
+      {
+        "interactionId": "nav-1",
+        "pageUrl": "https://example.com/",
+        "type": "NAVIGATE",
+        "selector": "a[href=\"/pricing\"]",
+        "outcome": "SUCCESS",
+        "notes": "Navigated to /pricing",
+        "durationMs": 401,
+        "targetUrl": "https://example.com/pricing"
+      },
+      {
+        "interactionId": "nav-2",
+        "pageUrl": "https://example.com/",
+        "type": "NAVIGATE",
+        "selector": "a[href=\"/about\"]",
+        "outcome": "SUCCESS",
+        "notes": "Navigated to /about",
+        "durationMs": 298,
+        "targetUrl": "https://example.com/about"
+      },
+      {
+        "interactionId": "click-0",
+        "pageUrl": "https://example.com/",
+        "type": "CLICK",
+        "selector": "button:nth-of-type(1)",
+        "text": "Click Me (Safe)",
+        "outcome": "SUCCESS",
+        "notes": "Click executed",
+        "durationMs": 156
+      },
+      {
+        "interactionId": "click-1",
+        "pageUrl": "https://example.com/",
+        "type": "CLICK",
+        "selector": "button:nth-of-type(2)",
+        "text": "Safe Navigation Button",
+        "outcome": "SUCCESS",
+        "notes": "Click executed, navigated to /confirmation",
+        "durationMs": 189,
+        "targetUrl": "https://example.com/confirmation"
+      },
+      {
+        "interactionId": "click-logout",
+        "pageUrl": "https://example.com/",
+        "type": "CLICK",
+        "selector": "button.risky",
+        "text": "Logout",
+        "outcome": "FAILURE",
+        "notes": "Blocked by safety model (risky text: 'logout')",
+        "durationMs": 0
+      },
+      {
+        "interactionId": "click-delete",
+        "pageUrl": "https://example.com/",
+        "type": "CLICK",
+        "selector": "button.risky",
+        "text": "Delete Account",
+        "outcome": "FAILURE",
+        "notes": "Blocked by safety model (risky text: 'delete')",
+        "durationMs": 0
+      },
+      {
+        "interactionId": "form-0",
+        "pageUrl": "https://example.com/",
+        "type": "FORM_FILL",
+        "selector": "form#newsletter",
+        "outcome": "SUCCESS",
+        "notes": "Filled 2 form fields (email, name)",
+        "durationMs": 245
+      },
+      {
+        "interactionId": "form-1",
+        "pageUrl": "https://example.com/",
+        "type": "FORM_FILL",
+        "selector": "form#contact",
+        "outcome": "SUCCESS",
+        "notes": "Filled 3 form fields (email, subject, message)",
+        "durationMs": 312
+      },
+      {
+        "interactionId": "form-payment",
+        "pageUrl": "https://example.com/",
+        "type": "FORM_FILL",
+        "selector": "form#payment",
+        "outcome": "FAILURE",
+        "notes": "Blocked by safety model (unknown form without data-guardian-safe)",
+        "durationMs": 0
+      },
+      {
+        "interactionId": "nav-pricing-checkout",
+        "pageUrl": "https://example.com/pricing",
+        "type": "NAVIGATE",
+        "selector": "a[href=\"/checkout\"]",
+        "outcome": "FAILURE",
+        "notes": "Blocked by safety model (href contains '/checkout')",
+        "durationMs": 0
+      },
+      {
+        "interactionId": "click-add-to-cart",
+        "pageUrl": "https://example.com/products",
+        "type": "CLICK",
+        "selector": "button:nth-of-type(1)",
+        "text": "Add to Cart",
+        "outcome": "SUCCESS",
+        "notes": "Click executed",
+        "durationMs": 178
+      },
+      {
+        "interactionId": "click-error",
+        "pageUrl": "https://example.com/products",
+        "type": "CLICK",
+        "selector": "button[data-missing]",
+        "outcome": "FAILURE",
+        "errorMessage": "Element not found",
+        "durationMs": 2100
+      }
+    ],
+    "summary": "Visited 4 pages, discovered 28 interactions (23 safe, 5 risky), executed 15 (13 success, 5 blocked by safety, 1 element error)"
+  },
+  "evidence": {
+    "artifactDir": "artifacts/discovery-run-20251223-154522",
+    "attemptArtifacts": {
+      "checkout": {
+        "reportJson": "checkout/attempt-report.json",
+        "screenshotDir": "checkout/attempt-screenshots"
+      }
+    }
+  },
+  "baseline": {
+    "baselineFound": false,
+    "baselineCreatedThisRun": true,
+    "baselineCreatedAt": "2025-12-23T15:45:22.123Z",
+    "baselinePath": ".odavl-guardian/baselines/example-com/baseline.json",
+    "diff": null
+  }
+}

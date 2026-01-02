@@ -1,0 +1,39 @@
+GUARDIAN REALITY TEST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Target: https://shop.example.com
+Run ID: <normalized-run-id>
+
+EXECUTION SUMMARY
+──────────────────────────────────────────────────────────────────────────────
+Planned:  10 attempts
+Executed: 7 attempts
+Skipped:  3 attempts
+          (2 not applicable, 1 user-filtered)
+
+VERDICT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Status: FRICTION
+Meaning: Some flows failed or were skipped. Review before launch.
+Action: Review failures and fix before launch
+
+CONFIDENCE ASSESSMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Confidence Level: MEDIUM
+Core flows passed, but some gaps in coverage or stability.
+
+Confidence Factors:
+  • 70% coverage - some flows not tested
+  • 1 infrastructure error detected (timeouts, network issues)
+
+Testing Limits:
+  • login was not tested (missing elements)
+  • 2 not applicable to this site
+
+
+FINAL RECOMMENDATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Site has issues. Review failures above and fix before launch.
+
+Full report: <normalized-artifacts-path>
+Exit code: 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

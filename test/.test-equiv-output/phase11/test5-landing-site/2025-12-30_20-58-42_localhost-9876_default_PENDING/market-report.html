@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Reality Report</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f6f7fb; color: #1f2937; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { background: linear-gradient(135deg, #111827, #1f2937); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; }
+    .header h1 { margin: 0 0 8px 0; }
+    .badge { color: white; padding: 6px 10px; border-radius: 999px; font-size: 0.9em; }
+    .verdict { display: inline-flex; align-items: center; gap: 8px; background: #10b981; color: white; padding: 10px 14px; border-radius: 999px; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+    th { background: #f3f4f6; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    details { background: white; padding: 14px; border-radius: 10px; margin-top: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
+    summary { cursor: pointer; font-weight: 600; }
+    .attempt-detail { margin-top: 10px; }
+    .friction-block { margin: 10px 0; }
+    .signal-card { background: #fefce8; border: 1px solid #fde047; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
+    .signal-card.severity-low { background: #f0f9ff; border-color: #7dd3fc; border-left-color: #0ea5e9; display: none; }
+    .show-low-severity .signal-card.severity-low { display: block; }
+    .signal-card.severity-medium { background: #fefce8; border-color: #fde047; border-left-color: #f59e0b; }
+    .signal-card.severity-high { background: #fef2f2; border-color: #fca5a5; border-left-color: #ef4444; }
+    .signal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .signal-id { font-family: monospace; font-weight: 700; }
+    .signal-severity { padding: 3px 8px; border-radius: 4px; color: white; font-size: 0.8em; }
+    .signal-severity.severity-low { background: #0ea5e9; }
+    .signal-severity.severity-medium { background: #f59e0b; }
+    .signal-severity.severity-high { background: #ef4444; }
+    .signal-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; font-size: 0.9em; }
+    .signal-metric { background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; padding: 6px; }
+    .steps-block ol { padding-left: 20px; }
+    .no-friction { color: #16a34a; font-weight: 600; }
+    .meta { display: flex; gap: 18px; margin-top: 10px; color: #e5e7eb; font-size: 0.95em; }
+    /* Phase 5: Executive Summary Styles */
+    .executive-summary { background: linear-gradient(135deg, #ffffff, #f8fafc); border: 3px solid #3b82f6; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .executive-summary h2 { color: #1e40af; margin: 0 0 20px 0; font-size: 28px; border-bottom: 2px solid #3b82f6; padding-bottom: 12px; }
+    .exec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
+    .exec-card { background: white; border-radius: 8px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #3b82f6; }
+    .exec-card h3 { color: #374151; margin: 0 0 12px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .exec-verdict { font-size: 24px; font-weight: bold; margin: 8px 0; }
+    .exec-verdict.safe { color: #10b981; }
+    .exec-verdict.caution { color: #f59e0b; }
+    .exec-verdict.danger { color: #ef4444; }
+    .exec-score { font-size: 48px; font-weight: bold; color: #3b82f6; margin: 8px 0; }
+    .exec-score-label { color: #6b7280; font-size: 14px; }
+    .exec-risk-list { list-style: none; padding: 0; margin: 0; }
+    .exec-risk-item { background: #f9fafb; border-left: 3px solid #ef4444; padding: 10px 12px; margin-bottom: 10px; border-radius: 4px; }
+    .exec-risk-item .risk-title { font-weight: 600; color: #111827; margin-bottom: 4px; }
+    .exec-risk-item .risk-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; color: white; }
+    .exec-risk-item .risk-why-matters { color: #6b7280; font-size: 13px; margin-top: 6px; line-height: 1.4; font-style: italic; }
+    .exec-risk-item .risk-badge.CRITICAL { background: #dc2626; }
+    .exec-risk-item .risk-badge.WARNING { background: #f59e0b; }
+    .exec-risk-item .risk-badge.INFO { background: #3b82f6; }
+    .exec-action { background: #eff6ff; border: 2px solid #3b82f6; border-radius: 8px; padding: 16px; margin-top: 16px; }
+    .exec-action h3 { color: #1e40af; margin: 0 0 10px 0; font-size: 16px; }
+    .exec-action p { color: #1f2937; font-size: 15px; font-weight: 500; margin: 0; line-height: 1.5; }
+    /* Phase 5 (Part 3): Noise Reduction - Collapsible Sections */
+    .collapsible-section { background: white; border: 1px solid #e5e7eb; border-radius: 10px; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); overflow: hidden; }
+    .collapsible-section[open] { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .section-toggle { cursor: pointer; padding: 16px; font-weight: 600; color: #1f2937; display: flex; align-items: center; gap: 8px; user-select: none; font-size: 15px; }
+    .section-toggle:hover { background: #f9fafb; }
+    .collapsible-content { padding: 16px; border-top: 1px solid #e5e7eb; display: none; }
+    .collapsible-section[open] .collapsible-content { display: block; }
+    .collapsible-section details { margin-top: 12px; }
+    .collapsible-section details summary { cursor: pointer; padding: 8px; font-weight: 500; color: #374151; user-select: none; }
+    .collapsible-section details summary:hover { background: #f3f4f6; border-radius: 4px; }
+    .collapsible-section table { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Market Reality Report</h1>
+      <div class="verdict">🟢 READY</div>
+      <div class="meta">
+        <div><strong>Run ID:</strong> 2025-12-30_20-58-42_localhost-9876_default_PENDING</div>
+        <div><strong>Base URL:</strong> http://localhost:9876</div>
+        <div><strong>Attempts:</strong> primary_ctas, login, signup, checkout, contact_form, site_smoke, newsletter_signup, language_switch</div>
+        <div><strong>Manual:</strong> 6 | <strong>Auto:</strong> 0 🤖</div>
+        <div><strong>Flows:</strong> 0 (✅ 0 / ❌ 0)</div>
+        <div><strong>Timestamp:</strong> 2025-12-30T19:58:43.665Z</div>
+      </div>
+    </div>
+
+    <!-- Phase 5: Executive Summary -->
+    <div class="executive-summary">
+      <h2>🧠 Executive Summary</h2>
+      <div class="exec-grid">
+        <div class="exec-card">
+          <h3>Release Verdict</h3>
+          <div class="exec-verdict danger">🔴 DO NOT RELEASE</div>
+        </div>
+        <div class="exec-card">
+          <h3>Overall Risk Score</h3>
+          <div class="exec-score">100</div>
+          <div class="exec-score-label">/ 100</div>
+        </div>
+      </div>
+      <div class="exec-card">
+        <h3>Top Reason</h3>
+        <p style="color: #1f2937; font-size: 15px; margin: 0;">Checkout Review</p>
+      </div>
+      
+      <div class="exec-card" style="margin-top: 20px;">
+        <h3>Top 3 Risks</h3>
+        <ul class="exec-risk-list">
+          
+            <li class="exec-risk-item">
+              <div class="risk-title">Checkout Review</div>
+              <span class="risk-badge CRITICAL">CRITICAL</span>
+              <div class="risk-why-matters">Why this matters: Form validation failures prevent users from completing critical actions.</div>
+            </li>
+          
+            <li class="exec-risk-item">
+              <div class="risk-title">Account Login</div>
+              <span class="risk-badge WARNING">WARNING</span>
+              <div class="risk-why-matters">Why this matters: Form validation failures prevent users from completing critical actions.</div>
+            </li>
+          
+            <li class="exec-risk-item">
+              <div class="risk-title">Account Signup</div>
+              <span class="risk-badge WARNING">WARNING</span>
+              <div class="risk-why-matters">Why this matters: Form validation failures prevent users from completing critical actions.</div>
+            </li>
+          
+        </ul>
+      </div>
+      
+      <div class="exec-action">
+        <h3>📋 Recommended Next Action</h3>
+        <p>Fix checkout/submission flow before release — revenue impact detected.</p>
+      </div>
+    </div>
+
+    <details class="collapsible-section">
+      <summary class="section-toggle">📋 Attempt Details (6 runs)</summary>
+      <div class="collapsible-content">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Attempt ID</th>
+              <th>Name</th>
+              <th>Outcome</th>
+              <th>Duration</th>
+              <th>Friction Signals</th>
+              <th>Reports</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td>1</td>
+          <td>primary_ctas</td>
+          <td>Primary CTA Coverage</td>
+          <td><span class="badge" style="background:#10b981">✅ READY</span></td>
+          <td>133 ms</td>
+          <td>0</td>
+          <td>
+            <a href="attempt-report.html" target="_blank">HTML</a>
+             | <a href="attempt-report.json" target="_blank">JSON</a>
+          </td>
+        </tr>
+      
+        <tr>
+          <td>2</td>
+          <td>login</td>
+          <td>Account Login</td>
+          <td><span class="badge" style="background:#ef4444">❌ DO_NOT_LAUNCH</span></td>
+          <td>0 ms</td>
+          <td>0</td>
+          <td>
+            <a href="attempt-report.html" target="_blank">HTML</a>
+             | <a href="attempt-report.json" target="_blank">JSON</a>
+          </td>
+        </tr>
+      
+        <tr>
+          <td>3</td>
+          <td>signup</td>
+          <td>Account Signup</td>
+          <td><span class="badge" style="background:#ef4444">❌ DO_NOT_LAUNCH</span></td>
+          <td>0 ms</td>
+          <td>0</td>
+          <td>
+            <a href="attempt-report.html" target="_blank">HTML</a>
+             | <a href="attempt-report.json" target="_blank">JSON</a>
+          </td>
+        </tr>
+      
+        <tr>
+          <td>4</td>
+          <td>checkout</td>
+          <td>Checkout Review</td>
+          <td><span class="badge" style="background:#ef4444">❌ DO_NOT_LAUNCH</span></td>
+          <td>0 ms</td>
+          <td>0</td>
+          <td>
+            <a href="attempt-report.html" target="_blank">HTML</a>
+             | <a href="attempt-report.json" target="_blank">JSON</a>
+          </td>
+        </tr>
+      
+        <tr>
+          <td>5</td>
+          <td>newsletter_signup</td>
+          <td>Newsletter Signup</td>
+          <td><span class="badge" style="background:#ef4444">❌ DO_NOT_LAUNCH</span></td>
+          <td>0 ms</td>
+          <td>0</td>
+          <td>
+            <a href="attempt-report.html" target="_blank">HTML</a>
+             | <a href="attempt-report.json" target="_blank">JSON</a>
+          </td>
+        </tr>
+      
+        <tr>
+          <td>6</td>
+          <td>language_switch</td>
+          <td>Language Toggle</td>
+          <td><span class="badge" style="background:#ef4444">❌ DO_NOT_LAUNCH</span></td>
+          <td>0 ms</td>
+          <td>0</td>
+          <td>
+            <a href="attempt-report.html" target="_blank">HTML</a>
+             | <a href="attempt-report.json" target="_blank">JSON</a>
+          </td>
+        </tr>
+      
+          </tbody>
+        </table>
+
+        <div class="details">
+        <details open>
+          <summary>Attempt 1: primary_ctas — SUCCESS</summary>
+          <div class="attempt-detail">
+            <p><strong>Outcome:</strong> SUCCESS</p>
+            <p><strong>Duration:</strong> 133ms</p>
+            <p><strong>Friction Summary:</strong> None</p>
+            <p class="no-friction">No friction signals</p>
+            <div class="steps-block">
+              <h4>Steps</h4>
+              <ol><li>navigate_home — success (0ms)</li><li>cta_get_started — success (0ms)</li><li>cta_contact — success (0ms)</li></ol>
+            </div>
+          </div>
+        </details>
+      
+        <details open>
+          <summary>Attempt 2: login — SKIPPED</summary>
+          <div class="attempt-detail">
+            <p><strong>Outcome:</strong> SKIPPED</p>
+            <p><strong>Duration:</strong> 0ms</p>
+            <p><strong>Friction Summary:</strong> None</p>
+            <p class="no-friction">No friction signals</p>
+            <div class="steps-block">
+              <h4>Steps</h4>
+              <ol></ol>
+            </div>
+          </div>
+        </details>
+      
+        <details open>
+          <summary>Attempt 3: signup — SKIPPED</summary>
+          <div class="attempt-detail">
+            <p><strong>Outcome:</strong> SKIPPED</p>
+            <p><strong>Duration:</strong> 0ms</p>
+            <p><strong>Friction Summary:</strong> None</p>
+            <p class="no-friction">No friction signals</p>
+            <div class="steps-block">
+              <h4>Steps</h4>
+              <ol></ol>
+            </div>
+          </div>
+        </details>
+      
+        <details open>
+          <summary>Attempt 4: checkout — SKIPPED</summary>
+          <div class="attempt-detail">
+            <p><strong>Outcome:</strong> SKIPPED</p>
+            <p><strong>Duration:</strong> 0ms</p>
+            <p><strong>Friction Summary:</strong> None</p>
+            <p class="no-friction">No friction signals</p>
+            <div class="steps-block">
+              <h4>Steps</h4>
+              <ol></ol>
+            </div>
+          </div>
+        </details>
+      
+        <details open>
+          <summary>Attempt 5: newsletter_signup — SKIPPED</summary>
+          <div class="attempt-detail">
+            <p><strong>Outcome:</strong> SKIPPED</p>
+            <p><strong>Duration:</strong> 0ms</p>
+            <p><strong>Friction Summary:</strong> None</p>
+            <p class="no-friction">No friction signals</p>
+            <div class="steps-block">
+              <h4>Steps</h4>
+              <ol></ol>
+            </div>
+          </div>
+        </details>
+      
+        <details open>
+          <summary>Attempt 6: language_switch — SKIPPED</summary>
+          <div class="attempt-detail">
+            <p><strong>Outcome:</strong> SKIPPED</p>
+            <p><strong>Duration:</strong> 0ms</p>
+            <p><strong>Friction Summary:</strong> None</p>
+            <p class="no-friction">No friction signals</p>
+            <div class="steps-block">
+              <h4>Steps</h4>
+              <ol></ol>
+            </div>
+          </div>
+        </details>
+      </div>
+      </div>
+    </details>
+
+    
+
+    
+    <details class="collapsible-section" open>
+      <summary class="section-toggle">🔍 Breakage Intelligence</summary>
+      <div class="collapsible-content">
+        <div style="background:#fff; padding:16px; border-radius:10px; margin-top:12px;">
+          <p><strong>Critical Failures:</strong> 1 | <strong>Warnings:</strong> 4 | <strong>Info:</strong> 0</p>
+          
+          <div style="background:#fef2f2; border:1px solid #fca5a5; padding:10px; border-radius:6px; margin-top:8px;">
+            <strong>⚠️ Escalation Signals:</strong>
+            <ul>
+              <li>CRITICAL failures detected - immediate action required</li><li>REVENUE domain affected - financial impact likely</li>
+            </ul>
+          </div>
+          
+          
+          <details style="margin-top:10px;">
+            <summary><strong>Account Login</strong> — VALIDATION (WARNING)</summary>
+            <div style="margin-top:8px; padding:8px; background:#f9fafb;">
+              <p><strong>Primary Hint:</strong> Success validation did not pass</p>
+              <p><strong>Why It Matters:</strong></p>
+              <ul><li>⚠️  Trust impact: Auth/account flow is broken. Users cannot access their data.</li><li>🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact.</li></ul>
+              <p><strong>Top Actions:</strong></p>
+              <ol><li>1. Review frontend code for recent CSS/JS changes</li><li>2. Check browser console for JavaScript errors</li><li>3. Verify DOM selectors match current HTML structure</li></ol>
+              
+              
+            </div>
+          </details>
+          
+          <details style="margin-top:10px;">
+            <summary><strong>Account Signup</strong> — VALIDATION (WARNING)</summary>
+            <div style="margin-top:8px; padding:8px; background:#f9fafb;">
+              <p><strong>Primary Hint:</strong> Success validation did not pass</p>
+              <p><strong>Why It Matters:</strong></p>
+              <ul><li>📉 Lead gen impact: Signup/contact flow is broken. Cannot capture customer interest.</li><li>🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact.</li></ul>
+              <p><strong>Top Actions:</strong></p>
+              <ol><li>1. Review frontend code for recent CSS/JS changes</li><li>2. Check browser console for JavaScript errors</li><li>3. Verify DOM selectors match current HTML structure</li></ol>
+              
+              
+            </div>
+          </details>
+          
+          <details style="margin-top:10px;">
+            <summary><strong>Checkout Review</strong> — VALIDATION (CRITICAL)</summary>
+            <div style="margin-top:8px; padding:8px; background:#f9fafb;">
+              <p><strong>Primary Hint:</strong> Success validation did not pass</p>
+              <p><strong>Why It Matters:</strong></p>
+              <ul><li>🚨 Revenue impact: Checkout/payment flow is broken. Customers cannot complete purchases.</li><li>🔴 CRITICAL: Escalate immediately. Page/API down or core feature broken.</li></ul>
+              <p><strong>Top Actions:</strong></p>
+              <ol><li>1. Review frontend code for recent CSS/JS changes</li><li>2. Check browser console for JavaScript errors</li><li>3. Verify DOM selectors match current HTML structure</li></ol>
+              
+              
+            </div>
+          </details>
+          
+          <details style="margin-top:10px;">
+            <summary><strong>Newsletter Signup</strong> — VALIDATION (WARNING)</summary>
+            <div style="margin-top:8px; padding:8px; background:#f9fafb;">
+              <p><strong>Primary Hint:</strong> Success validation did not pass</p>
+              <p><strong>Why It Matters:</strong></p>
+              <ul><li>📉 Lead gen impact: Signup/contact flow is broken. Cannot capture customer interest.</li><li>🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact.</li></ul>
+              <p><strong>Top Actions:</strong></p>
+              <ol><li>1. Review frontend code for recent CSS/JS changes</li><li>2. Check browser console for JavaScript errors</li><li>3. Verify DOM selectors match current HTML structure</li></ol>
+              
+              
+            </div>
+          </details>
+          
+          <details style="margin-top:10px;">
+            <summary><strong>Language Toggle</strong> — VALIDATION (WARNING)</summary>
+            <div style="margin-top:8px; padding:8px; background:#f9fafb;">
+              <p><strong>Primary Hint:</strong> Success validation did not pass</p>
+              <p><strong>Why It Matters:</strong></p>
+              <ul><li>⚠️  Trust impact: Auth/account flow is broken. Users cannot access their data.</li><li>🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact.</li></ul>
+              <p><strong>Top Actions:</strong></p>
+              <ol><li>1. Review frontend code for recent CSS/JS changes</li><li>2. Check browser console for JavaScript errors</li><li>3. Verify DOM selectors match current HTML structure</li></ol>
+              
+              
+            </div>
+          </details>
+          
+        </div>
+      </div>
+    </details>
+    
+  </div>
+</body>
+</html>

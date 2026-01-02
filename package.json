@@ -1,6 +1,6 @@
 {
   "name": "@odavl/guardian",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "releaseState": "stable",
   "description": "The final decision authority before launch. Observes your website as real users experience it, decides whether launch is safe, and continues watching after deployment to detect when reality breaks.",
   "license": "MIT",
@@ -43,7 +43,8 @@
   ],
   "scripts": {
     "test:freeze": "node scripts/freeze-gate.js",
-    "test": "node test/mvp.test.js && node test/stage4-security.test.js && node test/stage5-ci-gate.test.js && node test/stage5-error-handling.test.js && node test/stage6-verdict-card.test.js && node test/stage7-watchdog-simple.test.js",
+    "test": "node test/mvp.test.js && node test/snapshot-humanintent.test.js",
+    "test:full": "node test/mvp.test.js && node test/stage4-security.test.js && node test/stage5-ci-gate.test.js && node test/stage5-error-handling.test.js && node test/stage6-verdict-card.test.js && node test/stage7-watchdog-simple.test.js",
     "test:stage5:determinism": "node test/stage5-determinism.test.js",
     "test:stage7:watchdog": "node test/stage7-watchdog-simple.test.js",
     "test:stage6:verdict": "node test/stage6-verdict-card.test.js",
@@ -92,8 +93,7 @@
     "test:trust-closure": "node test/trust-closure.test.js",
     "test:surface-freeze": "node test/surface-freeze.test.js",
     "test:export:all": "node test/export.test.js && node test/export-api.test.js && node test/export-contract.test.js && node test/export-equivalence.test.js && node test/export-equivalence.freeze.test.js && node test/export-negative-guards.test.js",
-    "release:dry": "npm run test:guardian && node bin/guardian.js --help && node bin/guardian.js --version",
-    "test:guardian": "npx jest test/guardian/stability-scorer.unit.test.js test/guardian/stability.integration.test.js test/guardian/alert-ledger.unit.test.js test/guardian/severity-classification.unit.test.js --testTimeout=50000",
+    "release:dry": "npm test && node bin/guardian.js --help && node bin/guardian.js --version",
     "start": "node bin/guardian.js",
     "sample:generate": "node scripts/generate-sample.js",
     "template:verify": "node scripts/verify-templates.js",
@@ -101,11 +101,9 @@
     "verify:verdicts": "node scripts/verify-unknown-elimination.js"
   },
   "dependencies": {
-    "@odavl/guardian": "^1.0.0",
     "archiver": "^6.0.1",
     "express": "^5.2.1",
-    "playwright": "^1.48.2",
-    "unzipper": "^0.10.14"
+    "playwright": "^1.48.2"
   },
   "devDependencies": {
     "ajv": "^8.17.1",

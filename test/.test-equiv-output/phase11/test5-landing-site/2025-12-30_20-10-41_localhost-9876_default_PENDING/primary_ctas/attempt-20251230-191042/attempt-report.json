@@ -1,0 +1,69 @@
+{
+  "version": "1.0.0",
+  "runId": "20251230-191042",
+  "timestamp": "2025-12-30T19:10:42.351Z",
+  "attemptId": "primary_ctas",
+  "baseUrl": "http://localhost:9876",
+  "outcome": "SUCCESS",
+  "meta": {
+    "goal": "Complete user attempt",
+    "startedAt": "2025-12-30T19:10:42.283Z",
+    "endedAt": "2025-12-30T19:10:42.351Z",
+    "durationMs": 68
+  },
+  "steps": [
+    {
+      "index": 1,
+      "id": "navigate_home",
+      "type": "navigate",
+      "target": "http://localhost:9876",
+      "status": "success",
+      "startedAt": "2025-12-30T19:10:42.283Z",
+      "endedAt": "2025-12-30T19:10:42.290Z",
+      "retries": 0,
+      "screenshots": []
+    },
+    {
+      "index": 2,
+      "id": "cta_get_started",
+      "type": "navigate",
+      "target": "",
+      "status": "success",
+      "error": null,
+      "startedAt": "2025-12-30T19:10:42.338Z",
+      "endedAt": "2025-12-30T19:10:42.345Z",
+      "retries": 0,
+      "screenshots": []
+    },
+    {
+      "index": 3,
+      "id": "cta_contact",
+      "type": "navigate",
+      "target": "http://localhost:9876/contact",
+      "status": "success",
+      "error": null,
+      "startedAt": "2025-12-30T19:10:42.345Z",
+      "endedAt": "2025-12-30T19:10:42.351Z",
+      "retries": 0,
+      "screenshots": []
+    }
+  ],
+  "friction": {
+    "isFriction": false,
+    "signals": [],
+    "summary": null,
+    "reasons": [],
+    "thresholds": {
+      "totalDurationMs": 2500,
+      "stepDurationMs": 1500,
+      "retryCount": 1
+    },
+    "metrics": {}
+  },
+  "error": null,
+  "successReason": "CTA navigation completed",
+  "evidence": {
+    "screenshotDir": "attempt-screenshots",
+    "tracePath": "trace.zip"
+  }
+}

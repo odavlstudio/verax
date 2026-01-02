@@ -1,0 +1,93 @@
+{
+  "generatedAt": "2025-12-30T19:53:12.031Z",
+  "files": [
+    {
+      "path": "checkout\\attempt-skipped\\attempt-report.html",
+      "sha256": "b0e858e6464da3e7bd06ac1c61479e2b4b64b8b8bc68bc2bd104f6f07ac6a656"
+    },
+    {
+      "path": "checkout\\attempt-skipped\\attempt-report.json",
+      "sha256": "7d93cde1f715f7fb12e67508ba2f9d11b9b2ead1066301a2f50503de8c70161a"
+    },
+    {
+      "path": "decision.json",
+      "sha256": "9170ac5bc1fba054ef45075a4a6cdc3c3d31b422120e57abe069bd8fd5dc5672"
+    },
+    {
+      "path": "language_switch\\attempt-skipped\\attempt-report.html",
+      "sha256": "035d93f3acc69c087319a3595cf6b9c3ddd85d0bf0b5b89b178624368506e362"
+    },
+    {
+      "path": "language_switch\\attempt-skipped\\attempt-report.json",
+      "sha256": "c2627b81ac0aa8ca2f4932797f93ba28395c3dbfd978ce816ccc17832a3495e6"
+    },
+    {
+      "path": "login\\attempt-skipped\\attempt-report.html",
+      "sha256": "4742997283c4244ceeb474ac7936a99b2bd3cd5622237a341eb446753fbe0764"
+    },
+    {
+      "path": "login\\attempt-skipped\\attempt-report.json",
+      "sha256": "c36cc34ef3461bfec6ff4b4d1e32e29778ddf5b1ace06038dfe44953488578f9"
+    },
+    {
+      "path": "market-report.html",
+      "sha256": "f5b7d939f6ada5118dc9560deb6f0ff67cdfe0f6e1833ff0853bd4616b58da07"
+    },
+    {
+      "path": "market-report.json",
+      "sha256": "9ff9860b7873196163f889bd2617ae08088bd9b035bf8074b75dd1f09bbf8c4e"
+    },
+    {
+      "path": "newsletter_signup\\attempt-skipped\\attempt-report.html",
+      "sha256": "561139d7b29b3eb593e38396cf1d3712ac51e8e72376775a1400bf846f3d6be5"
+    },
+    {
+      "path": "newsletter_signup\\attempt-skipped\\attempt-report.json",
+      "sha256": "dc0ae93d4c8e08b04562f4b55a008e4b921cf880736d70837db9a495da7b12cf"
+    },
+    {
+      "path": "primary_ctas\\attempt-20251230-195311\\attempt-report.html",
+      "sha256": "b628c7a22788c7e32ee02b5b751fc1f085d0ff70d44b0828babe95db17052b43"
+    },
+    {
+      "path": "primary_ctas\\attempt-20251230-195311\\attempt-report.json",
+      "sha256": "a2ec968659d814ee9837cb7913f3b3d8da8242388200d7571fdf85fa2f86bd9c"
+    },
+    {
+      "path": "primary_ctas\\attempt-20251230-195311\\attempt-screenshots\\primary_ctas_home.jpeg",
+      "sha256": "d1d835ada1e37829bfab548224ed789ad55ccddf0b352adf987038a02d23e377"
+    },
+    {
+      "path": "primary_ctas\\attempt-20251230-195311\\attempt.json",
+      "sha256": "eb9d419f6c91d0d4dfbb825c8039c73a28acbf9e4a95171e70f234e7c74a8bab"
+    },
+    {
+      "path": "primary_ctas\\attempt-20251230-195311\\steps.jsonl",
+      "sha256": "350b7b9d05a5433b0fc808c76d6f90e8bd22d13b4ea1ea3710434ebd3a091c03"
+    },
+    {
+      "path": "report.html",
+      "sha256": "bcf93fd98d7f2ef74a07fbb703ad59d626e9b4c9f3ab0708f1066c7eb4330d56"
+    },
+    {
+      "path": "signup\\attempt-skipped\\attempt-report.html",
+      "sha256": "27181d9c09317d7fa999aaac1bb11bff7b2e746b9657adf6d04da85ffcb78139"
+    },
+    {
+      "path": "signup\\attempt-skipped\\attempt-report.json",
+      "sha256": "fb4bf5c1fc2609f0694b1fea4d5e1a8006b613a55bdd554fde11da99f4e7634c"
+    },
+    {
+      "path": "snapshot.json",
+      "sha256": "50ac19f954eeaba16b392d67d1aba76ca44a05d5a8d0bfc59bd3091d6be8a69c"
+    },
+    {
+      "path": "summary.md",
+      "sha256": "d97fc115d503c85bd32a5f9e1e943b3704678455afa0b6e248321cb6fa624657"
+    },
+    {
+      "path": "summary.txt",
+      "sha256": "ae44111c53f4d99b448a3534b3cd7af83fe45feedc9b1b86314e149640c36542"
+    }
+  ]
+}

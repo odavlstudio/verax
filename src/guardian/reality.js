@@ -2100,6 +2100,41 @@ async function runRealityCLI(config) {
       if (stackLine) console.error(`   at ${stackLine}`);
       console.error('   (Set GUARDIAN_DEBUG=1 for full stack)');
     }
+    
+    // Write emergency decision.json for test determinism
+    try {
+      const os = require('os');
+      const now = new Date().toISOString().replace(/[:\-]/g, '').substring(0, 15).replace('T', '-');
+      const artifactsDir = config.artifactsDir || path.join(os.tmpdir(), 'odavl-guardian');
+      const runId = `error-${now}`;
+      const runDir = path.join(artifactsDir, runId);
+      
+      if (!fs.existsSync(runDir)) {
+        fs.mkdirSync(runDir, { recursive: true });
+      }
+      
+      const emergencyDecision = {
+        runId,
+        url: config.baseUrl || config.url || 'unknown',
+        timestamp: new Date().toISOString(),
+        preset: config.preset || 'unknown',
+        policyName: 'Emergency Exit',
+        finalVerdict: 'DO_NOT_LAUNCH',
+        exitCode: 1,
+        reasons: [
+          { code: 'RUNTIME_ERROR', message: err.message }
+        ],
+        error: {
+          message: err.message,
+          type: 'RUNTIME_ERROR'
+        }
+      };
+      
+      fs.writeFileSync(path.join(runDir, 'decision.json'), JSON.stringify(emergencyDecision, null, 2));
+    } catch (writeErr) {
+      // Ignore write errors in error handler
+    }
+    
     process.exit(1);
   }
 }

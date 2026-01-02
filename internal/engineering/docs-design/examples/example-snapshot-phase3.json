@@ -1,0 +1,319 @@
+{
+  "schemaVersion": "v1",
+  "meta": {
+    "schemaVersion": "v1",
+    "createdAt": "2025-12-23T14:35:22.456Z",
+    "toolVersion": "0.2.0-phase3",
+    "url": "https://example.com",
+    "runId": "market-run-20251223-143522",
+    "environment": "production"
+  },
+  "crawl": {
+    "discoveredUrls": [
+      "https://example.com/",
+      "https://example.com/contact",
+      "https://example.com/pricing",
+      "https://example.com/checkout",
+      "https://example.com/language"
+    ],
+    "visitedCount": 5,
+    "failedCount": 0,
+    "safetyBlockedCount": 0,
+    "httpFailures": [],
+    "notes": "Discovered 5 URLs, visited 5"
+  },
+  "attempts": [
+    {
+      "attemptId": "checkout",
+      "attemptName": "Checkout Flow",
+      "goal": "Complete a purchase",
+      "outcome": "FAILURE",
+      "totalDurationMs": 12500,
+      "stepCount": 4,
+      "failedStepIndex": 3,
+      "friction": {
+        "isFriction": false,
+        "signals": [],
+        "summary": null,
+        "reasons": [],
+        "thresholds": {
+          "totalDurationMs": 2500,
+          "stepDurationMs": 1500,
+          "retryCount": 1
+        },
+        "metrics": {
+          "totalDurationMs": 12500,
+          "stepCount": 4,
+          "totalRetries": 0,
+          "maxStepDurationMs": 5000
+        }
+      },
+      "validators": [
+        {
+          "id": "element_visible_success",
+          "type": "elementVisible",
+          "status": "FAIL",
+          "message": "Success confirmation button not found on checkout page",
+          "evidence": {
+            "selector": "[data-testid=\"order-success\"], .success-btn"
+          }
+        },
+        {
+          "id": "page_contains_text_thank_you",
+          "type": "pageContainsAnyText",
+          "status": "FAIL",
+          "message": "Page does not contain confirmation text (thank you, order confirmed, etc.)",
+          "evidence": {
+            "textList": ["thank you", "order confirmed", "purchase complete"]
+          }
+        }
+      ],
+      "softFailureCount": 2,
+      "riskCategory": "REVENUE"
+    },
+    {
+      "attemptId": "contact_form",
+      "attemptName": "Contact Form Submission",
+      "goal": "Submit contact form",
+      "outcome": "FRICTION",
+      "totalDurationMs": 4200,
+      "stepCount": 5,
+      "failedStepIndex": -1,
+      "friction": {
+        "isFriction": true,
+        "signals": [
+          {
+            "id": "slow_step_execution",
+            "description": "Step took longer than threshold",
+            "metric": "stepDurationMs",
+            "threshold": 1500,
+            "observedValue": 2100,
+            "affectedStepId": "fill_message",
+            "severity": "medium"
+          }
+        ],
+        "summary": "User succeeded, but encountered 1 friction signal",
+        "reasons": [
+          "Step \"fill_message\" took 2100ms (threshold: 1500ms)"
+        ],
+        "thresholds": {
+          "totalDurationMs": 2500,
+          "stepDurationMs": 1500,
+          "retryCount": 1
+        },
+        "metrics": {
+          "totalDurationMs": 4200,
+          "stepCount": 5,
+          "totalRetries": 0,
+          "maxStepDurationMs": 2100
+        }
+      },
+      "validators": [
+        {
+          "id": "element_visible_success",
+          "type": "elementVisible",
+          "status": "PASS",
+          "message": "Success message element is visible",
+          "evidence": {
+            "selector": "[data-testid=\"success\"]"
+          }
+        }
+      ],
+      "softFailureCount": 0,
+      "riskCategory": "LEAD"
+    },
+    {
+      "attemptId": "language_switch",
+      "attemptName": "Language Toggle",
+      "goal": "Switch language to German",
+      "outcome": "FRICTION",
+      "totalDurationMs": 3100,
+      "stepCount": 5,
+      "failedStepIndex": -1,
+      "friction": null,
+      "validators": [
+        {
+          "id": "html_lang_attribute_de",
+          "type": "htmlLangAttribute",
+          "status": "FAIL",
+          "message": "HTML lang attribute is \"en\", expected \"de\"",
+          "evidence": {
+            "currentLang": "en",
+            "expectedLang": "de"
+          }
+        }
+      ],
+      "softFailureCount": 1,
+      "riskCategory": "TRUST"
+    },
+    {
+      "attemptId": "newsletter_signup",
+      "attemptName": "Newsletter Signup",
+      "goal": "Subscribe to newsletter",
+      "outcome": "SUCCESS",
+      "totalDurationMs": 2800,
+      "stepCount": 3,
+      "failedStepIndex": -1,
+      "friction": null,
+      "validators": [
+        {
+          "id": "element_visible_confirmation",
+          "type": "elementVisible",
+          "status": "PASS",
+          "message": "Subscription confirmation message is visible",
+          "evidence": {
+            "selector": "[data-testid=\"signup-success\"]"
+          }
+        },
+        {
+          "id": "page_contains_confirmation",
+          "type": "pageContainsAnyText",
+          "status": "PASS",
+          "message": "Page contains subscription confirmation text",
+          "evidence": {
+            "textList": ["confirmed", "subscribed", "welcome"]
+          }
+        }
+      ],
+      "softFailureCount": 0,
+      "riskCategory": "LEAD"
+    }
+  ],
+  "signals": [
+    {
+      "id": "attempt_checkout",
+      "severity": "high",
+      "type": "failure",
+      "description": "Checkout Flow: FAILURE",
+      "affectedAttemptId": "checkout"
+    },
+    {
+      "id": "attempt_contact_form",
+      "severity": "medium",
+      "type": "friction",
+      "description": "Contact Form Submission: FRICTION",
+      "affectedAttemptId": "contact_form"
+    },
+    {
+      "id": "attempt_language_switch",
+      "severity": "medium",
+      "type": "friction",
+      "description": "Language Toggle: FRICTION",
+      "affectedAttemptId": "language_switch"
+    }
+  ],
+  "riskSummary": {
+    "totalSoftFailures": 3,
+    "totalFriction": 2,
+    "failuresByCategory": {
+      "REVENUE": {
+        "failures": 1,
+        "friction": 0,
+        "softFailures": 2
+      },
+      "LEAD": {
+        "failures": 0,
+        "friction": 1,
+        "softFailures": 0
+      },
+      "TRUST": {
+        "failures": 0,
+        "friction": 1,
+        "softFailures": 1
+      }
+    },
+    "topRisks": [
+      {
+        "category": "REVENUE",
+        "severity": "CRITICAL",
+        "failures": 1
+      },
+      {
+        "category": "LEAD",
+        "severity": "WARNING",
+        "failures": 0
+      }
+    ]
+  },
+  "marketImpactSummary": {
+    "highestSeverity": "CRITICAL",
+    "totalRiskCount": 4,
+    "countsBySeverity": {
+      "CRITICAL": 2,
+      "WARNING": 1,
+      "INFO": 1
+    },
+    "topRisks": [
+      {
+        "attemptId": "checkout",
+        "validatorId": "element_visible_success",
+        "validatorType": "elementVisible",
+        "category": "REVENUE",
+        "severity": "CRITICAL",
+        "impactScore": 95,
+        "humanReadableReason": "💰 Revenue: checkout - Success button not visible (validator FAIL)"
+      },
+      {
+        "attemptId": "checkout",
+        "validatorId": "outcome_checkout",
+        "validatorType": "outcome",
+        "category": "REVENUE",
+        "severity": "CRITICAL",
+        "impactScore": 90,
+        "humanReadableReason": "💰 Revenue: checkout - attempt FAILED - user could not complete goal"
+      },
+      {
+        "attemptId": "contact_form",
+        "validatorId": "slow_step_execution",
+        "validatorType": "friction",
+        "category": "LEAD",
+        "severity": "WARNING",
+        "impactScore": 68,
+        "humanReadableReason": "👥 Lead Gen: contact_form - Step took longer than threshold"
+      },
+      {
+        "attemptId": "language_switch",
+        "validatorId": "html_lang_attribute_de",
+        "validatorType": "htmlLangAttribute",
+        "category": "TRUST",
+        "severity": "WARNING",
+        "impactScore": 55,
+        "humanReadableReason": "🔒 Trust: language_switch - HTML lang attribute not updated"
+      }
+    ]
+  },
+  "evidence": {
+    "artifactDir": "artifacts/market-run-20251223-143522",
+    "marketReportJson": "market-report.json",
+    "marketReportHtml": "market-report.html",
+    "attemptArtifacts": {
+      "checkout": {
+        "reportJson": "checkout/attempt-report.json",
+        "reportHtml": "checkout/attempt-report.html",
+        "screenshotDir": "checkout/attempt-screenshots"
+      },
+      "contact_form": {
+        "reportJson": "contact_form/attempt-report.json",
+        "reportHtml": "contact_form/attempt-report.html",
+        "screenshotDir": "contact_form/attempt-screenshots"
+      },
+      "language_switch": {
+        "reportJson": "language_switch/attempt-report.json",
+        "reportHtml": "language_switch/attempt-report.html",
+        "screenshotDir": "language_switch/attempt-screenshots"
+      },
+      "newsletter_signup": {
+        "reportJson": "newsletter_signup/attempt-report.json",
+        "reportHtml": "newsletter_signup/attempt-report.html",
+        "screenshotDir": "newsletter_signup/attempt-screenshots"
+      }
+    }
+  },
+  "baseline": {
+    "baselineFound": false,
+    "baselineCreatedThisRun": true,
+    "baselineCreatedAt": "2025-12-23T14:35:22.456Z",
+    "baselinePath": ".odavl-guardian/baselines/example-com/baseline.json",
+    "diff": null
+  }
+}

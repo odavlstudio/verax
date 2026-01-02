@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Guardian Trust Summary",
+  "type": "object",
+  "required": ["trustDistribution", "commonLimits", "overallRecommendation"],
+  "properties": {
+    "trustDistribution": {
+      "type": "object",
+      "required": ["HIGH", "MEDIUM", "LOW"],
+      "properties": {
+        "HIGH": { "type": "integer" },
+        "MEDIUM": { "type": "integer" },
+        "LOW": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "commonLimits": { "type": "array", "items": { "type": "string" } },
+    "overallRecommendation": { "type": "string", "enum": ["Proceed", "Proceed with Caution", "Block"] }
+  },
+  "additionalProperties": false
+}

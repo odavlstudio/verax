@@ -1,0 +1,623 @@
+{
+  "version": "1.0.0",
+  "runId": "2025-12-30_20-37-32_localhost-9876_default_PENDING",
+  "timestamp": "2025-12-30T19:37:33.687Z",
+  "baseUrl": "http://localhost:9876",
+  "attemptsRun": [
+    "primary_ctas",
+    "login",
+    "signup",
+    "checkout",
+    "contact_form",
+    "site_smoke",
+    "newsletter_signup",
+    "language_switch"
+  ],
+  "summary": {
+    "successCount": 1,
+    "frictionCount": 0,
+    "failureCount": 0,
+    "overallVerdict": "SUCCESS"
+  },
+  "flows": [],
+  "flowSummary": {
+    "total": 0,
+    "success": 0,
+    "failure": 0
+  },
+  "results": [
+    {
+      "attemptId": "primary_ctas",
+      "attemptName": "Primary CTA Coverage",
+      "goal": "Verify primary CTAs navigate correctly",
+      "outcome": "SUCCESS",
+      "exitCode": 0,
+      "totalDurationMs": 72,
+      "friction": {
+        "isFriction": false,
+        "signals": [],
+        "summary": null,
+        "reasons": [],
+        "thresholds": {
+          "totalDurationMs": 2500,
+          "stepDurationMs": 1500,
+          "retryCount": 1
+        },
+        "metrics": {}
+      },
+      "steps": [
+        {
+          "id": "navigate_home",
+          "type": "navigate",
+          "target": "http://localhost:9876",
+          "status": "success",
+          "startedAt": "2025-12-30T19:37:33.377Z",
+          "endedAt": "2025-12-30T19:37:33.385Z",
+          "retries": 0,
+          "screenshots": []
+        },
+        {
+          "id": "cta_get_started",
+          "type": "navigate",
+          "target": "",
+          "status": "success",
+          "error": null,
+          "startedAt": "2025-12-30T19:37:33.436Z",
+          "endedAt": "2025-12-30T19:37:33.443Z",
+          "retries": 0,
+          "screenshots": []
+        },
+        {
+          "id": "cta_contact",
+          "type": "navigate",
+          "target": "http://localhost:9876/contact",
+          "status": "success",
+          "error": null,
+          "startedAt": "2025-12-30T19:37:33.443Z",
+          "endedAt": "2025-12-30T19:37:33.449Z",
+          "retries": 0,
+          "screenshots": []
+        }
+      ],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\primary_ctas\\attempt-20251230-193733\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\primary_ctas\\attempt-20251230-193733\\attempt-report.html"
+    },
+    {
+      "attemptId": "login",
+      "attemptName": "Account Login",
+      "goal": "User logs in successfully (single session)",
+      "outcome": "SKIPPED",
+      "exitCode": 0,
+      "totalDurationMs": null,
+      "friction": null,
+      "steps": [],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\login\\attempt-skipped\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\login\\attempt-skipped\\attempt-report.html"
+    },
+    {
+      "attemptId": "signup",
+      "attemptName": "Account Signup",
+      "goal": "User creates an account successfully",
+      "outcome": "SKIPPED",
+      "exitCode": 0,
+      "totalDurationMs": null,
+      "friction": null,
+      "steps": [],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\signup\\attempt-skipped\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\signup\\attempt-skipped\\attempt-report.html"
+    },
+    {
+      "attemptId": "checkout",
+      "attemptName": "Checkout Review",
+      "goal": "User places order without payment",
+      "outcome": "SKIPPED",
+      "exitCode": 0,
+      "totalDurationMs": null,
+      "friction": null,
+      "steps": [],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\checkout\\attempt-skipped\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\checkout\\attempt-skipped\\attempt-report.html"
+    },
+    {
+      "attemptId": "newsletter_signup",
+      "attemptName": "Newsletter Signup",
+      "goal": "User signs up for newsletter",
+      "outcome": "SKIPPED",
+      "exitCode": 0,
+      "totalDurationMs": null,
+      "friction": null,
+      "steps": [],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\newsletter_signup\\attempt-skipped\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\newsletter_signup\\attempt-skipped\\attempt-report.html"
+    },
+    {
+      "attemptId": "language_switch",
+      "attemptName": "Language Toggle",
+      "goal": "User switches language successfully",
+      "outcome": "SKIPPED",
+      "exitCode": 0,
+      "totalDurationMs": null,
+      "friction": null,
+      "steps": [],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\language_switch\\attempt-skipped\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\language_switch\\attempt-skipped\\attempt-report.html"
+    }
+  ],
+  "manualResults": [
+    {
+      "attemptId": "primary_ctas",
+      "attemptName": "Primary CTA Coverage",
+      "goal": "Verify primary CTAs navigate correctly",
+      "outcome": "SUCCESS",
+      "exitCode": 0,
+      "totalDurationMs": 72,
+      "friction": {
+        "isFriction": false,
+        "signals": [],
+        "summary": null,
+        "reasons": [],
+        "thresholds": {
+          "totalDurationMs": 2500,
+          "stepDurationMs": 1500,
+          "retryCount": 1
+        },
+        "metrics": {}
+      },
+      "steps": [
+        {
+          "id": "navigate_home",
+          "type": "navigate",
+          "target": "http://localhost:9876",
+          "status": "success",
+          "startedAt": "2025-12-30T19:37:33.377Z",
+          "endedAt": "2025-12-30T19:37:33.385Z",
+          "retries": 0,
+          "screenshots": []
+        },
+        {
+          "id": "cta_get_started",
+          "type": "navigate",
+          "target": "",
+          "status": "success",
+          "error": null,
+          "startedAt": "2025-12-30T19:37:33.436Z",
+          "endedAt": "2025-12-30T19:37:33.443Z",
+          "retries": 0,
+          "screenshots": []
+        },
+        {
+          "id": "cta_contact",
+          "type": "navigate",
+          "target": "http://localhost:9876/contact",
+          "status": "success",
+          "error": null,
+          "startedAt": "2025-12-30T19:37:33.443Z",
+          "endedAt": "2025-12-30T19:37:33.449Z",
+          "retries": 0,
+          "screenshots": []
+        }
+      ],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\primary_ctas\\attempt-20251230-193733\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\primary_ctas\\attempt-20251230-193733\\attempt-report.html"
+    },
+    {
+      "attemptId": "login",
+      "attemptName": "Account Login",
+      "goal": "User logs in successfully (single session)",
+      "outcome": "SKIPPED",
+      "exitCode": 0,
+      "totalDurationMs": null,
+      "friction": null,
+      "steps": [],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\login\\attempt-skipped\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\login\\attempt-skipped\\attempt-report.html"
+    },
+    {
+      "attemptId": "signup",
+      "attemptName": "Account Signup",
+      "goal": "User creates an account successfully",
+      "outcome": "SKIPPED",
+      "exitCode": 0,
+      "totalDurationMs": null,
+      "friction": null,
+      "steps": [],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\signup\\attempt-skipped\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\signup\\attempt-skipped\\attempt-report.html"
+    },
+    {
+      "attemptId": "checkout",
+      "attemptName": "Checkout Review",
+      "goal": "User places order without payment",
+      "outcome": "SKIPPED",
+      "exitCode": 0,
+      "totalDurationMs": null,
+      "friction": null,
+      "steps": [],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\checkout\\attempt-skipped\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\checkout\\attempt-skipped\\attempt-report.html"
+    },
+    {
+      "attemptId": "newsletter_signup",
+      "attemptName": "Newsletter Signup",
+      "goal": "User signs up for newsletter",
+      "outcome": "SKIPPED",
+      "exitCode": 0,
+      "totalDurationMs": null,
+      "friction": null,
+      "steps": [],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\newsletter_signup\\attempt-skipped\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\newsletter_signup\\attempt-skipped\\attempt-report.html"
+    },
+    {
+      "attemptId": "language_switch",
+      "attemptName": "Language Toggle",
+      "goal": "User switches language successfully",
+      "outcome": "SKIPPED",
+      "exitCode": 0,
+      "totalDurationMs": null,
+      "friction": null,
+      "steps": [],
+      "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\language_switch\\attempt-skipped\\attempt-report.json",
+      "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-37-32_localhost-9876_default_PENDING\\language_switch\\attempt-skipped\\attempt-report.html"
+    }
+  ],
+  "autoResults": [],
+  "intelligence": {
+    "totalFailures": 5,
+    "failures": [
+      {
+        "id": "login",
+        "name": "Account Login",
+        "outcome": "SKIPPED",
+        "source": "attempt",
+        "breakType": "VALIDATION",
+        "domain": "TRUST",
+        "severity": "WARNING",
+        "primaryHint": "Success validation did not pass",
+        "hints": [
+          "Success validation did not pass"
+        ],
+        "whyItMatters": [
+          "⚠️  Trust impact: Auth/account flow is broken. Users cannot access their data.",
+          "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+        ],
+        "topActions": [
+          "1. Review frontend code for recent CSS/JS changes",
+          "2. Check browser console for JavaScript errors",
+          "3. Verify DOM selectors match current HTML structure"
+        ]
+      },
+      {
+        "id": "signup",
+        "name": "Account Signup",
+        "outcome": "SKIPPED",
+        "source": "attempt",
+        "breakType": "VALIDATION",
+        "domain": "LEAD",
+        "severity": "WARNING",
+        "primaryHint": "Success validation did not pass",
+        "hints": [
+          "Success validation did not pass"
+        ],
+        "whyItMatters": [
+          "📉 Lead gen impact: Signup/contact flow is broken. Cannot capture customer interest.",
+          "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+        ],
+        "topActions": [
+          "1. Review frontend code for recent CSS/JS changes",
+          "2. Check browser console for JavaScript errors",
+          "3. Verify DOM selectors match current HTML structure"
+        ]
+      },
+      {
+        "id": "checkout",
+        "name": "Checkout Review",
+        "outcome": "SKIPPED",
+        "source": "attempt",
+        "breakType": "VALIDATION",
+        "domain": "REVENUE",
+        "severity": "CRITICAL",
+        "primaryHint": "Success validation did not pass",
+        "hints": [
+          "Success validation did not pass"
+        ],
+        "whyItMatters": [
+          "🚨 Revenue impact: Checkout/payment flow is broken. Customers cannot complete purchases.",
+          "🔴 CRITICAL: Escalate immediately. Page/API down or core feature broken."
+        ],
+        "topActions": [
+          "1. Review frontend code for recent CSS/JS changes",
+          "2. Check browser console for JavaScript errors",
+          "3. Verify DOM selectors match current HTML structure"
+        ]
+      },
+      {
+        "id": "newsletter_signup",
+        "name": "Newsletter Signup",
+        "outcome": "SKIPPED",
+        "source": "attempt",
+        "breakType": "VALIDATION",
+        "domain": "LEAD",
+        "severity": "WARNING",
+        "primaryHint": "Success validation did not pass",
+        "hints": [
+          "Success validation did not pass"
+        ],
+        "whyItMatters": [
+          "📉 Lead gen impact: Signup/contact flow is broken. Cannot capture customer interest.",
+          "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+        ],
+        "topActions": [
+          "1. Review frontend code for recent CSS/JS changes",
+          "2. Check browser console for JavaScript errors",
+          "3. Verify DOM selectors match current HTML structure"
+        ]
+      },
+      {
+        "id": "language_switch",
+        "name": "Language Toggle",
+        "outcome": "SKIPPED",
+        "source": "attempt",
+        "breakType": "VALIDATION",
+        "domain": "TRUST",
+        "severity": "WARNING",
+        "primaryHint": "Success validation did not pass",
+        "hints": [
+          "Success validation did not pass"
+        ],
+        "whyItMatters": [
+          "⚠️  Trust impact: Auth/account flow is broken. Users cannot access their data.",
+          "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+        ],
+        "topActions": [
+          "1. Review frontend code for recent CSS/JS changes",
+          "2. Check browser console for JavaScript errors",
+          "3. Verify DOM selectors match current HTML structure"
+        ]
+      }
+    ],
+    "byDomain": {
+      "REVENUE": [
+        {
+          "id": "checkout",
+          "name": "Checkout Review",
+          "outcome": "SKIPPED",
+          "source": "attempt",
+          "breakType": "VALIDATION",
+          "domain": "REVENUE",
+          "severity": "CRITICAL",
+          "primaryHint": "Success validation did not pass",
+          "hints": [
+            "Success validation did not pass"
+          ],
+          "whyItMatters": [
+            "🚨 Revenue impact: Checkout/payment flow is broken. Customers cannot complete purchases.",
+            "🔴 CRITICAL: Escalate immediately. Page/API down or core feature broken."
+          ],
+          "topActions": [
+            "1. Review frontend code for recent CSS/JS changes",
+            "2. Check browser console for JavaScript errors",
+            "3. Verify DOM selectors match current HTML structure"
+          ]
+        }
+      ],
+      "LEAD": [
+        {
+          "id": "signup",
+          "name": "Account Signup",
+          "outcome": "SKIPPED",
+          "source": "attempt",
+          "breakType": "VALIDATION",
+          "domain": "LEAD",
+          "severity": "WARNING",
+          "primaryHint": "Success validation did not pass",
+          "hints": [
+            "Success validation did not pass"
+          ],
+          "whyItMatters": [
+            "📉 Lead gen impact: Signup/contact flow is broken. Cannot capture customer interest.",
+            "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+          ],
+          "topActions": [
+            "1. Review frontend code for recent CSS/JS changes",
+            "2. Check browser console for JavaScript errors",
+            "3. Verify DOM selectors match current HTML structure"
+          ]
+        },
+        {
+          "id": "newsletter_signup",
+          "name": "Newsletter Signup",
+          "outcome": "SKIPPED",
+          "source": "attempt",
+          "breakType": "VALIDATION",
+          "domain": "LEAD",
+          "severity": "WARNING",
+          "primaryHint": "Success validation did not pass",
+          "hints": [
+            "Success validation did not pass"
+          ],
+          "whyItMatters": [
+            "📉 Lead gen impact: Signup/contact flow is broken. Cannot capture customer interest.",
+            "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+          ],
+          "topActions": [
+            "1. Review frontend code for recent CSS/JS changes",
+            "2. Check browser console for JavaScript errors",
+            "3. Verify DOM selectors match current HTML structure"
+          ]
+        }
+      ],
+      "TRUST": [
+        {
+          "id": "login",
+          "name": "Account Login",
+          "outcome": "SKIPPED",
+          "source": "attempt",
+          "breakType": "VALIDATION",
+          "domain": "TRUST",
+          "severity": "WARNING",
+          "primaryHint": "Success validation did not pass",
+          "hints": [
+            "Success validation did not pass"
+          ],
+          "whyItMatters": [
+            "⚠️  Trust impact: Auth/account flow is broken. Users cannot access their data.",
+            "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+          ],
+          "topActions": [
+            "1. Review frontend code for recent CSS/JS changes",
+            "2. Check browser console for JavaScript errors",
+            "3. Verify DOM selectors match current HTML structure"
+          ]
+        },
+        {
+          "id": "language_switch",
+          "name": "Language Toggle",
+          "outcome": "SKIPPED",
+          "source": "attempt",
+          "breakType": "VALIDATION",
+          "domain": "TRUST",
+          "severity": "WARNING",
+          "primaryHint": "Success validation did not pass",
+          "hints": [
+            "Success validation did not pass"
+          ],
+          "whyItMatters": [
+            "⚠️  Trust impact: Auth/account flow is broken. Users cannot access their data.",
+            "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+          ],
+          "topActions": [
+            "1. Review frontend code for recent CSS/JS changes",
+            "2. Check browser console for JavaScript errors",
+            "3. Verify DOM selectors match current HTML structure"
+          ]
+        }
+      ],
+      "UX": []
+    },
+    "bySeverity": {
+      "CRITICAL": [
+        {
+          "id": "checkout",
+          "name": "Checkout Review",
+          "outcome": "SKIPPED",
+          "source": "attempt",
+          "breakType": "VALIDATION",
+          "domain": "REVENUE",
+          "severity": "CRITICAL",
+          "primaryHint": "Success validation did not pass",
+          "hints": [
+            "Success validation did not pass"
+          ],
+          "whyItMatters": [
+            "🚨 Revenue impact: Checkout/payment flow is broken. Customers cannot complete purchases.",
+            "🔴 CRITICAL: Escalate immediately. Page/API down or core feature broken."
+          ],
+          "topActions": [
+            "1. Review frontend code for recent CSS/JS changes",
+            "2. Check browser console for JavaScript errors",
+            "3. Verify DOM selectors match current HTML structure"
+          ]
+        }
+      ],
+      "WARNING": [
+        {
+          "id": "login",
+          "name": "Account Login",
+          "outcome": "SKIPPED",
+          "source": "attempt",
+          "breakType": "VALIDATION",
+          "domain": "TRUST",
+          "severity": "WARNING",
+          "primaryHint": "Success validation did not pass",
+          "hints": [
+            "Success validation did not pass"
+          ],
+          "whyItMatters": [
+            "⚠️  Trust impact: Auth/account flow is broken. Users cannot access their data.",
+            "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+          ],
+          "topActions": [
+            "1. Review frontend code for recent CSS/JS changes",
+            "2. Check browser console for JavaScript errors",
+            "3. Verify DOM selectors match current HTML structure"
+          ]
+        },
+        {
+          "id": "signup",
+          "name": "Account Signup",
+          "outcome": "SKIPPED",
+          "source": "attempt",
+          "breakType": "VALIDATION",
+          "domain": "LEAD",
+          "severity": "WARNING",
+          "primaryHint": "Success validation did not pass",
+          "hints": [
+            "Success validation did not pass"
+          ],
+          "whyItMatters": [
+            "📉 Lead gen impact: Signup/contact flow is broken. Cannot capture customer interest.",
+            "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+          ],
+          "topActions": [
+            "1. Review frontend code for recent CSS/JS changes",
+            "2. Check browser console for JavaScript errors",
+            "3. Verify DOM selectors match current HTML structure"
+          ]
+        },
+        {
+          "id": "newsletter_signup",
+          "name": "Newsletter Signup",
+          "outcome": "SKIPPED",
+          "source": "attempt",
+          "breakType": "VALIDATION",
+          "domain": "LEAD",
+          "severity": "WARNING",
+          "primaryHint": "Success validation did not pass",
+          "hints": [
+            "Success validation did not pass"
+          ],
+          "whyItMatters": [
+            "📉 Lead gen impact: Signup/contact flow is broken. Cannot capture customer interest.",
+            "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+          ],
+          "topActions": [
+            "1. Review frontend code for recent CSS/JS changes",
+            "2. Check browser console for JavaScript errors",
+            "3. Verify DOM selectors match current HTML structure"
+          ]
+        },
+        {
+          "id": "language_switch",
+          "name": "Language Toggle",
+          "outcome": "SKIPPED",
+          "source": "attempt",
+          "breakType": "VALIDATION",
+          "domain": "TRUST",
+          "severity": "WARNING",
+          "primaryHint": "Success validation did not pass",
+          "hints": [
+            "Success validation did not pass"
+          ],
+          "whyItMatters": [
+            "⚠️  Trust impact: Auth/account flow is broken. Users cannot access their data.",
+            "🟡 WARNING: High priority. Fix before peak traffic to avoid customer impact."
+          ],
+          "topActions": [
+            "1. Review frontend code for recent CSS/JS changes",
+            "2. Check browser console for JavaScript errors",
+            "3. Verify DOM selectors match current HTML structure"
+          ]
+        }
+      ],
+      "INFO": []
+    },
+    "escalationSignals": [
+      "CRITICAL failures detected - immediate action required",
+      "REVENUE domain affected - financial impact likely"
+    ],
+    "criticalCount": 1,
+    "warningCount": 4,
+    "infoCount": 0
+  }
+}

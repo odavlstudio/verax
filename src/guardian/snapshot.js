@@ -329,6 +329,35 @@ class SnapshotBuilder {
   }
 
   /**
+   * Set human intent resolution
+   */
+  setHumanIntent(humanIntentResolution) {
+    if (!humanIntentResolution) return;
+
+    this.snapshot.humanIntent = {
+      enabled: humanIntentResolution.enabled || false,
+      blockedCount: humanIntentResolution.blockedCount || 0,
+      allowedCount: humanIntentResolution.allowedCount || 0,
+      blockedAttempts: humanIntentResolution.blockedAttempts || []
+    };
+  }
+
+  /**
+   * Set journey summary
+   */
+  setJourney(journeySummary) {
+    if (!journeySummary) return;
+
+    this.snapshot.journey = {
+      stage: journeySummary.stage || 'unknown',
+      path: journeySummary.path || [],
+      goalReached: journeySummary.goalReached || false,
+      frustrationScore: journeySummary.frustrationScore || 0,
+      confidence: journeySummary.confidence || 0
+    };
+  }
+
+  /**
    * Get the built snapshot
    */
   getSnapshot() {

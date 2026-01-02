@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Guardian Evidence",
+  "type": "object",
+  "required": ["scenarioId", "siteType", "verdict", "confidence", "topReasons", "errors", "coverage", "limits", "artifactPaths", "runDir"],
+  "properties": {
+    "scenarioId": { "type": "string" },
+    "siteType": { "type": "string", "enum": ["saas", "ecommerce", "marketing", "content", "dashboard", "edge"] },
+    "verdict": { "type": "string", "enum": ["READY", "FRICTION", "DO_NOT_LAUNCH"] },
+    "confidence": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+    "topReasons": { "type": "array", "items": { "type": "string" } },
+    "errors": { "type": "array", "items": { "type": "object" } },
+    "coverage": {
+      "type": "object",
+      "required": ["executed", "total"],
+      "properties": {
+        "executed": { "type": "integer" },
+        "total": { "type": "integer" },
+        "skippedMissing": { "type": "array", "items": { "type": "string" } },
+        "skippedNotApplicable": { "type": "array", "items": { "type": "string" } },
+        "skippedDisabledByPreset": { "type": "array", "items": { "type": "string" } },
+        "skippedUserFiltered": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "limits": { "type": "array", "items": { "type": "string" } },
+    "artifactPaths": {
+      "type": "object",
+      "required": ["decision", "summary", "screenshots"],
+      "properties": {
+        "decision": { "type": ["string", "null"] },
+        "summary": { "type": ["string", "null"] },
+        "screenshots": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "runDir": { "type": "string" }
+  },
+  "additionalProperties": false
+}

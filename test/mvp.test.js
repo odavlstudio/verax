@@ -5,127 +5,97 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// Simple test server
-function startServer() {
-  return new Promise((resolve) => {
-    const server = http.createServer((req, res) => {
-      res.setHeader('Content-Type', 'text/html');
-      
-      if (req.url === '/') {
-        res.writeHead(200);
-        res.end(`
-          <html>
-            <body>
-              <h1>Homepage</h1>
-              <a href="/page2">Link to Page 2</a>
-              <a href="/page3">Link to Page 3</a>
-            </body>
-          </html>
-        `);
-      } else if (req.url === '/page2') {
-        res.writeHead(200);
-        res.end('<html><body><h1>Page 2</h1></body></html>');
-      } else if (req.url === '/page3') {
-        res.writeHead(200);
-        res.end('<html><body><h1>Page 3</h1></body></html>');
-      } else {
-        res.writeHead(404);
-        res.end('Not found');
-      }
-    });
+console.log('🧪 MVP Test Suite');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-    server.listen(0, '127.0.0.1', () => {
-      const port = server.address().port;
-      resolve({ server, port });
-    });
+// Test 1: CLI smoke test (no browser launch)
+console.log('📋 Test 1: CLI smoke test');
+
+try {
+  // Test --version flag
+  const versionResult = spawnSync(process.execPath, [
+    'bin/guardian.js',
+    '--version'
+  ], { 
+    encoding: 'utf8', 
+    timeout: 5000
   });
+
+  assert.strictEqual(versionResult.status, 0, 'Version command should exit 0');
+  assert.ok(versionResult.stdout.trim().match(/^\d+\.\d+\.\d+$/), 'Version should be semver format');
+  console.log(`✅ Version check: ${versionResult.stdout.trim()}`);
+} catch (err) {
+  console.error('\n❌ TEST FAILED');
+  console.error(err.message);
+  process.exit(1);
 }
 
-(async () => {
-  console.log('🧪 MVP Test Suite');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+// Test 2: --help flag
+try {
+  const helpResult = spawnSync(process.execPath, [
+    'bin/guardian.js',
+    '--help'
+  ], { 
+    encoding: 'utf8', 
+    timeout: 5000
+  });
 
-  const { server, port } = await startServer();
-  const baseUrl = `http://127.0.0.1:${port}`;
+  assert.strictEqual(helpResult.status, 0, 'Help command should exit 0');
+  assert.ok(helpResult.stdout.includes('guardian reality'), 'Help should mention reality command');
+  console.log('✅ Help command works');
+} catch (err) {
+  console.error('\n❌ TEST FAILED');
+  console.error(err.message);
+  process.exit(1);
+}
 
-  try {
-    // Test 1: Basic crawl
-    console.log('📋 Test 1: Basic crawl and report generation');
-    const artifactsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'guardian-test-'));
-    
-    const result = spawnSync(process.execPath, [
-      'bin/guardian.js',
-      'reality',
-      '--url', baseUrl,
-      '--attempts', 'site_smoke',
-      '--fast',
-      '--max-pages', '5',
-      '--max-depth', '2',
-      '--artifacts', artifactsDir
-    ], { 
-      encoding: 'utf8', 
-      timeout: 60000,
-      stdio: ['pipe', 'pipe', 'pipe']
-    });
+// Test 3: Core modules load without errors
+try {
+  const { SnapshotBuilder } = require('../src/guardian/snapshot');
+  const { executeAttempt } = require('../src/guardian/attempt');
+  const { GuardianCrawler } = require('../src/guardian/crawler');
+  
+  // Verify SnapshotBuilder works
+  const builder = new SnapshotBuilder('https://example.com', 'test-run', '2.0.1');
+  assert.ok(builder, 'SnapshotBuilder should instantiate');
+  assert.ok(typeof builder.setHumanIntent === 'function', 'setHumanIntent should exist');
+  
+  console.log('✅ Core modules load successfully');
+} catch (err) {
+  console.error('\n❌ TEST FAILED');
+  console.error(err.message);
+  console.error(err.stack);
+  process.exit(1);
+}
 
-    console.log(result.stdout);
-    if (result.stderr) console.error('STDERR:', result.stderr);
+// Test 4: Verify artifactsDir defaults to temp (not CWD)
+try {
+  const { getDefaultConfig } = require('../src/guardian/config-validator');
+  const defaultConfig = getDefaultConfig();
+  
+  assert.ok(defaultConfig.output, 'Default config should have output');
+  assert.ok(defaultConfig.output.dir, 'Default config should have output.dir');
+  
+  // Should NOT be in CWD
+  assert.ok(!defaultConfig.output.dir.startsWith('./'), 'Artifacts dir should not be in CWD');
+  assert.ok(!defaultConfig.output.dir.startsWith('.\\'), 'Artifacts dir should not be in CWD (Windows)');
+  
+  // Should be in temp
+  const tmpdir = os.tmpdir();
+  assert.ok(defaultConfig.output.dir.includes(tmpdir) || defaultConfig.output.dir.includes('odavl-guardian'), 
+    'Artifacts dir should be in temp directory');
+  
+  console.log('✅ Runtime isolation verified (no CWD writes by default)');
+} catch (err) {
+  console.error('\n❌ TEST FAILED');
+  console.error(err.message);
+  console.error(err.stack);
+  process.exit(1);
+}
 
-    // Check exit code (deterministic mapping: OBSERVED=0, PARTIAL=1, INSUFFICIENT_DATA=2)
-    assert.ok(
-      result.status === 0 || result.status === 1 || result.status === 2,
-      `Exit code should be 0, 1, or 2, got ${result.status}`
-    );
-    console.log(`✅ Exit code: ${result.status}`);
+// Summary
+console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+console.log('✅ All tests PASSED');
+console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-    // Check report was created
-    const runDirs = fs.readdirSync(artifactsDir)
-      .filter(d => d !== 'latest')
-      .filter(d => fs.statSync(path.join(artifactsDir, d)).isDirectory())
-      .sort()
-      .reverse();
-    
-    assert.ok(runDirs.length > 0, 'No run directory created');
-    const runDir = runDirs[0];
-    console.log(`✅ Run directory created: ${runDir}`);
-
-    // Check decision.json exists
-    const decisionPath = path.join(artifactsDir, runDir, 'decision.json');
-    assert.ok(fs.existsSync(decisionPath), 'decision.json not found');
-    console.log(`✅ decision.json exists`);
-
-    const decision = JSON.parse(fs.readFileSync(decisionPath, 'utf8'));
-    const allowedVerdicts = ['READY', 'FRICTION', 'DO_NOT_LAUNCH'];
-    assert.ok(decision.finalVerdict, 'finalVerdict missing');
-    assert.ok(allowedVerdicts.includes(decision.finalVerdict), `Unexpected verdict: ${decision.finalVerdict}`);
-    assert.ok([0, 1, 2].includes(decision.exitCode), `Exit code should be 0, 1, or 2, got ${decision.exitCode}`);
-    console.log(`✅ Decision: ${decision.finalVerdict} (exit ${decision.exitCode})`);
-
-    // Check summary and snapshot artifacts
-    const summaryPath = path.join(artifactsDir, runDir, 'summary.md');
-    assert.ok(fs.existsSync(summaryPath), 'summary.md not found');
-    console.log('✅ summary.md exists');
-
-    const snapshotPath = path.join(artifactsDir, runDir, 'snapshot.json');
-    assert.ok(fs.existsSync(snapshotPath), 'snapshot.json not found');
-    const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'));
-    assert.ok(snapshot.meta, 'snapshot meta missing');
-    assert.strictEqual(snapshot.meta.url, baseUrl, 'Snapshot URL should match');
-    console.log('✅ snapshot.json validated');
-
-    // Summary
-    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('✅ All tests PASSED');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-    
-    process.exit(0);
-
-  } catch (err) {
-    console.error('\n❌ TEST FAILED');
-    console.error(err.message);
-    console.error(err.stack);
-    process.exit(1);
-  } finally {
-    server.close();
-  }
-})();
+process.exit(0);

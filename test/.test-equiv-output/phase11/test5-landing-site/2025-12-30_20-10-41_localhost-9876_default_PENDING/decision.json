@@ -1,0 +1,659 @@
+{
+  "runId": "2025-12-30_20-10-41_localhost-9876_default_PENDING",
+  "url": "http://localhost:9876",
+  "timestamp": "2025-12-30T19:10:42.667Z",
+  "preset": "Startup Policy",
+  "policyName": "Startup Policy",
+  "finalVerdict": "FRICTION",
+  "exitCode": 1,
+  "reasons": [
+    {
+      "ruleId": "all_goals_reached",
+      "message": "All critical flows executed successfully and goals reached",
+      "category": "COMPLIANCE",
+      "priority": 50
+    },
+    {
+      "ruleId": "policy_hard_failure",
+      "message": "Policy hard failure: Coverage gaps detected: 2 of 3 attempts not executed",
+      "category": "POLICY",
+      "priority": 50
+    }
+  ],
+  "actionHints": [],
+  "resolved": {
+    "presetId": "default",
+    "policySource": "default",
+    "policyId": "Startup Policy",
+    "policyHash": "4dd8486aea58f03f5be665eb322d971223b79f28bb2b9fa05ed862afa80d579e",
+    "mediaRequirements": {
+      "requireScreenshots": false,
+      "requireTraces": false,
+      "minCompleteness": 1,
+      "minIntegrity": 0.9
+    },
+    "attemptPlan": {
+      "enabled": [
+        "primary_ctas",
+        "login",
+        "signup",
+        "checkout",
+        "contact_form",
+        "site_smoke",
+        "newsletter_signup",
+        "language_switch"
+      ],
+      "disabled": [],
+      "userFiltered": [],
+      "missing": []
+    },
+    "coverage": {
+      "total": 3,
+      "executed": 1,
+      "executedCount": 1,
+      "enabledPlannedCount": 8,
+      "disabledPlannedCount": 0,
+      "skippedNotApplicable": 0,
+      "skippedMissing": 0,
+      "skippedUserFiltered": 5,
+      "skippedDisabledByPreset": 0,
+      "disabled": 0
+    },
+    "evidenceMetrics": {
+      "completeness": 0.3333333333333333,
+      "integrity": 1,
+      "hashedFiles": 22,
+      "totalFiles": 22,
+      "screenshotsEnabled": false,
+      "tracesEnabled": false
+    }
+  },
+  "attestation": {
+    "hash": "05e297479c8c472e541a443b1eb8f22e809f8a6f10e2b53d717b4ef506380157",
+    "policyHash": "4dd8486aea58f03f5be665eb322d971223b79f28bb2b9fa05ed862afa80d579e",
+    "snapshotHash": "012edf278ce16b1a895c8058e8ec04c3be05a9b284a3aa0ca14c732612c67861",
+    "manifestHash": "bc0b238c0a1652b9a06a26ce8cce66de4f89eb548b4de42caae02fce12b047ca",
+    "runId": "2025-12-30_20-10-41_localhost-9876_default_PENDING"
+  },
+  "counts": {
+    "attemptsExecuted": 1,
+    "successful": 1,
+    "failed": 0,
+    "skipped": 5,
+    "nearSuccess": 0
+  },
+  "inputs": {
+    "policy": {
+      "passed": false,
+      "exitCode": 1,
+      "reasons": [
+        "Coverage gaps detected: 2 of 3 attempts not executed"
+      ],
+      "summary": "❌ Policy evaluation FAILED (exit code 1)",
+      "counts": {
+        "critical": 0,
+        "warning": 0,
+        "info": 0,
+        "softFailures": 0,
+        "totalRisk": 0
+      }
+    },
+    "baseline": {
+      "regressions": {},
+      "improvements": {},
+      "attemptsDriftCount": 0
+    },
+    "market": {
+      "highestSeverity": "INFO",
+      "topRisks": [],
+      "countsBySeverity": {
+        "CRITICAL": 0,
+        "WARNING": 0,
+        "INFO": 0
+      },
+      "totalRiskCount": 0,
+      "allRisks": []
+    },
+    "flows": {
+      "total": 0,
+      "failures": 0,
+      "frictions": 0
+    }
+  },
+  "outcomes": {
+    "flows": [],
+    "attempts": [
+      {
+        "attemptId": "primary_ctas",
+        "attemptName": "Primary CTA Coverage",
+        "goal": "Verify primary CTAs navigate correctly",
+        "riskCategory": "LEAD",
+        "source": "universal",
+        "outcome": "SUCCESS",
+        "exitCode": 0,
+        "attemptResult": {
+          "outcome": "SUCCESS",
+          "steps": [
+            {
+              "id": "navigate_home",
+              "type": "navigate",
+              "target": "http://localhost:9876",
+              "status": "success",
+              "startedAt": "2025-12-30T19:10:42.283Z",
+              "endedAt": "2025-12-30T19:10:42.290Z",
+              "retries": 0,
+              "screenshots": []
+            },
+            {
+              "id": "cta_get_started",
+              "type": "navigate",
+              "target": "",
+              "status": "success",
+              "error": null,
+              "startedAt": "2025-12-30T19:10:42.338Z",
+              "endedAt": "2025-12-30T19:10:42.345Z",
+              "retries": 0,
+              "screenshots": []
+            },
+            {
+              "id": "cta_contact",
+              "type": "navigate",
+              "target": "http://localhost:9876/contact",
+              "status": "success",
+              "error": null,
+              "startedAt": "2025-12-30T19:10:42.345Z",
+              "endedAt": "2025-12-30T19:10:42.351Z",
+              "retries": 0,
+              "screenshots": []
+            }
+          ],
+          "startedAt": "2025-12-30T19:10:42.283Z",
+          "endedAt": "2025-12-30T19:10:42.351Z",
+          "totalDurationMs": 68,
+          "friction": {
+            "isFriction": false,
+            "signals": [],
+            "summary": null,
+            "reasons": [],
+            "thresholds": {
+              "totalDurationMs": 2500,
+              "stepDurationMs": 1500,
+              "retryCount": 1
+            },
+            "metrics": {}
+          },
+          "error": null,
+          "successReason": "CTA navigation completed",
+          "validators": [],
+          "softFailures": {
+            "hasSoftFailure": false,
+            "failureCount": 0,
+            "warnCount": 0
+          },
+          "discoverySignals": {
+            "ctaCandidates": [
+              {
+                "text": "Get Started",
+                "href": "",
+                "abs": "",
+                "tag": "BUTTON",
+                "target": null
+              },
+              {
+                "text": "Contact",
+                "href": "/contact",
+                "abs": "http://localhost:9876/contact",
+                "tag": "A",
+                "target": null
+              }
+            ],
+            "navigationResults": [
+              {
+                "target": "",
+                "text": "Get Started",
+                "ok": true,
+                "status": 200,
+                "finalUrl": "http://localhost:9876/",
+                "durationMs": 7
+              },
+              {
+                "target": "http://localhost:9876/contact",
+                "text": "Contact",
+                "ok": true,
+                "status": 200,
+                "finalUrl": "http://localhost:9876/contact",
+                "durationMs": 6
+              }
+            ],
+            "githubValidated": false,
+            "selectorChainTried": [
+              "text:Docs",
+              "text:Pricing",
+              "text:GitHub",
+              "text:Contact",
+              "text:Sign in",
+              "text:Sign up",
+              "text:Get started",
+              "text:Try",
+              "text:Demo"
+            ],
+            "consoleErrorCount": 0,
+            "pageErrorCount": 0
+          }
+        },
+        "artifactsDir": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\primary_ctas\\attempt-20251230-191042",
+        "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\primary_ctas\\attempt-20251230-191042\\attempt-report.json",
+        "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\primary_ctas\\attempt-20251230-191042\\attempt-report.html",
+        "attemptJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\primary_ctas\\attempt-20251230-191042\\attempt.json",
+        "stepsLogPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\primary_ctas\\attempt-20251230-191042\\steps.jsonl",
+        "tracePath": null,
+        "steps": [
+          {
+            "id": "navigate_home",
+            "type": "navigate",
+            "target": "http://localhost:9876",
+            "status": "success",
+            "startedAt": "2025-12-30T19:10:42.283Z",
+            "endedAt": "2025-12-30T19:10:42.290Z",
+            "retries": 0,
+            "screenshots": []
+          },
+          {
+            "id": "cta_get_started",
+            "type": "navigate",
+            "target": "",
+            "status": "success",
+            "error": null,
+            "startedAt": "2025-12-30T19:10:42.338Z",
+            "endedAt": "2025-12-30T19:10:42.345Z",
+            "retries": 0,
+            "screenshots": []
+          },
+          {
+            "id": "cta_contact",
+            "type": "navigate",
+            "target": "http://localhost:9876/contact",
+            "status": "success",
+            "error": null,
+            "startedAt": "2025-12-30T19:10:42.345Z",
+            "endedAt": "2025-12-30T19:10:42.351Z",
+            "retries": 0,
+            "screenshots": []
+          }
+        ],
+        "friction": {
+          "isFriction": false,
+          "signals": [],
+          "summary": null,
+          "reasons": [],
+          "thresholds": {
+            "totalDurationMs": 2500,
+            "stepDurationMs": 1500,
+            "retryCount": 1
+          },
+          "metrics": {}
+        },
+        "error": null,
+        "successReason": "CTA navigation completed",
+        "executed": true
+      },
+      {
+        "attemptId": "login",
+        "attemptName": "Account Login",
+        "goal": "User logs in successfully (single session)",
+        "riskCategory": "TRUST/UX",
+        "source": "manual",
+        "outcome": "SKIPPED",
+        "skipReason": "No login elements detected",
+        "skipReasonCode": "USER_FILTERED",
+        "exitCode": 0,
+        "steps": [],
+        "friction": null,
+        "error": null,
+        "executed": false,
+        "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\login\\attempt-skipped\\attempt-report.json",
+        "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\login\\attempt-skipped\\attempt-report.html"
+      },
+      {
+        "attemptId": "signup",
+        "attemptName": "Account Signup",
+        "goal": "User creates an account successfully",
+        "riskCategory": "LEAD",
+        "source": "manual",
+        "outcome": "SKIPPED",
+        "skipReason": "No signup elements detected",
+        "skipReasonCode": "USER_FILTERED",
+        "exitCode": 0,
+        "steps": [],
+        "friction": null,
+        "error": null,
+        "executed": false,
+        "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\signup\\attempt-skipped\\attempt-report.json",
+        "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\signup\\attempt-skipped\\attempt-report.html"
+      },
+      {
+        "attemptId": "checkout",
+        "attemptName": "Checkout Review",
+        "goal": "User places order without payment",
+        "riskCategory": "REVENUE",
+        "source": "manual",
+        "outcome": "SKIPPED",
+        "skipReason": "No checkout elements detected",
+        "skipReasonCode": "USER_FILTERED",
+        "exitCode": 0,
+        "steps": [],
+        "friction": null,
+        "error": null,
+        "executed": false,
+        "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\checkout\\attempt-skipped\\attempt-report.json",
+        "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\checkout\\attempt-skipped\\attempt-report.html"
+      },
+      {
+        "attemptId": "newsletter_signup",
+        "attemptName": "Newsletter Signup",
+        "goal": "User signs up for newsletter",
+        "riskCategory": "LEAD",
+        "source": "manual",
+        "outcome": "SKIPPED",
+        "skipReason": "No newsletter signup detected",
+        "skipReasonCode": "USER_FILTERED",
+        "exitCode": 0,
+        "steps": [],
+        "friction": null,
+        "error": null,
+        "executed": false,
+        "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\newsletter_signup\\attempt-skipped\\attempt-report.json",
+        "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\newsletter_signup\\attempt-skipped\\attempt-report.html"
+      },
+      {
+        "attemptId": "language_switch",
+        "attemptName": "Language Toggle",
+        "goal": "User switches language successfully",
+        "riskCategory": "TRUST/UX",
+        "source": "manual",
+        "outcome": "SKIPPED",
+        "skipReason": "No language switch detected",
+        "skipReasonCode": "USER_FILTERED",
+        "exitCode": 0,
+        "steps": [],
+        "friction": null,
+        "error": null,
+        "executed": false,
+        "reportJsonPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\language_switch\\attempt-skipped\\attempt-report.json",
+        "reportHtmlPath": "C:\\Users\\sabou\\odavlguardian\\test\\.test-equiv-output\\phase11\\test5-landing-site\\2025-12-30_20-10-41_localhost-9876_default_PENDING\\language_switch\\attempt-skipped\\attempt-report.html"
+      }
+    ]
+  },
+  "coverage": {
+    "total": 3,
+    "executed": 1,
+    "gaps": 2,
+    "skipped": [
+      {
+        "attempt": "login",
+        "reason": "No login elements detected",
+        "code": "USER_FILTERED"
+      },
+      {
+        "attempt": "signup",
+        "reason": "No signup elements detected",
+        "code": "USER_FILTERED"
+      },
+      {
+        "attempt": "checkout",
+        "reason": "No checkout elements detected",
+        "code": "USER_FILTERED"
+      },
+      {
+        "attempt": "newsletter_signup",
+        "reason": "No newsletter signup detected",
+        "code": "USER_FILTERED"
+      },
+      {
+        "attempt": "language_switch",
+        "reason": "No language switch detected",
+        "code": "USER_FILTERED"
+      }
+    ],
+    "disabled": []
+  },
+  "auditSummary": {
+    "tested": [
+      "primary_ctas"
+    ],
+    "notTested": {
+      "disabledByPreset": [],
+      "userFiltered": [
+        "login",
+        "signup",
+        "checkout",
+        "newsletter_signup",
+        "language_switch"
+      ],
+      "notApplicable": [],
+      "missing": []
+    }
+  },
+  "sections": {
+    "Final Verdict": {
+      "verdict": "FRICTION",
+      "exitCode": 1,
+      "explanation": "Guardian assessed the evidence and reached verdict: FRICTION.",
+      "whyNot": [
+        "Other verdicts not applicable based on observed evidence and policy evaluation."
+      ],
+      "reasons": [
+        "undefined: All critical flows executed successfully and goals reached",
+        "undefined: Policy hard failure: Coverage gaps detected: 2 of 3 attempts not executed"
+      ]
+    },
+    "What Guardian Observed": {
+      "summary": "Executed 1 attempt(s): primary_ctas (SUCCESS).",
+      "details": [
+        "Executed 1 attempt(s): primary_ctas (SUCCESS)."
+      ]
+    },
+    "What Guardian Could Not Confirm": {
+      "summary": "Policy check failed: ❌ Policy evaluation FAILED (exit code 1)",
+      "details": [
+        "Policy check failed: ❌ Policy evaluation FAILED (exit code 1)",
+        "Coverage gaps: 2 planned attempt(s) not observed."
+      ]
+    },
+    "Evidence Summary": {
+      "summary": "Attempt outcomes: executed=1, success=1, failed=0, skipped=5.",
+      "details": [
+        "Attempt outcomes: executed=1, success=1, failed=0, skipped=5.",
+        "Flow outcomes: success=0, failures=0, friction=0.",
+        "Market severity observed: INFO.",
+        "Policy evaluation: failed (exit 1).",
+        "Baseline regressions: none."
+      ]
+    },
+    "Limits of This Run": {
+      "summary": "Coverage: 1/6 attempts executed; gaps=2.",
+      "details": [
+        "Coverage: 1/6 attempts executed; gaps=2.",
+        "User-filtered skips: 5."
+      ]
+    }
+  },
+  "explanation": {
+    "verdict": "FRICTION",
+    "exitCode": 1,
+    "explanation": "Guardian assessed the evidence and reached verdict: FRICTION.",
+    "whyNot": [
+      "Other verdicts not applicable based on observed evidence and policy evaluation."
+    ],
+    "reasons": [
+      "undefined: All critical flows executed successfully and goals reached",
+      "undefined: Policy hard failure: Coverage gaps detected: 2 of 3 attempts not executed"
+    ]
+  },
+  "siteIntelligence": {
+    "siteType": "marketing",
+    "confidence": 0.67,
+    "detectedSignals": [
+      {
+        "type": "signup_indicator",
+        "selector": "text:Get started",
+        "count": 1,
+        "text": [
+          "Get Started"
+        ]
+      },
+      {
+        "type": "contact_indicator",
+        "selector": "a[href*=\"contact\"]",
+        "count": 1
+      },
+      {
+        "type": "cta_indicator",
+        "count": 1
+      }
+    ],
+    "capabilities": {
+      "supports_login": {
+        "supported": false,
+        "confidence": 0.1,
+        "evidence": []
+      },
+      "supports_signup": {
+        "supported": true,
+        "confidence": 0.9,
+        "evidence": [
+          {
+            "type": "signup_indicator",
+            "selector": "text:Get started",
+            "count": 1,
+            "text": [
+              "Get Started"
+            ]
+          }
+        ]
+      },
+      "supports_checkout": {
+        "supported": false,
+        "confidence": 0.1,
+        "evidence": []
+      },
+      "supports_forms": {
+        "supported": false,
+        "confidence": 0.2,
+        "evidence": []
+      },
+      "supports_primary_cta": {
+        "supported": true,
+        "confidence": 0.8,
+        "evidence": [
+          {
+            "type": "cta_indicator",
+            "count": 1
+          }
+        ]
+      },
+      "supports_pricing": {
+        "supported": false,
+        "confidence": 0.2,
+        "evidence": []
+      },
+      "supports_contact": {
+        "supported": true,
+        "confidence": 0.8,
+        "evidence": [
+          {
+            "type": "contact_indicator",
+            "selector": "a[href*=\"contact\"]",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "flowApplicability": {
+      "signup_flow": {
+        "applicable": true,
+        "reason": "Signup elements detected",
+        "confidence": 0.9
+      },
+      "login_flow": {
+        "applicable": false,
+        "reason": "No login elements found",
+        "confidence": 0.1
+      },
+      "checkout_flow": {
+        "applicable": false,
+        "reason": "No checkout elements found",
+        "confidence": 0.1
+      }
+    },
+    "timestamp": "2025-12-30T19:10:42.512Z"
+  },
+  "policySignals": {
+    "executedCount": 1,
+    "failedCount": 0,
+    "nearSuccessCount": 0,
+    "successCount": 1,
+    "frictionCount": 0,
+    "skippedCount": 5,
+    "goalReached": true,
+    "hasScreenshots": false,
+    "hasTraces": false,
+    "hasRegressions": false,
+    "domain": "localhost",
+    "url": "http://localhost:9876",
+    "preset": "Startup Policy",
+    "attemptTotal": 6,
+    "executionCoverage": 0.16666666666666666
+  },
+  "triggeredRules": [
+    "all_goals_reached",
+    "policy_hard_failure"
+  ],
+  "honestyContract": {
+    "testedScope": [
+      "attempt:primary_ctas"
+    ],
+    "untestedScope": [
+      "skipped:login (No login elements detected)",
+      "skipped:signup (No signup elements detected)",
+      "skipped:checkout (No checkout elements detected)",
+      "skipped:newsletter_signup (No newsletter signup detected)",
+      "skipped:language_switch (No language switch detected)"
+    ],
+    "limits": [
+      "Coverage: 17% - Some workflows not exercised",
+      "Skipped: 5 tests (login, signup, checkout...)",
+      "No crawl performed - only tested specified URLs",
+      "Point-in-time snapshot - does not verify ongoing stability",
+      "Tested in automated environment - real user conditions may differ"
+    ],
+    "nonClaims": [
+      "Guardian did NOT test 83% of relevant workflows",
+      "5 tests were skipped or not applicable",
+      "Site crawl not performed - inter-page behavior unknown",
+      "Real user behavior may differ from automated tests",
+      "Future changes may break currently working features",
+      "Performance under load not verified",
+      "Security vulnerabilities not comprehensively tested",
+      "Browser/device compatibility limited to test environment"
+    ],
+    "coverageStats": {
+      "executed": 1,
+      "total": 6,
+      "percent": 17,
+      "skipped": 5,
+      "disabled": 0
+    },
+    "confidenceBasis": {
+      "summary": "100% success rate across 1 tests",
+      "details": [
+        "1 attempt executed (17% coverage)",
+        "1 succeeded, 0 failed",
+        "0 flows tested",
+        "Coverage below 50% - significant blind spots remain"
+      ],
+      "score": 0.17
+    },
+    "disclaimer": "Guardian can only report on what it tested. Untested areas may contain issues."
+  }
+}

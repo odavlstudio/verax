@@ -1,0 +1,42 @@
+{
+  "outcome": "RISK",
+  "reason": "User flow incomplete — critical friction in checkout confirmation",
+  "summary": "Payment submission succeeded technically, but confirmation page never loaded. User left cart abandoned after 4 retry attempts.",
+  "scenario": "E-commerce checkout flow on example-store.com",
+  "flow": [
+    "Add item to cart",
+    "Proceed to checkout",
+    "Fill shipping address",
+    "Select payment method",
+    "Submit payment",
+    "Wait for confirmation"
+  ],
+  "success_until": "Payment submission completed successfully",
+  "failure_point": "Confirmation page load (expected: <3s, actual: timeout after 8s, retried 4x)",
+  "signals": [
+    {
+      "type": "timeout",
+      "description": "Payment confirmation page did not load within expected time",
+      "severity": "critical"
+    },
+    {
+      "type": "retry_exhaustion",
+      "description": "User attempted reload 4 times; page never resolved",
+      "severity": "critical"
+    },
+    {
+      "type": "user_abandonment",
+      "description": "No navigation forward possible; flow is blocked",
+      "severity": "critical"
+    },
+    {
+      "type": "unclear_state",
+      "description": "User cannot determine if payment was charged",
+      "severity": "critical"
+    }
+  ],
+  "confidence": "medium",
+  "what_this_means": "A customer can fill out the checkout form and send payment details, but cannot confirm the purchase succeeded. Payment may or may not have been processed. The customer leaves confused and frustrated. This is a real business failure, not a code bug.",
+  "business_impact": "Lost transaction, confused customer, potential chargeback",
+  "technical_context": "Frontend successfully submitted payment to API. API likely processed request successfully. Confirmation page render or API response is stuck or timing out on the frontend."
+}

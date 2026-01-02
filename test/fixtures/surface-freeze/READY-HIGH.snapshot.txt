@@ -1,0 +1,29 @@
+GUARDIAN REALITY TEST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Target: https://shop.example.com
+Run ID: <normalized-run-id>
+
+EXECUTION SUMMARY
+──────────────────────────────────────────────────────────────────────────────
+Planned:  8 attempts
+Executed: 8 attempts
+
+VERDICT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Status: READY
+Meaning: All core user flows completed successfully. Safe to launch.
+Action: Safe to launch
+
+CONFIDENCE ASSESSMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Confidence Level: HIGH
+Based on comprehensive execution coverage and stable results.
+
+
+FINAL RECOMMENDATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Site is ready for production. All critical flows passed.
+
+Full report: <normalized-artifacts-path>
+Exit code: 0
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

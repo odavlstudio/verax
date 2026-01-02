@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Broken CTA Path - Test Fixture</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; line-height: 1.6; }
+    .hero { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .hero h1 { font-size: 2.5em; margin-bottom: 20px; }
+    .hero p { font-size: 1.2em; margin-bottom: 30px; max-width: 600px; }
+    .cta-button {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.2em;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      font-weight: bold;
+    }
+    .cta-button:hover { transform: scale(1.05); }
+    .error-overlay {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 1000;
+      max-width: 400px;
+    }
+    .error-overlay.active { display: block; }
+    .error-overlay h2 { color: #d32f2f; margin-bottom: 15px; }
+    .error-overlay p { color: #666; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <h1>Join Our Premium Service</h1>
+    <p>Get exclusive access to features that will change your business forever</p>
+    <!-- This button has NO data-testid, forcing fallback to role/aria-label -->
+    <button class="cta-button" role="button" aria-label="Start your free trial">
+      Start Free Trial
+    </button>
+  </div>
+
+  <div class="error-overlay" id="error-overlay">
+    <h2>⚠️ Service Unavailable</h2>
+    <p>We're experiencing technical difficulties. Please try again later.</p>
+  </div>
+
+  <script>
+    // Broken CTA - does nothing or shows error
+    document.querySelector('.cta-button').addEventListener('click', function() {
+      // Simulate a broken interaction - show error after delay
+      setTimeout(() => {
+        document.getElementById('error-overlay').classList.add('active');
+        document.title = 'Error - Service Unavailable';
+      }, 500);
+      
+      // No navigation, no form, no success
+      // This should result in FRICTION or DO_NOT_LAUNCH
+    });
+  </script>
+</body>
+</html>

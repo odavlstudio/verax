@@ -287,11 +287,13 @@ function parseArgs(argv) {
 }
 
 function parseCrawlArgs(args) {
+  const os = require('os');
+  const path = require('path');
   const config = {
     maxPages: 25,
     maxDepth: 3,
     timeout: 20000,
-    artifactsDir: './.odavlguardian'
+    artifactsDir: path.join(os.tmpdir(), 'odavl-guardian')
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -356,10 +358,12 @@ function applyPresetConfig(config) {
 
 // MVP: Journey Scan command parser
 function parseJourneyScanArgs(args) {
+  const os = require('os');
+  const path = require('path');
   const config = {
     baseUrl: undefined,
     preset: 'saas',
-    artifactsDir: './.odavlguardian',
+    artifactsDir: path.join(os.tmpdir(), 'odavl-guardian'),
     headless: true,
     timeout: 20000,
     presetProvided: false
@@ -392,9 +396,11 @@ function parseJourneyScanArgs(args) {
 }
 
 function parseLiveArgs(args) {
+  const os = require('os');
+  const path = require('path');
   const config = {
     baseUrl: undefined,
-    artifactsDir: './.odavlguardian',
+    artifactsDir: path.join(os.tmpdir(), 'odavl-guardian'),
     headless: true,
     timeout: 20000,
     intervalMinutes: null,
@@ -482,10 +488,12 @@ function parseLiveStopArgs(args) {
 
 // Phase 6: Scan command (one-command value)
 function parseScanArgs(args) {
+  const os = require('os');
+  const path = require('path');
   const config = {
     // core
     baseUrl: undefined,
-    artifactsDir: './.odavlguardian',
+    artifactsDir: path.join(os.tmpdir(), 'odavl-guardian'),
     // enable full pipeline
     enableCrawl: true,
     enableDiscovery: true,
@@ -549,8 +557,10 @@ function parseScanArgs(args) {
 }
 
 function parseListArgs(args) {
+  const os = require('os');
+  const path = require('path');
   const config = {
-    artifactsDir: './.odavlguardian',
+    artifactsDir: path.join(os.tmpdir(), 'odavl-guardian'),
     filters: {}
   };
 
@@ -1523,7 +1533,8 @@ async function main() {
         // LEVEL 1 TRANSPARENT GATING: emit clear message + artifacts
         const fs = require('fs');
         const path = require('path');
-        const artifactsDir = config.artifactsDir || './.odavlguardian';
+        const os = require('os');
+        const artifactsDir = config.artifactsDir || path.join(os.tmpdir(), 'odavl-guardian');
         try { if (!fs.existsSync(artifactsDir)) fs.mkdirSync(artifactsDir, { recursive: true }); } catch (_) {}
 
         const now = new Date().toISOString().replace(/[:\-]/g, '').substring(0, 15).replace('T', '-');
