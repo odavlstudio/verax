@@ -1,0 +1,288 @@
+
+C:\Users\sabou\odavlguardian\bin\guardian.js
+    15:12   error  'e' is defined but never used                                                                                                                                                                                     no-unused-vars
+   147:10   error  Expected to return a value at the end of function 'parseArgs'                                                                                                                                                     consistent-return
+  1538:107  error  '_' is defined but never used                                                                                                                                                                                     no-unused-vars
+  1543:67   error  '_' is defined but never used                                                                                                                                                                                     no-unused-vars
+  1565:121  error  '_' is defined but never used                                                                                                                                                                                     no-unused-vars
+  1580:101  error  '_' is defined but never used                                                                                                                                                                                     no-unused-vars
+  2034:21   error  'attemptForm' is assigned a value but never used. Allowed unused vars must match /^(get|is|check|print|set|log|record|validate|run|list|cleanup|generate|export|import|add|remove|compute|resolve|require|map)/u  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\enterprise\audit-logger.js
+  94:16  error  '_error' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\enterprise\pdf-exporter.js
+   61:10  error  'generatePDF' is defined but never used            no-unused-vars
+  148:10  error  'generateSimplifiedPDF' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\enterprise\rbac.js
+  83:12  error  '_error' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\enterprise\site-manager.js
+  34:12  error  '_error' is defined but never used  no-unused-vars
+  62:12  error  '_error' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\founder\feedback-system.js
+  124:14  error  '_error' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\founder\founder-tracker.js
+  54:12  error  '_error' is defined but never used  no-unused-vars
+  79:12  error  '_error' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\founder\usage-signals.js
+  40:12  error  '_error' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\attempt-engine.js
+  125:17  error  'success' is assigned a value but never used  no-unused-vars
+  759:20  error  '_' is defined but never used                 no-unused-vars
+  882:20  error  '_' is defined but never used                 no-unused-vars
+  994:60  error  '_' is defined but never used                 no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\attempt.js
+   51:12  error  '_e' is defined but never used         no-unused-vars
+  215:16  error  '_closeErr' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\baseline-storage.js
+   44:12  error  '_err' is defined but never used                         no-unused-vars
+  114:48  error  Expected to return a value at the end of arrow function  consistent-return
+  117:43  error  Expected to return a value at the end of arrow function  consistent-return
+
+C:\Users\sabou\odavlguardian\src\guardian\behavioral-signals.js
+  120:16  error  '_err' is defined but never used  no-unused-vars
+  215:14  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\browser-pool.js
+   86:14  error  '_err' is defined but never used  no-unused-vars
+  106:16  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\browser.js
+   92:14  error  '_err' is defined but never used  no-unused-vars
+  101:14  error  '_err' is defined but never used  no-unused-vars
+  113:14  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\canonical-truth.js
+  6:12  error  '_' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\crawler.js
+  23:14  error  '_e' is defined but never used  no-unused-vars
+  32:14  error  '_e' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\data-guardian-detector.js
+  87:15  error  'variantValue' is assigned a value but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\detection-layers.js
+   14:34  error  'matchesGuardianTarget' is assigned a value but never used  no-unused-vars
+  193:12  error  '_error' is defined but never used                          no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\discovery-engine.js
+   14:7   error  'url' is assigned a value but never used         no-unused-vars
+  116:55  error  'formFields' is assigned a value but never used  no-unused-vars
+  163:44  error  'href' is assigned a value but never used        no-unused-vars
+  163:55  error  'formFields' is assigned a value but never used  no-unused-vars
+  324:14  error  'e' is defined but never used                    no-unused-vars
+  389:9   error  'btnIdx' is assigned a value but never used      no-unused-vars
+  391:14  error  'e' is defined but never used                    no-unused-vars
+  441:14  error  'e' is defined but never used                    no-unused-vars
+  500:14  error  'e' is defined but never used                    no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\enhanced-html-reporter.js
+  165:11  error  Unexpected var, use let or const instead        no-var
+  181:20  error  '_' is defined but never used                   no-unused-vars
+  182:18  error  '_' is defined but never used                   no-unused-vars
+  188:15  error  'vNextHint' is assigned a value but never used  no-unused-vars
+  207:18  error  '_' is defined but never used                   no-unused-vars
+  224:26  error  '_' is defined but never used                   no-unused-vars
+  229:24  error  '_' is defined but never used                   no-unused-vars
+  244:18  error  '_' is defined but never used                   no-unused-vars
+  309:16  error  'err' is defined but never used                 no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\env-guard.js
+  10:9   error  'execSync' is assigned a value but never used  no-unused-vars
+  22:12  error  '_e' is defined but never used                 no-unused-vars
+  57:12  error  '_e' is defined but never used                 no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\export-contract.js
+  97:14  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\failure-taxonomy.js
+  57:18  error  'outcome' is assigned a value but never used     no-unused-vars
+  57:27  error  'friction' is assigned a value but never used    no-unused-vars
+  57:49  error  'failedStep' is assigned a value but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\first-run-profile.js
+  34:12  error  'e' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\first-run.js
+  23:12  error  'e' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\flow-executor.js
+  263:18  error  '_err' is defined but never used     no-unused-vars
+  311:95  error  Expected '!==' and instead saw '!='  eqeqeq
+
+C:\Users\sabou\odavlguardian\src\guardian\human-navigator.js
+  186:14  error  '_err' is defined but never used  no-unused-vars
+  420:16  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\index.js
+  33:12  error  '_e' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\intent-detector.js
+  33:14  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\journey-scan-cli.js
+  30:5   error  'url' is assigned a value but never used         no-unused-vars
+  31:12  error  '_err' is defined but never used                 no-unused-vars
+  92:11  error  'jsonReport' is assigned a value but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\journey-scanner.js
+  206:29  error  'expectedIndicator' is assigned a value but never used  no-unused-vars
+  370:14  error  '_err' is defined but never used                        no-unused-vars
+  384:14  error  '_err' is defined but never used                        no-unused-vars
+  404:14  error  '_err' is defined but never used                        no-unused-vars
+  515:14  error  '_err' is defined but never used                        no-unused-vars
+  532:14  error  '_err' is defined but never used                        no-unused-vars
+  577:14  error  '_e' is defined but never used                          no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\junit-reporter.js
+  102:11  error  'successCount' is assigned a value but never used   no-unused-vars
+  104:11  error  'frictionCount' is assigned a value but never used  no-unused-vars
+  144:11  error  'warningCount' is assigned a value but never used   no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\language-detection.js
+  44:12  error  '_error' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\live-scheduler-state.js
+  26:12  error  '_' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\live-scheduler.js
+  34:12  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\live-state.js
+  29:14  error  '_e' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\market-criticality.js
+  71:5  error  'attemptId' is assigned a value but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\market-reporter.js
+  137:95  error  Expected '!==' and instead saw '!='  eqeqeq
+
+C:\Users\sabou\odavlguardian\src\guardian\network-trace.js
+  111:14  error  '_error' is defined but never used  no-unused-vars
+  130:14  error  '_error' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\pattern-analyzer.js
+  53:16  error  '_parseErr' is defined but never used  no-unused-vars
+  58:12  error  '_err' is defined but never used       no-unused-vars
+  78:12  error  '_err' is defined but never used       no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\prerequisite-checker.js
+  79:16  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\preset-loader.js
+   51:20  error  Expected '===' and instead saw '=='  eqeqeq
+  119:16  error  '_error' is defined but never used   no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\profile-loader.js
+  15:12  error  '_err' is defined but never used  no-unused-vars
+  66:12  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\reality.js
+   343:12  error  '_e' is defined but never used  no-unused-vars
+  1969:12  error  '_' is defined but never used   no-unused-vars
+  2992:12  error  '_' is defined but never used   no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\run-artifacts.js
+  176:12  error  '_e' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\run-cleanup.js
+   69:12  error  '_e' is defined but never used                    no-unused-vars
+  174:9   error  'deletePaths' is assigned a value but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\run-latest.js
+  80:12  error  '_e' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\run-list.js
+  26:12  error  '_e' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\screenshot.js
+   93:14  error  '_error' is defined but never used  no-unused-vars
+  146:14  error  '_error' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\selector-fallbacks.js
+  180:11  error  'timeout' is assigned a value but never used  no-unused-vars
+  204:12  error  '_' is defined but never used                 no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\semantic-contact-finder.js
+  10:25  error  'getPrimaryLanguage' is assigned a value but never used  no-unused-vars
+  12:9   error  'getTokensForTarget' is assigned a value but never used  no-unused-vars
+  12:29  error  'normalizeText' is assigned a value but never used       no-unused-vars
+  13:25  error  'LAYER' is assigned a value but never used               no-unused-vars
+  13:32  error  'CONFIDENCE' is assigned a value but never used          no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\site-introspection.js
+   25:11  error  'hasForms' is assigned a value but never used  no-unused-vars
+   40:18  error  '_' is defined but never used                  no-unused-vars
+   68:18  error  '_' is defined but never used                  no-unused-vars
+   99:18  error  '_' is defined but never used                  no-unused-vars
+  200:20  error  '_' is defined but never used                  no-unused-vars
+  215:16  error  '_' is defined but never used                  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\sitemap.js
+   26:79  error  Expected to return a value at the end of arrow function  consistent-return
+   46:16  error  '_error' is defined but never used                       no-unused-vars
+  219:14  error  '_error' is defined but never used                       no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\smoke.js
+  21:12  error  '_e' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\snapshot.js
+  399:48  error  Expected to return a value at the end of arrow function  consistent-return
+  402:43  error  Expected to return a value at the end of arrow function  consistent-return
+
+C:\Users\sabou\odavlguardian\src\guardian\validators.js
+  115:12  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\verdict-clarity.js
+  166:5  error  'explanation' is assigned a value but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\verdict.js
+  122:10  error  'defaultLimits' is defined but never used                   no-unused-vars
+  177:9   error  'notApplicableAttempts' is assigned a value but never used  no-unused-vars
+  178:9   error  'skippedCount' is assigned a value but never used           no-unused-vars
+  245:9   error  'hasReports' is assigned a value but never used             no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\visual-diff.js
+  28:13  error  'ignoreRegions' is assigned a value but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\wait-for-outcome.js
+  11:5   error  'actionType' is assigned a value but never used  no-unused-vars
+  28:5   error  Arrow function expected no return value          consistent-return
+  83:67  error  '_e' is defined but never used                   no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\guardian\watch-runner.js
+  68:26  error  Expected '!==' and instead saw '!='  eqeqeq
+
+C:\Users\sabou\odavlguardian\src\payments\stripe-checkout.js
+  98:13  error  'customerId' is assigned a value but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\plans\plan-manager.js
+  9:30  error  'isWithinLimit' is assigned a value but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\recipes\recipe-engine.js
+  6:7  error  'fs' is assigned a value but never used    no-unused-vars
+  7:7  error  'path' is assigned a value but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\recipes\recipe-registry.js
+  44:12  error  '_err' is defined but never used  no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\recipes\recipe-runtime.js
+   38:9   error  'screenshotDir' is assigned a value but never used  no-unused-vars
+  342:20  error  '_e' is defined but never used                      no-unused-vars
+  346:16  error  '_e' is defined but never used                      no-unused-vars
+
+C:\Users\sabou\odavlguardian\src\recipes\recipe-store.js
+   14:3   error  'getRegistryEntry' is assigned a value but never used  no-unused-vars
+  137:12  error  '_error' is defined but never used                     no-unused-vars
+
+Ô£û 151 problems (151 errors, 0 warnings)
+

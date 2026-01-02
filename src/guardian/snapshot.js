@@ -3,6 +3,15 @@
  * Assembles crawl results, attempt results, evidence, and signals into a snapshot
  * 
  * @typedef {import('./truth/attempt.contract.js').AttemptResult} AttemptResult
+ * @typedef {import('./truth/snapshot.contract.js').MarketRealitySnapshot} MarketRealitySnapshot
+ * @typedef {import('./truth/snapshot.contract.js').SnapshotAttemptEntry} SnapshotAttemptEntry
+ * @typedef {import('./truth/snapshot.contract.js').FlowResult} FlowResult
+ * @typedef {import('./truth/snapshot.contract.js').Signal} Signal
+ * @typedef {import('./truth/snapshot.contract.js').SignalSeverity} SignalSeverity
+ * @typedef {import('./truth/snapshot.contract.js').SignalType} SignalType
+ * @typedef {import('./truth/snapshot.contract.js').CrawlResult} CrawlResult
+ * @typedef {import('./truth/snapshot.contract.js').BaselineInfo} BaselineInfo
+ * @typedef {import('./truth/snapshot.contract.js').SnapshotVerdict} SnapshotVerdict
  */
 
 const fs = require('fs');
@@ -10,7 +19,13 @@ const path = require('path');
 const { createEmptySnapshot, validateSnapshot } = require('./snapshot-schema');
 
 class SnapshotBuilder {
+  /**
+   * @param {string} baseUrl - Base URL tested
+   * @param {string} runId - Unique run identifier
+   * @param {string} toolVersion - Guardian tool version
+   */
   constructor(baseUrl, runId, toolVersion) {
+    /** @type {MarketRealitySnapshot} */
     this.snapshot = createEmptySnapshot(baseUrl, runId, toolVersion);
   }
 
@@ -55,6 +70,7 @@ class SnapshotBuilder {
    * Add attempt result to snapshot
    * @param {AttemptResult} attemptResult - Attempt execution result
    * @param {string} artifactDir - Artifact directory path
+   * @returns {void}
    */
   addAttempt(attemptResult, artifactDir) {
     // Handle NOT_APPLICABLE and DISCOVERY_FAILED attempts
@@ -94,10 +110,11 @@ class SnapshotBuilder {
       return; // Don't create signals for skipped attempts
     }
 
+    /** @type {Signal} */
     const signal = {
       id: `attempt_${attemptResult.attemptId}`,
-      severity: attemptResult.outcome === 'FAILURE' ? 'high' : 'medium',
-      type: attemptResult.outcome === 'FAILURE' ? 'failure' : 'friction',
+      severity: /** @type {SignalSeverity} */ (attemptResult.outcome === 'FAILURE' ? 'high' : 'medium'),
+      type: /** @type {SignalType} */ (attemptResult.outcome === 'FAILURE' ? 'failure' : 'friction'),
       description: `${attemptResult.attemptName}: ${attemptResult.outcome}`,
       affectedAttemptId: attemptResult.attemptId
     };
@@ -315,24 +332,6 @@ class SnapshotBuilder {
   }
 
   /**
-   * Set market impact summary (Phase 3)
-   */
-  setMarketImpactSummary(marketImpactSummary) {
-    if (!marketImpactSummary) return;
-
-    this.snapshot.marketImpactSummary = {
-      highestSeverity: marketImpactSummary.highestSeverity || 'INFO',
-      totalRiskCount: marketImpactSummary.totalRiskCount || 0,
-      countsBySeverity: marketImpactSummary.countsBySeverity || {
-        CRITICAL: 0,
-        WARNING: 0,
-        INFO: 0
-      },
-      topRisks: (marketImpactSummary.topRisks || []).slice(0, 10) // Keep top 10
-    };
-  }
-
-  /**
    * Set human intent resolution
    */
   setHumanIntent(humanIntentResolution) {
@@ -363,6 +362,7 @@ class SnapshotBuilder {
 
   /**
    * Get the built snapshot
+   * @returns {MarketRealitySnapshot}
    */
   getSnapshot() {
     return this.snapshot;

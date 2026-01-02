@@ -7,6 +7,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const packageJson = require('../package.json');
 const { executeReality } = require('../src/guardian/reality');
 const { saveBaseline, checkBaseline } = require('../src/guardian/baseline');
 const { evaluatePolicy } = require('../src/guardian/policy');
@@ -122,7 +123,7 @@ async function testBaselineWithAutoAttempts() {
       enableAutoAttempts: true,
       maxPages: 5,
       autoAttemptOptions: { minConfidence: 50, maxAttempts: 10 },
-      guardianVersion: '0.2.0-phase2'
+      guardianVersion: packageJson.version
     });
 
     assert.strictEqual(saveRes.exitCode, 0);
@@ -161,7 +162,7 @@ async function testRegressionDetection() {
       enableAutoAttempts: true,
       maxPages: 5,
       autoAttemptOptions: { minConfidence: 50, maxAttempts: 10 },
-      guardianVersion: '0.2.0-phase2'
+      guardianVersion: packageJson.version
     });
 
     assert.strictEqual(saveRes.exitCode, 0);
@@ -182,7 +183,7 @@ async function testRegressionDetection() {
       enableAutoAttempts: true,
       maxPages: 5,
       autoAttemptOptions: { minConfidence: 50, maxAttempts: 10 },
-      guardianVersion: '0.2.0-phase2'
+      guardianVersion: packageJson.version
     });
 
     // Should detect regressions
@@ -216,7 +217,7 @@ async function testPolicyWithAutoAttempts() {
       enableAutoAttempts: true,
       maxPages: 5,
       autoAttemptOptions: { minConfidence: 50, maxAttempts: 10 },
-      guardianVersion: '0.2.0-phase2'
+      guardianVersion: packageJson.version
     });
 
     // Check with fail mode (should have regressions)
@@ -233,7 +234,7 @@ async function testPolicyWithAutoAttempts() {
       enableAutoAttempts: true,
       maxPages: 5,
       autoAttemptOptions: { minConfidence: 50, maxAttempts: 10 },
-      guardianVersion: '0.2.0-phase2'
+      guardianVersion: packageJson.version
     });
 
     // Should detect regressions and fail

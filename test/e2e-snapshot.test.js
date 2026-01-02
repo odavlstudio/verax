@@ -6,6 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const packageJson = require('../package.json');
 const { startFixtureServer } = require('./fixture-server');
 const { executeReality } = require('../src/guardian/reality');
 const { loadSnapshot } = require('../src/guardian/snapshot');
@@ -36,7 +37,7 @@ async function e2eTest() {
       headful: false,
       enableTrace: false,
       enableScreenshots: false,
-      toolVersion: '0.2.0-e2e-test'
+      toolVersion: packageJson.version
     });
 
     console.log('\n✅ First run completed');
@@ -80,7 +81,7 @@ async function e2eTest() {
       headful: false,
       enableTrace: false,
       enableScreenshots: false,
-      toolVersion: '0.2.0-e2e-test'
+      toolVersion: packageJson.version
     });
 
     console.log('\n✅ Second run completed');

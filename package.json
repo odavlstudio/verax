@@ -42,6 +42,12 @@
     "VERSIONING.md"
   ],
   "scripts": {
+    "lint": "eslint bin/ src/",
+    "lint:fix": "eslint bin/ src/ --fix",
+    "typecheck": "tsc --noEmit",
+    "quality": "npm run lint && npm run typecheck && npm test",
+    "quality:guard": "node scripts/quality-guard.js",
+    "quality:baseline": "node scripts/generate-quality-baseline.js",
     "test:freeze": "node scripts/freeze-gate.js",
     "test": "node test/mvp.test.js && node test/snapshot-humanintent.test.js",
     "test:full": "node test/mvp.test.js && node test/stage4-security.test.js && node test/stage5-ci-gate.test.js && node test/stage5-error-handling.test.js && node test/stage6-verdict-card.test.js && node test/stage7-watchdog-simple.test.js",
@@ -106,9 +112,13 @@
     "playwright": "^1.48.2"
   },
   "devDependencies": {
+    "@types/node": "^25.0.3",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
+    "eslint": "^9.39.2",
     "glob": "^13.0.0",
-    "mocha": "^11.7.5"
+    "globals": "^17.0.0",
+    "mocha": "^11.7.5",
+    "typescript": "^5.9.3"
   }
 }

@@ -12,6 +12,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const packageJson = require('../package.json');
 const { generateCliSummary } = require('../src/guardian/cli-summary');
 const { loadPreset, parsePolicyOption, listPresets } = require('../src/guardian/preset-loader');
 const { initGuardian } = require('../src/guardian/init-command');
@@ -28,7 +29,7 @@ function createMockSnapshot(overrides = {}) {
       runId: 'test-run-20251223',
       createdAt: '2025-12-23T15:00:00Z',
       environment: 'test',
-      toolVersion: '0.6.0'
+      toolVersion: packageJson.version
     },
     marketImpactSummary: {
       highestSeverity: 'INFO',

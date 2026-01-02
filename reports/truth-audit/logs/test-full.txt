@@ -1,0 +1,640 @@
+
+> @odavl/guardian@2.0.1 test:full
+> node test/mvp.test.js && node test/stage4-security.test.js && node test/stage5-ci-gate.test.js && node test/stage5-error-handling.test.js && node test/stage6-verdict-card.test.js && node test/stage7-watchdog-simple.test.js
+
+­ƒº¬ MVP Test Suite
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+­ƒôï Test 1: CLI smoke test
+Ô£à Version check: 2.0.1
+Ô£à Help command works
+Ô£à Core modules load successfully
+Ô£à Runtime isolation verified (no CWD writes by default)
+
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+Ô£à All tests PASSED
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+­ƒøí´©Å  Stage 4 Security & Data Safety
+
+REALITY MODE: Full market reality snapshot
+
+ÔÜí MODE: fast
+
+­ƒº¬ Market Reality Snapshot v1
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+­ƒôì Base URL: http://127.0.0.1:62448/?run=mask&token=FAKE_TOKEN_12345678901234567890&email=newuser@example.com&password=P@ssword123
+­ƒÄ» Attempts: signup
+­ƒôü Run Dir: C:\Users\sabou\AppData\Local\Temp\guardian-s4-O9dVtB\2026-01-02_21-06-56_127-0-0-1-62448-run-mask-token-fake-token-12345678901234567890-email-newuser-example-com-password-p-ssword123_default_PENDING
+
+­ƒö¼ Inspecting site capabilities...
+Ô£à Site profile: saas
+   Detected: signup
+
+Ô×ò Added 6 attempt(s) from saas coverage pack
+
+Ôèÿ Skipping 4 irrelevant attempt(s):
+    ÔÇó login: No login elements detected
+    ÔÇó contact_form: No contact form detected
+    ÔÇó newsletter_signup: No newsletter signup detected
+    ÔÇó language_switch: No language switch detected
+
+­ƒºá Human Intent Analysis:
+   Primary goal: SIGN_UP (confidence: 90%)
+   Reasoning: Site has signup capability ÔåÆ human intent is to SIGN_UP for service
+­ƒîÉ Browser pool ready (reuse enabled)
+
+­ƒÄ¼ Executing attempts...
+  ÔÇó Account Signup...
+
+­ƒôü Artifacts: C:\Users\sabou\AppData\Local\Temp\guardian-s4-O9dVtB\2026-01-02_21-06-56_127-0-0-1-62448-run-mask-token-fake-token-12345678901234567890-email-newuser-example-com-password-p-ssword123_default_PENDING\signup\attempt-20260102-200657
+
+­ƒÄ¼ Executing attempt...
+
+Ô£à Attempt completed: SUCCESS
+
+­ƒôè Generating reports...
+Ô£à JSON report: attempt-report.json
+Ô£à HTML report: attempt-report.html
+
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+­ƒƒó SUCCESS
+
+Ô£à User successfully completed the attempt!
+   Success element visible: [data-guardian="signup-account-success"]
+
+ÔÅ▒´©Å  Duration: 488ms
+­ƒôï Steps: 6
+
+­ƒÆ¥ Full report: C:\Users\sabou\AppData\Local\Temp\guardian-s4-O9dVtB\2026-01-02_21-06-56_127-0-0-1-62448-run-mask-token-fake-token-12345678901234567890-email-newuser-example-com-password-p-ssword123_default_PENDING\signup\attempt-20260102-200657
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+   Ô£à Journey goal reached via signup
+
+­ƒº¡ Journey summary: stage=success, frustration=0/70, confidence=98
+   Path:
+    1. signup ÔåÆ SUCCESS
+
+­ƒºá Analyzing site intelligence...
+   Site type: saas_application (confidence: 67%)
+   Detected signals: 2
+   Capabilities: signup
+
+­ƒöì Observable Capabilities:
+   Present: signup
+   Not observed: login, checkout, contact_form, newsletter_signup, language_switch, primary_ctas, internal_admin
+
+Ôèÿ 1 attempt(s) NOT_APPLICABLE (capability not observed):
+    ÔÇó primary_ctas: Capability not observed: primary_ctas
+
+­ƒÄ» Executing intent flows...
+  ÔÇó Intent: Account Signup...
+
+­ƒÄ¼ Executing flow: Intent: Account Signup
+­ƒôï Steps: 6
+   Step 1: navigate http://127.0.0.1:62448/?run=mask&token=FAKE_TOKEN_12345678901234567890&email=newuser@example.com&password=P@ssword123
+   Ô£à Step 1 completed
+   Step 2: click a[data-guardian="account-signup-link"], a:has-text("Account Signup")
+   ÔÅ▒´©Å  wait resolved by url-change
+   Ô£à Step 2 completed
+   Step 3: type [data-guardian="signup-email"]
+   Ô£à Step 3 completed
+   Step 4: type [data-guardian="signup-password"]
+   Ô£à Step 4 completed
+   Step 5: click [data-guardian="signup-account-submit"], button:has-text("Sign up")
+   ÔÅ▒´©Å  wait resolved by dom-quiet
+   Ô£à Step 5 completed
+   Step 6: waitFor [data-guardian="signup-account-success"]
+   Ô£à Step 6 completed
+Ô£à Flow completed successfully
+
+Run completed: 1 flows (1 successes, 0 frictions, 0 failures, 0 not applicable)
+
+­ƒôè Baseline check...
+­ƒÆ¥ Baseline not found - creating auto-baseline...
+Ô£à Baseline created
+
+­ƒôè Analyzing market criticality...
+Ô£à Market impact analyzed: INFO severity
+
+­ƒÆ¥ Saving snapshot...
+Ô£à Snapshot saved: snapshot.json
+Ô£à Enhanced HTML report: report.html
+
+­ƒøí´©Å  Evaluating policy... (Startup Policy)
+Policy evaluation: passed=false
+  ÔÇó Evidence completeness 0.00 below policy minimum 1
+  ÔÇó Evidence integrity 0.00 below policy minimum 0.9
+
+ÔÜû´©Å  Rules engine evaluation:
+   Triggered rules: all_goals_reached
+   Rules verdict: READY
+   ÔÇó [all_goals_reached] All critical flows executed successfully and goals reached
+
+­ƒÄ» Final outcome authority:
+   Merged verdict: FRICTION (exit 1)
+   Source: policy-downgrade-hard
+   Decision: READY downgraded to FRICTION due to policy hard failure
+Ôä╣´©Å  networkSafety not populated (feature not yet implemented)
+Ô£à Sanitization and network safety verified
+
+REALITY MODE: Full market reality snapshot
+
+ÔÜí MODE: fast
+
+­ƒº¬ Market Reality Snapshot v1
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+­ƒôì Base URL: http://127.0.0.1:62448/?run=first
+­ƒÄ» Attempts: signup
+­ƒôü Run Dir: C:\Users\sabou\AppData\Local\Temp\guardian-s4-a-AmM9db\2026-01-02_21-07-00_127-0-0-1-62448-run-first_default_PENDING
+
+­ƒö¼ Inspecting site capabilities...
+Ô£à Site profile: saas
+   Detected: signup
+
+Ô×ò Added 6 attempt(s) from saas coverage pack
+
+Ôèÿ Skipping 4 irrelevant attempt(s):
+    ÔÇó login: No login elements detected
+    ÔÇó contact_form: No contact form detected
+    ÔÇó newsletter_signup: No newsletter signup detected
+    ÔÇó language_switch: No language switch detected
+
+­ƒºá Human Intent Analysis:
+   Primary goal: SIGN_UP (confidence: 90%)
+   Reasoning: Site has signup capability ÔåÆ human intent is to SIGN_UP for service
+­ƒîÉ Browser pool ready (reuse enabled)
+
+­ƒÄ¼ Executing attempts...
+  ÔÇó Account Signup...
+
+­ƒôü Artifacts: C:\Users\sabou\AppData\Local\Temp\guardian-s4-a-AmM9db\2026-01-02_21-07-00_127-0-0-1-62448-run-first_default_PENDING\signup\attempt-20260102-200701
+
+­ƒÄ¼ Executing attempt...
+
+Ô£à Attempt completed: SUCCESS
+
+­ƒôè Generating reports...
+Ô£à JSON report: attempt-report.json
+Ô£à HTML report: attempt-report.html
+
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+­ƒƒó SUCCESS
+
+Ô£à User successfully completed the attempt!
+   Success element visible: [data-guardian="signup-account-success"]
+
+ÔÅ▒´©Å  Duration: 503ms
+­ƒôï Steps: 6
+
+­ƒÆ¥ Full report: C:\Users\sabou\AppData\Local\Temp\guardian-s4-a-AmM9db\2026-01-02_21-07-00_127-0-0-1-62448-run-first_default_PENDING\signup\attempt-20260102-200701
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+   Ô£à Journey goal reached via signup
+
+­ƒº¡ Journey summary: stage=success, frustration=1/76, confidence=98
+   Path:
+    1. signup ÔåÆ SUCCESS
+
+­ƒºá Analyzing site intelligence...
+   Site type: saas_application (confidence: 67%)
+   Detected signals: 2
+   Capabilities: signup
+
+­ƒöì Observable Capabilities:
+   Present: signup
+   Not observed: login, checkout, contact_form, newsletter_signup, language_switch, primary_ctas, internal_admin
+
+Ôèÿ 1 attempt(s) NOT_APPLICABLE (capability not observed):
+    ÔÇó primary_ctas: Capability not observed: primary_ctas
+
+­ƒÄ» Executing intent flows...
+  ÔÇó Intent: Account Signup...
+
+­ƒÄ¼ Executing flow: Intent: Account Signup
+­ƒôï Steps: 6
+   Step 1: navigate http://127.0.0.1:62448/?run=first
+   Ô£à Step 1 completed
+   Step 2: click a[data-guardian="account-signup-link"], a:has-text("Account Signup")
+   ÔÅ▒´©Å  wait resolved by url-change
+   Ô£à Step 2 completed
+   Step 3: type [data-guardian="signup-email"]
+   Ô£à Step 3 completed
+   Step 4: type [data-guardian="signup-password"]
+   Ô£à Step 4 completed
+   Step 5: click [data-guardian="signup-account-submit"], button:has-text("Sign up")
+   ÔÅ▒´©Å  wait resolved by dom-quiet
+   Ô£à Step 5 completed
+   Step 6: waitFor [data-guardian="signup-account-success"]
+   Ô£à Step 6 completed
+Ô£à Flow completed successfully
+
+Run completed: 1 flows (1 successes, 0 frictions, 0 failures, 0 not applicable)
+
+­ƒôè Baseline check...
+­ƒÆ¥ Baseline not found - creating auto-baseline...
+Ô£à Baseline created
+
+­ƒôè Analyzing market criticality...
+Ô£à Market impact analyzed: INFO severity
+
+­ƒÆ¥ Saving snapshot...
+Ô£à Snapshot saved: snapshot.json
+Ô£à Enhanced HTML report: report.html
+
+­ƒøí´©Å  Evaluating policy... (Startup Policy)
+Policy evaluation: passed=false
+  ÔÇó Evidence completeness 0.00 below policy minimum 1
+  ÔÇó Evidence integrity 0.00 below policy minimum 0.9
+
+ÔÜû´©Å  Rules engine evaluation:
+   Triggered rules: all_goals_reached
+   Rules verdict: READY
+   ÔÇó [all_goals_reached] All critical flows executed successfully and goals reached
+
+­ƒÄ» Final outcome authority:
+   Merged verdict: FRICTION (exit 1)
+   Source: policy-downgrade-hard
+   Decision: READY downgraded to FRICTION due to policy hard failure
+
+REALITY MODE: Full market reality snapshot
+
+ÔÜí MODE: fast
+
+­ƒº¬ Market Reality Snapshot v1
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+­ƒôì Base URL: http://127.0.0.1:62448/?run=second
+­ƒÄ» Attempts: signup
+­ƒôü Run Dir: C:\Users\sabou\AppData\Local\Temp\guardian-s4-b-TiNiLi\2026-01-02_21-07-05_127-0-0-1-62448-run-second_default_PENDING
+
+­ƒö¼ Inspecting site capabilities...
+Ô£à Site profile: saas
+   Detected: signup
+
+Ô×ò Added 6 attempt(s) from saas coverage pack
+
+Ôèÿ Skipping 4 irrelevant attempt(s):
+    ÔÇó login: No login elements detected
+    ÔÇó contact_form: No contact form detected
+    ÔÇó newsletter_signup: No newsletter signup detected
+    ÔÇó language_switch: No language switch detected
+
+­ƒºá Human Intent Analysis:
+   Primary goal: SIGN_UP (confidence: 90%)
+   Reasoning: Site has signup capability ÔåÆ human intent is to SIGN_UP for service
+­ƒîÉ Browser pool ready (reuse enabled)
+
+­ƒÄ¼ Executing attempts...
+  ÔÇó Account Signup...
+
+­ƒôü Artifacts: C:\Users\sabou\AppData\Local\Temp\guardian-s4-b-TiNiLi\2026-01-02_21-07-05_127-0-0-1-62448-run-second_default_PENDING\signup\attempt-20260102-200705
+
+­ƒÄ¼ Executing attempt...
+
+Ô£à Attempt completed: SUCCESS
+
+­ƒôè Generating reports...
+Ô£à JSON report: attempt-report.json
+Ô£à HTML report: attempt-report.html
+
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+­ƒƒó SUCCESS
+
+Ô£à User successfully completed the attempt!
+   Success element visible: [data-guardian="signup-account-success"]
+
+ÔÅ▒´©Å  Duration: 448ms
+­ƒôï Steps: 6
+
+­ƒÆ¥ Full report: C:\Users\sabou\AppData\Local\Temp\guardian-s4-b-TiNiLi\2026-01-02_21-07-05_127-0-0-1-62448-run-second_default_PENDING\signup\attempt-20260102-200705
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+   Ô£à Journey goal reached via signup
+
+­ƒº¡ Journey summary: stage=success, frustration=2/77, confidence=98
+   Path:
+    1. signup ÔåÆ SUCCESS
+
+­ƒºá Analyzing site intelligence...
+   Site type: saas_application (confidence: 67%)
+   Detected signals: 2
+   Capabilities: signup
+
+­ƒöì Observable Capabilities:
+   Present: signup
+   Not observed: login, checkout, contact_form, newsletter_signup, language_switch, primary_ctas, internal_admin
+
+Ôèÿ 1 attempt(s) NOT_APPLICABLE (capability not observed):
+    ÔÇó primary_ctas: Capability not observed: primary_ctas
+
+­ƒÄ» Executing intent flows...
+  ÔÇó Intent: Account Signup...
+
+­ƒÄ¼ Executing flow: Intent: Account Signup
+­ƒôï Steps: 6
+   Step 1: navigate http://127.0.0.1:62448/?run=second
+   Ô£à Step 1 completed
+   Step 2: click a[data-guardian="account-signup-link"], a:has-text("Account Signup")
+   ÔÅ▒´©Å  wait resolved by url-change
+   Ô£à Step 2 completed
+   Step 3: type [data-guardian="signup-email"]
+   Ô£à Step 3 completed
+   Step 4: type [data-guardian="signup-password"]
+   Ô£à Step 4 completed
+   Step 5: click [data-guardian="signup-account-submit"], button:has-text("Sign up")
+   ÔÅ▒´©Å  wait resolved by dom-quiet
+   Ô£à Step 5 completed
+   Step 6: waitFor [data-guardian="signup-account-success"]
+   Ô£à Step 6 completed
+Ô£à Flow completed successfully
+
+Run completed: 1 flows (1 successes, 0 frictions, 0 failures, 0 not applicable)
+
+­ƒôè Baseline check...
+­ƒÆ¥ Baseline not found - creating auto-baseline...
+Ô£à Baseline created
+
+­ƒôè Analyzing market criticality...
+Ô£à Market impact analyzed: INFO severity
+
+­ƒÆ¥ Saving snapshot...
+Ô£à Snapshot saved: snapshot.json
+Ô£à Enhanced HTML report: report.html
+
+­ƒøí´©Å  Evaluating policy... (Startup Policy)
+Policy evaluation: passed=false
+  ÔÇó Evidence completeness 0.00 below policy minimum 1
+  ÔÇó Evidence integrity 0.00 below policy minimum 0.9
+
+ÔÜû´©Å  Rules engine evaluation:
+   Triggered rules: all_goals_reached
+   Rules verdict: READY
+   ÔÇó [all_goals_reached] All critical flows executed successfully and goals reached
+
+­ƒÄ» Final outcome authority:
+   Merged verdict: FRICTION (exit 1)
+   Source: policy-downgrade-hard
+   Decision: READY downgraded to FRICTION due to policy hard failure
+Ôä╣´©Å  Network request tracking not available (feature not yet implemented)
+Ô£à Teardown safety verified (no cross-run leakage)
+
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+Ô£à Stage 4 security tests passed
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+­ƒº¬ Stage 5: CI Gate Mode Test
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+­ƒôØ Test 1: parseCiGateMode
+
+Ô£à --mode gate parsed correctly
+Ô£à --mode advisory parsed correctly
+Ô£à Default mode is gate (strict)
+
+Ô£à Test 1 PASSED
+
+­ƒôØ Test 2: computeExitCode
+
+ÔÜá´©Å  Guardian is running in ADVISORY mode. CI WILL NOT FAIL on critical verdicts.
+Ô£à Advisory mode, READY ÔåÆ exit 0
+ÔÜá´©Å  Guardian is running in ADVISORY mode. CI WILL NOT FAIL on critical verdicts.
+Ô£à Advisory mode, FRICTION ÔåÆ exit 0
+ÔÜá´©Å  Guardian is running in ADVISORY mode. CI WILL NOT FAIL on critical verdicts.
+Ô£à Advisory mode, DO_NOT_LAUNCH ÔåÆ exit 0
+ÔÜá´©Å  Guardian is running in ADVISORY mode. CI WILL NOT FAIL on critical verdicts.
+Ô£à Advisory mode, ERROR ÔåÆ exit 0
+Ô£à Gate mode, READY ÔåÆ exit 0
+Ô£à Gate mode, FRICTION ÔåÆ exit 1
+Ô£à Gate mode, DO_NOT_LAUNCH ÔåÆ exit 2 (blocks deploy)
+Ô£à Gate mode, ERROR ÔåÆ exit 2 (treated as DO_NOT_LAUNCH)
+Ô£à Gate mode, UNKNOWN ÔåÆ exit 2 (treated as DO_NOT_LAUNCH)
+
+Ô£à Test 2 PASSED
+
+­ƒôØ Test 3: formatModeExplanation
+
+Ô£à Advisory mode explanation formatted
+   ÔÜÖ´©Å  Mode: ADVISORY (exit 0, informational only)
+Ô£à Gate mode explanation formatted
+   ­ƒÜº Mode: GATE (blocks deploy on failures)
+
+Ô£à Test 3 PASSED
+
+­ƒôØ Test 4: validateMode
+
+Ô£à advisory mode is valid
+Ô£à gate mode is valid
+Ô£à Invalid mode rejected
+   Error: Invalid mode: invalid. Must be 'advisory' or 'gate'.
+
+Ô£à Test 4 PASSED
+
+­ƒôØ Test 5: Advisory vs Gate scenarios
+
+ÔÜá´©Å  Guardian is running in ADVISORY mode. CI WILL NOT FAIL on critical verdicts.
+Ô£à READY: Both modes allow (exit 0)
+ÔÜá´©Å  Guardian is running in ADVISORY mode. CI WILL NOT FAIL on critical verdicts.
+Ô£à DO_NOT_LAUNCH: Gate blocks (exit 2)
+ÔÜá´©Å  Guardian is running in ADVISORY mode. CI WILL NOT FAIL on critical verdicts.
+Ô£à ERROR: Gate blocks (exit 2)
+
+Ô£à Test 5 PASSED
+
+
+­ƒôØ Test 6: Advisory mode warning
+
+Ô£à Advisory warning emitted and matches constant
+
+­ƒôØ Test 7: Process exit code enforcement
+
+Ô£à Exit codes are assigned to process and advisory mode warns explicitly
+
+­ƒôØ Test 8: Canonical exit mapping alignment
+
+Ô£à Canonical verdicts map to strict CI exit codes
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+Ô£à All CI gate mode tests PASSED
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+­ƒº¬ Stage 5: Error Handling Test
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+­ƒôØ Test 1: Error decision write
+
+Ô£à decision.json was written
+Ô£à meta.status = ERROR
+Ô£à finalVerdict = ERROR
+Ô£à exitCode = 3
+Ô£à Error message recorded
+Ô£à Determinism hash preserved
+Ô£à Mode preserved
+
+Ô£à Test 1 PASSED
+
+­ƒôØ Test 2: Fail-safe wrapper
+
+
+ÔØî FATAL ERROR: Execution failed unexpectedly
+
+­ƒÆ¥ Error decision written to: C:\Users\sabou\AppData\Local\Temp\guardian-failsafe-rfK50q\decision.json
+Ô£à exitCode = 3
+Ô£à Error message in result
+Ô£à finalDecision.finalVerdict = ERROR
+Ô£à decision.json written by wrapper
+Ô£à decision.json has ERROR status
+
+Ô£à Test 2 PASSED
+
+­ƒôØ Test 3: Successful execution (no error)
+
+Ô£à Success case returns correct result
+Ô£à Success verdict preserved
+
+Ô£à Test 3 PASSED
+
+
+­ƒôØ Test 4: Traversal attempt is blocked
+
+
+ÔØî FATAL ERROR: boom
+ÔÜá´©Å  Failed to write error decision: runDir must stay within artifacts base directory: C:\Users\sabou\AppData\Local\Temp\guardian-allowed-tZxvm1
+Ô£à Exit code = 3 for traversal attempt
+Ô£à No artifact written outside base
+
+Ô£à Test 4 PASSED
+
+
+­ƒôØ Test 5: Absolute external path is blocked
+
+
+ÔØî FATAL ERROR: boom
+ÔÜá´©Å  Failed to write error decision: runDir must stay within artifacts base directory: C:\Users\sabou\AppData\Local\Temp\guardian-allowed-kshyjp
+Ô£à Exit code = 3 for external absolute path
+Ô£à No artifact written to external path
+
+Ô£à Test 5 PASSED
+
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+Ô£à All error handling tests PASSED
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+­ƒº¬ Stage 6: Verdict Card Unit Tests
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+­ƒôØ Test 1: determineSeverity()
+  Ô£à DO_NOT_LAUNCH + checkout ÔåÆ HIGH
+  Ô£à DO_NOT_LAUNCH + multiple failures ÔåÆ HIGH
+  Ô£à FRICTION ÔåÆ LOW
+  Ô£à READY ÔåÆ LOW
+  Ô£à ERROR ÔåÆ HIGH
+Ô£à Test 1 PASSED
+
+­ƒôØ Test 2: estimateBusinessImpact()
+  Ô£à READY ÔåÆ MINIMAL_RISK
+  Ô£à Checkout failure ÔåÆ CONVERSION_RISK with revenue language
+  Ô£à Signup failure ÔåÆ ACQUISITION_RISK with growth language
+  Ô£à Contact failure ÔåÆ LEAD_RISK
+  Ô£à FRICTION ÔåÆ USER_FRICTION with abandonment risk
+Ô£à Test 2 PASSED
+
+­ƒôØ Test 3: generateHeadline()
+  Ô£à READY: READY ÔÇö Site passed critical user flows
+  Ô£à DO_NOT_LAUNCH: DO NOT LAUNCH ÔÇö Checkout path breaks for real users
+  Ô£à General failure: DO NOT LAUNCH ÔÇö 1 critical path(s) broken
+  Ô£à FRICTION: FRICTION ÔÇö 2 flow(s) slow or inconsistent
+Ô£à Test 3 PASSED
+
+­ƒôØ Test 4: generateVerdictCard() - full integration
+  Ô£à READY card structure valid
+     Headline: READY ÔÇö Site passed critical user flows
+     Severity: LOW
+     Impact: MINIMAL_RISK
+  Ô£à DO_NOT_LAUNCH card structure valid
+     Headline: DO NOT LAUNCH ÔÇö Checkout path breaks for real users
+     Severity: HIGH
+     Impact: CONVERSION_RISK
+  Ô£à FRICTION card structure valid
+     Headline: FRICTION ÔÇö 2 flow(s) slow or inconsistent
+     Severity: LOW
+     Impact: USER_FRICTION
+Ô£à Test 4 PASSED
+
+­ƒôØ Test 5: Card limits enforcement (max 3 items)
+  Ô£à Bullets: 1/3
+  Ô£à Evidence: 3/3
+  Ô£à Next actions: 2/3
+Ô£à Test 5 PASSED
+
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+Ô£à All verdict card unit tests PASSED
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+­ƒº¬ Stage 7: Watchdog Mode Tests
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+­ƒôØ Test 1: normalizeSiteKey()
+  Ô£à Remove protocol and trailing slash
+  Ô£à Remove http protocol
+  Ô£à Remove port
+  Ô£à Remove localhost port
+  Ô£à Remove query params
+  Ô£à Remove fragment
+  Ô£à Preserve path
+Ô£à Test 1 PASSED
+
+­ƒôØ Test 2: createBaseline()
+  Ô£à version = 1
+  Ô£à finalVerdict preserved
+  Ô£à verdictCard.headline preserved
+  Ô£à timestamp exists
+  Ô£à coverage.percent preserved
+  Ô£à selectorConfidence preserved
+  Ô£à determinismHash preserved
+Ô£à Test 2 PASSED
+
+­ƒôØ Test 3: saveBaseline() and loadBaseline()
+  Ô£à Loaded verdict matches
+  Ô£à Loaded coverage matches
+  Ô£à Returns null for nonexistent baseline
+  Ô£à baselineExists returns true
+  Ô£à baselineExists returns false for missing
+Ô£à Test 3 PASSED
+
+­ƒôØ Test 4: compareToBaseline() - verdict downgrades
+  Ô£à READYÔåÆFRICTION is degraded
+  Ô£à READYÔåÆFRICTION severity is MEDIUM
+  Ô£à Reason includes downgrade
+  Ô£à READYÔåÆDO_NOT_LAUNCH is degraded
+  Ô£à READYÔåÆDO_NOT_LAUNCH severity is HIGH
+Ô£à Test 4 PASSED
+
+­ƒôØ Test 5: compareToBaseline() - coverage and confidence
+  Ô£à Coverage drop ÔëÑ20% is degraded
+  Ô£à Coverage drop severity is MEDIUM
+  Ô£à Confidence drop ÔëÑ0.2 is degraded
+  Ô£à Confidence drop severity is MEDIUM
+Ô£à Test 5 PASSED
+
+­ƒôØ Test 6: updateBaseline()
+  Ô£à Baseline updated with READY
+  Ô£à Coverage updated
+  Ô£à Error message correct
+  Ô£à Baseline NOT updated with FRICTION
+  Ô£à Coverage NOT changed
+Ô£à Test 6 PASSED
+
+­ƒôØ Test 7: shouldAlert() and formatWatchdogAlert()
+  Ô£à shouldAlert true when degraded
+  Ô£à shouldAlert false when not degraded
+  Ô£à Alert includes watchdog header
+  Ô£à Alert includes HIGH severity
+  Ô£à Alert includes reason
+  Ô£à Alert includes verdict transition
+Ô£à Test 7 PASSED
+
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+Ô£à Tests passed: 39
+ÔØî Tests failed: 0
+
+­ƒÄë All Stage 7 Watchdog Mode tests PASSED!
+

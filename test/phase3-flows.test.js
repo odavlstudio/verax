@@ -2,6 +2,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const packageJson = require('../package.json');
 const { executeReality } = require('../src/guardian/reality');
 const { saveBaseline, checkBaseline } = require('../src/guardian/baseline');
 const { startFixtureServer } = require('./fixture-server');
@@ -70,7 +71,7 @@ async function testFlowRegressionDetection() {
       enableAutoAttempts: false,
       enableFlows: true,
       flowOptions: { screenshotOnStep: false },
-      guardianVersion: '0.3.0-phase3'
+      guardianVersion: packageJson.version
     });
 
     assert.strictEqual(saveRes.exitCode, 0);

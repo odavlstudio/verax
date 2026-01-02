@@ -87,16 +87,16 @@ function testComputeExitCode() {
   console.log('✅ Gate mode, DO_NOT_LAUNCH → exit 2 (blocks deploy)');
 
   exitCode = computeExitCode('ERROR', 'gate');
-  if (exitCode !== 3) {
-    throw new Error(`Gate ERROR: expected 3, got ${exitCode}`);
+  if (exitCode !== 2) {
+    throw new Error(`Gate ERROR: expected 2, got ${exitCode}`);
   }
-  console.log('✅ Gate mode, ERROR → exit 3');
+  console.log('✅ Gate mode, ERROR → exit 2 (treated as DO_NOT_LAUNCH)');
 
   exitCode = computeExitCode('UNKNOWN', 'gate');
-  if (exitCode !== 3) {
-    throw new Error(`Gate UNKNOWN: expected 3, got ${exitCode}`);
+  if (exitCode !== 2) {
+    throw new Error(`Gate UNKNOWN: expected 2, got ${exitCode}`);
   }
-  console.log('✅ Gate mode, UNKNOWN → exit 3');
+  console.log('✅ Gate mode, UNKNOWN → exit 2 (treated as DO_NOT_LAUNCH)');
 
   console.log('\n✅ Test 2 PASSED\n');
 }
@@ -177,16 +177,16 @@ function testAdvisoryVsGateScenarios() {
   }
   console.log('✅ DO_NOT_LAUNCH: Gate blocks (exit 2)');
 
-  // Scenario 3: ERROR - gate blocks with exit 3
+  // Scenario 3: ERROR - gate blocks with exit 2 (default DO_NOT_LAUNCH)
   advisoryExit = computeExitCode('ERROR', 'advisory');
   gateExit = computeExitCode('ERROR', 'gate');
   if (advisoryExit !== 0) {
     throw new Error('Advisory mode should allow ERROR');
   }
-  if (gateExit !== 3) {
-    throw new Error('Gate mode should block ERROR with exit 3');
+  if (gateExit !== 2) {
+    throw new Error('Gate mode should block ERROR with exit 2 (DO_NOT_LAUNCH)');
   }
-  console.log('✅ ERROR: Gate blocks (exit 3)');
+  console.log('✅ ERROR: Gate blocks (exit 2)');
 
   console.log('\n✅ Test 5 PASSED\n');
 }
@@ -224,11 +224,11 @@ function testProcessExitEnforcement() {
 
   process.exitCode = undefined;
   const errorExit = computeExitCode('ERROR', 'gate');
-  if (errorExit !== 3) {
-    throw new Error(`Gate ERROR should exit 3, got ${errorExit}`);
+  if (errorExit !== 2) {
+    throw new Error(`Gate ERROR should exit 2 (DO_NOT_LAUNCH), got ${errorExit}`);
   }
-  if (process.exitCode !== 3) {
-    throw new Error(`process.exitCode should be 3 for ERROR, got ${process.exitCode}`);
+  if (process.exitCode !== 2) {
+    throw new Error(`process.exitCode should be 2 for ERROR, got ${process.exitCode}`);
   }
 
   process.exitCode = undefined;
@@ -261,8 +261,8 @@ function testCanonicalExitMapping() {
   if (ready !== 0) throw new Error('READY should map to exit 0');
   if (friction !== 1) throw new Error('FRICTION should map to exit 1');
   if (doNotLaunch !== 2) throw new Error('DO_NOT_LAUNCH should map to exit 2');
-  if (error !== 3) throw new Error('ERROR should map to exit 3');
-  if (unknown !== 3) throw new Error('UNKNOWN should map to exit 3');
+  if (error !== 2) throw new Error('ERROR should map to exit 2 (DO_NOT_LAUNCH default)');
+  if (unknown !== 2) throw new Error('UNKNOWN should map to exit 2 (DO_NOT_LAUNCH default)');
 
   console.log('✅ Canonical verdicts map to strict CI exit codes');
 }

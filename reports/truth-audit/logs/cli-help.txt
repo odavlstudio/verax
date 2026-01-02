@@ -1,0 +1,50 @@
+
+ODAVL Guardian ÔÇö Market Reality Testing
+ÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöüÔöü
+
+QUICK START (Recommended)
+
+  guardian reality --url <url>
+
+  Opens your site in a browser, runs realistic user flows,
+  and generates a verdict (READY | FRICTION | DO_NOT_LAUNCH).
+
+  Output:
+    - .odavlguardian/<timestamp>/decision.json (machine-readable)
+    - .odavlguardian/<timestamp>/summary.md (human-readable)
+
+COMMON OPTIONS
+
+  --url <url>               Site to test (required)
+  --preset <name>          Test preset (startup, custom, etc)
+                            Default: startup
+  --artifacts <dir>        Output directory
+                            Default: .odavlguardian
+  --fast                    Quick run (fewer attempts)
+  --headful                 Show browser window
+
+VS CODE INTEGRATION
+
+  Command Palette ÔåÆ "Guardian: Run Reality Check"
+
+  Automatically tests your site from VS Code and shows results.
+
+ADVANCED COMMANDS
+
+  guardian smoke <url>                 Fast sanity check
+  guardian scan <url>                  Full advanced scan
+  guardian baseline save|check <url>   Manage baselines
+  guardian list                        Show all reports
+  guardian cleanup                     Remove old reports
+
+OPTIONS
+
+  --help, -h                Show this help message
+  --version, -v             Show version
+
+EXAMPLES
+
+  # Test production site
+  guardian reality --url https://example.com
+
+  # Test with staging preset

@@ -7,6 +7,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const packageJson = require('../package.json');
 const { executeReality } = require('../src/guardian/reality');
 const { saveBaseline, checkBaseline } = require('../src/guardian/baseline');
 const { evaluatePolicy } = require('../src/guardian/policy');
@@ -75,7 +76,7 @@ async function testBaselineAndRegression() {
       headful: false,
       enableTrace: false,
       enableScreenshots: false,
-      guardianVersion: '0.2.0-phase1'
+      guardianVersion: packageJson.version
     });
 
     assert.strictEqual(saveRes.exitCode, 0);
@@ -92,7 +93,7 @@ async function testBaselineAndRegression() {
       headful: false,
       enableTrace: false,
       enableScreenshots: false,
-      guardianVersion: '0.2.0-phase1'
+      guardianVersion: packageJson.version
     });
 
     const regressions = checkRes.comparisons.filter(c => c.regressionType !== 'NO_REGRESSION');

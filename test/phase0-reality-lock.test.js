@@ -14,6 +14,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const packageJson = require('../package.json');
 const { executeReality } = require('../src/guardian/reality');
 const { saveBaseline, checkBaseline } = require('../src/guardian/baseline');
 const { evaluatePolicy } = require('../src/guardian/policy');
@@ -153,7 +154,7 @@ async function test2_BaselineSave() {
     headful: false,
     enableTrace: false,
     enableScreenshots: false,
-    guardianVersion: '0.2.0-phase0-test'
+    guardianVersion: packageJson.version
   });
 
   // Verify result
@@ -167,7 +168,7 @@ async function test2_BaselineSave() {
 
   // Verify baseline structure
   assert.strictEqual(baseline.schemaVersion, 1, 'Schema version should be 1');
-  assert.strictEqual(baseline.guardianVersion, '0.2.0-phase0-test', 'Guardian version should match');
+  assert.strictEqual(baseline.guardianVersion, packageJson.version, 'Guardian version should match');
   assert.strictEqual(baseline.baselineName, 'test-baseline', 'Baseline name should match');
   assert.ok(baseline.createdAt, 'Created timestamp should exist');
   assert.strictEqual(baseline.baseUrl, baseUrl, 'Base URL should match');
@@ -219,7 +220,7 @@ async function test3_BaselineCheckDetectsRegressions() {
     headful: false,
     enableTrace: false,
     enableScreenshots: false,
-    guardianVersion: '0.2.0-phase0-test'
+    guardianVersion: packageJson.version
   });
 
   assert.strictEqual(saveResult.exitCode, 0, 'Baseline save should succeed');
@@ -237,7 +238,7 @@ async function test3_BaselineCheckDetectsRegressions() {
     headful: false,
     enableTrace: false,
     enableScreenshots: false,
-    guardianVersion: '0.2.0-phase0-test'
+    guardianVersion: packageJson.version
   });
 
   // Verify regression detected

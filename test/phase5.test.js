@@ -9,6 +9,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const packageJson = require('../package.json');
 
 const { loadPolicy, evaluatePolicy, formatPolicyOutput, createDefaultPolicyFile } = require('../src/guardian/policy');
 const { generateJunitXml, validateJunitXml, escapeXml } = require('../src/guardian/junit-reporter');
@@ -23,7 +24,7 @@ function createMockSnapshot(overrides = {}) {
       runId: 'test-run-20251223',
       createdAt: '2025-12-23T15:00:00Z',
       environment: 'test',
-      toolVersion: '0.4.0'
+      toolVersion: packageJson.version
     },
     marketImpactSummary: {
       highestSeverity: 'INFO',

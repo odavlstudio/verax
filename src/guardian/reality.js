@@ -58,6 +58,12 @@ const { checkPrerequisites } = require('./prerequisite-checker');
 // DEPENDENCIES: Guardian modules — Observation & Analysis
 // ============================================================================
 const { SnapshotBuilder, saveSnapshot } = require('./snapshot');
+
+/**
+ * @typedef {import('./truth/snapshot.contract.js').MarketRealitySnapshot} MarketRealitySnapshot
+ * @typedef {import('./truth/snapshot.contract.js').SnapshotAttemptEntry} SnapshotAttemptEntry
+ * @typedef {import('./truth/attempt.contract.js').AttemptResult} AttemptResult
+ */
 const { analyzeSite, isFlowApplicable, SITE_TYPES } = require('./site-intelligence');
 const { extractObservedCapabilities, filterAttemptsByObservedCapabilities, filterFlowsByObservedCapabilities, createNotApplicableAttemptResult, createNotApplicableFlowResult } = require('./observed-capabilities');
 const { inspectSite, detectProfile } = require('./site-introspection');
@@ -2058,9 +2064,9 @@ async function executeReality(config) {
     } : null,
     meta: {
       runId: snap.meta?.runId || 'unknown',
-      timestamp: snap.meta?.timestamp || new Date().toISOString(),
-      baseUrl: snap.meta?.baseUrl || baseUrl || 'unknown',
-      durationMs: snap.meta?.durationMs || 0
+      timestamp: snap.meta?.createdAt || new Date().toISOString(),
+      baseUrl: snap.meta?.url || baseUrl || 'unknown',
+      durationMs: 0 // Duration not stored in snapshot meta
     }
   });
 

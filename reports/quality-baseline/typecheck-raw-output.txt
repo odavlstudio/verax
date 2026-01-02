@@ -1,0 +1,296 @@
+
+> @odavl/guardian@2.0.1 typecheck
+> tsc --noEmit
+
+bin/guardian.js(1923,53): error TS2339: Property 'outputPath' does not exist on type 'void'.
+bin/guardian.js(1924,39): error TS2339: Property 'size' does not exist on type 'void'.
+bin/guardian.js(1925,88): error TS2339: Property 'outputPath' does not exist on type 'void'.
+src/enterprise/pdf-exporter.js(257,5): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/enterprise/pdf-exporter.js(257,30): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(134,23): error TS2339: Property 'endedAt' does not exist on type '{ id: any; type: any; target: any; description: any; startedAt: string; retries: number; status: string; error: null; screenshots: undefined[]; }'.
+src/guardian/attempt-engine.js(135,23): error TS2339: Property 'durationMs' does not exist on type '{ id: any; type: any; target: any; description: any; startedAt: string; retries: number; status: string; error: null; screenshots: undefined[]; }'.
+src/guardian/attempt-engine.js(178,23): error TS2339: Property 'endedAt' does not exist on type '{ id: any; type: any; target: any; description: any; startedAt: string; retries: number; status: string; error: null; screenshots: undefined[]; }'.
+src/guardian/attempt-engine.js(179,23): error TS2339: Property 'durationMs' does not exist on type '{ id: any; type: any; target: any; description: any; startedAt: string; retries: number; status: string; error: null; screenshots: undefined[]; }'.
+src/guardian/attempt-engine.js(206,29): error TS2339: Property 'domPath' does not exist on type '{ id: any; type: any; target: any; description: any; startedAt: string; retries: number; status: string; error: null; screenshots: undefined[]; }'.
+src/guardian/attempt-engine.js(228,27): error TS2339: Property 'domPath' does not exist on type '{ id: any; type: any; target: any; description: any; startedAt: string; retries: number; status: string; error: null; screenshots: undefined[]; }'.
+src/guardian/attempt-engine.js(338,57): error TS2339: Property 'durationMs' does not exist on type '{ id: any; type: any; target: any; description: any; startedAt: string; retries: number; status: string; error: any; screenshots: any[]; }'.
+src/guardian/attempt-engine.js(697,26): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(697,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(785,29): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(785,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(866,26): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(866,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(908,29): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(908,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(969,26): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(969,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(986,26): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(986,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(1012,29): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/attempt-engine.js(1012,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/auto-attempt-builder.js(274,3): error TS2322: Type '{ id: string; attemptId: string; name: string; goal: string; baseSteps: ({ id: string; type: string; target: any; description: string; timeout?: undefined; formData?: undefined; duration?: undefined; } | { ...; } | { ...; } | { ...; })[]; ... 4 more ...; metadata: { ...; }; }[]' is not assignable to type 'AutoAttemptDefinition[]'.
+  Property 'steps' is missing in type '{ id: string; attemptId: string; name: string; goal: string; baseSteps: ({ id: string; type: string; target: any; description: string; timeout?: undefined; formData?: undefined; duration?: undefined; } | { ...; } | { ...; } | { ...; })[]; ... 4 more ...; metadata: { ...; }; }' but required in type 'AutoAttemptDefinition'.
+src/guardian/baseline.js(142,9): error TS2339: Property 'code' does not exist on type 'Error'.
+src/guardian/baseline.js(149,9): error TS2339: Property 'code' does not exist on type 'Error'.
+src/guardian/browser-pool.js(77,14): error TS2304: Cannot find name 'BrowserContext'.
+src/guardian/browser.js(49,14): error TS2304: Cannot find name 'BrowserContext'.
+src/guardian/browser.js(50,14): error TS2304: Cannot find name 'Page'.
+src/guardian/ci-cli.js(3,9): error TS2305: Module '"./journey-scanner"' has no exported member 'scanJourney'.
+src/guardian/ci-cli.js(4,9): error TS2724: '"./intent-detector"' has no exported member named 'detectSiteIntent'. Did you mean 'detectIntent'?
+src/guardian/ci-cli.js(4,27): error TS2305: Module '"./intent-detector"' has no exported member 'selectJourneyByIntent'.
+src/guardian/config-validator.js(65,20): error TS8024: JSDoc '@param' tag has name 'path', but there is no parameter with that name.
+src/guardian/data-guardian-detector.js(25,12): error TS2304: Cannot find name 'Page'.
+src/guardian/data-guardian-detector.js(47,20): error TS2339: Property 'href' does not exist on type 'Element'.
+src/guardian/data-guardian-detector.js(71,24): error TS2339: Property 'href' does not exist on type 'Element'.
+src/guardian/data-guardian-detector.js(92,20): error TS2339: Property 'href' does not exist on type 'Element'.
+src/guardian/decision-authority.js(101,44): error TS2741: Property 'ciMode' is missing in type '{}' but required in type '{ ciMode: boolean; }'.
+src/guardian/decision-authority.js(102,25): error TS2339: Property 'runId' does not exist on type '{ ciMode: boolean; }'.
+src/guardian/decision-authority.js(122,25): error TS2339: Property 'audit' does not exist on type '{ flows: any[]; attempts: any[]; rulesEngineOutput: any; journeyVerdict: string; policyEval: any; baseline: any; marketImpact: any; coverage: any; siteIntelligence: any; }'.
+src/guardian/decision-authority.js(123,29): error TS2339: Property 'humanPath' does not exist on type '{ flows: any[]; attempts: any[]; rulesEngineOutput: any; journeyVerdict: string; policyEval: any; baseline: any; marketImpact: any; coverage: any; siteIntelligence: any; }'.
+src/guardian/decision-authority.js(124,33): error TS2339: Property 'networkSafety' does not exist on type '{ flows: any[]; attempts: any[]; rulesEngineOutput: any; journeyVerdict: string; policyEval: any; baseline: any; marketImpact: any; coverage: any; siteIntelligence: any; }'.
+src/guardian/decision-authority.js(125,34): error TS2339: Property 'secretFindings' does not exist on type '{ flows: any[]; attempts: any[]; rulesEngineOutput: any; journeyVerdict: string; policyEval: any; baseline: any; marketImpact: any; coverage: any; siteIntelligence: any; }'.
+src/guardian/detection-layers.js(32,12): error TS2304: Cannot find name 'Page'.
+src/guardian/discovery-engine.js(287,19): error TS2339: Property 'innerText' does not exist on type 'Element'.
+src/guardian/discovery-engine.js(289,22): error TS2339: Property 'offsetHeight' does not exist on type 'Element'.
+src/guardian/discovery-engine.js(289,44): error TS2339: Property 'offsetWidth' does not exist on type 'Element'.
+src/guardian/discovery-engine.js(354,23): error TS2339: Property 'innerText' does not exist on type 'Element'.
+src/guardian/discovery-engine.js(357,26): error TS2339: Property 'offsetHeight' does not exist on type 'Element'.
+src/guardian/discovery-engine.js(357,50): error TS2339: Property 'offsetWidth' does not exist on type 'Element'.
+src/guardian/discovery-engine.js(365,23): error TS2339: Property 'value' does not exist on type 'Element'.
+src/guardian/discovery-engine.js(367,27): error TS2339: Property 'disabled' does not exist on type 'Element'.
+src/guardian/discovery-engine.js(368,26): error TS2339: Property 'offsetHeight' does not exist on type 'Element'.
+src/guardian/discovery-engine.js(368,50): error TS2339: Property 'offsetWidth' does not exist on type 'Element'.
+src/guardian/discovery-engine.js(494,48): error TS2339: Property 'targetUrl' does not exist on type '{ isRisky: boolean; riskReason: string; interactionClass: string; confidenceScore: number; type: string; selector: string; selectorStrategy: string; text: any; ariaLabel: any; interactionId: string; pageUrl: any; }'.
+src/guardian/discovery-engine.js(494,85): error TS2339: Property 'targetUrl' does not exist on type '{ isRisky: boolean; riskReason: string; interactionClass: string; confidenceScore: number; type: string; selector: string; selectorStrategy: string; text: any; ariaLabel: any; interactionId: string; pageUrl: any; }'.
+src/guardian/discovery-engine.js(495,33): error TS2339: Property 'targetUrl' does not exist on type '{ isRisky: boolean; riskReason: string; interactionClass: string; confidenceScore: number; type: string; selector: string; selectorStrategy: string; text: any; ariaLabel: any; interactionId: string; pageUrl: any; }'.
+src/guardian/enhanced-html-reporter.js(228,96): error TS2554: Expected 2-3 arguments, but got 4.
+src/guardian/fail-safe.js(91,5): error TS1117: An object literal cannot have multiple properties with the same name.
+src/guardian/final-outcome.js(48,5): error TS2339: Property 'policy' does not exist on type '{ rulesVerdict: string; rulesExitCode: number; rulesReasons: any[]; rulesTriggeredIds: any[]; policySignals: any; policyEval: { passed: boolean; exitCode: number; reasons: any[]; }; coverage: { gaps: number; total: number; executed: number; }; }'.
+src/guardian/flow-executor.js(106,14): error TS2304: Cannot find name 'Page'.
+src/guardian/flow-executor.js(163,14): error TS2304: Cannot find name 'Page'.
+src/guardian/flow-executor.js(181,14): error TS2304: Cannot find name 'Page'.
+src/guardian/flow-executor.js(204,14): error TS2304: Cannot find name 'Page'.
+src/guardian/flow-executor.js(225,14): error TS2304: Cannot find name 'Page'.
+src/guardian/flow-executor.js(362,14): error TS2304: Cannot find name 'Page'.
+src/guardian/flow-executor.js(381,14): error TS2304: Cannot find name 'Page'.
+src/guardian/flow-executor.js(425,14): error TS2304: Cannot find name 'Page'.
+src/guardian/human-journey-context.js(23,17): error TS2339: Property 'baseUrl' does not exist on type '{ primaryGoal?: string; secondaryGoals?: undefined[]; intentConfidence?: number; }'.
+src/guardian/human-navigator.js(34,12): error TS2304: Cannot find name 'Page'.
+src/guardian/human-navigator.js(51,24): error TS2339: Property 'innerText' does not exist on type 'Element'.
+src/guardian/human-navigator.js(155,12): error TS2304: Cannot find name 'Page'.
+src/guardian/human-navigator.js(234,12): error TS2304: Cannot find name 'Page'.
+src/guardian/human-navigator.js(235,12): error TS2304: Cannot find name 'Locator'.
+src/guardian/human-navigator.js(309,12): error TS2304: Cannot find name 'Page'.
+src/guardian/human-navigator.js(492,12): error TS2304: Cannot find name 'Page'.
+src/guardian/human-reporter.js(120,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(120,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(121,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(121,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(123,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(123,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(124,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(124,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(125,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(125,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(127,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(127,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(128,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(128,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(131,13): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(131,13): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(132,45): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(132,45): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(134,13): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(134,13): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(136,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(136,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(244,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(244,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(245,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(245,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(246,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(246,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(247,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(247,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(248,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(248,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(249,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(249,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(251,13): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(251,13): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(252,45): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(252,45): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(254,13): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(254,13): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/human-reporter.js(256,11): error TS2448: Block-scoped variable 'lines' used before its declaration.
+src/guardian/human-reporter.js(256,11): error TS2454: Variable 'lines' is used before being assigned.
+src/guardian/index.js(47,39): error TS2351: This expression is not constructable.
+  Type 'typeof import("C:/Users/sabou/odavlguardian/src/guardian/flow-executor")' has no construct signatures.
+src/guardian/journey-scanner.js(354,27): error TS2339: Property 'innerText' does not exist on type 'Element'.
+src/guardian/journey-scanner.js(359,24): error TS2339: Property 'innerText' does not exist on type 'Element'.
+src/guardian/journey-scanner.js(360,24): error TS2339: Property 'href' does not exist on type 'Element'.
+src/guardian/language-detection.js(16,12): error TS2304: Cannot find name 'Page'.
+src/guardian/network-trace.js(17,14): error TS2304: Cannot find name 'BrowserContext'.
+src/guardian/network-trace.js(40,14): error TS2304: Cannot find name 'BrowserContext'.
+src/guardian/network-trace.js(50,14): error TS2304: Cannot find name 'BrowserContext'.
+src/guardian/network-trace.js(77,14): error TS2304: Cannot find name 'BrowserContext'.
+src/guardian/obs-logger.js(66,15): error TS2339: Property 'stack' does not exist on type '{ level: any; message: any; timestamp: string; command: any; url: any; verdict: any; exitCode: any; runId: any; }'.
+src/guardian/output-contract.js(62,3): error TS2739: Type '{ version: any; command: any; verdict: string; exitCode: any; summary: { headline: any; reasons: any; coverage: any; }; artifacts: { runDir: any; snapshotPath: any; reportPath: any; }; policyStatus: { passed: boolean; name: any; details: any; }; meta: any; }' is missing the following properties from type 'GuardianOutput': runDir, snapshotPath, reportPath, passed, name
+src/guardian/parallel-executor.js(90,24): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/guardian/path-safety.js(38,9): error TS2339: Property 'code' does not exist on type 'Error'.
+src/guardian/pattern-analyzer.js(63,23): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/pattern-analyzer.js(63,37): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/guardian/prelaunch-gate.js(49,37): error TS2339: Property 'executedAttempts' does not exist on type '{}'.
+src/guardian/prelaunch-gate.js(50,34): error TS2339: Property 'totalPlanned' does not exist on type '{}'.
+src/guardian/prelaunch-gate.js(51,70): error TS2339: Property 'percent' does not exist on type '{}'.
+src/guardian/prerequisite-checker.js(57,12): error TS2304: Cannot find name 'Page'.
+src/guardian/preset-loader.js(75,11): error TS2339: Property 'suggestions' does not exist on type 'Error'.
+src/guardian/reality.js(192,34): error TS2339: Property 'hint' does not exist on type 'Error'.
+src/guardian/reality.js(201,40): error TS2339: Property 'hint' does not exist on type 'Error'.
+src/guardian/reality.js(218,13): error TS2339: Property 'hint' does not exist on type 'Error'.
+src/guardian/reality.js(598,5): error TS2353: Object literal may only specify known properties, and 'baseUrl' does not exist in type '{ primaryGoal?: string; secondaryGoals?: any[]; intentConfidence?: number; }'.
+src/guardian/reality.js(1496,46): error TS2345: Argument of type '{ runDir: string; runId: string; baseUrl: any; policyName: any; preset: any; finalDecision: { finalVerdict: any; exitCode: any; reasons: any; triggeredRuleIds: any; policySignals: any; } | { finalVerdict: string; exitCode: number; reasons: { ...; }[]; triggeredRuleIds?: undefined; policySignals?: undefined; }; ... 9...' is not assignable to parameter of type '{ runDir: any; runId: any; baseUrl: any; policyName: any; preset: any; finalDecision: any; attemptStats: any; marketImpact: any; policyEval: any; baseline: any; flows: any; resolved: any; attestation: any; ... 8 more ...; observedCapabilities?: any; }'.
+  Type '{ runDir: string; runId: string; baseUrl: any; policyName: any; preset: any; finalDecision: { finalVerdict: any; exitCode: any; reasons: any; triggeredRuleIds: any; policySignals: any; } | { finalVerdict: string; exitCode: number; reasons: { ...; }[]; triggeredRuleIds?: undefined; policySignals?: undefined; }; ... 9...' is missing the following properties from type '{ runDir: any; runId: any; baseUrl: any; policyName: any; preset: any; finalDecision: any; attemptStats: any; marketImpact: any; policyEval: any; baseline: any; flows: any; resolved: any; attestation: any; ... 8 more ...; observedCapabilities?: any; }': attestation, audit
+src/guardian/reality.js(1580,7): error TS2353: Object literal may only specify known properties, and 'policy' does not exist in type '{ rulesVerdict: string; rulesExitCode: number; rulesReasons: any[]; rulesTriggeredIds: any[]; policySignals: any; policyEval: { passed: boolean; exitCode: number; reasons: any[]; }; coverage: { gaps: number; total: number; executed: number; }; }'.
+src/guardian/reality.js(1632,51): error TS2345: Argument of type '{ runDir: string; runId: string; baseUrl: any; policyName: any; preset: any; finalDecision: { finalVerdict: any; exitCode: any; reasons: any; triggeredRuleIds: any; policySignals: any; } | { finalVerdict: string; exitCode: number; reasons: { ...; }[]; triggeredRuleIds?: undefined; policySignals?: undefined; }; ... 1...' is not assignable to parameter of type '{ runDir: any; runId: any; baseUrl: any; policyName: any; preset: any; finalDecision: any; attemptStats: any; marketImpact: any; policyEval: any; baseline: any; flows: any; resolved: any; attestation: any; ... 8 more ...; observedCapabilities?: any; }'.
+  Type '{ runDir: string; runId: string; baseUrl: any; policyName: any; preset: any; finalDecision: { finalVerdict: any; exitCode: any; reasons: any; triggeredRuleIds: any; policySignals: any; } | { finalVerdict: string; exitCode: number; reasons: { ...; }[]; triggeredRuleIds?: undefined; policySignals?: undefined; }; ... 1...' is missing the following properties from type '{ runDir: any; runId: any; baseUrl: any; policyName: any; preset: any; finalDecision: any; attemptStats: any; marketImpact: any; policyEval: any; baseline: any; flows: any; resolved: any; attestation: any; ... 8 more ...; observedCapabilities?: any; }': attestation, audit
+src/guardian/reality.js(1782,5): error TS2304: Cannot find name 'lereleaseDecisionPath'.
+src/guardian/reality.js(1802,5): error TS2588: Cannot assign to 'releaseDecisionPath' because it is a constant.
+src/guardian/reality.js(1805,27): error TS2345: Argument of type '{ runDir: string; runId: string; baseUrl: any; policyName: any; preset: any; finalDecision: { finalVerdict: any; exitCode: any; reasons: any; triggeredRuleIds: any; policySignals: any; } | { finalVerdict: string; exitCode: number; reasons: { ...; }[]; triggeredRuleIds?: undefined; policySignals?: undefined; }; ... 1...' is not assignable to parameter of type '{ runDir: any; runId: any; baseUrl: any; policyName: any; preset: any; finalDecision: any; attemptStats: any; marketImpact: any; policyEval: any; baseline: any; flows: any; resolved: any; attestation: any; ... 8 more ...; observedCapabilities?: any; }'.
+  Property 'audit' is missing in type '{ runDir: string; runId: string; baseUrl: any; policyName: any; preset: any; finalDecision: { finalVerdict: any; exitCode: any; reasons: any; triggeredRuleIds: any; policySignals: any; } | { finalVerdict: string; exitCode: number; reasons: { ...; }[]; triggeredRuleIds?: undefined; policySignals?: undefined; }; ... 1...' but required in type '{ runDir: any; runId: any; baseUrl: any; policyName: any; preset: any; finalDecision: any; attemptStats: any; marketImpact: any; policyEval: any; baseline: any; flows: any; resolved: any; attestation: any; ... 8 more ...; observedCapabilities?: any; }'.
+src/guardian/reality.js(1878,7): error TS2353: Object literal may only specify known properties, and 'policyHash' does not exist in type '{ runDir: string; url: string; siteSlug: string; policy: string; result: string; durationMs: number; profile: string; attempts: { total: number; executed: number; successful: number; failed: number; skipped: number; skippedDetails: any[]; nearSuccess?: number; nearSuccessDetails?: any[]; }; }'.
+src/guardian/reality.js(2066,41): error TS2339: Property 'presetId' does not exist on type '{}'.
+src/guardian/reality.js(2067,41): error TS2339: Property 'policyId' does not exist on type '{}'.
+src/guardian/reality.js(2067,84): error TS2339: Property 'policySource' does not exist on type '{}'.
+src/guardian/reality.js(2067,125): error TS2339: Property 'policyHash' does not exist on type '{}'.
+src/guardian/reality.js(2068,20): error TS2339: Property 'mediaRequirements' does not exist on type '{}'.
+src/guardian/reality.js(2069,67): error TS2339: Property 'mediaRequirements' does not exist on type '{}'.
+src/guardian/reality.js(2069,124): error TS2339: Property 'mediaRequirements' does not exist on type '{}'.
+src/guardian/reality.js(2071,20): error TS2339: Property 'attemptPlan' does not exist on type '{}'.
+src/guardian/reality.js(2072,58): error TS2339: Property 'attemptPlan' does not exist on type '{}'.
+src/guardian/reality.js(2072,115): error TS2339: Property 'attemptPlan' does not exist on type '{}'.
+src/guardian/reality.js(2072,177): error TS2339: Property 'attemptPlan' does not exist on type '{}'.
+src/guardian/reality.js(2072,238): error TS2339: Property 'attemptPlan' does not exist on type '{}'.
+src/guardian/reality.js(2074,20): error TS2339: Property 'coverage' does not exist on type '{}'.
+src/guardian/reality.js(2075,62): error TS2339: Property 'coverage' does not exist on type '{}'.
+src/guardian/reality.js(2075,97): error TS2339: Property 'coverage' does not exist on type '{}'.
+src/guardian/reality.js(2075,137): error TS2339: Property 'coverage' does not exist on type '{}'.
+src/guardian/reality.js(2075,209): error TS2339: Property 'coverage' does not exist on type '{}'.
+src/guardian/reality.js(2075,280): error TS2339: Property 'coverage' does not exist on type '{}'.
+src/guardian/reality.js(2075,348): error TS2339: Property 'coverage' does not exist on type '{}'.
+src/guardian/reality.js(2075,411): error TS2339: Property 'coverage' does not exist on type '{}'.
+src/guardian/reality.js(2092,25): error TS2339: Property 'meta' does not exist on type '{}'.
+src/guardian/reality.js(2093,29): error TS2339: Property 'coverage' does not exist on type '{}'.
+src/guardian/reality.js(2096,29): error TS2339: Property 'evidenceMetrics' does not exist on type '{}'.
+src/guardian/reality.js(2098,29): error TS2339: Property 'resolved' does not exist on type '{}'.
+src/guardian/reality.js(2102,28): error TS2339: Property 'meta' does not exist on type '{}'.
+src/guardian/reality.js(2103,28): error TS2339: Property 'marketImpact' does not exist on type '{}'.
+src/guardian/reality.js(2112,83): error TS2339: Property 'finalVerdict' does not exist on type '{}'.
+src/guardian/reality.js(2119,23): error TS2339: Property 'verdict' does not exist on type '{}'.
+src/guardian/reality.js(2120,55): error TS2339: Property 'attempts' does not exist on type '{}'.
+src/guardian/reality.js(2121,49): error TS2339: Property 'flows' does not exist on type '{}'.
+src/guardian/reality.js(2140,26): error TS2339: Property 'finalVerdict' does not exist on type '{}'.
+src/guardian/reality.js(2482,33): error TS2339: Property 'finalVerdict' does not exist on type '{}'.
+src/guardian/reality.js(2483,41): error TS2339: Property 'exitCode' does not exist on type '{}'.
+src/guardian/reality.js(2483,79): error TS2339: Property 'exitCode' does not exist on type '{}'.
+src/guardian/reality.js(2530,32): error TS2339: Property 'passed' does not exist on type '{}'.
+src/guardian/reality.js(2531,31): error TS2339: Property 'summary' does not exist on type '{}'.
+src/guardian/reality.js(2534,26): error TS2339: Property 'diffResult' does not exist on type '{}'.
+src/guardian/reality.js(2534,50): error TS2339: Property 'diff' does not exist on type '{}'.
+src/guardian/reality.js(2540,54): error TS2339: Property 'gaps' does not exist on type '{}'.
+src/guardian/reality.js(2540,84): error TS2339: Property 'gaps' does not exist on type '{}'.
+src/guardian/reality.js(2541,22): error TS2339: Property 'total' does not exist on type '{}'.
+src/guardian/reality.js(2541,45): error TS2339: Property 'skippedNotApplicable' does not exist on type '{}'.
+src/guardian/reality.js(2543,53): error TS2339: Property 'gaps' does not exist on type '{}'.
+src/guardian/reality.js(2571,20): error TS2339: Property 'skippedNotApplicable' does not exist on type '{}'.
+src/guardian/reality.js(2571,57): error TS2339: Property 'skippedNotApplicable' does not exist on type '{}'.
+src/guardian/reality.js(2572,38): error TS2339: Property 'skippedNotApplicable' does not exist on type '{}'.
+src/guardian/reality.js(2579,38): error TS2339: Property 'executed' does not exist on type '{}'.
+src/guardian/reality.js(2580,37): error TS2339: Property 'total' does not exist on type '{}'.
+src/guardian/reality.js(2580,59): error TS2339: Property 'enabledPlannedCount' does not exist on type '{}'.
+src/guardian/reality.js(2581,93): error TS2339: Property 'successful' does not exist on type '{}'.
+src/guardian/reality.js(2581,148): error TS2339: Property 'failed' does not exist on type '{}'.
+src/guardian/reality.js(2581,199): error TS2339: Property 'skipped' does not exist on type '{}'.
+src/guardian/reality.js(2583,36): error TS2339: Property 'highestSeverity' does not exist on type '{}'.
+src/guardian/reality.js(2584,68): error TS2339: Property 'highestSeverity' does not exist on type '{}'.
+src/guardian/reality.js(2588,39): error TS2339: Property 'passed' does not exist on type '{}'.
+src/guardian/reality.js(2589,59): error TS2339: Property 'passed' does not exist on type '{}'.
+src/guardian/reality.js(2589,108): error TS2339: Property 'exitCode' does not exist on type '{}'.
+src/guardian/reality.js(2601,44): error TS2339: Property 'gaps' does not exist on type '{}'.
+src/guardian/reality.js(2601,73): error TS2339: Property 'gaps' does not exist on type '{}'.
+src/guardian/reality.js(2603,20): error TS2339: Property 'disabled' does not exist on type '{}'.
+src/guardian/reality.js(2604,53): error TS2339: Property 'disabled' does not exist on type '{}'.
+src/guardian/reality.js(2606,20): error TS2339: Property 'skippedUserFiltered' does not exist on type '{}'.
+src/guardian/reality.js(2607,54): error TS2339: Property 'skippedUserFiltered' does not exist on type '{}'.
+src/guardian/reality.js(2609,20): error TS2339: Property 'skippedNotApplicable' does not exist on type '{}'.
+src/guardian/reality.js(2610,55): error TS2339: Property 'skippedNotApplicable' does not exist on type '{}'.
+src/guardian/reality.js(2612,20): error TS2339: Property 'skippedMissing' does not exist on type '{}'.
+src/guardian/reality.js(2613,55): error TS2339: Property 'skippedMissing' does not exist on type '{}'.
+src/guardian/reality.js(2630,34): error TS2339: Property 'passed' does not exist on type '{}'.
+src/guardian/reality.js(2630,65): error TS2339: Property 'exitCode' does not exist on type '{}'.
+src/guardian/reality.js(2631,34): error TS2339: Property 'passed' does not exist on type '{}'.
+src/guardian/reality.js(2631,65): error TS2339: Property 'exitCode' does not exist on type '{}'.
+src/guardian/reality.js(2643,39): error TS2339: Property 'reasons' does not exist on type '{}'.
+src/guardian/reality.js(2679,29): error TS2339: Property 'reasons' does not exist on type '{}'.
+src/guardian/reality.js(2765,23): error TS2339: Property 'total' does not exist on type '{}'.
+src/guardian/reality.js(2766,26): error TS2339: Property 'executed' does not exist on type '{}'.
+src/guardian/reality.js(2767,22): error TS2339: Property 'gaps' does not exist on type '{}'.
+src/guardian/reality.js(2768,25): error TS2339: Property 'details' does not exist on type '{}'.
+src/guardian/reality.js(2769,26): error TS2339: Property 'disabled' does not exist on type '{}'.
+src/guardian/reality.js(2778,31): error TS2339: Property 'total' does not exist on type '{}'.
+src/guardian/reality.js(2779,26): error TS2339: Property 'executed' does not exist on type '{}'.
+src/guardian/reality.js(2782,33): error TS2339: Property 'percent' does not exist on type '{}'.
+src/guardian/run-artifacts.js(123,5): error TS2339: Property 'verdict' does not exist on type '{ runDir: string; url: string; siteSlug: string; policy: string; result: string; durationMs: number; profile: string; attempts: { total: number; executed: number; successful: number; failed: number; skipped: number; skippedDetails: any[]; nearSuccess?: number; nearSuccessDetails?: any[]; }; }'.
+src/guardian/run-cleanup.js(116,38): error TS2739: Type '{}' is missing the following properties from type '{ olderThan: string; keepLatest: number; failedOnly: boolean; }': olderThan, keepLatest, failedOnly
+src/guardian/run-export.js(11,22): error TS2307: Cannot find module 'yazl' or its corresponding type declarations.
+src/guardian/run-export.js(501,17): error TS2339: Property 'endpoint' does not exist on type '{ type: string; }'.
+src/guardian/run-export.js(505,33): error TS2345: Argument of type '{ type: string; }' is not assignable to parameter of type '{ endpoint: string; run: string; artifactsDir: string; }'.
+  Type '{ type: string; }' is missing the following properties from type '{ endpoint: string; run: string; artifactsDir: string; }': endpoint, run, artifactsDir
+src/guardian/run-export.js(507,33): error TS2345: Argument of type '{ type: string; }' is not assignable to parameter of type '{ run: string; out: string; artifactsDir: string; }'.
+  Type '{ type: string; }' is missing the following properties from type '{ run: string; out: string; artifactsDir: string; }': run, out, artifactsDir
+src/guardian/run-list.js(138,49): error TS2739: Type '{}' is missing the following properties from type '{ failed: boolean; site: string; limit: number; }': failed, site, limit
+src/guardian/screenshot.js(19,14): error TS2304: Cannot find name 'Page'.
+src/guardian/screenshot.js(37,14): error TS2304: Cannot find name 'Page'.
+src/guardian/screenshot.js(101,14): error TS2304: Cannot find name 'Page'.
+src/guardian/selector-fallbacks.js(174,12): error TS2304: Cannot find name 'Page'.
+src/guardian/selector-fallbacks.js(273,12): error TS2304: Cannot find name 'Page'.
+src/guardian/semantic-contact-detection.js(34,12): error TS2304: Cannot find name 'Page'.
+src/guardian/semantic-contact-detection.js(52,20): error TS2339: Property 'href' does not exist on type 'Element'.
+src/guardian/semantic-contact-finder.js(18,12): error TS2304: Cannot find name 'Page'.
+src/guardian/semantic-contact-finder.js(80,12): error TS2304: Cannot find name 'Page'.
+src/guardian/site-intelligence.js(38,12): error TS2304: Cannot find name 'Page'.
+src/guardian/site-intelligence.js(91,12): error TS2304: Cannot find name 'Page'.
+src/guardian/site-introspection.js(9,12): error TS2304: Cannot find name 'Page'.
+src/guardian/site-introspection.js(109,46): error TS2339: Property 'value' does not exist on type 'Element'.
+src/guardian/site-introspection.js(123,36): error TS2339: Property 'placeholder' does not exist on type 'Element'.
+src/guardian/site-introspection.js(125,29): error TS2339: Property 'name' does not exist on type 'Element'.
+src/guardian/snapshot.js(241,3): error TS2393: Duplicate function implementation.
+src/guardian/snapshot.js(316,3): error TS2393: Duplicate function implementation.
+src/guardian/success-evaluator.js(30,23): error TS2339: Property 'closest' does not exist on type 'Node'.
+src/guardian/success-evaluator.js(95,60): error TS2339: Property 'value' does not exist on type 'Element'.
+src/guardian/success-evaluator.js(198,12): error TS2322: Type 'string' is not assignable to type '"success" | "friction" | "failure"'.
+src/guardian/success-evaluator.js(198,20): error TS2322: Type 'string' is not assignable to type '"medium" | "high" | "low"'.
+src/guardian/verdict-card.js(111,36): error TS2367: This comparison appears to be unintentional because the types '"CONTACT" | "SIGNUP" | "OTHER"' and '"PAYMENT"' have no overlap.
+src/guardian/verdict-policy.js(115,5): error TS2339: Property 'allGoalsExplicitlyReached' does not exist on type '{ attempts: any[]; evidenceCompleteness: number; hasRegressions: boolean; policyHardFailure: boolean; }'.
+src/guardian/wait-for-outcome.js(80,14): error TS2339: Property '__guardianLastMutation' does not exist on type 'Window & typeof globalThis'.
+src/guardian/wait-for-outcome.js(81,14): error TS2339: Property '__guardianHasMutated' does not exist on type 'Window & typeof globalThis'.
+src/guardian/wait-for-outcome.js(82,18): error TS2339: Property '__guardianDomObserver' does not exist on type 'Window & typeof globalThis'.
+src/guardian/wait-for-outcome.js(83,22): error TS2339: Property '__guardianDomObserver' does not exist on type 'Window & typeof globalThis'.
+src/guardian/wait-for-outcome.js(86,16): error TS2339: Property '__guardianLastMutation' does not exist on type 'Window & typeof globalThis'.
+src/guardian/wait-for-outcome.js(87,16): error TS2339: Property '__guardianHasMutated' does not exist on type 'Window & typeof globalThis'.
+src/guardian/wait-for-outcome.js(90,14): error TS2339: Property '__guardianDomObserver' does not exist on type 'Window & typeof globalThis'.
+src/guardian/wait-for-outcome.js(95,24): error TS2339: Property '__guardianLastMutation' does not exist on type 'Window & typeof globalThis'.
+src/guardian/wait-for-outcome.js(96,29): error TS2339: Property '__guardianHasMutated' does not exist on type 'Window & typeof globalThis'.
+src/guardian/webhook.js(92,7): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(input: string | URL | Request, init?: RequestInit): Promise<Response>', gave the following error.
+    Object literal may only specify known properties, and 'timeout' does not exist in type 'RequestInit'.
+  Overload 2 of 2, '(input: URL | RequestInfo, init?: RequestInit): Promise<Response>', gave the following error.
+    Object literal may only specify known properties, and 'timeout' does not exist in type 'RequestInit'.
+src/payments/stripe-checkout.js(23,26): error TS2307: Cannot find module 'stripe' or its corresponding type declarations.
+src/payments/stripe-checkout.js(61,26): error TS2307: Cannot find module 'stripe' or its corresponding type declarations.
+src/payments/stripe-checkout.js(134,26): error TS2307: Cannot find module 'stripe' or its corresponding type declarations.
+src/recipes/recipe-runtime.js(107,34): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/recipes/recipe-runtime.js(107,44): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/recipes/recipe-runtime.js(138,29): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/recipes/recipe-runtime.js(138,39): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.

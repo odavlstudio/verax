@@ -176,9 +176,122 @@ All feedback stays on GitHub.
 
 ---
 
+## Quality Gates
+
+Guardian enforces code quality standards before deployment. Run these commands to validate your changes:
+
+```bash
+# Run ESLint code style checks
+npm run lint
+
+# Run TypeScript type checking
+npm run typecheck
+
+# Run all quality checks + tests
+npm run quality
+```
+
+**For contributors:** All quality gates must pass before submitting pull requests. The CI pipeline enforces these checks automatically.
+
+### Baseline Quality Guard (Zero Regression Shield)
+
+**Current Technical Debt:**
+- ESLint: 220 errors (frozen baseline)
+- TypeScript: 281 errors (frozen baseline)
+
+These legacy errors are **intentionally frozen** and do not block development. However, introducing **new** errors is prohibited.
+
+**How it works:**
+
+1. **Baselines capture current state:** Error counts are frozen in [reports/quality-baseline/](reports/quality-baseline/)
+   - `eslint-baseline.json` — 220 errors across 73 files
+   - `typecheck-baseline.json` — 281 errors across 51 files
+
+2. **Guard prevents regressions:** Before committing or in CI/PR checks, run:
+   ```bash
+   npm run quality:guard
+   ```
+   - ✅ Passes if error count stays the same or decreases
+   - ❌ Fails if any new errors are introduced
+   - Reports exactly which error categories increased
+
+3. **Update baselines (maintainers only):** After intentionally fixing errors:
+   ```bash
+   npm run quality:baseline
+   ```
+   This updates the frozen baselines to reflect improvements.
+
+**Philosophy:** Fix legacy errors incrementally without blocking new work. The guard ensures technical debt doesn't grow while we chip away at it.
+
+---
+
+## CI Enforcement & Release Safety
+
+Guardian enforces mandatory quality gates in all CI/CD pipelines. Every push and pull request must pass quality checks before proceeding.
+
+### Mandatory Quality Gates
+
+The CI pipeline runs a dedicated `quality-gates` job that **must pass before any downstream jobs execute**:
+
+```yaml
+quality-gates:
+  ├─ npm ci              # Install exact dependencies
+  ├─ npm test            # Run all tests
+  ├─ npm run quality     # ESLint + TypeScript checks
+  ├─ npm run quality:guard # Prevent regression (new errors)
+  └─ npm audit           # Security advisory (non-blocking)
+```
+
+**Your PR will be blocked if:**
+- ❌ Any test fails (`npm test`)
+- ❌ ESLint detects style violations (`npm run quality`)
+- ❌ TypeScript detects type errors (`npm run quality`)
+- ❌ New lint/type errors are introduced (`npm run quality:guard`)
+
+**Your PR will proceed if:**
+- ✅ Security audit finds issues (`npm audit`) — logged but non-blocking
+
+### Before Pushing Code
+
+Ensure your changes pass locally:
+
+```bash
+# 1. Run tests
+npm test
+
+# 2. Check code quality (style + types)
+npm run quality
+
+# 3. Verify no regressions
+npm run quality:guard
+
+# 4. Push when all pass ✅
+git push
+```
+
+If `npm run quality:guard` fails, you've introduced new errors. Check the report and fix them before pushing.
+
+### Current Baselines
+
+The mandatory quality gates enforce these frozen error counts:
+
+- **ESLint:** 172 errors (across 72 files)
+- **TypeScript:** 280 errors (across 51 files)
+
+These baselines are **intentionally not zero** to allow incremental improvement. Your changes must not *increase* these counts.
+
+### Workflow Integration
+
+All Guardian workflows enforce these gates:
+
+- **[guardian.yml](.github/workflows/guardian.yml)** — Main CI (all pushes, PRs, releases)
+- **[guardian-pr-gate.yml](.github/workflows/guardian-pr-gate.yml)** — PR-specific checks
+- **[guardian-nightly.yml](.github/workflows/guardian-nightly.yml)** — Production monitoring
+
+---
+
 ## Learn More
 
 - [Product Definition (ONE_LINER)](docs/ground-truth/ONE_LINER.md)
 - [Core Promise](docs/ground-truth/CORE_PROMISE.md)
 - [Full Technical Docs](docs/README.technical.md)
-

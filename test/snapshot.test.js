@@ -7,6 +7,7 @@ const assert = require('assert');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const packageJson = require('../package.json');
 const { startFixtureServer } = require('./fixture-server');
 const { executeReality } = require('../src/guardian/reality');
 const { SnapshotBuilder, saveSnapshot, loadSnapshot } = require('../src/guardian/snapshot');
@@ -31,7 +32,7 @@ async function runTests() {
   // ========== TEST 1: Snapshot Schema Validation ==========
   console.log('\n📋 Test 1: Snapshot schema validation');
   try {
-    const builder = new SnapshotBuilder(fixture.baseUrl, 'test-run-1', '0.2.0');
+    const builder = new SnapshotBuilder(fixture.baseUrl, 'test-run-1', packageJson.version);
     builder.setArtifactDir(tempArtifactsDir);
 
     const snapshot = builder.getSnapshot();
