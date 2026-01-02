@@ -1,87 +1,155 @@
+/**
+ * Reality.js — Guardian's Main Orchestrator
+ * 
+ * RESPONSIBILITY:
+ * - Orchestrate the full Guardian decision pipeline (Observe → Decide → Act → Verify)
+ * - Execute user-specified attempts and flows against a target website
+ * - Synthesize observations into a final verdict (READY, FRICTION, DO_NOT_LAUNCH, OBSERVED, PARTIAL, INSUFFICIENT_DATA)
+ * - Persist artifacts (snapshot.json, decision.json, summary.txt, market-report.html, manifest.json)
+ * - Enforce honesty contract (only claim what was tested)
+ * - Merge policy evaluation + rules engine verdict + journey outcomes
+ *
+ * MAIN ENTRY POINTS:
+ * - runRealityCLI(config): High-level CLI wrapper with environment guard and error handling
+ * - executeReality(config): Core orchestration (Observe/Decide/Act/Verify phases, async)
+ *
+ * PURE FUNCTIONS:
+ * - computeFinalVerdict(): Merge rules + policy + journey into canonical verdict
+ * - buildRealityExplanation(): Build human-readable verdict explanation
+ * - calculateCoverage(): Compute attempt coverage metrics
+ * - computeMarketRiskSummary(): Score risk by risk category
+ * - computeFlowExitCode(): Map flow results to exit code
+ * - applySafeDefaults(): Apply config fallback defaults
+ * - writeDecisionArtifact(): Serialize decision.json
+ * - writeRunSummary(): Serialize summary.txt + summary.md
+ * - hashFile(), writeIntegrityManifest(): Build SHA256 manifest
+ *
+ * INVARIANTS (MUST PRESERVE):
+ * - Exit codes: 0=success, 1=friction, 2=do-not-launch
+ * - decision.json schema (runId, url, timestamp, finalVerdict, exitCode, reasons, audit, honestyContract)
+ * - Artifact file names and locations (snapshot.json, decision.json, summary.txt, market-report.html)
+ * - Attempt/flow execution order (sequential, preserved from config)
+ * - Journey context state propagation across attempts
+ * - Honesty contract enforcement (only claim tested scope)
+ * - Policy signal structure (required by policy engine + rules engine)
+ */
+
+// ============================================================================
+// DEPENDENCIES: Core utilities
+// ============================================================================
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+
+// ============================================================================
+// DEPENDENCIES: Guardian modules — Execution
+// ============================================================================
 const { executeAttempt } = require('./attempt');
-const { MarketReporter } = require('./market-reporter');
-const { getDefaultAttemptIds, getAttemptDefinition, registerAttempt } = require('./attempt-registry');
-const { GuardianFlowExecutor, validateFlowDefinition } = require('./flow-executor');
-const { getDefaultFlowIds, getFlowDefinition } = require('./flow-registry');
 const { GuardianBrowser } = require('./browser');
 const { GuardianCrawler } = require('./crawler');
-const { SnapshotBuilder, saveSnapshot, loadSnapshot } = require('./snapshot');
-const { HumanJourneyContext } = require('./human-journey-context');
 const { DiscoveryEngine } = require('./discovery-engine');
 const { buildAutoAttempts } = require('./auto-attempt-builder');
-const { baselineExists, loadBaseline, saveBaselineAtomic, createBaselineFromSnapshot, compareSnapshots } = require('./baseline-storage');
-const { analyzeMarketImpact, determineExitCodeFromEscalation } = require('./market-criticality');
-const { parsePolicyOption } = require('./preset-loader');
-const { evaluatePolicy, loadPolicy } = require('./policy');
-const { aggregateIntelligence } = require('./breakage-intelligence');
-const { writeEnhancedHtml } = require('./enhanced-html-reporter');
-const { loadRules, evaluateRules, buildPolicySignals } = require('./rules-engine');
-const { analyzePatterns, loadRecentRunsForSite } = require('./pattern-analyzer');
-const crypto = require('crypto');
-const {
-  formatVerdictStatus,
-  formatConfidence,
-  formatVerdictWhy,
-  formatKeyFindings,
-  formatLimits,
-  formatPatternSummary,
-  formatPatternFocus,
-  formatConfidenceDrivers,
-  formatFocusSummary,
-  formatDeltaInsight,
-  // Stage V / Step 5.2: Silence Discipline helpers
-  shouldRenderFocusSummary,
-  shouldRenderDeltaInsight,
-  shouldRenderPatterns,
-  shouldRenderConfidenceDrivers
-} = require('./text-formatters');
-const { sendWebhooks, getWebhookUrl, buildWebhookPayload } = require('./webhook');
-const { findContactOnPage, formatDetectionForReport } = require('./semantic-contact-finder');
-const { formatRunSummary } = require('./run-summary');
-const { isCiMode } = require('./ci-mode');
-const { formatCiSummary, deriveBaselineVerdict } = require('./ci-output');
-const { normalizeCanonicalVerdict, toCanonicalVerdict, mapExitCodeFromCanonical, toInternalVerdict } = require('./verdicts');
-const { printVerdictClarity, extractTopReasons, buildObservationClarity, getVerdictExplanation } = require('./verdict-clarity');
-const { printErrorClarity } = require('./error-clarity');
-const { printUnifiedOutput } = require('./output-readability');
-const { computeFinalOutcome } = require('./final-outcome');
-const { deriveActionHints, formatHintsForCLI, formatHintsForSummary } = require('./action-hints');
-const { buildHonestyContract, enforceHonestyInVerdict, formatHonestyForCLI, validateHonestyContract } = require('./honesty');
-const { evaluatePrelaunchGate, writeReleaseDecisionArtifact } = require('./prelaunch-gate');
-// Phase 7.1: Performance modes
-const { getTimeoutProfile } = require('./timeout-profiles');
-const { validateAttemptFilter, filterAttempts, filterFlows } = require('./attempts-filter');
-// Phase 7.2: Parallel execution
-const { executeParallel, validateParallel } = require('./parallel-executor');
-// Phase 7.3: Browser reuse
+const { GuardianFlowExecutor, validateFlowDefinition } = require('./flow-executor');
+const { HumanJourneyContext } = require('./human-journey-context');
 const { BrowserPool } = require('./browser-pool');
-// Phase 7.4: Smart skips
 const { checkPrerequisites } = require('./prerequisite-checker');
-// Wave 1: Run artifacts naming and metadata
-const { makeRunDirName, makeSiteSlug, writeMetaJson, readMetaJson } = require('./run-artifacts');
-// Wave 2: Latest pointers
-const { updateLatestGlobal, updateLatestBySite } = require('./run-latest');
-// Wave 3: Smart attempt selection
+
+// ============================================================================
+// DEPENDENCIES: Guardian modules — Observation & Analysis
+// ============================================================================
+const { SnapshotBuilder, saveSnapshot } = require('./snapshot');
+const { GuardianBrowser: _GuardianBrowser } = require('./browser'); // For analyzeSite
+const { analyzeSite, isFlowApplicable, SITE_TYPES } = require('./site-intelligence');
+const { extractObservedCapabilities, filterAttemptsByObservedCapabilities, filterFlowsByObservedCapabilities, createNotApplicableAttemptResult, createNotApplicableFlowResult } = require('./observed-capabilities');
 const { inspectSite, detectProfile } = require('./site-introspection');
 const { filterAttempts: filterAttemptsByRelevance, summarizeIntrospection } = require('./attempt-relevance');
 const { resolveHumanIntent, shouldExecuteAttempt } = require('./human-intent-resolver');
-// Phase 10: Site Intelligence Engine
-const { analyzeSite, isFlowApplicable, SITE_TYPES, CAPABILITIES } = require('./site-intelligence');
-// Phase 11: Observed Capabilities (VISIBLE = MUST WORK)
-const {
-  extractObservedCapabilities,
-  filterAttemptsByObservedCapabilities,
-  filterFlowsByObservedCapabilities,
-  createNotApplicableAttemptResult,
-  createNotApplicableFlowResult
-} = require('./observed-capabilities');
-// Stage II: Golden path
-const { isFirstRun, markFirstRunComplete, applyFirstRunProfile } = require('./first-run-profile');
+const { findContactOnPage, formatDetectionForReport } = require('./semantic-contact-finder');
+const { analyzeMarketImpact } = require('./market-criticality');
+const { aggregateIntelligence } = require('./breakage-intelligence');
+
+// ============================================================================
+// DEPENDENCIES: Guardian modules — Configuration & Filtering
+// ============================================================================
+const { getDefaultAttemptIds, getAttemptDefinition, registerAttempt } = require('./attempt-registry');
+const { getDefaultFlowIds, getFlowDefinition } = require('./flow-registry');
+const { validateAttemptFilter, filterAttempts, filterFlows } = require('./attempts-filter');
+const { getTimeoutProfile } = require('./timeout-profiles');
+const { validateParallel } = require('./parallel-executor');
+const { parsePolicyOption } = require('./preset-loader');
 const { applyLocalConfig } = require('./config-loader');
 const { mergeCoveragePack } = require('./coverage-packs');
 
+// ============================================================================
+// DEPENDENCIES: Guardian modules — Baseline & Artifacts
+// ============================================================================
+const { baselineExists, loadBaseline, saveBaselineAtomic, createBaselineFromSnapshot, compareSnapshots } = require('./baseline-storage');
+const { makeRunDirName, makeSiteSlug, writeMetaJson, readMetaJson } = require('./run-artifacts');
+const { updateLatestGlobal, updateLatestBySite } = require('./run-latest');
+const { MarketReporter } = require('./market-reporter');
+const { sanitizeArtifact } = require('./artifact-sanitizer');
+const { writeEnhancedHtml } = require('./enhanced-html-reporter');
+
+// ============================================================================
+// DEPENDENCIES: Guardian modules — Decision & Verdict
+// ============================================================================
+const { evaluatePolicy, loadPolicy } = require('./policy');
+const { loadRules, evaluateRules, buildPolicySignals } = require('./rules-engine');
+const { computeFinalOutcome } = require('./final-outcome');
+const { normalizeCanonicalVerdict, toCanonicalVerdict, mapExitCodeFromCanonical, toInternalVerdict } = require('./verdicts');
+const { buildHonestyContract, enforceHonestyInVerdict, validateHonestyContract } = require('./honesty');
+const { evaluatePrelaunchGate, writeReleaseDecisionArtifact } = require('./prelaunch-gate');
+
+// ============================================================================
+// DEPENDENCIES: Guardian modules — Reporting & Output
+// ============================================================================
+const { createCanonicalOutput } = require('./output-contract');
+const { printVerdictClarity, extractTopReasons, buildObservationClarity, getVerdictExplanation } = require('./verdict-clarity');
+const { printUnifiedOutput } = require('./output-readability');
+const { deriveActionHints, formatHintsForCLI, formatHintsForSummary } = require('./action-hints');
+const { sendWebhooks, getWebhookUrl, buildWebhookPayload } = require('./webhook');
+const { isCiMode } = require('./ci-mode');
+const { formatCiSummary } = require('./ci-output');
+
+// ============================================================================
+// DEPENDENCIES: Environment & Lifecycle
+// ============================================================================
+const packageJson = require('../../package.json');
+const { isFirstRun, markFirstRunComplete, applyFirstRunProfile } = require('./first-run-profile');
+const { printFirstRunIntroIfNeeded } = require('./first-run');
+
+// ============================================================================
+// CONSTANTS & HELPER PREDICATES
+// ============================================================================
+
+/** Set of outcomes that indicate an attempt was executed (not skipped) */
+const EXECUTED_OUTCOMES = new Set(['SUCCESS', 'FAILURE', 'FRICTION', 'DISCOVERY_FAILED']);
+
+/** Predicate: true if attempt result has one of EXECUTED_OUTCOMES */
+const isExecutedAttempt = (attemptResult) => attemptResult && EXECUTED_OUTCOMES.has(attemptResult.outcome);
+
+/** Skip reason codes — used for auditability and coverage classification */
+const SKIP_CODES = {
+  DISABLED_BY_PRESET: 'DISABLED_BY_PRESET',
+  NOT_APPLICABLE: 'NOT_APPLICABLE',
+  ENGINE_MISSING: 'ENGINE_MISSING',
+  USER_FILTERED: 'USER_FILTERED',
+  PREREQ: 'PREREQUISITE_FAILED',
+  HUMAN_INTENT_MISMATCH: 'HUMAN_INTENT_MISMATCH'
+};
+
+// ============================================================================
+// PURE FUNCTIONS: Config Processing
+// ============================================================================
+
+/**
+ * Apply safe defaults to config.
+ * - If no attempts array provided, use defaults
+ * - If flows property is undefined/null, use defaults; if explicitly [], respect that choice
+ * @param {object} config - Configuration object
+ * @param {function} warn - Optional warning logger
+ * @returns {object} Updated config with defaults applied
+ */
 function applySafeDefaults(config, warn) {
   const updated = { ...config };
   if (!Array.isArray(updated.attempts) || updated.attempts.length === 0) {
@@ -100,17 +168,16 @@ function applySafeDefaults(config, warn) {
   return updated;
 }
 
-const EXECUTED_OUTCOMES = new Set(['SUCCESS', 'FAILURE', 'FRICTION', 'DISCOVERY_FAILED']);
-const isExecutedAttempt = (attemptResult) => attemptResult && EXECUTED_OUTCOMES.has(attemptResult.outcome);
-const SKIP_CODES = {
-  DISABLED_BY_PRESET: 'DISABLED_BY_PRESET',
-  NOT_APPLICABLE: 'NOT_APPLICABLE',
-  ENGINE_MISSING: 'ENGINE_MISSING',
-  USER_FILTERED: 'USER_FILTERED',
-  PREREQ: 'PREREQUISITE_FAILED',
-  HUMAN_INTENT_MISMATCH: 'HUMAN_INTENT_MISMATCH'
-};
+// ============================================================================
+// PURE FUNCTIONS: Coverage Calculation
+// ============================================================================
 
+/**
+ * Calculate attempt coverage metrics.
+ * Takes into account enabled/disabled/skipped/executed attempts
+ * and returns coverage percentage, gap count, and skip details.
+ * @returns {object} { coverage: {...}, denominator, numerator }
+ */
 function calculateCoverage({ attemptStats, skippedNotApplicable = [], skippedMissing = [], skippedUserFiltered = [], skippedDisabledByPreset = [] }) {
   const enabledPlannedCount = attemptStats.enabledPlannedCount || 0;
   const executedCount = attemptStats.executed || 0;
@@ -145,15 +212,38 @@ function calculateCoverage({ attemptStats, skippedNotApplicable = [], skippedMis
   return { coverage, denominator: coverageDenominator, numerator: coverageNumerator };
 }
 
-// Removed compact decision packet writer for Level 1 singleton decision schema
+// ============================================================================
+// ORCHESTRATION: Main Guardian Decision Pipeline
+// ============================================================================
 
+/**
+ * CORE ORCHESTRATOR: Full Guardian decision pipeline
+ * 
+ * PHASES:
+ * 1. Config & Init — Apply defaults, validate baseUrl, create run directory
+ * 2. Site Crawl & Introspection — Discover URLs, detect capabilities, classify site type
+ * 3. Optional Discovery — Find interactions for auto-attempt generation
+ * 4. Attempt Selection — Filter by preset, user, relevance, human intent
+ * 5. Attempt Execution — Sequential execution with journey context adaptation
+ * 6. Flow Execution — Execute curated intent flows
+ * 7. Baseline & Diff — Compare against baseline, detect regressions
+ * 8. Market Impact & Intelligence — Risk scoring and pattern analysis
+ * 9. Policy & Verdict — Evaluate policy, merge with rules engine, compute honesty contract
+ * 10. Manifest & Attestation — Build SHA256 hashes and cryptographic attestation
+ * 11. Pre-Launch Gate — Optional blocking on safety signals
+ * 12. Webhook & Reporting — Send notifications, update latest pointers, mark first-run complete
+ * 
+ * @async
+ * @param {object} config - Guardian configuration object
+ * @returns {object} Canonical output with verdict, exitCode, artifacts, and legacy fields
+ * @throws {Error} On critical failures (invalid URL, policy load error, env check failed)
+ */
 async function executeReality(config) {
   const baseWarn = (...args) => console.warn(...args);
   const firstRunMode = isFirstRun();
   
   // Display first-run welcome message if applicable
   // Uses existing first-run module which handles CI/quiet/TTY detection
-  const { printFirstRunIntroIfNeeded } = require('./first-run');
   printFirstRunIntroIfNeeded(config, process.argv.slice(2));
   
   // Apply first-run profile if needed (conservative defaults)
@@ -175,7 +265,7 @@ async function executeReality(config) {
     maxDepth = 3,
     timeout = 20000,
     storageDir = '.odavl-guardian',
-    toolVersion = '0.2.0-phase2',
+    toolVersion = packageJson.version,
     policy = null,
     webhook = null,
     includeUniversal = false,
@@ -201,18 +291,18 @@ async function executeReality(config) {
   if (attemptsFilter) {
     validation = validateAttemptFilter(attemptsFilter);
     if (!validation.valid) {
-      console.error(`Error: ${validation.error}`);
-      if (validation.hint) console.error(`Hint:  ${validation.hint}`);
-      process.exit(2);
+      const error = new Error(validation.error);
+      if (validation.hint) error.hint = validation.hint;
+      throw error;
     }
   }
 
   // Phase 7.2: Validate parallel value
   const parallelValidation = validateParallel(parallel);
   if (!parallelValidation.valid) {
-    console.error(`Error: ${parallelValidation.error}`);
-    if (parallelValidation.hint) console.error(`Hint:  ${parallelValidation.hint}`);
-    process.exit(2);
+    const error = new Error(parallelValidation.error);
+    if (parallelValidation.hint) error.hint = parallelValidation.hint;
+    throw error;
   }
   const validatedParallel = parallelValidation.parallel || 1;
 
@@ -227,9 +317,9 @@ async function executeReality(config) {
     const removed = beforeFilter.filter(id => !filteredAttempts.includes(id));
     userFilteredAttempts.push(...removed.map(id => ({ attemptId: id, reason: 'Filtered by --attempts' })));
     if (filteredAttempts.length === 0 && filteredFlows.length === 0) {
-      console.error('Error: No matching attempts or flows found after filtering');
-      console.error(`Hint:  Check your --attempts filter: ${attemptsFilter}`);
-      process.exit(2);
+      const error = new Error('No matching attempts or flows found after filtering');
+      error.hint = `Check your --attempts filter: ${attemptsFilter}`;
+      throw error;
     }
   }
 
@@ -331,7 +421,6 @@ async function executeReality(config) {
 
   let crawlResult = null;
   let discoveryResult = null;
-  let pageLanguage = 'unknown';
   let contactDetectionResult = null;
   let siteIntrospection = null;
   let siteProfile = 'unknown';
@@ -365,14 +454,12 @@ async function executeReality(config) {
         };
         siteProfile = 'unknown';
       }
-
       // Wave 1.1: Detect page language and contact
       try {
         contactDetectionResult = await findContactOnPage(browser.page, baseUrl);
-        pageLanguage = contactDetectionResult.language;
         console.log(`\n${formatDetectionForReport(contactDetectionResult)}\n`);
       } catch (detectionErr) {
-        // Language detection non-critical
+        // Language/contact detection non-critical
         console.warn(`⚠️  Language/contact detection failed: ${detectionErr.message}`);
       }
 
@@ -458,8 +545,6 @@ async function executeReality(config) {
   // Phase 2: Generate auto-attempts from discovered interactions
   let autoAttempts = [];
   if (enableAutoAttempts && discoveryResult && discoveryResult.interactionsDiscovered > 0) {
-        ruleEngineOutput,
-        siteIntelligence
     try {
       // Get discovered interactions (stored in engine instance)
       const discoveredInteractions = discoveryResult.interactions || [];
@@ -556,6 +641,7 @@ async function executeReality(config) {
     
     // Filter attempts based on human intent
     const attemptsAfterIntent = [];
+    const attemptsBlockedByIntent = [];
     for (const attemptId of attemptsToRun) {
       const decision = shouldExecuteAttempt(attemptId, humanIntentResolution);
       if (decision.shouldExecute) {
@@ -914,7 +1000,7 @@ async function executeReality(config) {
 
     // PHASE 11: OBSERVED CAPABILITIES (VISIBLE = MUST WORK)
     // Extract what's actually observable and filter attempts/flows accordingly
-    let observedCapabilities = extractObservedCapabilities(siteIntelligence);
+    const observedCapabilities = extractObservedCapabilities(siteIntelligence);
     
     if (!ciMode) {
       console.log(`\n🔍 Observable Capabilities:`);
@@ -1387,7 +1473,7 @@ async function executeReality(config) {
   // Resolve policy (strict failure on invalid)
   let policyEval = null;
   let policyObj = null;
-  let presetId = policyName; // Preserve preset ID for naming (e.g., 'startup')
+  const presetId = policyName; // Preserve preset ID for naming (e.g., 'startup')
   let policyHash = null;
   let policySource = 'default';
   try {
@@ -1455,7 +1541,7 @@ async function executeReality(config) {
   // Rename run directory to status placeholder for auditability
   // Note: exitCode will be determined later by final outcome authority
   let exitCode = 0; // Placeholder, will be set by final decision
-  let releaseDecisionPath = null;
+  const releaseDecisionPath = null;
   const runResultPreManifest = 'PENDING';
   const priorRunDir = runDir;
   const finalRunDirName = makeRunDirName({ timestamp: startTime, url: baseUrl, policy: presetId, result: runResultPreManifest });
@@ -1709,7 +1795,7 @@ async function executeReality(config) {
     snap.coverage = coverageSignal;
     
     // HONESTY CONTRACT: Build evidence-based honesty data
-    let honestyContract = buildHonestyContract({
+    const honestyContract = buildHonestyContract({
       attemptResults: attemptResults,
       flowResults: flowResults,
       requestedAttempts: enabledRequestedAttempts,
@@ -1779,7 +1865,11 @@ async function executeReality(config) {
     // Minimal attestation: sha256(policyHash + snapshotHash + manifestHash + runId)
     const snapshotHash = hashFile(snapshotPathFinal);
     let manifestHash = null;
-    try { manifestHash = hashFile(path.join(runDir, 'manifest.json')); } catch {}
+    try { 
+      manifestHash = hashFile(path.join(runDir, 'manifest.json')); 
+    } catch {
+      // Manifest file may not exist yet - use 'none' as fallback
+    }
     const attestationHash = crypto.createHash('sha256').update(`${policyHash}|${snapshotHash}|${manifestHash || 'none'}|${runId}`).digest('hex');
     snap.meta.attestation = { hash: attestationHash, policyHash, snapshotHash, manifestHash, runId };
     await saveSnapshot(snap, snapshotPathFinal);
@@ -1787,7 +1877,7 @@ async function executeReality(config) {
     // Pre-Launch Gate and release decision artifact
     const baselinePresent = baselineExists(baseUrl, storageDir);
     let releaseDecision = null;
-    let releaseDecisionPath = null;
+    lereleaseDecisionPath = null;
 
     const gate = evaluatePrelaunchGate({
       prelaunch,
@@ -1943,8 +2033,44 @@ async function executeReality(config) {
     }
   }
 
-  return {
+  // Create canonical output shape
+  const snap = snapshotBuilder.getSnapshot();
+  const canonicalOutput = createCanonicalOutput({
+    version: require('../../package.json').version,
+    command: 'reality',
+    verdict: finalDecision.finalVerdict,
     exitCode,
+    summary: {
+      headline: snap.verdict?.verdict ? `${snap.verdict.verdict} — ${snap.verdict.why || ''}`.slice(0, 100) : undefined,
+      reasons: finalDecision.reasons?.slice(0, 5).map(r => r.message || r.code) || [],
+      coverage: coverageSignal ? {
+        percent: coverageSignal.percent || 0,
+        executed: coverageSignal.executed || 0,
+        total: coverageSignal.total || 0
+      } : null
+    },
+    artifacts: {
+      runDir,
+      snapshotPath: snapshotPathFinal,
+      reportPath: marketHtmlPathFinal
+    },
+    policyStatus: policyEval ? {
+      passed: policyEval.passed === true,
+      name: policyEval.policyName || 'unknown',
+      details: policyEval.reasons || null
+    } : null,
+    meta: {
+      runId: snap.meta?.runId || 'unknown',
+      timestamp: snap.meta?.timestamp || new Date().toISOString(),
+      baseUrl: snap.meta?.baseUrl || baseUrl || 'unknown',
+      durationMs: snap.meta?.durationMs || 0
+    }
+  });
+
+  // Return both canonical and raw for backward compatibility
+  return {
+    ...canonicalOutput,
+    // Legacy fields for backward compatibility
     report,
     runDir,
     snapshotPath: snapshotPathFinal,
@@ -2030,6 +2156,8 @@ async function runRealityCLI(config) {
         diffResult: result.diffResult || null,
         baselineCreated: result.baselineCreated || false,
         exitCode: result.exitCode,
+        verdict: result.verdict,
+        summary: result.summary,
         maxReasons: 5
       });
       console.log(ciSummary);
@@ -2039,7 +2167,9 @@ async function runRealityCLI(config) {
       const meta = snap.meta || {};
       const coverage = snap.coverage || result.coverage || {};
       const counts = coverage.counts || {};
+      // eslint-disable-next-line no-unused-vars
       const evidence = snap.evidenceMetrics || {};
+      // eslint-disable-next-line no-unused-vars
       const resolved = snap.resolved || {};
       const finalDecision = result.finalDecision || {};
       const explanation = result.explanation || buildRealityExplanation({
@@ -2086,6 +2216,7 @@ async function runRealityCLI(config) {
          console.log('\n' + formatHintsForCLI(result.actionHints, 3));
        }
      
+      // eslint-disable-next-line no-unused-vars
       const reportBase = result.runDir || (configReport?.effective?.output?.dir ? path.join(configReport.effective.output.dir, meta.runId || '') : `artifacts/${meta.runId || ''}`);
       console.log('━'.repeat(70));
     }
@@ -2130,8 +2261,9 @@ async function runRealityCLI(config) {
         }
       };
       
-      fs.writeFileSync(path.join(runDir, 'decision.json'), JSON.stringify(emergencyDecision, null, 2));
-    } catch (writeErr) {
+      const sanitizedEmergencyDecision = sanitizeArtifact(emergencyDecision);
+      fs.writeFileSync(path.join(runDir, 'decision.json'), JSON.stringify(sanitizedEmergencyDecision, null, 2));
+    } catch {
       // Ignore write errors in error handler
     }
     
@@ -2254,14 +2386,14 @@ function computeFinalVerdict({ marketImpact, policyEval, baseline, flows, attemp
   
   // PHASE 11: Exclude NOT_APPLICABLE from failure/friction counts
   const successfulAttempts = executedAttempts.filter(a => a.outcome === 'SUCCESS');
-  const failedAttempts = executedAttempts.filter(a => a.outcome === 'FAILURE' && a.outcome !== 'NOT_APPLICABLE');
-  const frictionAttempts = executedAttempts.filter(a => a.outcome === 'FRICTION' && a.outcome !== 'NOT_APPLICABLE');
+  const failedAttempts = executedAttempts.filter(a => a.outcome === 'FAILURE');
+  const frictionAttempts = executedAttempts.filter(a => a.outcome === 'FRICTION');
   const notApplicableAttempts = Array.isArray(attempts) ? attempts.filter(a => a.outcome === 'NOT_APPLICABLE') : [];
 
   const flowList = Array.isArray(flows) ? flows : [];
   // PHASE 9: Don't count NOT_APPLICABLE flows as failures
-  const failedFlows = flowList.filter(f => (f.outcome === 'FAILURE' || f.success === false) && f.outcome !== 'NOT_APPLICABLE');
-  const frictionFlows = flowList.filter(f => f.outcome === 'FRICTION' && f.outcome !== 'NOT_APPLICABLE');
+  const failedFlows = flowList.filter(f => f.outcome === 'FAILURE' || f.success === false);
+  const frictionFlows = flowList.filter(f => f.outcome === 'FRICTION');
   const notApplicableFlows = flowList.filter(f => f.outcome === 'NOT_APPLICABLE');
   const observedFlows = successfulAttempts.map(a => a.attemptId || a.id || 'unknown');
 
@@ -2323,8 +2455,6 @@ function computeFinalVerdict({ marketImpact, policyEval, baseline, flows, attemp
 
   // Determine verdict
   let internalVerdict;
-  let finalVerdict;
-  let exitCode;
 
   // PHASE 9: Base exit code on actual failures, not policy warnings
   const hasCriticalFailures = failedAttempts.length > 0 || failedFlows.length > 0;
@@ -2372,8 +2502,8 @@ function computeFinalVerdict({ marketImpact, policyEval, baseline, flows, attemp
     .filter(r => r && r.code && r.message)
     .sort((a, b) => a.code.localeCompare(b.code) || a.message.localeCompare(b.message));
 
-  finalVerdict = toCanonicalVerdict(internalVerdict);
-  exitCode = mapExitCodeFromCanonical(finalVerdict);
+  const finalVerdict = toCanonicalVerdict(internalVerdict);
+  const exitCode = mapExitCodeFromCanonical(finalVerdict);
   
   return { finalVerdict, exitCode, reasons: orderedReasons };
 }
@@ -2748,7 +2878,8 @@ function writeDecisionArtifact({ runDir, runId, baseUrl, policyName, preset, fin
   };
 
   const decisionPath = path.join(runDir, 'decision.json');
-  fs.writeFileSync(decisionPath, JSON.stringify(decision, null, 2));
+  const sanitizedDecision = sanitizeArtifact(decision);
+  fs.writeFileSync(decisionPath, JSON.stringify(sanitizedDecision, null, 2));
   return decisionPath;
 }
 
