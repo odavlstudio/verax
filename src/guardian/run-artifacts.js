@@ -61,7 +61,7 @@ function makeRunDirName(opts) {
   const { timestamp, url, policy, result } = opts;
   
   // Parse timestamp
-  let time = timestamp instanceof Date ? timestamp : new Date(timestamp);
+  const time = timestamp instanceof Date ? timestamp : new Date(timestamp);
   
   // Format: YYYY-MM-DD_HH-MM-SS
   const year = time.getFullYear();
@@ -173,7 +173,7 @@ function readMetaJson(runDir) {
   try {
     const content = fs.readFileSync(metaPath, 'utf8');
     return JSON.parse(content);
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }

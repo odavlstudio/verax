@@ -121,7 +121,7 @@ function getAllFeedback() {
     const filepath = path.join(FEEDBACK_DIR, filename);
     try {
       return JSON.parse(fs.readFileSync(filepath, 'utf-8'));
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }).filter(Boolean);

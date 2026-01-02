@@ -134,7 +134,7 @@ function getCustomRecipes() {
   try {
     const data = JSON.parse(fs.readFileSync(CUSTOM_RECIPES_FILE, 'utf-8'));
     return data.recipes || [];
-  } catch (error) {
+  } catch (_error) {
     return [];
   }
 }

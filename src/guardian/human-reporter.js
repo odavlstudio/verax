@@ -99,7 +99,11 @@ class HumanReporter {
    * Build human text summary
    */
   _buildSummary(journeyResult) {
+    // Legacy code - decision and classification were used in earlier versions
+    // Keeping structure for potential future use
+    // eslint-disable-next-line no-unused-vars
     const decision = journeyResult.finalDecision || 'UNKNOWN';
+    // eslint-disable-next-line no-unused-vars
     const classification = journeyResult.errorClassification || {};
     
     const text = this._formatText(journeyResult);

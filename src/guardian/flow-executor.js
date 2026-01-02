@@ -237,7 +237,7 @@ class GuardianFlowExecutor {
       const requests = [];
       const responses = [];
       const consoleErrors = [];
-      let initialUrl = page.url();
+      const initialUrl = page.url();
       let navChanged = false;
 
       const onRequest = (req) => { requests.push(req); };
@@ -260,7 +260,9 @@ class GuardianFlowExecutor {
         try {
           const nowUrl = page.url();
           if (nowUrl && nowUrl !== initialUrl) navChanged = true;
-        } catch {}
+        } catch (_err) {
+          // Page may be detached/closed - this is expected during navigation
+        }
       };
 
       page.on('request', onRequest);
@@ -456,7 +458,7 @@ class GuardianFlowExecutor {
       fs.mkdirSync(pagesDir, { recursive: true });
     }
 
-    let startedAt = Date.now();
+    const startedAt = Date.now();
     try {
       this.log(`\n🎬 Executing flow: ${flow.name}`);
       this.log(`📋 Steps: ${steps.length}`);

@@ -5,6 +5,7 @@ const { checkPrerequisites } = require('./prerequisite-checker');
 const { validateParallel, executeParallel } = require('./parallel-executor');
 const { getTimeoutProfile } = require('./timeout-profiles');
 const { isCiMode } = require('./ci-mode');
+const { createCanonicalOutput } = require('./output-contract');
 
 const SMOKE_ATTEMPTS = ['universal_reality', 'login', 'signup', 'contact_form'];
 const DEFAULT_PARALLEL = 2;
@@ -14,10 +15,10 @@ const SMOKE_BROWSER_ARGS = ['--no-sandbox', '--disable-setuid-sandbox', '--proxy
 
 function validateUrl(url) {
   try {
-    // eslint-disable-next-line no-new
+     
     new URL(url);
     return true;
-  } catch (e) {
+  } catch (_e) {
     return false;
   }
 }
@@ -238,17 +239,41 @@ async function executeSmoke(config) {
     delete process.env.no_proxy;
   }
 
-  return { exitCode, attemptResults, timedOut, authAvailable: authStatus.hasAuthSuccess, elapsed };
+  // Build canonical output
+  const canonicalOutput = createCanonicalOutput({
+    version: require('../../package.json').version,
+    command: 'smoke',
+    verdict: exitCode === 0 ? 'READY' : (exitCode === 1 ? 'FRICTION' : 'DO_NOT_LAUNCH'),
+    exitCode,
+    summary: {
+      headline: exitCode === 0 ? 'Smoke test passed' : 'Smoke test failed',
+      reasons: attemptResults.filter(a => a.outcome !== 'SUCCESS').map(a => `${a.attemptId}: ${a.outcome}`).slice(0, 5),
+      coverage: null
+    },
+    artifacts: null,
+    policyStatus: null,
+    meta: {
+      runId: `smoke-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      baseUrl: attemptResults[0]?.baseUrl || 'unknown',
+      durationMs: elapsed
+    }
+  });
+
+  // Return both canonical and legacy fields
+  return {
+    ...canonicalOutput,
+    // Legacy fields for backward compatibility
+    attemptResults,
+    timedOut,
+    authAvailable: authStatus.hasAuthSuccess,
+    elapsed
+  };
 }
 
 async function runSmokeCLI(config) {
-  try {
-    const result = await executeSmoke(config);
-    process.exit(result.exitCode);
-  } catch (err) {
-    console.error(`Error: ${err.message}`);
-    process.exit(2);
-  }
+  const result = await executeSmoke(config);
+  return result;
 }
 
 module.exports = {

@@ -336,7 +336,7 @@ async function executeReality(config) {
   // Validate baseUrl
   try {
     new URL(baseUrl);
-  } catch (e) {
+  } catch (_e) {
     throw new Error(`Invalid URL: ${baseUrl}`);
   }
 
@@ -622,7 +622,7 @@ async function executeReality(config) {
 
   // Human Intent Resolution: Determine what a real human would actually try on this site
   let humanIntentResolution = null;
-  let attemptsBlockedByIntent = [];
+  const attemptsBlockedByIntent = [];
   if (siteIntrospection) {
     humanIntentResolution = resolveHumanIntent({
       siteProfile,

@@ -112,7 +112,7 @@ async function elementNotVisible(page, selector) {
         : `Element is visible but should not be: ${selector}`,
       evidence: { selector, visible }
     };
-  } catch (err) {
+  } catch (_err) {
     return {
       id: `element_not_visible_${selector}`,
       type: 'elementNotVisible',

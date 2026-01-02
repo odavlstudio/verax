@@ -387,8 +387,8 @@ function parseJourneyScanArgs(args) {
   }
 
   if (!config.baseUrl) {
-    console.error('Error: <url> is required');
-    console.error('Usage: guardian journey-scan <url> [--preset saas|shop|landing] [--out dir]');
+    console.error('Error: --url is required');
+    console.error('Usage: guardian journey-scan --url <url> [--preset saas|shop|landing] [--out dir]');
     process.exit(2);
   }
 
@@ -428,8 +428,8 @@ function parseLiveArgs(args) {
   }
 
   if (!config.baseUrl) {
-    console.error('Error: <url> is required');
-    console.error('Usage: guardian live <url> [--interval <minutes>] [--out dir]');
+    console.error('Error: --url is required');
+    console.error('Usage: guardian live --url <url> [--interval <minutes>] [--out dir]');
     process.exit(2);
   }
 
@@ -548,8 +548,8 @@ function parseScanArgs(args) {
   }
 
   if (!config.baseUrl) {
-    console.error('Error: <url> is required');
-    console.error('Usage: guardian scan <url> [--preset <landing|landing-demo|saas|shop>]');
+    console.error('Error: --url is required');
+    console.error('Usage: guardian scan --url <url> [--preset <landing|landing-demo|saas|shop>]');
     process.exit(2);
   }
 
@@ -762,8 +762,8 @@ function parseSmokeArgs(args) {
   }
 
   if (!config.baseUrl) {
-    console.error('Error: <url> is required');
-    console.error('Usage: guardian smoke <url>');
+    console.error('Error: --url is required');
+    console.error('Usage: guardian smoke --url <url>');
     process.exit(2);
   }
 
@@ -1005,8 +1005,8 @@ function parseProtectArgs(args) {
   }
 
   if (!config.baseUrl) {
-    console.error('Error: <url> is required');
-    console.error('Usage: guardian protect <url> [options]');
+    console.error('Error: --url is required');
+    console.error('Usage: guardian protect --url <url> [options]');
     process.exit(2);
   }
 
@@ -2108,15 +2108,18 @@ Run 'guardian <subcommand> --help' for detailed command help.
   } else if (parsed.subcommand === 'smoke') {
     // Phase 8: Check plan limits before scan
     checkPlanBeforeScan(config);
-    await runSmokeCLI(config);
+    const result = await runSmokeCLI(config);
+    process.exit(result.exitCode);
   } else if (parsed.subcommand === 'attempt') {
     // Phase 8: Check plan limits before scan
     checkPlanBeforeScan(config);
-    await runAttemptCLI(config);
+    const result = await runAttemptCLI(config);
+    process.exit(result.exitCode);
   } else if (parsed.subcommand === 'journey-scan') {
     // Phase 8: Check plan limits before scan
     checkPlanBeforeScan(config);
-    await runJourneyScanCLI(config);
+    const result = await runJourneyScanCLI(config);
+    process.exit(result.exitCode);
   } else if (parsed.subcommand === 'live') {
     // Phase 8: Check feature allowed for live guardian
     const liveCheck = checkFeatureAllowed('liveGuardian');
@@ -2129,7 +2132,8 @@ Run 'guardian <subcommand> --help' for detailed command help.
     // Phase 10: Track first live session
     recordFirstLive();
     
-    await runLiveCLI(config);
+    const result = await runLiveCLI(config);
+    process.exit(result.exitCode);
   } else if (parsed.subcommand === 'live-start') {
     // Feature check
     const liveCheck = checkFeatureAllowed('liveGuardian');
@@ -2223,7 +2227,13 @@ Run 'guardian <subcommand> --help' for detailed command help.
       process.exit(1);
     }
   } else {
-    runGuardian(config);
+    try {
+      const result = await runGuardian(config);
+      process.exit(result.exitCode);
+    } catch (err) {
+      console.error(`\n❌ Error: ${err.message}`);
+      process.exit(2);
+    }
   }
 }
 

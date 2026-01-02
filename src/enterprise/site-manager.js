@@ -31,7 +31,7 @@ function getSites() {
   
   try {
     return JSON.parse(fs.readFileSync(SITES_FILE, 'utf-8'));
-  } catch (error) {
+  } catch (_error) {
     return { sites: [], projects: {} };
   }
 }
@@ -59,7 +59,7 @@ function addSite(name, url, project = 'default') {
   // Validate URL
   try {
     new URL(url);
-  } catch (error) {
+  } catch (_error) {
     throw new Error(`Invalid URL: ${url}`);
   }
   

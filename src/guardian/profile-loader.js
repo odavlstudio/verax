@@ -12,7 +12,7 @@ function normalizeOrigin(value) {
       ? new URL(value)
       : new URL(`http://${value}`);
     return url.origin;
-  } catch (err) {
+  } catch (_err) {
     return null;
   }
 }
@@ -63,7 +63,7 @@ function resolveProfileForUrl(url) {
     const u = new URL(url);
     origin = u.origin;
     host = u.hostname;
-  } catch (err) {
+  } catch (_err) {
     return null;
   }
 

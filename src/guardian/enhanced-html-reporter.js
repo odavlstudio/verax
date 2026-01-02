@@ -146,7 +146,7 @@ function generateEnhancedHtml(snapshot, outputDir, options = {}) {
         if (!v) return '<div class="verdict-item">No verdict available</div>';
         // First-run context detection
         let firstRunLine = '';
-        var journeyLineHtml = '';
+        let journeyLineHtml = '';
         let priorRuns = 0; // Declare in outer scope for use in drivers logic
         try {
           const artifactsDir = options.artifactsDir;

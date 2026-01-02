@@ -238,21 +238,20 @@ function computeDecisionAuthority(signals, options = {}) {
 
   // Classify flows
   const failedFlows = flows.filter(f => 
-    (f.outcome === 'FAILURE' || f.success === false) && 
-    f.outcome !== 'NOT_APPLICABLE'
+    f.outcome === 'FAILURE' || f.success === false
   );
   const frictionFlows = flows.filter(f => 
-    f.outcome === 'FRICTION' && f.outcome !== 'NOT_APPLICABLE'
+    f.outcome === 'FRICTION'
   );
   const notApplicableFlows = flows.filter(f => f.outcome === 'NOT_APPLICABLE');
 
   // Classify attempts
   const executedAttempts = attempts.filter(a => a.executed);
   const failedAttempts = executedAttempts.filter(a => 
-    a.outcome === 'FAILURE' && a.outcome !== 'NOT_APPLICABLE'
+    a.outcome === 'FAILURE'
   );
   const frictionAttempts = executedAttempts.filter(a => 
-    a.outcome === 'FRICTION' && a.outcome !== 'NOT_APPLICABLE'
+    a.outcome === 'FRICTION'
   );
   const notApplicableAttempts = attempts.filter(a => a.outcome === 'NOT_APPLICABLE');
   const successfulAttempts = executedAttempts.filter(a => a.outcome === 'SUCCESS');

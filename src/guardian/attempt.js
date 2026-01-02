@@ -8,6 +8,7 @@ const { GuardianBrowser } = require('./browser');
 const { AttemptEngine } = require('./attempt-engine');
 const { AttemptReporter } = require('./attempt-reporter');
 const { getAttemptDefinition } = require('./attempt-registry');
+const { toCanonicalVerdict, mapExitCodeFromCanonical } = require('./verdicts');
 const GuardianNetworkTrace = require('./network-trace');
 const fs = require('fs');
 const path = require('path');
@@ -39,7 +40,7 @@ async function executeAttempt(config) {
   // Validate baseUrl
   try {
     new URL(baseUrl);
-  } catch (e) {
+  } catch (_e) {
     throw new Error(`Invalid URL: ${baseUrl}`);
   }
 
@@ -203,20 +204,14 @@ async function executeAttempt(config) {
     if (!usingPoolContext) {
       try {
         await browser.close();
-      } catch (closeErr) {
+      } catch (_closeErr) {
         // Ignore browser close errors
       }
     }
 
-    // Determine exit code
-    let exitCode = 0;
-    if (attemptResult.outcome === 'SUCCESS') {
-      exitCode = 0;
-    } else if (attemptResult.outcome === 'FRICTION') {
-      exitCode = 2;
-    } else {
-      exitCode = 1;
-    }
+    // Determine exit code using canonical authority
+    const canonicalVerdict = toCanonicalVerdict(attemptResult.outcome);
+    const exitCode = mapExitCodeFromCanonical(canonicalVerdict);
 
     // Return structured result
     return {
@@ -262,11 +257,9 @@ async function runAttemptCLI(config) {
 
   try {
     const result = await executeAttempt(config);
-    process.exit(result.exitCode);
+    return result;
   } catch (err) {
-    console.error(`\n❌ Error: ${err.message}`);
-    if (err.stack) console.error(err.stack);
-    process.exit(1);
+    throw err;
   }
 }
 

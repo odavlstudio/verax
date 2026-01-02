@@ -55,7 +55,12 @@ function mapExitCodeFromCanonical(canonicalVerdict) {
   }
 }
 
-module.exports = { toCanonicalVerdict, toInternalVerdict, mapExitCodeFromCanonical };
+// Alias for toCanonicalVerdict - used for clarity in some contexts
+function normalizeCanonicalVerdict(verdict) {
+  return toCanonicalVerdict(verdict);
+}
+
+module.exports = { toCanonicalVerdict, toInternalVerdict, mapExitCodeFromCanonical, normalizeCanonicalVerdict };
 
 // Journey scan mapping (SAFE/RISK/DO_NOT_LAUNCH → canonical)
 function toCanonicalJourneyVerdict(journeyVerdict) {

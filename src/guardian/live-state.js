@@ -26,7 +26,7 @@ class LiveState {
         const data = fs.readFileSync(this.stateFile, 'utf8');
         return JSON.parse(data);
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore parse errors; start fresh
     }
     return {

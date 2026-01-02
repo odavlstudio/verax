@@ -50,7 +50,7 @@ class AttemptEngine {
     const pageErrors = [];
     let currentStep = null;
     let lastError = null;
-    let frictionReasons = [];
+    const frictionReasons = [];
     let frictionMetrics = {};
 
     // Capture console messages for soft failure detection
@@ -109,7 +109,7 @@ class AttemptEngine {
 
         try {
           // Execute with retry logic (up to 2 attempts)
-          let success = false;
+          const success = false;
           for (let attempt = 0; attempt < this.maxStepRetries; attempt++) {
             try {
               if (attempt > 0) {
@@ -119,7 +119,6 @@ class AttemptEngine {
               }
 
               await this._executeStep(page, stepDef);
-              success = true;
               break;
             } catch (err) {
               if (attempt === this.maxStepRetries - 1) {
@@ -211,6 +210,7 @@ class AttemptEngine {
             continue;
           }
 
+          // eslint-disable-next-line no-unused-vars
           lastError = err;
 
           // Capture screenshot and DOM on failure
@@ -259,11 +259,11 @@ class AttemptEngine {
               successMet = true;
               successReason = `Success element visible: ${condition.target}`;
               break;
-            } catch (e) {
+            } catch {
               // Continue to next condition
             }
           }
-        } catch (err) {
+        } catch {
           // Continue to next condition
         }
       }
@@ -426,7 +426,7 @@ class AttemptEngine {
             await page.click(selector, { timeout: 5000 });
             clicked = true;
             break;
-          } catch (err) {
+          } catch {
             // Try next selector
           }
         }
@@ -451,7 +451,7 @@ class AttemptEngine {
             await page.fill(selector, stepDef.value, { timeout: 5000 });
             typed = true;
             break;
-          } catch (err) {
+          } catch {
             // Try next selector
           }
         }
@@ -524,7 +524,7 @@ class AttemptEngine {
       });
 
       return filename;
-    } catch (err) {
+    } catch {
       return null;
     }
   }
@@ -540,7 +540,7 @@ class AttemptEngine {
       const content = await page.content();
       fs.writeFileSync(fullPath, content, 'utf-8');
       return path.relative(artifactsDir, fullPath);
-    } catch (err) {
+    } catch {
       return null;
     }
   }
@@ -755,7 +755,7 @@ class AttemptEngine {
     // Attempt navigation to chosen links (up to 3)
     for (const link of chosenLinks) {
       const start = Date.now();
-      let navResult = { target: link.abs, text: link.text, ok: false, status: null, finalUrl: null };
+      const navResult = { target: link.abs, text: link.text, ok: false, status: null, finalUrl: null };
       try {
         const resp = await page.goto(link.abs, { waitUntil: 'domcontentloaded', timeout: this.timeout });
         navResult.status = resp ? resp.status() : null;
@@ -834,7 +834,7 @@ class AttemptEngine {
         if (!text) continue;
         const lower = text.toLowerCase();
         if (!keywords.some(k => lower.includes(k))) continue;
-        let href = el.getAttribute('href') || '';
+        const href = el.getAttribute('href') || '';
         let abs = href;
         if (href) {
           try {
@@ -876,7 +876,7 @@ class AttemptEngine {
     const targets = ctaCandidates.slice(0, 2);
     for (const target of targets) {
       const start = Date.now();
-      let navResult = { target: target.abs || target.href, text: target.text, ok: false, status: null, finalUrl: null };
+      const navResult = { target: target.abs || target.href, text: target.text, ok: false, status: null, finalUrl: null };
       try {
         const resp = await page.goto(target.abs || target.href || baseUrl, { waitUntil: 'domcontentloaded', timeout: this.timeout });
         navResult.status = resp ? resp.status() : null;
@@ -995,7 +995,7 @@ class AttemptEngine {
 
     const target = contactInfo.contactLinks[0];
     const startNav = Date.now();
-    let navResult = { target: target.abs || target.href, text: target.text, ok: false, status: null, finalUrl: null };
+    const navResult = { target: target.abs || target.href, text: target.text, ok: false, status: null, finalUrl: null };
     try {
       const resp = await page.goto(target.abs || target.href, { waitUntil: 'domcontentloaded', timeout: this.timeout });
       navResult.status = resp ? resp.status() : null;

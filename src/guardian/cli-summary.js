@@ -19,7 +19,7 @@ function generateCliSummary(snapshot, policyEval, baselineCheckResult, options =
 
   // VERDICT CARD
   output += '═══ VERDICT CARD ═══\n';
-  output += `Status: ${verdict.verdict || meta.result || 'UNKNOWN'}\n`;
+  output += `Verdict: ${verdict.verdict || meta.result || 'UNKNOWN'}\n`;
   if (verdict.confidence) {
     output += `Confidence: ${(verdict.confidence.score * 100).toFixed(1)}%\n`;
   }
@@ -32,7 +32,7 @@ function generateCliSummary(snapshot, policyEval, baselineCheckResult, options =
   output += `Run ID: ${meta.runId || 'unknown'}\n\n`;
 
   const pe = snapshot.policyEvaluation || {};
-  output += `Policy Verdict: ${meta.result || (pe.passed ? 'PASSED' : pe.exitCode === 2 ? 'WARN' : 'FAILED')}\n`;
+  output += `Policy Status: ${meta.result || (pe.passed ? 'PASSED' : pe.exitCode === 2 ? 'WARN' : 'FAILED')}\n`;
   output += `Exit Code: ${pe.exitCode ?? 'unknown'}\n`;
 
   const planned = coverage.total ?? (resolved.coverage?.total) ?? 'unknown';

@@ -74,7 +74,7 @@ class GuardianScreenshot {
   generateFilename(url, index) {
     try {
       const urlObj = new URL(url);
-      let pathname = urlObj.pathname;
+      const pathname = urlObj.pathname;
       
       // Root path
       if (pathname === '/' || pathname === '') {
@@ -82,7 +82,7 @@ class GuardianScreenshot {
       }
 
       // Clean pathname for filename
-      let safeName = pathname
+      const safeName = pathname
         .replace(/^\//, '') // Remove leading slash
         .replace(/\/$/, '') // Remove trailing slash
         .replace(/\//g, '-') // Replace slashes with dashes
@@ -90,7 +90,7 @@ class GuardianScreenshot {
         .substring(0, 100); // Limit length
 
       return `page-${index}-${safeName}.${this.type}`;
-    } catch (error) {
+    } catch (_error) {
       // Fallback for invalid URLs
       return `page-${index}-unknown.${this.type}`;
     }
@@ -143,7 +143,7 @@ class GuardianScreenshot {
       const stats = fs.statSync(filepath);
       // Screenshot should be at least 1KB
       return stats.size > 1024;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

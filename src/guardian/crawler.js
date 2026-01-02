@@ -20,7 +20,7 @@ class GuardianCrawler {
     try {
       const parsed = new URL(url, this.baseUrl);
       return parsed.origin === this.baseUrl.origin;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }
@@ -29,7 +29,7 @@ class GuardianCrawler {
     try {
       const parsed = new URL(url, this.baseUrl);
       return parsed.pathname;
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   }

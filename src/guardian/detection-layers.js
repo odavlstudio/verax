@@ -190,7 +190,7 @@ async function detectLayer1DataGuardian(page, target) {
       ariaLabel: el.ariaLabel,
       tagName: el.tagName
     }));
-  } catch (error) {
+  } catch (_error) {
     // Guardian target not supported or error occurred
     return [];
   }

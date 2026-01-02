@@ -89,7 +89,7 @@ class GuardianBrowser {
         }))
       );
       return links;
-    } catch (err) {
+    } catch (_err) {
       return [];
     }
   }
@@ -98,7 +98,7 @@ class GuardianBrowser {
     try {
       await this.page.screenshot({ path: filePath });
       return true;
-    } catch (err) {
+    } catch (_err) {
       return false;
     }
   }
@@ -110,7 +110,7 @@ class GuardianBrowser {
       if (this.ownsContext && this.browser) {
         await this.browser.close();
       }
-    } catch (err) {
+    } catch (_err) {
       // Ignore close errors
     }
   }

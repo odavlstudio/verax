@@ -41,7 +41,7 @@ function loadRegistry() {
   }
   try {
     return JSON.parse(fs.readFileSync(REGISTRY_FILE, 'utf-8'));
-  } catch (err) {
+  } catch (_err) {
     return { entries: [], updatedAt: null };
   }
 }

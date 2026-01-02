@@ -80,7 +80,7 @@ function getUsers() {
   
   try {
     return JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
-  } catch (error) {
+  } catch (_error) {
     const defaultUser = {
       username: os.userInfo().username || 'admin',
       role: 'ADMIN',

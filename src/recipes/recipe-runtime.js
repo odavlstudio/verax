@@ -339,11 +339,11 @@ async function executeRecipeAction(browser, action, baseUrl, timeout) {
               targetElement = el;
               break;
             }
-          } catch (e) {
+          } catch (_e) {
             // Skip this element
           }
         }
-      } catch (e) {
+      } catch (_e) {
         // Fallback: try as selector
         targetElement = await browser.page.$(selector).catch(() => null);
       }

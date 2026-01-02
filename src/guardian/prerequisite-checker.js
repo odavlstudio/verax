@@ -76,7 +76,7 @@ async function checkPrerequisites(page, attemptId, timeout = 2000) {
         if (!exists) {
           return { canProceed: false, reason: check.reason };
         }
-      } catch (err) {
+      } catch (_err) {
         // Element not found = prerequisite failed
         return { canProceed: false, reason: check.reason };
       }

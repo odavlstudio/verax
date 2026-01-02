@@ -77,7 +77,7 @@ function readPointer(pointerPath) {
   try {
     const content = fs.readFileSync(pointerPath, 'utf8');
     return JSON.parse(content);
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }

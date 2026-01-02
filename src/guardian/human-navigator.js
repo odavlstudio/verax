@@ -183,7 +183,7 @@ async function trySelectorWithFallback(page, primarySelector, options = {}) {
         strategy: attempt.strategy,
         attemptCount: attempts.indexOf(attempt) + 1
       };
-    } catch (err) {
+    } catch (_err) {
       // Continue to next fallback
       continue;
     }
@@ -417,7 +417,7 @@ async function executeHumanPath(page, options = {}) {
           });
           break;
         }
-      } catch (err) {
+      } catch (_err) {
         // Continue checking
       }
     }

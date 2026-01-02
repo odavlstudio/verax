@@ -41,7 +41,7 @@ async function detectLanguage(page) {
 
     // Fallback
     return 'unknown';
-  } catch (error) {
+  } catch (_error) {
     // If evaluation fails, return unknown
     return 'unknown';
   }

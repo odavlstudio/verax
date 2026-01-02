@@ -37,7 +37,7 @@ function getSignals() {
   
   try {
     return JSON.parse(fs.readFileSync(SIGNALS_FILE, 'utf-8'));
-  } catch (error) {
+  } catch (_error) {
     return {
       firstScanAt: null,
       firstLiveAt: null,

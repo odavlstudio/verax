@@ -66,7 +66,7 @@ function loadAllRuns(artifactsDir) {
     }
     
     return runs;
-  } catch (e) {
+  } catch (_e) {
     return [];
   }
 }

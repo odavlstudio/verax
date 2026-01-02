@@ -91,7 +91,7 @@ function readAuditLogs(options = {}) {
         if (logs.length >= limit) {
           return logs;
         }
-      } catch (error) {
+      } catch (_error) {
         // Skip invalid lines
         continue;
       }

@@ -108,7 +108,7 @@ class GuardianNetworkTrace {
       
       // Basic HAR structure validation
       return har.log && har.log.entries && Array.isArray(har.log.entries);
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -127,7 +127,7 @@ class GuardianNetworkTrace {
       const stats = fs.statSync(tracePath);
       // Trace should be at least 10KB
       return stats.size > 10240;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

@@ -3,6 +3,7 @@ const path = require('path');
 const { executeReality } = require('./reality');
 const { BaselineCheckReporter } = require('./baseline-reporter');
 const { getDefaultAttemptIds, getAttemptDefinition } = require('./attempt-registry');
+const packageJson = require('../../package.json');
 
 const SCHEMA_VERSION = 1;
 
@@ -65,7 +66,7 @@ function buildBaselineSnapshot({ name, baseUrl, attempts, guardianVersion }, rea
 
   return {
     schemaVersion: SCHEMA_VERSION,
-    guardianVersion: guardianVersion || 'unknown',
+    guardianVersion: guardianVersion || packageJson.version,
     baselineName: name,
     createdAt: new Date().toISOString(),
     baseUrl,

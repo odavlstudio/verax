@@ -19,7 +19,7 @@ function checkPlaywrightBrowsers() {
     require('playwright');
     // If that works, browsers should be available
     return { ok: true };
-  } catch (e) {
+  } catch (_e) {
     return {
       ok: false,
       error: 'Playwright not properly installed or browsers missing',
@@ -54,7 +54,7 @@ function checkDiskSpace() {
     fs.writeFileSync(tempFile, 'test', 'utf8');
     fs.unlinkSync(tempFile);
     return { ok: true };
-  } catch (e) {
+  } catch (_e) {
     return {
       ok: false,
       error: 'Insufficient disk space or write permission denied',
@@ -102,7 +102,8 @@ function checkEnvironment() {
 }
 
 /**
- * Print environment guard error and exit
+ * Print environment guard error message
+ * Returns exit code for caller to handle
  */
 function failWithEnvironmentError(issues) {
   console.error('\n❌ Environment Check Failed\n');
@@ -118,7 +119,7 @@ function failWithEnvironmentError(issues) {
   console.error('After fixing the above, run Guardian again:\n');
   console.error('  guardian reality --url <your-site-url>\n');
 
-  process.exit(1);
+  return 1;
 }
 
 module.exports = {

@@ -94,7 +94,7 @@ function validateContractHeaders(headers) {
   if (url.length > 0) {
     try {
       new URL(url);
-    } catch (err) {
+    } catch (_err) {
       throw new Error(`Invalid URL format: "${url}"`);
     }
   }

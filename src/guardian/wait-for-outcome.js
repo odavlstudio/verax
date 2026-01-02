@@ -80,7 +80,7 @@ async function waitForOutcome(page, options = {}) {
       window.__guardianLastMutation = Date.now();
       window.__guardianHasMutated = false;
       if (window.__guardianDomObserver) {
-        try { window.__guardianDomObserver.disconnect(); } catch (e) {}
+        try { window.__guardianDomObserver.disconnect(); } catch (_e) {}
       }
       const obs = new MutationObserver(() => {
         window.__guardianLastMutation = Date.now();

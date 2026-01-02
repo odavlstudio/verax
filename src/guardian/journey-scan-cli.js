@@ -21,18 +21,16 @@ async function runJourneyScanCLI(config) {
 
   // Set a process timeout to ensure we don't hang forever
   const processTimeout = setTimeout(() => {
-    console.error('\n❌ Scan timeout: Process took too long (>120s)');
-    process.exit(2);
+    throw new Error('Scan timeout: Process took too long (>120s)');
   }, 120000); // 120 second hard limit
 
   // Validate URL
   let url;
   try {
     url = new URL(baseUrl);
-  } catch (err) {
-    console.error(`❌ Invalid URL: ${baseUrl}`);
+  } catch (_err) {
     clearTimeout(processTimeout);
-    process.exit(2);
+    throw new Error(`Invalid URL: ${baseUrl}`);
   }
 
   console.log(`\n🛡️  ODAVL Guardian — Human Journey Scanner`);
@@ -129,17 +127,16 @@ async function runJourneyScanCLI(config) {
     process.stdout.write('');  // Flush stdout
 
     clearTimeout(processTimeout);
-    process.exit(exitCode);
+    return {
+      exitCode,
+      verdict: canonical,
+      artifactsDir,
+      result
+    };
   } catch (err) {
-    console.error(`\n❌ Scan failed: ${err.message}`);
-    if (process.env.DEBUG) {
-      console.error(err.stack);
-    }
     clearTimeout(processTimeout);
-    process.exit(2);
+    throw err;
   }
 }
-
-module.exports = { runJourneyScanCLI };
 
 module.exports = { runJourneyScanCLI };

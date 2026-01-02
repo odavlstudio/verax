@@ -50,12 +50,12 @@ function loadRecentRunsForSite(artifactsDir, siteSlug, maxRuns = 10) {
           snapshotPath: fs.existsSync(snapshotPath) ? snapshotPath : null,
           snapshot: null // lazy-loaded
         });
-      } catch (parseErr) {
+      } catch (_parseErr) {
         // Skip unparseable runs
         continue;
       }
     }
-  } catch (err) {
+  } catch (_err) {
     return [];
   }
   
@@ -75,7 +75,7 @@ function loadSnapshot(run) {
     const raw = fs.readFileSync(run.snapshotPath, 'utf8');
     run.snapshot = JSON.parse(raw);
     return run.snapshot;
-  } catch (err) {
+  } catch (_err) {
     return null;
   }
 }

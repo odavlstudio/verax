@@ -43,7 +43,7 @@ class GuardianSitemap {
           request.destroy();
           resolve(null);
         });
-      } catch (error) {
+      } catch (_error) {
         resolve(null);
       }
     });
@@ -216,7 +216,7 @@ class GuardianSitemap {
           return false;
         }
       });
-    } catch (error) {
+    } catch (_error) {
       return [];
     }
   }

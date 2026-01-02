@@ -23,7 +23,7 @@ function findRunDirs(artifactsDir) {
     return entries
       .filter(e => e.isDirectory())
       .map(e => path.join(artifactsDir, e.name));
-  } catch (e) {
+  } catch (_e) {
     return [];
   }
 }

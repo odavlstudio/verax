@@ -78,17 +78,18 @@ async function runLiveCLI(config) {
 
   if (intervalMinutes && intervalMinutes > 0) {
     let running = true;
-    const handleSigint = () => { running = false; console.log('\n🛑 Live Guardian stopped.'); process.exit(0); };
+    const handleSigint = () => { running = false; console.log('\n🛑 Live Guardian stopped.'); return { exitCode: 0, stopped: true }; };
     process.on('SIGINT', handleSigint);
     console.log(`⏱️  Live mode: every ${intervalMinutes} minute(s)`);
     while (running) {
       const { exitCode } = await singleRunEvaluate();
-      if (exitCode === 3) process.exit(3);
+      if (exitCode === 3) return { exitCode: 3, critical: true };
       await new Promise(r => setTimeout(r, intervalMinutes * 60 * 1000));
     }
+    return { exitCode: 0, stopped: true };
   } else {
     const { exitCode } = await singleRunEvaluate();
-    process.exit(exitCode);
+    return { exitCode };
   }
 }
 

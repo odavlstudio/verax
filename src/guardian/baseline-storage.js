@@ -41,7 +41,7 @@ function urlToSlug(url) {
 
     slug += `-${hash}`;
     return slug;
-  } catch (err) {
+  } catch (_err) {
     // Fallback: just use hash
     return crypto
       .createHash('sha256')

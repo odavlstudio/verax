@@ -83,7 +83,7 @@ class BrowserPool {
     try {
       this.contexts.delete(context);
       await context.close();
-    } catch (err) {
+    } catch (_err) {
       // Ignore close errors (may already be closed)
     }
   }
@@ -103,7 +103,7 @@ class BrowserPool {
     if (this.browser) {
       try {
         await this.browser.close();
-      } catch (err) {
+      } catch (_err) {
         // Ignore close errors
       }
       this.browser = null;

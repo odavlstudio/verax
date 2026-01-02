@@ -30,7 +30,9 @@ async function detectIntent(url, options = {}) {
     try {
       if (browser?.context) await browser.context.close();
       if (browser?.browser) await browser.browser.close();
-    } catch {}
+    } catch (_err) {
+      // Browser cleanup errors are non-critical - browser may already be closed
+    }
   }
 }
 

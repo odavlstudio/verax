@@ -51,7 +51,7 @@ function getGlobalCounter() {
   
   try {
     return JSON.parse(fs.readFileSync(GLOBAL_COUNTER_FILE, 'utf-8'));
-  } catch (error) {
+  } catch (_error) {
     return { count: 0, users: [] };
   }
 }
@@ -76,7 +76,7 @@ function getFounderStatus() {
   
   try {
     return JSON.parse(fs.readFileSync(FOUNDER_FILE, 'utf-8'));
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }

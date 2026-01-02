@@ -65,24 +65,20 @@ function parsePolicyOption(policyOption) {
   // Check if it's a preset
   if (optionStr.startsWith('preset:')) {
     const presetName = optionStr.substring(7); // Remove 'preset:' prefix
-    try {
-      return loadPreset(presetName);
-    } catch (err) {
-      console.error(`Error: ${err.message}`);
-      process.exit(1);
-    }
+    return loadPreset(presetName);
   }
 
   // Otherwise, treat as file path
   // Fix for Wave 0.5: Validate policy file exists BEFORE attempting to load
   if (!fs.existsSync(optionStr)) {
-    console.error(`Error: Policy file not found: ${optionStr}`);
-    console.error('');
-    console.error('Please provide a valid policy file or use a preset:');
-    console.error('  --policy preset:startup     (Permissive for fast-moving startups)');
-    console.error('  --policy preset:saas        (Balanced for SaaS products)');
-    console.error('  --policy preset:enterprise  (Strict for enterprise deployments)');
-    process.exit(1);
+    const error = new Error(`Policy file not found: ${optionStr}`);
+    error.suggestions = [
+      'Please provide a valid policy file or use a preset:',
+      '  --policy preset:startup     (Permissive for fast-moving startups)',
+      '  --policy preset:saas        (Balanced for SaaS products)',
+      '  --policy preset:enterprise  (Strict for enterprise deployments)'
+    ];
+    throw error;
   }
 
   try {
@@ -91,8 +87,7 @@ function parsePolicyOption(policyOption) {
     console.log(`✅ Loaded policy from: ${optionStr}`);
     return policy;
   } catch (error) {
-    console.error(`Error: Failed to load policy from ${optionStr}: ${error.message}`);
-    process.exit(1);
+    throw new Error(`Failed to load policy from ${optionStr}: ${error.message}`);
   }
 }
 
@@ -121,7 +116,7 @@ function listPresets() {
           description: policy.description || 'No description',
           policy
         });
-      } catch (error) {
+      } catch (_error) {
         // Skip invalid files
       }
     }

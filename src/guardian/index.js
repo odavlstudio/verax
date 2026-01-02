@@ -30,9 +30,8 @@ async function runGuardian(config) {
   // Validate baseUrl
   try {
     new URL(baseUrl);
-  } catch (e) {
-    console.error(`❌ Invalid URL: ${baseUrl}`);
-    process.exit(2);
+  } catch (_e) {
+    throw new Error(`Invalid URL: ${baseUrl}`);
   }
 
   console.log(`\n🛡️  ODAVL Guardian — Market Reality Testing Engine`);
@@ -207,14 +206,18 @@ async function runGuardian(config) {
     console.log(`\n💾 Full report: ${savedReport.reportPath}`);
     console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
 
-    // Exit with deterministic codes: OBSERVED=0, PARTIAL=1, INSUFFICIENT_DATA=2
+    // Return deterministic codes: OBSERVED=0, PARTIAL=1, INSUFFICIENT_DATA=2
     const { mapExitCodeFromCanonical } = require('./verdicts');
     const exitCode = mapExitCodeFromCanonical(canonical);
-    process.exit(exitCode);
+    
+    return {
+      exitCode,
+      verdict: canonical,
+      reportPath: savedReport.reportPath
+    };
 
   } catch (err) {
-    console.error(`\n❌ Error: ${err.message}`);
-    process.exit(2);
+    throw err;
   } finally {
     await browser.close();
   }

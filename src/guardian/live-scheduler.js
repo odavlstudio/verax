@@ -31,7 +31,7 @@ function loadState() {
     const data = JSON.parse(fs.readFileSync(STATE_FILE, 'utf-8'));
     if (!data.schedules) data.schedules = [];
     return data;
-  } catch (err) {
+  } catch (_err) {
     return { schedules: [], runner: null };
   }
 }

@@ -246,7 +246,7 @@ function buildAutoAttempts(interactions, options = {}) {
   } = options;
 
   // Filter safe, high-confidence interactions
-  let filtered = interactions.filter(interaction => {
+  const filtered = interactions.filter(interaction => {
     if (excludeRisky && interaction.isRisky) return false;
     if (interaction.confidenceScore < minConfidence) return false;
     if (!includeClasses.includes(interaction.interactionClass)) return false;

@@ -367,7 +367,7 @@ class JourneyScanner {
       });
 
       return ctas;
-    } catch (err) {
+    } catch (_err) {
       return null;
     }
   }
@@ -381,7 +381,7 @@ class JourneyScanner {
       await this.browser.page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {
         // If networkidle times out, that's okay; just continue
       });
-    } catch (err) {
+    } catch (_err) {
       // Ignore timeout, just move on
     }
   }
@@ -401,7 +401,7 @@ class JourneyScanner {
         return null;
       });
       return heading || null;
-    } catch (err) {
+    } catch (_err) {
       return null;
     }
   }
@@ -512,7 +512,7 @@ class JourneyScanner {
 
       await this.browser.page.screenshot({ path: screenshotPath });
       return screenshotPath;
-    } catch (err) {
+    } catch (_err) {
       // Screenshot failed but don't fail the whole journey
       return null;
     }
@@ -529,7 +529,7 @@ class JourneyScanner {
       if (this.browser?.browser) {
         await this.browser.browser.close();
       }
-    } catch (err) {
+    } catch (_err) {
       // Ignore cleanup errors
     }
   }
@@ -574,7 +574,7 @@ class JourneyScanner {
         goalReached: !!reached,
         goalDescription: 'Contact form or section visible'
       };
-    } catch (e) {
+    } catch (_e) {
       return { goalReached: false, goalDescription: 'Goal evaluation unavailable' };
     }
   }

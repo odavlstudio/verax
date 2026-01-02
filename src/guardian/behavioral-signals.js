@@ -117,7 +117,7 @@ class BehavioralSignalDetector {
             });
           }
         }
-      } catch (err) {
+      } catch (_err) {
         // Silently skip errors
       }
     }
@@ -212,7 +212,7 @@ class BehavioralSignalDetector {
           });
         }
       }
-    } catch (err) {
+    } catch (_err) {
       // Silently skip
     }
 
