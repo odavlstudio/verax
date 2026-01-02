@@ -1,6 +1,6 @@
 {
   "name": "@odavl/guardian",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "releaseState": "stable",
   "description": "The final decision authority before launch. Observes your website as real users experience it, decides whether launch is safe, and continues watching after deployment to detect when reality breaks.",
   "license": "MIT",
