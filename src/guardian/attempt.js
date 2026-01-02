@@ -25,7 +25,6 @@ async function executeAttempt(config) {
     attemptId = 'contact_form',
     artifactsDir = './artifacts',
     enableTrace = true,
-    enableScreenshots = true,
     headful = false,
     quiet = false,
     // Phase 7.3: Accept browser context from pool

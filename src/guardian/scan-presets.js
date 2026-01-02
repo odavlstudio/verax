@@ -16,22 +16,6 @@ function resolveScanPreset(name = 'landing') {
     throw new Error('Preset name is required');
   }
 
-  // Defaults: curated attempts + curated flows
-  const defaults = {
-    id: 'default',
-    attempts: getDefaultAttemptIds(),
-    disabledAttempts: [],
-    flows: getDefaultFlowIds(),
-    policy: null,
-    failFast: true,
-    evidence: {
-      requireScreenshots: true,
-      requireTraces: true,
-      minCompleteness: 1.0,
-      minIntegrity: 0.9
-    }
-  };
-
   switch (preset) {
     case 'landing':
       return {

@@ -6,8 +6,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const STATE_FILE = '.odavl-guardian/.first-run-state.json';
-
 function hasRunBefore(stateDir = '.odavl-guardian') {
   try {
     const filePath = path.join(stateDir, '.first-run-state.json');

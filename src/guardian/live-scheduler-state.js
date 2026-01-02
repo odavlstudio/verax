@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 const { ensurePathWithinBase, resolveWithinBase } = require('./path-safety');
 const { getStateDir } = require('./runtime-root');
 

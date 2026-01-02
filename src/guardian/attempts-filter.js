@@ -3,8 +3,8 @@
  * Validates and filters attempts/flows based on user input
  */
 
-const { getDefaultAttemptIds, getAttemptDefinition } = require('./attempt-registry');
-const { getDefaultFlowIds, getFlowDefinition } = require('./flow-registry');
+const { getAttemptDefinition } = require('./attempt-registry');
+const { getFlowDefinition } = require('./flow-registry');
 
 function validateAttemptFilter(filterString) {
   if (!filterString || !filterString.trim()) {

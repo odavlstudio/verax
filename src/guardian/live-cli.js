@@ -5,7 +5,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const { runJourneyScanCLI } = require('./journey-scan-cli');
 const { getJourneyDefinition } = require('./journey-definitions');
 const { detectIntent } = require('./intent-detector');
 const { JourneyScanner } = require('./journey-scanner');

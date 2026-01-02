@@ -58,7 +58,6 @@ const { checkPrerequisites } = require('./prerequisite-checker');
 // DEPENDENCIES: Guardian modules — Observation & Analysis
 // ============================================================================
 const { SnapshotBuilder, saveSnapshot } = require('./snapshot');
-const { GuardianBrowser: _GuardianBrowser } = require('./browser'); // For analyzeSite
 const { analyzeSite, isFlowApplicable, SITE_TYPES } = require('./site-intelligence');
 const { extractObservedCapabilities, filterAttemptsByObservedCapabilities, filterFlowsByObservedCapabilities, createNotApplicableAttemptResult, createNotApplicableFlowResult } = require('./observed-capabilities');
 const { inspectSite, detectProfile } = require('./site-introspection');
@@ -269,7 +268,6 @@ async function executeReality(config) {
     policy = null,
     webhook = null,
     includeUniversal = false,
-    autoAttemptOptions = {},
     enableFlows = true,
     flows = getDefaultFlowIds(),
     flowOptions = {},
@@ -1541,7 +1539,7 @@ async function executeReality(config) {
   // Rename run directory to status placeholder for auditability
   // Note: exitCode will be determined later by final outcome authority
   let exitCode = 0; // Placeholder, will be set by final decision
-  const releaseDecisionPath = null;
+  let releaseDecisionPath = null;
   const runResultPreManifest = 'PENDING';
   const priorRunDir = runDir;
   const finalRunDirName = makeRunDirName({ timestamp: startTime, url: baseUrl, policy: presetId, result: runResultPreManifest });
@@ -1877,7 +1875,6 @@ async function executeReality(config) {
     // Pre-Launch Gate and release decision artifact
     const baselinePresent = baselineExists(baseUrl, storageDir);
     let releaseDecision = null;
-    lereleaseDecisionPath = null;
 
     const gate = evaluatePrelaunchGate({
       prelaunch,

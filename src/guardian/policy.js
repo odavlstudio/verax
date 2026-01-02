@@ -11,8 +11,6 @@
  */
 
 const fs = require('fs');
-const path = require('path');
-const { aggregateIntelligence } = require('./breakage-intelligence');
 
 /**
  * @typedef {Object} GuardianPolicy
