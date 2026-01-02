@@ -7,6 +7,12 @@
  * 
  * This module is PURE: no IO, no side effects, no hidden state.
  * All dependencies are passed in explicitly.
+ * 
+ * @typedef {import('./truth/decision.contract.js').FinalDecision} FinalDecision
+ * @typedef {import('./truth/decision.contract.js').FinalVerdict} FinalVerdict
+ * @typedef {import('./truth/decision.contract.js').VerdictSource} VerdictSource
+ * @typedef {import('./truth/decision.contract.js').DecisionReason} DecisionReason
+ * @typedef {import('./truth/decision.contract.js').VerdictHistoryEntry} VerdictHistoryEntry
  */
 
 const {
@@ -106,9 +112,13 @@ function computeDecisionAuthority(signals, options = {}) {
   validateSingleCall(runId);
   
   // Initialize tracking
+  /** @type {VerdictHistoryEntry[]} */
   const verdictHistory = [];
+  /** @type {DecisionReason[]} */
   const reasons = [];
+  /** @type {FinalVerdict|null} */
   let currentVerdict = null;
+  /** @type {VerdictSource|null} */
   let verdictSource = null;
   let finalConfidence = 1.0;
 
@@ -145,27 +155,27 @@ function computeDecisionAuthority(signals, options = {}) {
     // Rules engine succeeded and produced a verdict
     const rulesVerdict = toCanonicalVerdict(rulesEngineOutput.finalVerdict);
     
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 1,
       source: VERDICT_SOURCE.RULES_ENGINE,
       suggestedVerdict: rulesVerdict,
       reasonCode: 'RULES_ENGINE_TRIGGERED',
       triggeredRuleIds: rulesEngineOutput.triggeredRuleIds || [],
       timestamp
-    });
+    }));
 
     // Add final normalization entry to ensure >= 2 history entries
     const timestamp2 = new Date().toISOString();
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 'final',
       source: 'normalization',
       suggestedVerdict: rulesVerdict,
       reasonCode: 'VERDICT_NORMALIZED',
       timestamp: timestamp2
-    });
+    }));
 
-    currentVerdict = rulesVerdict;
-    verdictSource = VERDICT_SOURCE.RULES_ENGINE;
+    currentVerdict = /** @type {FinalVerdict} */ (rulesVerdict);
+    verdictSource = /** @type {VerdictSource} */ (VERDICT_SOURCE.RULES_ENGINE);
     
     // Add rules reasons to main reasons array
     if (rulesEngineOutput.reasons) {
@@ -184,15 +194,15 @@ function computeDecisionAuthority(signals, options = {}) {
       });
       
       // Downgrade to FRICTION
-      verdictHistory.push({
+      verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
         phase: 'enforcement',
         source: 'coverage_check',
         suggestedVerdict: 'FRICTION',
         reasonCode: 'COVERAGE_INSUFFICIENT',
         timestamp: new Date().toISOString()
-      });
+      }));
       
-      currentVerdict = 'FRICTION';
+      currentVerdict = /** @type {FinalVerdict} */ ('FRICTION');
       verdictSource = 'coverage_downgrade';
     }
     
@@ -205,23 +215,23 @@ function computeDecisionAuthority(signals, options = {}) {
         severity: 'warning'
       });
       
-      verdictHistory.push({
+      verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
         phase: 'enforcement',
         source: 'selector_confidence_check',
         suggestedVerdict: 'FRICTION',
         reasonCode: 'LOW_SELECTOR_CONFIDENCE',
         timestamp: new Date().toISOString()
-      });
+      }));
       
-      currentVerdict = currentVerdict === 'FRICTION' ? 'FRICTION' : 'FRICTION';
-      verdictSource = 'selector_downgrade';
+      currentVerdict = /** @type {FinalVerdict} */ ('FRICTION');
+      verdictSource = /** @type {VerdictSource} */ ('selector_downgrade');
     }
 
     // Rules engine verdict takes absolute precedence - return immediately
     return buildFinalDecision({
-      finalVerdict: currentVerdict || rulesVerdict,
-      verdictSource: verdictSource || VERDICT_SOURCE.RULES_ENGINE,
-      verdictHistory,
+      finalVerdict: /** @type {FinalVerdict} */ (currentVerdict || rulesVerdict),
+      verdictSource: /** @type {VerdictSource} */ (verdictSource || VERDICT_SOURCE.RULES_ENGINE),
+      verdictHistory: /** @type {VerdictHistoryEntry[]} */ (verdictHistory),
       reasons,
       confidence: rulesEngineOutput.confidence || 0.95,
       exitCode: mapExitCodeFromCanonical(currentVerdict || rulesVerdict),
@@ -262,7 +272,7 @@ function computeDecisionAuthority(signals, options = {}) {
 
   // STEP 2a: Check for CRITICAL FAILURES (Flows)
   if (failedFlows.length > 0) {
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 2,
       step: 'a',
       source: VERDICT_SOURCE.FLOWS_FAILURE,
@@ -270,10 +280,10 @@ function computeDecisionAuthority(signals, options = {}) {
       reasonCode: 'FLOWS_HAVE_FAILURES',
       count: failedFlows.length,
       timestamp
-    });
+    }));
 
-    currentVerdict = 'DO_NOT_LAUNCH';
-    verdictSource = VERDICT_SOURCE.FLOWS_FAILURE;
+    currentVerdict = /** @type {FinalVerdict} */ ('DO_NOT_LAUNCH');
+    verdictSource = /** @type {VerdictSource} */ (VERDICT_SOURCE.FLOWS_FAILURE);
     reasons.push({
       code: 'FLOW_FAILURES',
       message: `Critical flow failures detected (${failedFlows.length}): ${failedFlows.map(f => f.flowId || f.flowName).join(', ')}`
@@ -281,9 +291,9 @@ function computeDecisionAuthority(signals, options = {}) {
     
     // Don't check attempts if flows already failed
     return buildFinalDecision({
-      finalVerdict: currentVerdict,
-      verdictSource,
-      verdictHistory,
+      finalVerdict: /** @type {FinalVerdict} */ (currentVerdict),
+      verdictSource: /** @type {VerdictSource} */ (verdictSource),
+      verdictHistory: /** @type {VerdictHistoryEntry[]} */ (verdictHistory),
       reasons: enrichReasons(reasons, {failedFlows, failedAttempts, notApplicableFlows, notApplicableAttempts}),
       confidence: 0.99,
       exitCode: mapExitCodeFromCanonical(currentVerdict),
@@ -296,7 +306,7 @@ function computeDecisionAuthority(signals, options = {}) {
 
   // STEP 2b: Check for FLOW FRICTION
   if (frictionFlows.length > 0 && failedFlows.length === 0) {
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 2,
       step: 'b',
       source: VERDICT_SOURCE.FLOWS_FRICTION,
@@ -304,7 +314,7 @@ function computeDecisionAuthority(signals, options = {}) {
       reasonCode: 'FLOWS_HAVE_FRICTION',
       count: frictionFlows.length,
       timestamp
-    });
+    }));
 
     currentVerdict = 'FRICTION';
     verdictSource = VERDICT_SOURCE.FLOWS_FRICTION;
@@ -316,7 +326,7 @@ function computeDecisionAuthority(signals, options = {}) {
 
   // STEP 2c: Check for ATTEMPT FAILURES (only if current verdict is not already FRICTION)
   if (currentVerdict !== 'FRICTION' && failedAttempts.length > 0) {
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 2,
       step: 'c',
       source: VERDICT_SOURCE.ATTEMPTS_FAILURE,
@@ -324,7 +334,7 @@ function computeDecisionAuthority(signals, options = {}) {
       reasonCode: 'ATTEMPTS_HAVE_FAILURES',
       count: failedAttempts.length,
       timestamp
-    });
+    }));
 
     currentVerdict = 'DO_NOT_LAUNCH';
     verdictSource = VERDICT_SOURCE.ATTEMPTS_FAILURE;
@@ -334,9 +344,9 @@ function computeDecisionAuthority(signals, options = {}) {
     });
 
     return buildFinalDecision({
-      finalVerdict: currentVerdict,
-      verdictSource,
-      verdictHistory,
+      finalVerdict: /** @type {FinalVerdict} */ (currentVerdict),
+      verdictSource: /** @type {VerdictSource} */ (verdictSource),
+      verdictHistory: /** @type {VerdictHistoryEntry[]} */ (verdictHistory),
       reasons: enrichReasons(reasons, {failedAttempts, notApplicableAttempts}),
       confidence: 0.99,
       exitCode: mapExitCodeFromCanonical(currentVerdict),
@@ -349,7 +359,7 @@ function computeDecisionAuthority(signals, options = {}) {
 
   // STEP 2d: Check for ATTEMPT FRICTION (only if not already FRICTION from flows)
   if (currentVerdict !== 'FRICTION' && frictionAttempts.length > 0 && failedAttempts.length === 0) {
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 2,
       step: 'd',
       source: VERDICT_SOURCE.ATTEMPTS_FRICTION,
@@ -357,7 +367,7 @@ function computeDecisionAuthority(signals, options = {}) {
       reasonCode: 'ATTEMPTS_HAVE_FRICTION',
       count: frictionAttempts.length,
       timestamp
-    });
+    }));
 
     currentVerdict = 'FRICTION';
     verdictSource = VERDICT_SOURCE.ATTEMPTS_FRICTION;
@@ -369,26 +379,26 @@ function computeDecisionAuthority(signals, options = {}) {
 
   // STEP 2e: Check for POLICY HARD FAILURE
   if (policyEval && !policyEval.passed && policyEval.exitCode === 1) {
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 2,
       step: 'e',
       source: VERDICT_SOURCE.POLICY_HARD_FAIL,
       suggestedVerdict: 'DO_NOT_LAUNCH',
       reasonCode: 'POLICY_HARD_FAILURE',
       timestamp
-    });
+    }));
 
-    currentVerdict = 'DO_NOT_LAUNCH';
-    verdictSource = VERDICT_SOURCE.POLICY_HARD_FAIL;
+    currentVerdict = /** @type {FinalVerdict} */ ('DO_NOT_LAUNCH');
+    verdictSource = /** @type {VerdictSource} */ (VERDICT_SOURCE.POLICY_HARD_FAIL);
     reasons.push({
       code: 'POLICY_HARD_FAILURE',
       message: policyEval.summary || 'Policy hard failure detected'
     });
 
     return buildFinalDecision({
-      finalVerdict: currentVerdict,
-      verdictSource,
-      verdictHistory,
+      finalVerdict: /** @type {FinalVerdict} */ (currentVerdict),
+      verdictSource: /** @type {VerdictSource} */ (verdictSource),
+      verdictHistory: /** @type {VerdictHistoryEntry[]} */ (verdictHistory),
       reasons: enrichReasons(reasons, {policyEval}),
       confidence: 0.99,
       exitCode: mapExitCodeFromCanonical(currentVerdict),
@@ -405,13 +415,13 @@ function computeDecisionAuthority(signals, options = {}) {
 
   // Check if we have any applicable signals
   if (applicableAttempts.length === 0 && applicableFlows.length === 0) {
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 3,
       source: VERDICT_SOURCE.INSUFFICIENT_DATA,
       suggestedVerdict: 'INSUFFICIENT_DATA',
       reasonCode: 'NO_APPLICABLE_SIGNALS',
       timestamp
-    });
+    }));
 
     currentVerdict = 'INSUFFICIENT_DATA';
     verdictSource = VERDICT_SOURCE.INSUFFICIENT_DATA;
@@ -422,15 +432,15 @@ function computeDecisionAuthority(signals, options = {}) {
     finalConfidence = 0.3;
   } else {
     // We have signals and no critical failures/friction
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 3,
       source: VERDICT_SOURCE.OBSERVED,
       suggestedVerdict: 'OBSERVED',
       reasonCode: 'NO_CRITICAL_FAILURES',
       timestamp
-    });
+    }));
 
-    currentVerdict = 'READY';
+    currentVerdict = /** @type {FinalVerdict} */ ('READY');
     verdictSource = VERDICT_SOURCE.OBSERVED;
     reasons.push({
       code: 'OBSERVED_SUCCESS',
@@ -441,7 +451,7 @@ function computeDecisionAuthority(signals, options = {}) {
     // *** COVERAGE ENFORCEMENT IN PHASE 3 ***
     // Even if no failures/friction, coverage must still be sufficient for READY
     if (coverageInfo.coverageStatus === 'INSUFFICIENT') {
-      verdictHistory.push({
+      verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
         phase: 3,
         source: 'coverage_enforcement',
         suggestedVerdict: 'FRICTION',
@@ -452,9 +462,9 @@ function computeDecisionAuthority(signals, options = {}) {
           message: `Coverage is ${(coverageInfo.coverageRatio * 100).toFixed(1)}%, below ${(COVERAGE_THRESHOLD * 100).toFixed(0)}% threshold`
         },
         timestamp
-      });
+      }));
 
-      currentVerdict = 'FRICTION';
+      currentVerdict = /** @type {FinalVerdict} */ ('FRICTION');
       verdictSource = 'coverage_downgrade';
       finalConfidence = 0.75;
     }
@@ -464,7 +474,7 @@ function computeDecisionAuthority(signals, options = {}) {
     if (currentVerdict !== 'FRICTION' && 
         coverageInfo.selectorConfidence && 
         coverageInfo.selectorConfidence.selectorConfidenceMin === SELECTOR_CONFIDENCE.LOW) {
-      verdictHistory.push({
+      verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
         phase: 3,
         source: 'selector_confidence_enforcement',
         suggestedVerdict: 'FRICTION',
@@ -474,9 +484,9 @@ function computeDecisionAuthority(signals, options = {}) {
           message: 'Critical interaction steps used LOW-confidence selectors (classes, nth-child, text)'
         },
         timestamp
-      });
+      }));
 
-      currentVerdict = 'FRICTION';
+      currentVerdict = /** @type {FinalVerdict} */ ('FRICTION');
       verdictSource = 'selector_downgrade';
       finalConfidence = 0.75;
     }
@@ -494,16 +504,16 @@ function computeDecisionAuthority(signals, options = {}) {
     
     // Journey can only downgrade (move to higher rank number)
     if (rank[canonicalJourney] > rank[canonicalCurrent]) {
-      verdictHistory.push({
+      verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
         phase: 4,
         source: VERDICT_SOURCE.JOURNEY_DOWNGRADE,
         previousVerdict: currentVerdict,
         suggestedVerdict: canonicalJourney,
         reasonCode: 'JOURNEY_DOWNGRADE',
         timestamp
-      });
+      }));
 
-      currentVerdict = canonicalJourney;
+      currentVerdict = /** @type {FinalVerdict} */ (canonicalJourney);
       verdictSource = VERDICT_SOURCE.JOURNEY_DOWNGRADE;
       reasons.push({
         code: 'JOURNEY_DOWNGRADE',
@@ -527,13 +537,13 @@ function computeDecisionAuthority(signals, options = {}) {
       code: 'INSECURE_TRANSPORT',
       message: `HTTP detected on ${httpWarnings.length} request(s): ${httpWarnings.slice(0, 3).join(', ')}`
     });
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 4,
       source: 'network_safety',
       suggestedVerdict: currentVerdict === 'DO_NOT_LAUNCH' ? currentVerdict : 'FRICTION',
       reasonCode: 'HTTP_WARNING',
       timestamp
-    });
+    }));
     if (currentVerdict === 'READY') {
       currentVerdict = 'FRICTION';
       verdictSource = 'network_safety';
@@ -546,13 +556,13 @@ function computeDecisionAuthority(signals, options = {}) {
       code: 'EXCESSIVE_THIRD_PARTY',
       message: `Excessive third-party requests detected (${thirdPartyCount}). Domains: ${thirdPartyDomains.slice(0, 5).join(', ')}`
     });
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 4,
       source: 'network_safety',
       suggestedVerdict: currentVerdict === 'DO_NOT_LAUNCH' ? currentVerdict : 'FRICTION',
       reasonCode: 'EXCESSIVE_THIRD_PARTY',
       timestamp
-    });
+    }));
     if (currentVerdict === 'READY') {
       currentVerdict = 'FRICTION';
       verdictSource = 'network_safety';
@@ -570,13 +580,13 @@ function computeDecisionAuthority(signals, options = {}) {
       code: 'MISSING_SECRETS',
       message: `Required secrets missing: ${secretFindings.map(s => s.key).join(', ')}`
     });
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 4,
       source: 'secret_hygiene',
       suggestedVerdict: currentVerdict === 'DO_NOT_LAUNCH' ? currentVerdict : 'FRICTION',
       reasonCode: 'MISSING_SECRETS',
       timestamp
-    });
+    }));
     if (currentVerdict === 'READY') {
       currentVerdict = 'FRICTION';
       verdictSource = 'secret_hygiene';
@@ -590,13 +600,13 @@ function computeDecisionAuthority(signals, options = {}) {
 
   const diff = baseline.diffResult || baseline.diff;
   if (diff && diff.regressions && Object.keys(diff.regressions).length > 0) {
-    verdictHistory.push({
+    verdictHistory.push(/** @type {VerdictHistoryEntry} */ ({
       phase: 5,
       source: 'baseline',
       regressionCount: Object.keys(diff.regressions).length,
       reasonCode: 'BASELINE_REGRESSIONS_DETECTED',
       timestamp
-    });
+    }));
 
     reasons.push({
       code: 'BASELINE_REGRESSIONS',
@@ -647,6 +657,18 @@ function computeDecisionAuthority(signals, options = {}) {
 
 /**
  * Build the final decision object with all required fields
+ * @param {Object} params - Decision parameters
+ * @param {FinalVerdict} params.finalVerdict - Final canonical verdict
+ * @param {VerdictSource} params.verdictSource - Verdict source
+ * @param {VerdictHistoryEntry[]} params.verdictHistory - Verdict history
+ * @param {DecisionReason[]} params.reasons - Decision reasons
+ * @param {number} params.confidence - Confidence score (0-1)
+ * @param {number} [params.exitCode] - Exit code (if not provided, derived from verdict)
+ * @param {Object} [params.coverageInfo] - Coverage information
+ * @param {Object|null} [params.humanPath] - Human navigation path
+ * @param {Object} [params.networkSafety] - Network safety signals
+ * @param {Object[]} [params.secretFindings] - Secret findings
+ * @returns {FinalDecision}
  */
 function buildFinalDecision({
   finalVerdict,

@@ -63,6 +63,9 @@ const { SnapshotBuilder, saveSnapshot } = require('./snapshot');
  * @typedef {import('./truth/snapshot.contract.js').MarketRealitySnapshot} MarketRealitySnapshot
  * @typedef {import('./truth/snapshot.contract.js').SnapshotAttemptEntry} SnapshotAttemptEntry
  * @typedef {import('./truth/attempt.contract.js').AttemptResult} AttemptResult
+ * @typedef {import('./truth/decision.contract.js').Decision} Decision
+ * @typedef {import('./truth/decision.contract.js').FinalDecision} FinalDecision
+ * @typedef {import('./truth/decision.contract.js').FinalVerdict} FinalVerdict
  */
 const { analyzeSite, isFlowApplicable, SITE_TYPES } = require('./site-intelligence');
 const { extractObservedCapabilities, filterAttemptsByObservedCapabilities, filterFlowsByObservedCapabilities, createNotApplicableAttemptResult, createNotApplicableFlowResult } = require('./observed-capabilities');
@@ -2789,6 +2792,33 @@ function buildRealityExplanation({ finalDecision = {}, attemptStats = {}, market
   return { verdict: finalVerdictSection, sections };
 }
 
+/**
+ * Write decision artifact to decision.json
+ * @param {Object} params - Decision artifact parameters
+ * @param {string} params.runDir - Run directory
+ * @param {string} params.runId - Run ID
+ * @param {string} params.baseUrl - Base URL
+ * @param {string} params.policyName - Policy name
+ * @param {string} params.preset - Preset ID
+ * @param {FinalDecision} params.finalDecision - Final decision object
+ * @param {Object} params.attemptStats - Attempt statistics
+ * @param {Object} params.marketImpact - Market impact summary
+ * @param {Object} params.policyEval - Policy evaluation
+ * @param {Object} params.baseline - Baseline data
+ * @param {Array} params.flows - Flow results
+ * @param {Object} params.resolved - Resolved configuration
+ * @param {Object} params.attestation - Attestation data
+ * @param {Object} params.audit - Audit data
+ * @param {Array} [params.attempts] - Attempt results
+ * @param {Object} [params.coverage] - Coverage data
+ * @param {Object} [params.explanation] - Explanation object
+ * @param {Object} [params.ruleEngineOutput] - Rules engine output
+ * @param {Object} [params.siteIntelligence] - Site intelligence
+ * @param {Array} [params.actionHints] - Action hints
+ * @param {Object} [params.honestyContract] - Honesty contract
+ * @param {Object} [params.observedCapabilities] - Observed capabilities
+ * @returns {string} Path to decision.json
+ */
 function writeDecisionArtifact({ runDir, runId, baseUrl, policyName, preset, finalDecision, attemptStats, marketImpact, policyEval, baseline, flows, resolved, attestation, audit, attempts = [], coverage = {}, explanation, ruleEngineOutput = null, siteIntelligence = null, actionHints = [], honestyContract = null, observedCapabilities = null }) {
   const structuredExplanation = explanation || buildRealityExplanation({ finalDecision, attemptStats, marketImpact, policyEval, baseline, flows, attempts, coverage, observedCapabilities });
   const safePolicyEval = policyEval || { passed: true, exitCode: 0, summary: 'Policy evaluation not run.' };
