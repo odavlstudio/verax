@@ -4,6 +4,12 @@ ODAVL Guardian detects silent user failures by interacting with websites as real
 
 **v1.0.2 is the first stable public release.** Install with `npm install -g @odavl/guardian`.
 
+## About This Repository
+
+This repository contains the source code and development history for ODAVL Guardian. The npm package (`@odavl/guardian`) is the public product—end users only need the CLI and this README.
+
+This repository also contains internal development materials, historical documentation, and validation runs in the `_internal/` folder. These materials are not required for using ODAVL Guardian and are maintained for development purposes only.
+
 The Problem
 
 Many websites appear to work correctly while users silently encounter broken interactions:
