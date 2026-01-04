@@ -1,297 +1,203 @@
-# ODAVL Guardian — The Final Decision Authority Before Launch
+# ODAVL Guardian — Silent Failure Detector
 
-**What:** Guardian observes your website as real users experience it and issues a binding verdict on whether it's safe to launch.
+ODAVL Guardian detects silent user failures by interacting with websites as real users do and reporting interactions that produce no observable effect.
 
-**For:** CI/CD Pipeline Operators / Release Engineers (those responsible for gating production deployments)
+**v1.0.2 is the first stable public release.** Install with `npm install -g @odavl/guardian`.
 
-**Try it in 10 minutes:** [Quickstart: Guardian in GitHub Actions](docs/quickstart/CI_GITHUB_ACTION.md)
+The Problem
 
----
+Many websites appear to work correctly while users silently encounter broken interactions:
 
-## The Decision Guardian Makes
+Buttons are clickable but do nothing
 
-Guardian answers one question before every launch:
+Navigation links loop or lead nowhere
 
-> "Will launching this now harm real users or the business?"
+Forms submit without feedback
 
-Guardian observes your website **as a real user would** — navigates pages, fills forms, completes flows — then issues a binding verdict:
+UI toggles change state without changing content
 
-- **READY** (exit 0) → All critical flows work. Safe to deploy.
-- **FRICTION** (exit 1) → Some issues found. Investigate before deploying.
-- **DO_NOT_LAUNCH** (exit 2) → Critical flow is broken. Deployment blocked.
+These failures:
 
-**This verdict cannot be overridden.**
+Do not appear in logs
 
----
+Do not trigger errors
 
-## Status
+Are invisible to analytics
 
-**Version:** 2.0.0 (Stable)  
-**Scope:** Decision Engine (Pre-Launch + Post-Launch Authority)  
-**License:** MIT  
-**Maturity:** Production-ready for CI/CD deployment gating and production monitoring
+Cause users to leave without explanation
 
-Guardian's decision engine is stable and production-ready. All core functionality (observe, decide, report) is in active use.
+What ODAVL Guardian Does
 
----
+ODAVL Guardian:
 
-## How Guardian Is Used
+Opens the target URL in a real browser
 
-- Before launch: blocks deployment when reality is broken
-- After launch: monitors production and alerts when reality breaks
+Interacts with visible user-facing elements
 
-## Watchdog Mode (After Launch)
+Observes actual outcomes (navigation, DOM changes, feedback)
 
-Guardian remains your authority after launch. It continues observing reality, detects when user flows break, and alerts your team immediately.
+Confirms failures through retries and stability checks
 
-**How it works:**
+Reports confirmed silent failures only
 
-1. **Create baseline** from a known-good production state:
-   ```bash
-   guardian reality --url https://example.com --baseline create
-   ```
+It focuses exclusively on what users can see and experience.
 
-2. **Monitor production** — Run Guardian on schedule (cron, GitHub Actions):
-   ```bash
-   guardian reality --url https://example.com --watchdog
-   ```
-   - Silent when everything works
-   - **Alerts on degradation:**
-     - Verdict downgrades (READY → FRICTION, READY → DO_NOT_LAUNCH)
-     - Coverage drops ≥20%
-     - Selector confidence drops ≥0.2
-     - Critical flows that start failing
+What It Does NOT Do
 
-3. **Update baseline** after fixes or intentional changes:
-   ```bash
-   guardian reality --url https://example.com --baseline update
-   ```
-   - Only updates if current verdict is READY
-   - Preserves alert integrity
+ODAVL Guardian does not:
 
-**What Guardian does NOT do:**
-- Does not auto-fix issues
-- Does not deploy patches
-- Does not run continuously (you schedule it)
+Test authentication or authorization flows
 
-**Your responsibility:** Guardian reports what broke. Your team responds.
+Perform security or penetration testing
 
-**Learn more:** `guardian reality --help` (see WATCHDOG MODE section)
+Analyze backend logic or source code
 
-## Verdicts (Non-Negotiable)
+Measure performance or SEO
 
-- READY → Users can complete their critical goals. Safe to deploy.
-- FRICTION → investigate before proceeding
-- DO_NOT_LAUNCH → launch blocked
+Act as a generic test framework
 
-Guardian verdicts cannot be overridden.
+Its scope is intentionally narrow and user-focused.
 
-## What Guardian Is Not
+## Quick Start
 
-- Not a testing tool
-- Not a bug scanner
-- Not a QA replacement
-- Not configurable to force approval
-
-## The Ethical Rule
-
-Guardian never allows READY
-if it cannot defend that decision
-to a real human user.
-
-## Quickstart (CI/CD)
-
-**Want to add Guardian to your deployment pipeline in <10 minutes?**
-
-Start here: **[Quickstart: Guardian in GitHub Actions](docs/quickstart/CI_GITHUB_ACTION.md)**
-
-This guide includes:
-- Minimal GitHub Actions workflow (copy/paste ready)
-- How to interpret verdicts in your pipeline
-- Where artifacts appear and what they mean
-- Troubleshooting common issues
-
-**Example:** [examples/github-action/](examples/github-action/)
-
-## Decision Statement
-
-ODAVL Guardian blocks launches when it cannot defensibly justify that real user reality supports safe deployment.
-
-## Quick Start: The Canonical Command
+Install globally:
 
 ```bash
-guardian reality --url https://example.com
+npm install -g @odavl/guardian
 ```
 
-**This is the only command you need for CI/CD deployment gating.**
-
-Guardian:
-1. Observes your site as real users would
-2. Issues a verdict: READY (exit 0), FRICTION (exit 1), or DO_NOT_LAUNCH (exit 2)
-3. Writes decision.json with full reasoning
-
-Your pipeline respects the exit code. If DO_NOT_LAUNCH, deployment is blocked.
-
-## When Guardian Says No (DO_NOT_LAUNCH)
-
-The flow is blocked. The decision is final. Here's what to do:
-
-1. Review the decision.json file for Guardian's reasons
-2. Fix the broken user flows in production candidate
-3. Rerun Guardian to get a new verdict
-4. Deployment proceeds only when verdict is READY or acceptable FRICTION
-
-**Guardian never forces approval. The authority model is absolute.**
-
-## Understanding Guardian's Output
-
-After Guardian runs, you'll get:
-- **decision.json** — Machine-readable verdict and reasons (use in your pipeline logic)
-- **HTML report** — Human-readable report with screenshots and flow details
-
-[Learn how to read Guardian artifacts](docs/ARTIFACT_ORIENTATION.md)
-
----
-
-## How to Give Feedback
-
-We're learning how release engineers use Guardian. Your feedback shapes future development.
-
-**Report issues or suggest improvements:**
-- [Bug or clarity issue?](https://github.com/odavlstudio/odavlguardian/issues/new?template=clarity.yml)
-- [Adoption blockers?](https://github.com/odavlstudio/odavlguardian/issues/new?template=adoption.yml)
-
-**Tell us:**
-- What worked in the quickstart
-- What was confusing
-- Where the verdict was right or wrong
-- How Guardian fits (or doesn't) in your pipeline
-
-**We do not:**
-- Collect telemetry
-- Track usage
-- Share data with third parties
-
-All feedback stays on GitHub.
-
----
-
-## Quality Gates
-
-Guardian enforces code quality standards before deployment. Run these commands to validate your changes:
+Run against a website:
 
 ```bash
-# Run ESLint code style checks
-npm run lint
-
-# Run TypeScript type checking
-npm run typecheck
-
-# Run all quality checks + tests
-npm run quality
+guardian silent --url https://example.com
 ```
 
-**For contributors:** All quality gates must pass before submitting pull requests. The CI pipeline enforces these checks automatically.
+Or use npx without installation:
 
-### Baseline Quality Guard (Zero Regression Shield)
+```bash
+npx @odavl/guardian silent --url https://example.com
+```
 
-**Current Technical Debt:**
-- ESLint: 220 errors (frozen baseline)
-- TypeScript: 281 errors (frozen baseline)
+**Note:** Guardian requires Playwright browsers. On first run, install them with:
+```bash
+npx playwright install --with-deps chromium
+```
 
-These legacy errors are **intentionally frozen** and do not block development. However, introducing **new** errors is prohibited.
+## How It Works
 
-**How it works:**
+Guardian opens the target URL in a real browser, interacts with visible user-facing elements, and observes actual outcomes (navigation, DOM changes, feedback). It confirms failures through retries and stability checks, reporting only confirmed silent failures.
 
-1. **Baselines capture current state:** Error counts are frozen in [reports/quality-baseline/](reports/quality-baseline/)
-   - `eslint-baseline.json` — 220 errors across 73 files
-   - `typecheck-baseline.json` — 281 errors across 51 files
+## Output
 
-2. **Guard prevents regressions:** Before committing or in CI/PR checks, run:
-   ```bash
-   npm run quality:guard
-   ```
-   - ✅ Passes if error count stays the same or decreases
-   - ❌ Fails if any new errors are introduced
-   - Reports exactly which error categories increased
+Guardian produces a clear console summary with:
 
-3. **Update baselines (maintainers only):** After intentionally fixing errors:
-   ```bash
-   npm run quality:baseline
-   ```
-   This updates the frozen baselines to reflect improvements.
+- Total confirmed silent failures
+- Severity distribution (HIGH / MEDIUM / LOW)
+- Detailed entries for each failure, including interaction type, description, severity, and evidence references
 
-**Philosophy:** Fix legacy errors incrementally without blocking new work. The guard ensures technical debt doesn't grow while we chip away at it.
+**Severity levels:**
+- **HIGH** — critical, above-the-fold interactions
+- **MEDIUM** — visible but less critical elements
+- **LOW** — footer or secondary interactions
 
----
+**Evidence artifacts:**
+- Before/after screenshots for visual confirmation
+- JSON report containing structured failure data, descriptions, severity, and scores
 
-## CI Enforcement & Release Safety
+## Exit Codes
 
-Guardian enforces mandatory quality gates in all CI/CD pipelines. Every push and pull request must pass quality checks before proceeding.
+- `0` - No silent failures found
+- `1` - Silent failures detected
+- `2` - Tool error (invalid URL, browser failure, etc.)
 
-### Mandatory Quality Gates
+## Using Guardian in CI
 
-The CI pipeline runs a dedicated `quality-gates` job that **must pass before any downstream jobs execute**:
+Guardian automatically detects CI environments and suppresses welcome messages. Use it in GitHub Actions:
 
 ```yaml
-quality-gates:
-  ├─ npm ci              # Install exact dependencies
-  ├─ npm test            # Run all tests
-  ├─ npm run quality     # ESLint + TypeScript checks
-  ├─ npm run quality:guard # Prevent regression (new errors)
-  └─ npm audit           # Security advisory (non-blocking)
+name: Check Silent Failures
+
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      
+      - name: Install Guardian
+        run: npm install -g @odavl/guardian
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      
+      - name: Run Guardian
+        env:
+          CI: true
+        run: guardian silent --url https://your-site.com
 ```
 
-**Your PR will be blocked if:**
-- ❌ Any test fails (`npm test`)
-- ❌ ESLint detects style violations (`npm run quality`)
-- ❌ TypeScript detects type errors (`npm run quality`)
-- ❌ New lint/type errors are introduced (`npm run quality:guard`)
+The workflow will:
+- ✅ Pass (exit 0) if no silent failures are found
+- ❌ Fail (exit 1) if silent failures are detected
+- ❌ Fail (exit 2) if Guardian encounters an error
 
-**Your PR will proceed if:**
-- ✅ Security audit finds issues (`npm audit`) — logged but non-blocking
+See `.github/workflows/guardian-silent-example.yml` for a complete example.
 
-### Before Pushing Code
+## Installation
 
-Ensure your changes pass locally:
+### Global Installation (Recommended)
 
 ```bash
-# 1. Run tests
-npm test
-
-# 2. Check code quality (style + types)
-npm run quality
-
-# 3. Verify no regressions
-npm run quality:guard
-
-# 4. Push when all pass ✅
-git push
+npm install -g @odavl/guardian
+guardian silent --url https://example.com
 ```
 
-If `npm run quality:guard` fails, you've introduced new errors. Check the report and fix them before pushing.
+### Using npx (No Installation)
 
-### Current Baselines
+```bash
+npx @odavl/guardian silent --url https://example.com
+```
 
-The mandatory quality gates enforce these frozen error counts:
+### Local Installation
 
-- **ESLint:** 172 errors (across 72 files)
-- **TypeScript:** 280 errors (across 51 files)
+```bash
+npm install @odavl/guardian
+npx guardian silent --url https://example.com
+```
 
-These baselines are **intentionally not zero** to allow incremental improvement. Your changes must not *increase* these counts.
+**Note:** Guardian requires Playwright browsers. On first run, install them with:
+```bash
+npx playwright install --with-deps chromium
+```
 
-### Workflow Integration
+## Versioning
 
-All Guardian workflows enforce these gates:
+ODAVL Guardian follows [Semantic Versioning](https://semver.org/).
 
-- **[guardian.yml](.github/workflows/guardian.yml)** — Main CI (all pushes, PRs, releases)
-- **[guardian-pr-gate.yml](.github/workflows/guardian-pr-gate.yml)** — PR-specific checks
-- **[guardian-nightly.yml](.github/workflows/guardian-nightly.yml)** — Production monitoring
+### Breaking Changes
 
----
+Breaking changes are indicated by a major version bump (e.g., 1.0.2 → 2.0.0). Breaking changes may include:
 
-## Learn More
+- Changes to exit code behavior
+- Changes to JSON report structure
+- Removal of CLI flags or commands
+- Changes to config file format
+- Changes to minimum Node.js version requirements
 
-- [Product Definition (ONE_LINER)](docs/ground-truth/ONE_LINER.md)
-- [Core Promise](docs/ground-truth/CORE_PROMISE.md)
-- [Full Technical Docs](docs/README.technical.md)
+Non-breaking changes (minor/patch versions) include:
+- New optional features
+- New CLI flags (backward compatible)
+- Bug fixes
+- Performance improvements
+
+See [CHANGELOG.md](./CHANGELOG.md) for detailed version history.
+
+## Philosophy
+
+ODAVL Guardian tests reality as users experience it. It simulates real interactions and observes genuine responses, focusing on observable effects rather than implementation details. This approach surfaces failures that users encounter but automated tests often miss.
