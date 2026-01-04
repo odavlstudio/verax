@@ -1,14 +1,10 @@
 # ODAVL Guardian — Silent Failure Detector
 
-ODAVL Guardian detects silent user failures by interacting with websites as real users do and reporting interactions that produce no observable effect.
+ODAVL Guardian is a public CLI tool that detects silent user failures by interacting with websites as real users do and reporting interactions that produce no observable effect.
 
 **v1.0.2 is the first stable public release.** Install with `npm install -g @odavl/guardian`.
 
-## About This Repository
-
-This repository contains the source code and development history for ODAVL Guardian. The npm package (`@odavl/guardian`) is the public product—end users only need the CLI and this README.
-
-This repository also contains internal development materials, historical documentation, and validation runs in the `_internal/` folder. These materials are not required for using ODAVL Guardian and are maintained for development purposes only.
+The npm package (`@odavl/guardian`) and this README are the complete public interface. Everything you need to use ODAVL Guardian is documented here.
 
 The Problem
 
@@ -203,6 +199,25 @@ Non-breaking changes (minor/patch versions) include:
 - Performance improvements
 
 See [CHANGELOG.md](./CHANGELOG.md) for detailed version history.
+
+## Repository Structure
+
+This repository contains:
+
+**Public Product (What You Need):**
+- `bin/` - CLI executable
+- `src/` - Source code
+- `package.json` - Package configuration
+- `README.md` - This file (complete documentation)
+- `CHANGELOG.md` - Version history
+- `LICENSE` - MIT License
+
+**Internal Materials (Not Required):**
+- `_internal/` - Internal development materials, historical documentation, and validation data
+- `docs/` - Additional documentation (may reference internal processes)
+- `validation-runs/` - Historical validation test runs
+
+End users only need the npm package and this README. Internal folders are maintained for development purposes and can be safely ignored.
 
 ## Philosophy
 

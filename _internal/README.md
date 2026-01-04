@@ -2,27 +2,31 @@
 
 This directory contains internal development materials, historical documentation, and validation data.
 
-**These materials are NOT required for using ODAVL Guardian.**
+**These materials are NOT required for using ODAVL Guardian. End users should ignore this directory.**
 
 ## For End Users
 
-If you're using ODAVL Guardian, you only need:
-- The npm package: `@odavl/guardian`
-- The main [README.md](../README.md)
+ODAVL Guardian is a public CLI tool. To use it, you only need:
 
-The public interface is the CLI:
+- **npm package**: `@odavl/guardian`
+- **Main documentation**: [README.md](../README.md)
+
+Install and use:
 ```bash
 npm install -g @odavl/guardian
 guardian silent --url https://example.com
 ```
 
+That's it. Everything else in this repository is internal and not part of the public product.
+
 ## Contents
 
 This directory may contain:
-- Historical documentation and notes
-- Internal development tools
-- Validation datasets and runs
+- Historical documentation and development notes
+- Internal development tools and scripts
+- Validation datasets and test runs
 - Experimental features and prototypes
+- Internal audit reports and metrics
 
-These materials are preserved for development purposes and may reference deprecated or experimental features that are not part of the public API.
+These materials are preserved for development and historical purposes. They may reference deprecated features, experimental code, or internal processes that are not part of the public API or CLI interface.
 
