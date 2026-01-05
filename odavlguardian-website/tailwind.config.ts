@@ -33,7 +33,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-geist)', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
         tighter: '-0.02em',
