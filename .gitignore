@@ -33,3 +33,7 @@ real-test-output.log
 .phase3-test/
 artifacts/LATEST.json
 artifacts/list_output.txt
+
+# Runtime artifact directories (generated markdown files should not be committed)
+test/.test-equiv-output/
+extension/.odavlguardian/
