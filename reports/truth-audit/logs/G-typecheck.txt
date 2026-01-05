@@ -1,3 +1,0 @@
-src/guardian/reality.js(189,1): error TS1128: Declaration or statement expected.
-
-EXIT_CODE: 2
