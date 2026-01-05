@@ -1,3 +1,0 @@
-{"id":"navigate_home","type":"navigate","target":"http://localhost:9876","status":"success","startedAt":"2025-12-30T19:09:40.223Z","endedAt":"2025-12-30T19:09:40.235Z","retries":0,"screenshots":[]}
-{"id":"cta_get_started","type":"navigate","target":"","status":"success","error":null,"startedAt":"2025-12-30T19:09:40.296Z","endedAt":"2025-12-30T19:09:40.305Z","retries":0,"screenshots":[]}
-{"id":"cta_contact","type":"navigate","target":"http://localhost:9876/contact","status":"success","error":null,"startedAt":"2025-12-30T19:09:40.305Z","endedAt":"2025-12-30T19:09:40.313Z","retries":0,"screenshots":[]}
