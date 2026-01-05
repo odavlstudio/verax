@@ -1,6 +1,6 @@
 {
   "name": "@odavl/guardian",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Detects silent user failures on websites by interacting with elements and reporting interactions that produce no observable effect.",
   "license": "MIT",
   "author": "ODAVL",
@@ -20,8 +20,8 @@
     "node": ">=18.0.0"
   },
   "bin": {
-    "guardian": "./bin/guardian.js",
-    "odavl-guardian": "./bin/guardian.js"
+    "guardian": "bin/guardian.js",
+    "odavl-guardian": "bin/guardian.js"
   },
   "files": [
     "bin/",
@@ -30,7 +30,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node test/severity.test.js && node test/result-aggregation.test.js && node test/exit-codes.test.js && npx mocha test/integration.test.js --timeout 30000",
+    "test": "node test/severity.test.js && node test/result-aggregation.test.js && node test/exit-codes.test.js && node test/mode-default.test.js && node test/confidence.test.js && node test/diff.test.js && node test/flake-risk.test.js && node test/profile-default.test.js && node test/decision-authority.test.js && node test/deduplication.test.js && node test/cli-version.test.js && node test/cli-help.test.js && npx mocha test/integration.test.js --timeout 30000",
     "build": "echo 'No build required - JavaScript package'",
     "lint": "eslint bin/ src/",
     "lint:fix": "eslint bin/ src/ --fix",
