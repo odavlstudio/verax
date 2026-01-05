@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
-import { Geist } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 
-const geist = Geist({
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-geist',
 });
 
 export const metadata: Metadata = {
@@ -26,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={geist.variable}>
-      <body className="min-h-screen">{children}</body>
+    <html lang="en">
+      <body className={`min-h-screen ${inter.className}`}>{children}</body>
     </html>
   );
 }
