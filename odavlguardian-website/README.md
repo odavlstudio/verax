@@ -22,7 +22,7 @@ Premium landing page for ODAVL Guardian built with Next.js, Tailwind CSS, and Fr
 - **Animated Background**: Floating gradient blobs with noise overlay
 - **Responsive Design**: Mobile-first, fully responsive layout
 - **Framer Motion**: Smooth scroll animations and interactive elements
-- **Geist Font**: Modern typography with next/font
+- **Inter Font**: Modern typography with next/font/google
 - **Performance Optimized**: Server components where possible
 
 ## Tech Stack
