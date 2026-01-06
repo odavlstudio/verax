@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head><title>No Change</title></head>
+<body>
+  <div id="status">Stable</div>
+  <button id="noop">Do Nothing</button>
+  <script>
+    document.getElementById('noop').addEventListener('click', () => {
+      // Intentionally no DOM updates to keep the page stable during settle window
+    });
+  </script>
+</body>
+</html>

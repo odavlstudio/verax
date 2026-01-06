@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><title>Buttons and Forms Test</title></head>
+<body>
+  <h1>Test Page</h1>
+  <button id="broken-button" onclick="event.preventDefault(); return false;">Broken Button</button>
+  <button id="working-button" onclick="document.getElementById('result').textContent='Clicked'">Working Button</button>
+  <div id="result"></div>
+  
+  <form id="test-form">
+    <input type="text" name="email" />
+    <button type="submit" id="submit-btn" data-testid="form-submit">Submit Form</button>
+  </form>
+  
+  <input type="button" id="input-button" value="Input Button" />
+  <div role="button" id="role-button" aria-label="Role Button">Role Button</div>
+</body>
+</html>
+
