@@ -1,52 +1,21 @@
 {
-  "name": "@odavl/guardian",
-  "version": "1.0.2",
-  "description": "Detects silent user failures on websites by interacting with elements and reporting interactions that produce no observable effect.",
-  "license": "MIT",
-  "author": "ODAVL",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/odavlstudio/odavlguardian.git"
-  },
-  "keywords": [
-    "silent-failures",
-    "website-testing",
-    "e2e-testing",
-    "browser-automation",
-    "playwright",
-    "interaction-testing"
-  ],
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "name": "@verax/verax",
+  "version": "0.1.0",
+  "description": "VERAX - Silent failure detection for websites",
+  "type": "module",
   "bin": {
-    "guardian": "bin/guardian.js",
-    "odavl-guardian": "bin/guardian.js"
+    "verax": "./bin/verax.js"
   },
-  "files": [
-    "bin/",
-    "src/",
-    "README.md",
-    "LICENSE"
-  ],
   "scripts": {
-    "test": "node test/severity.test.js && node test/result-aggregation.test.js && node test/exit-codes.test.js && node test/mode-default.test.js && node test/confidence.test.js && node test/diff.test.js && node test/flake-risk.test.js && node test/profile-default.test.js && node test/decision-authority.test.js && node test/deduplication.test.js && node test/cli-version.test.js && node test/cli-help.test.js && npx mocha test/integration.test.js --timeout 30000",
-    "build": "echo 'No build required - JavaScript package'",
-    "lint": "eslint bin/ src/",
-    "lint:fix": "eslint bin/ src/ --fix",
-    "typecheck": "tsc --noEmit"
+    "test": "node --test test/learn.test.js test/observe.test.js test/detect.test.js test/static-learn.test.js test/static-detect.test.js test/observe-boundary.test.js test/static-buttons-detect.test.js test/spa-support.test.js test/scan-summary.test.js test/route-validation.test.js test/skip-reasons.test.js test/observe-stabilization.test.js test/observe-coverage.test.js"
   },
   "dependencies": {
-    "playwright": "^1.48.2"
+    "glob": "^10.3.10",
+    "inquirer": "^9.2.15",
+    "node-html-parser": "^7.0.1",
+    "playwright": "^1.40.0"
   },
-  "devDependencies": {
-    "@types/node": "^25.0.3",
-    "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1",
-    "eslint": "^9.39.2",
-    "glob": "^13.0.0",
-    "globals": "^17.0.0",
-    "mocha": "^11.7.5",
-    "typescript": "^5.9.3"
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

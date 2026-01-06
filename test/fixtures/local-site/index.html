@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Site - Local</title>
+</head>
+<body>
+    <h1>Test Website</h1>
+    <nav>
+        <a href="/about.html" id="working-link">About Us</a>
+        <a href="/contact.html" id="working-link-2">Contact</a>
+    </nav>
+    <main>
+        <button id="broken-button" onclick="return false;">Go to Home</button>
+        <button id="working-button" onclick="window.location.href='#section1'">Go to Section</button>
+        <form id="broken-form" onsubmit="return false;">
+            <input type="text" name="email" placeholder="Email">
+            <button type="submit">Subscribe</button>
+        </form>
+    </main>
+</body>
+</html>
+

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Async Update</title></head>
+<body>
+  <div id="status">Original</div>
+  <button id="delayed-update">Trigger Update</button>
+  <script>
+    document.getElementById('delayed-update').addEventListener('click', () => {
+      setTimeout(() => {
+        document.getElementById('status').textContent = 'Updated after delay';
+      }, 700);
+    });
+  </script>
+</body>
+</html>

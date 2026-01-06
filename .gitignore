@@ -10,12 +10,14 @@ coverage/
 *.log
 *.tgz
 
-# Guardian artifacts
+# VERAX artifacts - isolation at all levels
+**/.verax/
+.verax/
+
+# Artifacts directory
 artifacts/
 test-artifacts/
 test-output/
-.guardian/
-.odavl-guardian/
 tmp-artifacts/
 tmp-*
 tmp-live/
@@ -28,12 +30,7 @@ website/.next/
 playwright-report/
 trace.zip
 real-test-output.log
-.odavl-guardian/
-.odavlguardian/
-.phase3-test/
-artifacts/LATEST.json
-artifacts/list_output.txt
 
 # Runtime artifact directories (generated markdown files should not be committed)
 test/.test-equiv-output/
-extension/.odavlguardian/
+extension/.verax/

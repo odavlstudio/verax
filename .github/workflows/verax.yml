@@ -1,0 +1,98 @@
+name: VERAX Scan
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verax-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install chromium
+      
+      - name: Run VERAX scan
+        if: env.VERAX__URL != ''
+        env:
+          VERAX__URL: ${{ secrets.VERAX__URL || '' }}
+        run: |
+          node bin/verax.js --url "$VERAX__URL"
+      
+      - name: VERAX skipped
+        if: env.VERAX__URL == ''
+        run: |
+          echo "VERAX skipped: no URL provided"
+          echo "Set VERAX__URL secret or pass URL to enable scanning"
+      
+      - name: Print Truth Summary
+        if: always() && env.VERAX__URL != ''
+        run: |
+          if [ -f ".verax/scan/scan-summary.json" ]; then
+            node -e "
+              const fs = require('fs');
+              const summary = JSON.parse(fs.readFileSync('.verax/scan/scan-summary.json', 'utf-8'));
+              const t = summary.truth;
+              
+              console.log('\n========== VERAX Truth Summary ==========');
+              console.log('Project Type: ' + summary.projectType);
+              console.log('URL: ' + summary.url);
+              console.log('');
+              console.log('Learn:');
+              console.log('  Routes: ' + t.learn.routesDiscovered + ' (confidence: ' + t.learn.routesConfidence + ', source: ' + t.learn.routesSource + ')');
+              console.log('  Expectations: ' + t.learn.expectationsDiscovered + ' (strong: ' + t.learn.expectationsStrong + ', weak: ' + t.learn.expectationsWeak + ')');
+              if (t.learn.validation) {
+                console.log('  Validation: ' + t.learn.validation.routesReachable + ' reachable, ' + t.learn.validation.routesUnreachable + ' unreachable');
+              }
+              if (t.learn.warnings && t.learn.warnings.length > 0) {
+                console.log('  Warnings: ' + t.learn.warnings.map(w => w.code).join(', '));
+              }
+              if (t.learn.limitations && t.learn.limitations.length > 0) {
+                console.log('  Limitations: ' + t.learn.limitations.map(l => l.code).join(', '));
+              }
+              console.log('');
+              console.log('Observe:');
+              console.log('  Interactions: ' + t.observe.interactionsObserved);
+              console.log('  External blocked: ' + t.observe.externalNavigationBlockedCount);
+              console.log('  Timeouts: ' + t.observe.timeoutsCount);
+              console.log('  Settle changed: ' + t.observe.settleChangedCount);
+              if (t.observe.coverage) {
+                console.log('  Coverage: ' + t.observe.coverage.candidatesSelected + '/' + t.observe.coverage.candidatesDiscovered + ' (cap: ' + t.observe.coverage.cap + (t.observe.coverage.capped ? ', capped)' : ')'));
+              }
+              if (t.observe.warnings && t.observe.warnings.length > 0) {
+                console.log('  Warnings: ' + t.observe.warnings.map(w => w.code).join(', '));
+              }
+              console.log('');
+              console.log('Detect:');
+              console.log('  Findings: ' + t.detect.findingsCount);
+              console.log('  Analyzed: ' + t.detect.interactionsAnalyzed);
+              console.log('  Skipped: ' + t.detect.interactionsSkippedNoExpectation);
+              if (t.detect.skips && t.detect.skips.reasons && t.detect.skips.reasons.length > 0) {
+                const reasons = t.detect.skips.reasons.map(r => r.code + '=' + r.count).join(', ');
+                console.log('  Skip reasons: ' + reasons);
+              }
+              console.log('');
+              console.log('Artifacts: .verax/');
+              console.log('=============================================\n');
+            "
+          else
+            echo "Scan summary not found"
+          fi
+      
+      - name: Upload VERAX artifacts
+        if: always() && env.VERAX__URL != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: odavlverax-scan
+          path: .verax/
+          retention-days: 30

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>React SPA Test</title>
+</head>
+<body>
+  <div id="root">
+    <div id="home-view">
+      <h1>Home</h1>
+      <nav>
+        <a href="/about" id="about-link">About</a>
+        <a href="/about" id="broken-about-link" onclick="event.preventDefault(); return false;">Broken About</a>
+      </nav>
+    </div>
+  </div>
+  <script>
+    let currentView = 'home';
+    
+    function renderView(view) {
+      const root = document.getElementById('root');
+      if (view === 'home') {
+        root.innerHTML = `
+          <div id="home-view">
+            <h1>Home</h1>
+            <nav>
+              <a href="/about" id="about-link">About</a>
+              <a href="/about" id="broken-about-link">Broken About</a>
+            </nav>
+          </div>
+        `;
+        document.getElementById('about-link').addEventListener('click', (e) => {
+          e.preventDefault();
+          currentView = 'about';
+          renderView('about');
+        });
+        document.getElementById('broken-about-link').addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        });
+      } else if (view === 'about') {
+        root.innerHTML = `
+          <div id="about-view">
+            <h1>About</h1>
+            <p>This is the about page</p>
+            <a href="/" id="home-link">Home</a>
+          </div>
+        `;
+        document.getElementById('home-link').addEventListener('click', (e) => {
+          e.preventDefault();
+          currentView = 'home';
+          renderView('home');
+        });
+      } else if (view === 'broken') {
+        root.innerHTML = `
+          <div id="broken-view">
+            <h1>Broken View</h1>
+            <p>This should not appear</p>
+          </div>
+        `;
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      renderView('home');
+    });
+  </script>
+</body>
+</html>
+

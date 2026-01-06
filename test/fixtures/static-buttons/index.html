@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>Static Buttons Test</title></head>
+<body>
+  <h1>Test Page</h1>
+  
+  <button id="broken-button" data-href="/pricing.html" onclick="event.preventDefault(); return false;">Broken Button</button>
+  <button id="working-button" data-href="/about.html">Working Button</button>
+  <button id="generic-button">Generic Button</button>
+  
+  <form id="broken-form" action="/submit.html" onsubmit="event.preventDefault(); return false;">
+    <input type="text" name="email" />
+    <button type="submit" id="broken-submit">Submit</button>
+  </form>
+  
+  <form id="working-form" action="/success.html">
+    <input type="text" name="name" />
+    <button type="submit" id="working-submit">Submit</button>
+  </form>
+</body>
+</html>
+
