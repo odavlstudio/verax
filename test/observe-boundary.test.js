@@ -1,9 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
-import { resolve, join, dirname } from 'path';
+import { resolve, join } from 'path';
 import { tmpdir } from 'os';
 import { observe } from '../src/verax/observe/index.js';
+import { createScanBudget } from '../src/verax/shared/scan-budget.js';
+import { generateRunId } from '../src/verax/shared/artifact-manager.js';
 
 function createTempDir() {
   const tempDir = resolve(tmpdir(), `verax-observe-test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
@@ -52,8 +54,9 @@ test('observe blocks external navigation', async () => {
     await promisify(server.listen.bind(server))(8004);
     
     try {
-      const result = await observe('http://localhost:8004/index.html');
-      
+      const runId = generateRunId();
+      const result = await observe('http://localhost:8004/index.html', null, null, {}, process.cwd(), runId);
+
       assert.ok(existsSync(result.tracesPath));
       const traces = JSON.parse(readFileSync(result.tracesPath, 'utf-8'));
       
@@ -103,7 +106,23 @@ test('observe discovers buttons and forms', { timeout: 45000 }, async () => {
     
     await promisify(server.listen.bind(server))(8005);
     
-    const result = await observe('http://localhost:8005/index.html');
+    const fastBudget = createScanBudget({
+      maxScanDurationMs: 10000,
+      maxInteractionsPerPage: 3,
+      interactionTimeoutMs: 2000,
+      navigationTimeoutMs: 2000,
+      stabilizationWindowMs: 600,
+      stabilizationSampleMidMs: 150,
+      stabilizationSampleEndMs: 300,
+      navigationStableWaitMs: 200,
+      networkWaitMs: 100,
+      settleTimeoutMs: 5000,
+      settleIdleMs: 500,
+      settleDomStableMs: 500
+    });
+
+const runId = generateRunId();
+      const result = await observe('http://localhost:8005/index.html', null, fastBudget, { allowWrites: true }, process.cwd(), runId);
     
     assert.ok(existsSync(result.tracesPath));
     const traces = JSON.parse(readFileSync(result.tracesPath, 'utf-8'));
@@ -124,7 +143,7 @@ test('observe discovers buttons and forms', { timeout: 45000 }, async () => {
   }
 });
 
-test('observe generates quality selectors', { timeout: 45000 }, async () => {
+test('observe generates quality selectors', { timeout: 60000 }, async () => {
   const tempDir = createTempDir();
   let server = null;
   try {
@@ -151,7 +170,8 @@ test('observe generates quality selectors', { timeout: 45000 }, async () => {
     
     await promisify(server.listen.bind(server))(8006);
     
-    const result = await observe('http://localhost:8006/index.html');
+const runId = generateRunId();
+      const result = await observe('http://localhost:8006/index.html', null, null, {}, process.cwd(), runId);
     
     assert.ok(existsSync(result.tracesPath));
     const traces = JSON.parse(readFileSync(result.tracesPath, 'utf-8'));

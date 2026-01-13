@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "scannedAt": "2026-01-08T22:12:18.154Z",
+  "url": "http://localhost:3457",
+  "projectType": "simple-html",
+  "expectationsSummary": {
+    "total": 2,
+    "navigation": 2,
+    "networkActions": 0,
+    "stateActions": 0
+  },
+  "truth": {
+    "learn": {
+      "routesDiscovered": 2,
+      "routesSource": "static_html",
+      "routesConfidence": "HIGH",
+      "expectationsDiscovered": 2,
+      "expectationsStrong": 2,
+      "expectationsWeak": 0,
+      "warnings": [],
+      "limitations": [],
+      "validation": {
+        "routesValidated": 0,
+        "routesReachable": 0,
+        "routesUnreachable": 0,
+        "details": [],
+        "warnings": []
+      }
+    },
+    "observe": {
+      "interactionsObserved": 0,
+      "externalNavigationBlockedCount": 0,
+      "timeoutsCount": 0,
+      "settleChangedCount": 0,
+      "coverage": {
+        "candidatesDiscovered": 0,
+        "candidatesSelected": 0,
+        "cap": 30,
+        "capped": false
+      }
+    },
+    "detect": {
+      "interactionsAnalyzed": 0,
+      "interactionsSkippedNoExpectation": 0,
+      "findingsCount": 0,
+      "findingsFromProven": 0,
+      "coverageGapsCount": 2,
+      "skips": {
+        "total": 0,
+        "reasons": [],
+        "examples": []
+      }
+    }
+  },
+  "paths": {
+    "manifest": "C:\\Users\\sabou\\verax\\test\\fixtures\\expectation-test\\manifest.json",
+    "traces": "C:\\Users\\sabou\\verax\\test\\.veraxverax\\observe\\observation-traces.json",
+    "findings": "C:\\Users\\sabou\\verax\\test\\fixtures\\expectation-test\\.veraxverax\\detect\\findings.json"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "react-router-test-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-router-dom": "^6.0.0"
+  }
+}

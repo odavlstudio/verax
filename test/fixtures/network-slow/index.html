@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Network Slow</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    button { padding: 10px 16px; }
+  </style>
+</head>
+<body>
+  <h1>Network Slow Fixture</h1>
+  <p>Click to trigger a slow request with no feedback.</p>
+  <button id="slowBtn">Trigger Slow</button>
+  <script>
+    const btn = document.getElementById('slowBtn');
+    btn.addEventListener('click', async () => {
+      try {
+        await fetch('/api/slow');
+      } catch (err) {
+        console.error('Network error', err);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VERAX Static HTML Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 { color: #333; }
+    .section {
+      margin: 20px 0;
+      padding: 10px;
+      border-left: 4px solid #007bff;
+      background: #f8f9fa;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+      margin: 10px 5px 10px 0;
+      display: inline-block;
+      padding: 8px 12px;
+      background: #e7f3ff;
+      border-radius: 4px;
+    }
+    a:hover {
+      background: #d0e4ff;
+    }
+    .broken {
+      color: #dc3545;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>VERAX Demo: Static HTML</h1>
+    
+    <div class="section">
+      <h2>What This Demo Shows</h2>
+      <p>This page intentionally includes a <span class="broken">silent failure</span> for VERAX to detect.</p>
+      <p>The "Products" link promises navigation but has no actual href attribute.</p>
+    </div>
+
+    <div class="section">
+      <h2>Navigation Links</h2>
+      <p>These links should work correctly:</p>
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </div>
+
+    <div class="section">
+      <h2>Silent Failure Example (Intentional)</h2>
+      <p>This link promises navigation but fails silently:</p>
+      <!-- INTENTIONAL SILENT FAILURE: JavaScript prevents default and does nothing -->
+      <a href="/products" id="broken-link">Products</a>
+      <p style="color: #666; font-size: 12px;">
+        Code says: &lt;a href="/products"&gt;Products&lt;/a&gt; (with href)<br>
+        Promise: User expects navigation to /products<br>
+        Reality: JavaScript prevents default and does nothing<br>
+        VERAX should detect this as a silent-failure finding
+      </p>
+    </div>
+    <script>
+      // INTENTIONAL SILENT FAILURE: Prevent default and do nothing observable
+      document.getElementById('broken-link').addEventListener('click', function(event) {
+        event.preventDefault();
+        // Does nothing - no navigation, no DOM update, no feedback
+      });
+    </script>
+
+    <div class="section">
+      <h2>How to Run VERAX on This Demo</h2>
+      <pre style="background: #333; color: #0f0; padding: 10px; border-radius: 4px; overflow-x: auto;">
+# Navigate to demo directory
+cd demos/demo-static
+
+# Install VERAX (if not already installed)
+npm install -g @veraxhq/verax
+
+# Run VERAX
+verax run --url file://$(pwd)/index.html --src . --out .verax
+      </pre>
+    </div>
+  </div>
+</body>
+</html>

@@ -4,6 +4,7 @@ import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
 import { resolve, join, dirname } from 'path';
 import { tmpdir } from 'os';
 import { observe } from '../src/verax/observe/index.js';
+import { generateRunId } from '../src/verax/shared/artifact-manager.js';
 
 function createTempDir() {
   const tempDir = resolve(tmpdir(), `verax-observe-test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
@@ -34,11 +35,12 @@ test('observe creates observation-traces.json', async () => {
     `.trim());
     
     const url = `file://${htmlFile.replace(/\\/g, '/')}`;
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
+    const runId = generateRunId();
+    const manifestPath = join(tempDir, 'manifest.json');
     mkdirSync(dirname(manifestPath), { recursive: true });
     writeFileSync(manifestPath, JSON.stringify({ version: 1, projectDir: tempDir }));
     
-    const observation = await observe(url, manifestPath);
+    const observation = await observe(url, manifestPath, null, {}, tempDir, runId);
     
     assert.ok(existsSync(observation.tracesPath));
     const tracesContent = JSON.parse(readFileSync(observation.tracesPath, 'utf-8'));
@@ -68,11 +70,12 @@ test('observe captures screenshots', async () => {
     `.trim());
     
     const url = `file://${htmlFile.replace(/\\/g, '/')}`;
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
+    const runId = generateRunId();
+    const manifestPath = join(tempDir, 'manifest.json');
     mkdirSync(dirname(manifestPath), { recursive: true });
     writeFileSync(manifestPath, JSON.stringify({ version: 1, projectDir: tempDir }));
     
-    const observation = await observe(url, manifestPath);
+    const observation = await observe(url, manifestPath, null, {}, tempDir, runId);
     
     assert.ok(existsSync(observation.screenshotsDir));
     const screenshots = readFileSync(observation.tracesPath, 'utf-8');
@@ -99,11 +102,12 @@ test('observe records interaction traces', async () => {
     `.trim());
     
     const url = `file://${htmlFile.replace(/\\/g, '/')}`;
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
+    const runId = generateRunId();
+    const manifestPath = join(tempDir, 'manifest.json');
     mkdirSync(dirname(manifestPath), { recursive: true });
     writeFileSync(manifestPath, JSON.stringify({ version: 1, projectDir: tempDir }));
     
-    const observation = await observe(url, manifestPath);
+    const observation = await observe(url, manifestPath, null, {}, tempDir, runId);
     
     const tracesContent = JSON.parse(readFileSync(observation.tracesPath, 'utf-8'));
     assert.ok(tracesContent.traces.length >= 0);
@@ -140,11 +144,12 @@ test('observe handles empty page gracefully', async () => {
     `.trim());
     
     const url = `file://${htmlFile.replace(/\\/g, '/')}`;
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
+    const runId = generateRunId();
+    const manifestPath = join(tempDir, 'manifest.json');
     mkdirSync(dirname(manifestPath), { recursive: true });
     writeFileSync(manifestPath, JSON.stringify({ version: 1, projectDir: tempDir }));
     
-    const observation = await observe(url, manifestPath);
+    const observation = await observe(url, manifestPath, null, {}, tempDir, runId);
     
     assert.ok(existsSync(observation.tracesPath));
     const tracesContent = JSON.parse(readFileSync(observation.tracesPath, 'utf-8'));

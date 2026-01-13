@@ -1,0 +1,23 @@
+{
+  "projectName": "flow-test",
+  "projectType": "simple-html",
+  "projectDir": "C:\\Users\\sabou\\verax\\test\\flow-intelligence-direct-test",
+  "staticExpectations": [
+    {
+      "type": "navigation",
+      "fromPath": "/",
+      "targetPath": "/step2",
+      "evidence": {
+        "selectorHint": "a#step1-link"
+      }
+    },
+    {
+      "type": "navigation",
+      "fromPath": "/step2",
+      "targetPath": "/api/data",
+      "evidence": {
+        "selectorHint": "button#api-button"
+      }
+    }
+  ]
+}

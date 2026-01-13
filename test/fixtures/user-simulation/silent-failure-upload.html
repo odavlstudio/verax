@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <form id="broken-upload-form" action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" id="broken-file-input" name="file">
+    <button type="submit">Upload</button>
+  </form>
+  <script>
+    document.getElementById('broken-upload-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Form submitted but no feedback, no network request, no DOM change
+      Promise.resolve().then(() => {});
+    });
+  </script>
+</body>
+</html>

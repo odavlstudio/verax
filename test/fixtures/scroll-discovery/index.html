@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll Discovery Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      height: 3000px;
+      background: linear-gradient(to bottom, #f0f0f0, #ffffff);
+    }
+    .section {
+      margin-bottom: 600px;
+      padding: 20px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    h1 {
+      margin-top: 0;
+    }
+    a {
+      display: inline-block;
+      padding: 10px 20px;
+      margin-top: 10px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    a:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <section class="section">
+    <h1>Section 1: Above Fold</h1>
+    <p>This link is visible above the fold.</p>
+    <a href="/">Home</a>
+  </section>
+
+  <section class="section">
+    <h1>Section 2: Requires Scroll (50%)</h1>
+    <p>This link requires scrolling to 50% of page to discover.</p>
+    <a href="/about" id="mid-link">About Us</a>
+  </section>
+
+  <section class="section">
+    <h1>Section 3: Requires More Scroll (75%)</h1>
+    <p>This link requires scrolling to 75% of page to discover.</p>
+    <a href="/services" id="lower-link">Services</a>
+  </section>
+
+  <section class="section">
+    <h1>Section 4: Bottom of Page (100%)</h1>
+    <p>This link is at the bottom of the page.</p>
+    <a href="/contact" id="bottom-link">Contact</a>
+  </section>
+</body>
+</html>

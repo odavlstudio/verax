@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "detectedAt": "2026-01-09T14:55:49.943Z",
+  "url": "http://127.0.0.1:4190",
+  "findings": [],
+  "coverageGaps": [
+    {
+      "expectationId": null,
+      "type": "navigation",
+      "reason": "UNPROVEN_EXPECTATION",
+      "source": null,
+      "interaction": {
+        "type": "button",
+        "selector": "button#api-button",
+        "label": "Fetch Data"
+      },
+      "metadata": {
+        "proof": "none",
+        "expectationType": "navigation",
+        "targetPath": "/api/data"
+      }
+    }
+  ],
+  "notes": []
+}

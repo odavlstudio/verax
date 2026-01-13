@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Nav Broken</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    button { padding: 10px 16px; background: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <h1>Navigation Broken Fixture</h1>
+  <p>Click will call router.push('/target') but navigation fails silently.</p>
+  <button id="navBtn">Go to Target</button>
+  
+  <script>
+    // Simulate SPA router that fails silently
+    const router = {
+      push: function(path) {
+        // Simulate broken navigation - doesn't actually navigate
+        console.log('router.push called with:', path);
+        // Navigation fails silently - no error, no UI feedback, no actual navigation
+      }
+    };
+    
+    document.getElementById('navBtn').addEventListener('click', () => {
+      router.push('/target');
+      // No feedback to user that navigation failed
+    });
+  </script>
+</body>
+</html>

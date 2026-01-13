@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Filling Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    form {
+      background: white;
+      padding: 30px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .dangerous {
+      border-left: 4px solid #dc3545;
+    }
+    .dangerous h2 {
+      color: #dc3545;
+    }
+    .dangerous button {
+      background: #dc3545;
+    }
+    .success-message {
+      display: none;
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      border: 1px solid #c3e6cb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Form Filling Test Fixtures</h1>
+
+    <!-- Safe Form 1: Newsletter Signup -->
+    <form id="newsletter-form" method="POST" action="/subscribe">
+      <h2>Newsletter Signup</h2>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="fullname">Full Name</label>
+        <input type="text" id="fullname" name="fullname" required>
+      </div>
+      <div class="form-group">
+        <label for="frequency">Email Frequency</label>
+        <select id="frequency" name="frequency">
+          <option value="">-- Select Frequency --</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="daily">Daily</option>
+        </select>
+      </div>
+      <button type="submit">Subscribe</button>
+    </form>
+
+    <!-- Safe Form 2: Contact Form -->
+    <form id="contact-form" method="POST" action="/contact">
+      <h2>Contact Us</h2>
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" required>
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required></textarea>
+      </div>
+      <button type="submit">Send Message</button>
+    </form>
+
+    <!-- Dangerous Form: Payment (should be skipped) -->
+    <form id="payment-form" method="POST" action="/process-payment" class="dangerous">
+      <h2>Payment Information</h2>
+      <div class="form-group">
+        <label for="cardname">Cardholder Name</label>
+        <input type="text" id="cardname" name="cardname" required>
+      </div>
+      <div class="form-group">
+        <label for="cardnumber">Credit Card Number</label>
+        <input type="text" id="cardnumber" name="cardnumber" placeholder="0000 0000 0000 0000" required>
+      </div>
+      <div class="form-group">
+        <label for="cvv">CVV</label>
+        <input type="text" id="cvv" name="cvv" placeholder="000" required>
+      </div>
+      <button type="submit">Process Payment</button>
+    </form>
+
+    <!-- Dangerous Form: Account Deletion (should be skipped) -->
+    <form id="delete-form" method="POST" action="/delete-account" class="dangerous">
+      <h2>Delete Account</h2>
+      <p style="color: #dc3545; font-weight: bold;">Warning: This action cannot be undone!</p>
+      <div class="form-group">
+        <label for="confirm-email">Confirm your email</label>
+        <input type="email" id="confirm-email" name="email" required>
+      </div>
+      <div class="form-group">
+        <input type="checkbox" id="confirm-delete" name="confirm" required>
+        <label for="confirm-delete" style="display: inline; font-weight: normal;">I understand this will permanently delete my account</label>
+      </div>
+      <button type="submit">Delete My Account Permanently</button>
+    </form>
+  </div>
+
+  <script>
+    // Handle form submissions
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formName = form.id || 'unknown';
+        console.log('Form submitted:', formName);
+        
+        // Show success message
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.style.display = 'block';
+        successDiv.textContent = `Form "${formName}" submitted successfully!`;
+        form.parentNode.insertBefore(successDiv, form);
+        
+        form.style.opacity = '0.5';
+        form.style.pointerEvents = 'none';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redux Dispatch Fixture</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    button { padding: 8px 16px; margin: 10px 0; cursor: pointer; }
+    .panel {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    [aria-expanded="true"] .panel-content {
+      display: block;
+    }
+    [aria-expanded="false"] .panel-content {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Redux Dispatch Fixture</h1>
+
+  <!-- GOOD case: dispatch() causes UI update -->
+  <div id="good-case">
+    <h2>Good Case (Dispatch Updates State)</h2>
+    <button id="goodDispatchBtn" aria-expanded="false">Expand Panel</button>
+    <div class="panel" aria-expanded="false" role="region">
+      <p>Panel content visible when state is true</p>
+      <div class="panel-content">Content here</div>
+    </div>
+  </div>
+
+  <!-- BAD case: dispatch() does NOT update UI -->
+  <div id="bad-case">
+    <h2>Bad Case (Dispatch Fails to Update)</h2>
+    <button id="badDispatchBtn" aria-expanded="false">Try to expand (fails)</button>
+    <div class="panel" aria-expanded="false" role="region">
+      <p>Panel content should be visible but isn't</p>
+      <div class="panel-content">Content here</div>
+    </div>
+  </div>
+
+  <script>
+    // Minimal Redux-like store
+    const store = {
+      state: { panelOpen: false },
+      dispatch: function(action) {
+        if (action.type === 'TOGGLE_PANEL') {
+          this.state.panelOpen = !this.state.panelOpen;
+          updateUI();
+        }
+      }
+    };
+
+    function updateUI() {
+      const panel = document.querySelector('#good-case .panel');
+      const btn = document.getElementById('goodDispatchBtn');
+      if (store.state.panelOpen) {
+        panel.setAttribute('aria-expanded', 'true');
+        btn.setAttribute('aria-expanded', 'true');
+      } else {
+        panel.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    // Good case: dispatches and updates UI
+    document.getElementById('goodDispatchBtn').addEventListener('click', function() {
+      store.dispatch({ type: 'TOGGLE_PANEL' });
+    });
+
+    // Bad case: dispatch is called but does nothing (no reducer)
+    function badDispatch() {
+      // This dispatch is called but no reducer exists, so state doesn't update
+      store.dispatch({ type: 'UNKNOWN' });
+    }
+
+    document.getElementById('badDispatchBtn').addEventListener('click', badDispatch);
+  </script>
+</body>
+</html>

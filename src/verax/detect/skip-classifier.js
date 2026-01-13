@@ -54,8 +54,8 @@ export function classifySkipReason(manifest, interaction, beforeUrl, validation 
           const interactionSelector = interaction.selector || '';
           
           if (selectorHint && interactionSelector) {
-            const normalizedSelectorHint = selectorHint.replace(/[\[\]()]/g, '');
-            const normalizedInteractionSelector = interactionSelector.replace(/[\[\]()]/g, '');
+            const normalizedSelectorHint = selectorHint.replace(/[[\]()]/g, '');
+            const normalizedInteractionSelector = interactionSelector.replace(/[[\]()]/g, '');
             
             if (selectorHint === interactionSelector || 
                 selectorHint.includes(interactionSelector) || 
@@ -76,8 +76,8 @@ export function classifySkipReason(manifest, interaction, beforeUrl, validation 
           const interactionSelector = interaction.selector || '';
           
           if (selectorHint && interactionSelector) {
-            const normalizedSelectorHint = selectorHint.replace(/[\[\]()]/g, '');
-            const normalizedInteractionSelector = interactionSelector.replace(/[\[\]()]/g, '');
+            const normalizedSelectorHint = selectorHint.replace(/[[\]()]/g, '');
+            const normalizedInteractionSelector = interactionSelector.replace(/[[\]()]/g, '');
             
             if (selectorHint === interactionSelector || 
                 selectorHint.includes(interactionSelector) || 

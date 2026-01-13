@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zustand Store Fixture</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    button { padding: 8px 16px; margin: 10px 0; cursor: pointer; }
+    .toggle-switch {
+      display: inline-block;
+      width: 40px;
+      height: 24px;
+      background-color: #ccc;
+      border-radius: 12px;
+      position: relative;
+      margin: 10px 0;
+    }
+    .toggle-switch.on {
+      background-color: #4CAF50;
+    }
+    .toggle-switch span {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      border-radius: 50%;
+      transition: left 0.3s;
+    }
+    .toggle-switch.on span {
+      left: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Zustand Store Fixture</h1>
+
+  <!-- GOOD case: store.set() updates UI -->
+  <div id="good-case">
+    <h2>Good Case (Store Set Updates UI)</h2>
+    <button id="goodSetBtn">Toggle Switch</button>
+    <div class="toggle-switch" aria-checked="false" role="switch" aria-label="Feature toggle">
+      <span></span>
+    </div>
+  </div>
+
+  <!-- BAD case: store.set() does NOT update UI -->
+  <div id="bad-case">
+    <h2>Bad Case (Store Set Fails to Update)</h2>
+    <button id="badSetBtn">Try toggle (fails)</button>
+    <div class="toggle-switch" aria-checked="false" role="switch" aria-label="Feature toggle">
+      <span></span>
+    </div>
+  </div>
+
+  <script>
+    // Minimal Zustand-like store
+    const store = {
+      state: { isOn: false },
+      set: function(updates) {
+        this.state = { ...this.state, ...updates };
+        updateUI();
+      }
+    };
+
+    function updateUI() {
+      const toggle = document.querySelector('#good-case .toggle-switch');
+      if (store.state.isOn) {
+        toggle.classList.add('on');
+        toggle.setAttribute('aria-checked', 'true');
+      } else {
+        toggle.classList.remove('on');
+        toggle.setAttribute('aria-checked', 'false');
+      }
+    }
+
+    // Good case: calls store.set() and UI updates
+    document.getElementById('goodSetBtn').addEventListener('click', function() {
+      store.set({ isOn: !store.state.isOn });
+    });
+
+    // Bad case: handler doesn't call store.set() at all
+    function badSetHandler() {
+      // No store.set() call here - intentionally broken
+    }
+
+    document.getElementById('badSetBtn').addEventListener('click', badSetHandler);
+  </script>
+</body>
+</html>

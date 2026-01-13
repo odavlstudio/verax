@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Network OK</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    button { padding: 10px 16px; }
+    #status { margin-top: 12px; color: green; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Network OK Fixture</h1>
+  <p>Click to call /api/ok and show feedback.</p>
+  <button id="okBtn">Save</button>
+  <div id="status"></div>
+  <script>
+    const btn = document.getElementById('okBtn');
+    const status = document.getElementById('status');
+    btn.addEventListener('click', async () => {
+      status.textContent = '';
+      try {
+        const res = await fetch('/api/ok');
+        if (res.ok) {
+          status.textContent = 'Saved!';
+        }
+      } catch (err) {
+        console.error('Network error', err);
+      }
+    });
+  </script>
+</body>
+</html>

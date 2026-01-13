@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "scannedAt": "2026-01-09T15:34:22.476Z",
+  "url": "http://localhost:3457",
+  "projectType": "static",
+  "expectationsSummary": {
+    "total": 0,
+    "navigation": 0,
+    "networkActions": 0,
+    "stateActions": 0
+  },
+  "truth": {
+    "learn": {
+      "routesDiscovered": 3,
+      "routesSource": "static_html",
+      "routesConfidence": "HIGH",
+      "expectationsDiscovered": 4,
+      "expectationsStrong": 4,
+      "expectationsWeak": 0,
+      "warnings": [
+        {
+          "code": "LOW_ROUTE_REACHABILITY",
+          "message": "Only 1 of 3 validated routes are reachable (33%). This may indicate incorrect route extraction or server configuration issues."
+        }
+      ],
+      "limitations": [],
+      "validation": {
+        "routesValidated": 3,
+        "routesReachable": 1,
+        "routesUnreachable": 2,
+        "details": [
+          {
+            "path": "/",
+            "status": "REACHABLE",
+            "httpStatus": 200,
+            "finalUrl": "http://localhost:3457/",
+            "reason": null
+          },
+          {
+            "path": "/about",
+            "status": "UNREACHABLE",
+            "httpStatus": 404,
+            "finalUrl": "http://localhost:3457/about",
+            "reason": "http_404"
+          },
+          {
+            "path": "/pricing",
+            "status": "UNREACHABLE",
+            "httpStatus": 404,
+            "finalUrl": "http://localhost:3457/pricing",
+            "reason": "http_404"
+          }
+        ],
+        "warnings": [
+          {
+            "code": "LOW_ROUTE_REACHABILITY",
+            "message": "Only 1 of 3 validated routes are reachable (33%). This may indicate incorrect route extraction or server configuration issues."
+          }
+        ]
+      }
+    },
+    "observe": {
+      "interactionsObserved": 5,
+      "externalNavigationBlockedCount": 0,
+      "timeoutsCount": 1,
+      "settleChangedCount": 0,
+      "coverage": {
+        "candidatesDiscovered": 5,
+        "candidatesSelected": 3,
+        "cap": null,
+        "capped": false,
+        "pagesVisited": 3,
+        "pagesDiscovered": 4,
+        "skippedInteractions": 0,
+        "interactionsDiscovered": 5,
+        "interactionsExecuted": 3
+      }
+    },
+    "detect": {
+      "interactionsAnalyzed": 1,
+      "interactionsSkippedNoExpectation": 0,
+      "findingsCount": 4,
+      "findingsFromProven": 4,
+      "coverageGapsCount": 2,
+      "skips": {
+        "total": 0,
+        "reasons": [],
+        "examples": []
+      }
+    }
+  },
+  "paths": {
+    "manifest": "C:\\Users\\sabou\\verax\\test\\fixtures\\static-site\\.veraxverax\\learn\\site-manifest.json",
+    "traces": "C:\\Users\\sabou\\verax\\test\\fixtures\\static-site\\.veraxverax\\observe\\observation-traces.json",
+    "findings": "C:\\Users\\sabou\\verax\\test\\fixtures\\static-site\\.veraxverax\\detect\\findings.json"
+  }
+}

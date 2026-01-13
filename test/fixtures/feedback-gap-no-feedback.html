@@ -1,0 +1,26 @@
+
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Feedback Gap Test - No Feedback</title>
+      </head>
+      <body>
+        <button id="fetch-btn">Fetch Data</button>
+        <div id="result"></div>
+        <script>
+          let requestStarted = false;
+          document.getElementById('fetch-btn').addEventListener('click', function() {
+            requestStarted = true;
+            // Simulate delayed feedback (>500ms)
+            setTimeout(() => {
+              fetch('about:blank', { method: 'HEAD' });
+            }, 50);
+            // Wait >500ms before showing any feedback
+            setTimeout(() => {
+              document.getElementById('result').innerHTML = 'Done';
+            }, 600);
+          });
+        </script>
+      </body>
+      </html>
+    

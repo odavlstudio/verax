@@ -99,14 +99,15 @@ export async function validateRoutes(manifest, baseUrl) {
           
           const request = response.request();
           
-          // Use redirectChain() if available (preferred), otherwise use redirectedFrom()
+          // Use redirectChain property if available (Playwright API)
           let redirectChain = [];
-          if (typeof request.redirectChain === 'function') {
-            try {
-              redirectChain = request.redirectChain();
-            } catch (e) {
-              // redirectChain may not be available, fall back to redirectedFrom
-            }
+          // @ts-expect-error - redirectChain exists in Playwright runtime but not in TypeScript types
+          if (request.redirectChain && Array.isArray(request.redirectChain)) {
+            // @ts-expect-error - redirectChain exists in Playwright runtime but not in TypeScript types
+            redirectChain = request.redirectChain;
+          } else if (request.redirectedFrom) {
+            // Fall back to redirectedFrom if redirectChain not available
+            redirectChain = [request.redirectedFrom];
           }
           
           // If redirectChain is empty or not available, build chain from redirectedFrom

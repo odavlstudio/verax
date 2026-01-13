@@ -1,0 +1,61 @@
+{
+  "projectName": "flow-broken",
+  "projectType": "simple-html",
+  "projectDir": "test/fixtures/flow-broken",
+  "version": 1,
+  "learnedAt": "2026-01-08T16:00:00.000Z",
+  "routes": [
+    {
+      "path": "/",
+      "public": true
+    },
+    {
+      "path": "/after-nav",
+      "public": true
+    }
+  ],
+  "flows": [
+    {
+      "flowId": "flow-broken-main",
+      "source": "server.js",
+      "stepCount": 2,
+      "proof": "PROVEN_EXPECTATION",
+      "steps": [
+        {
+          "stepIndex": 0,
+          "expectationType": "navigation",
+          "targetPath": "/after-nav",
+          "source": "server.js"
+        },
+        {
+          "stepIndex": 1,
+          "expectationType": "network_action",
+          "targetPath": "/api/data-not-found",
+          "source": "server.js"
+        }
+      ]
+    }
+  ],
+  "staticExpectations": [
+    {
+      "type": "navigation",
+      "fromPath": "/",
+      "targetPath": "/after-nav",
+      "evidence": {
+        "selectorHint": "a#step1-link",
+        "interactionType": "link",
+        "source": "server.js"
+      }
+    },
+    {
+      "type": "network_action",
+      "fromPath": "/after-nav",
+      "targetPath": "/api/data-not-found",
+      "evidence": {
+        "selectorHint": "button#step2-button",
+        "interactionType": "button",
+        "source": "server.js"
+      }
+    }
+  ]
+}

@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
-import { resolve, join, dirname } from 'path';
+import { resolve, join } from 'path';
 import { tmpdir } from 'os';
 import { detect } from '../src/verax/detect/index.js';
+import { generateRunId } from '../src/verax/shared/artifact-manager.js';
 
 function createTempDir() {
   const tempDir = resolve(tmpdir(), `verax-detect-test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
@@ -20,12 +21,13 @@ function cleanupTempDir(dir) {
 test('detect finds silent failure when expected navigation does not occur', async () => {
   const tempDir = createTempDir();
   try {
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
-    const tracesPath = join(tempDir, '.veraxverax', 'observe', 'observation-traces.json');
-    const screenshotsDir = join(tempDir, '.veraxverax', 'observe', 'screenshots');
+    const runId = generateRunId();
+    const runDir = join(tempDir, '.verax', 'runs', runId);
+    const manifestPath = join(runDir, 'site-manifest.json');
+    const tracesPath = join(runDir, 'observation-traces.json');
+    const screenshotsDir = join(runDir, 'evidence', 'screenshots');
     
-    mkdirSync(dirname(manifestPath), { recursive: true });
-    mkdirSync(dirname(tracesPath), { recursive: true });
+    mkdirSync(runDir, { recursive: true });
     mkdirSync(screenshotsDir, { recursive: true });
     
     const manifest = {
@@ -39,7 +41,18 @@ test('detect finds silent failure when expected navigation does not occur', asyn
       ],
       publicRoutes: ['/', '/about'],
       internalRoutes: [],
-      notes: []
+      notes: [],
+      staticExpectations: [
+        {
+          type: 'spa_navigation',
+          fromPath: '/test.html',
+          targetPath: '/about',
+          expectedTarget: '/about',
+          proof: 'PROVEN_EXPECTATION',
+          sourceRef: 'test.tsx:10',
+          selectorHint: '#about-button'
+        }
+      ]
     };
     
     const screenshot1 = join(screenshotsDir, 'before-123.png');
@@ -60,11 +73,26 @@ test('detect finds silent failure when expected navigation does not occur', asyn
           },
           before: {
             url: 'file:///test.html',
-            screenshot: 'screenshots/before-123.png'
+            screenshot: 'before-123.png'
           },
           after: {
             url: 'file:///test.html',
-            screenshot: 'screenshots/after-123.png'
+            screenshot: 'after-123.png'
+          },
+          sensors: {
+            navigation: {
+              beforeUrl: 'file:///test.html',
+              afterUrl: 'file:///test.html',
+              urlChanged: false,
+              historyLengthDelta: 0,
+              routerEvents: [],
+              blockedNavigations: []
+            },
+            uiSignals: {
+              diff: {
+                changed: false
+              }
+            }
           }
         }
       ]
@@ -77,7 +105,8 @@ test('detect finds silent failure when expected navigation does not occur', asyn
     
     assert.ok(existsSync(findings.findingsPath));
     assert.strictEqual(findings.findings.length, 1);
-    assert.strictEqual(findings.findings[0].type, 'silent_failure');
+    // NAVIGATION INTELLIGENCE v2: Navigation failures now use navigation_silent_failure type
+    assert.ok(findings.findings[0].type === 'navigation_silent_failure' || findings.findings[0].type === 'silent_failure');
     assert.strictEqual(findings.findings[0].interaction.type, 'button');
     assert.strictEqual(findings.findings[0].interaction.label, 'About');
   } finally {
@@ -88,12 +117,13 @@ test('detect finds silent failure when expected navigation does not occur', asyn
 test('detect does not report failure when navigation occurs', async () => {
   const tempDir = createTempDir();
   try {
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
-    const tracesPath = join(tempDir, '.veraxverax', 'observe', 'observation-traces.json');
-    const screenshotsDir = join(tempDir, '.veraxverax', 'observe', 'screenshots');
+    const runId = generateRunId();
+    const runDir = join(tempDir, '.verax', 'runs', runId);
+    const manifestPath = join(runDir, 'site-manifest.json');
+    const tracesPath = join(runDir, 'observation-traces.json');
+    const screenshotsDir = join(runDir, 'evidence', 'screenshots');
     
-    mkdirSync(dirname(manifestPath), { recursive: true });
-    mkdirSync(dirname(tracesPath), { recursive: true });
+    mkdirSync(runDir, { recursive: true });
     mkdirSync(screenshotsDir, { recursive: true });
     
     const manifest = {
@@ -128,11 +158,11 @@ test('detect does not report failure when navigation occurs', async () => {
           },
           before: {
             url: 'file:///test.html',
-            screenshot: 'screenshots/before-456.png'
+            screenshot: 'before-456.png'
           },
           after: {
             url: 'file:///test.html/about',
-            screenshot: 'screenshots/after-456.png'
+            screenshot: 'after-456.png'
           }
         }
       ]
@@ -153,12 +183,13 @@ test('detect does not report failure when navigation occurs', async () => {
 test('detect does not report failure when visible change occurs', async () => {
   const tempDir = createTempDir();
   try {
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
-    const tracesPath = join(tempDir, '.veraxverax', 'observe', 'observation-traces.json');
-    const screenshotsDir = join(tempDir, '.veraxverax', 'observe', 'screenshots');
+    const runId = generateRunId();
+    const runDir = join(tempDir, '.verax', 'runs', runId);
+    const manifestPath = join(runDir, 'site-manifest.json');
+    const tracesPath = join(runDir, 'observation-traces.json');
+    const screenshotsDir = join(runDir, 'evidence', 'screenshots');
     
-    mkdirSync(dirname(manifestPath), { recursive: true });
-    mkdirSync(dirname(tracesPath), { recursive: true });
+    mkdirSync(runDir, { recursive: true });
     mkdirSync(screenshotsDir, { recursive: true });
     
     const manifest = {
@@ -192,11 +223,11 @@ test('detect does not report failure when visible change occurs', async () => {
           },
           before: {
             url: 'file:///test.html',
-            screenshot: 'screenshots/before-789.png'
+            screenshot: 'before-789.png'
           },
           after: {
             url: 'file:///test.html',
-            screenshot: 'screenshots/after-789.png'
+            screenshot: 'after-789.png'
           }
         }
       ]
@@ -217,12 +248,13 @@ test('detect does not report failure when visible change occurs', async () => {
 test('detect generates findings.json with correct schema', async () => {
   const tempDir = createTempDir();
   try {
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
-    const tracesPath = join(tempDir, '.veraxverax', 'observe', 'observation-traces.json');
-    const screenshotsDir = join(tempDir, '.veraxverax', 'observe', 'screenshots');
+    const runId = generateRunId();
+    const runDir = join(tempDir, '.verax', 'runs', runId);
+    const manifestPath = join(runDir, 'site-manifest.json');
+    const tracesPath = join(runDir, 'observation-traces.json');
+    const screenshotsDir = join(runDir, 'evidence', 'screenshots');
     
-    mkdirSync(dirname(manifestPath), { recursive: true });
-    mkdirSync(dirname(tracesPath), { recursive: true });
+    mkdirSync(runDir, { recursive: true });
     mkdirSync(screenshotsDir, { recursive: true });
     
     const manifest = {
@@ -256,11 +288,11 @@ test('detect generates findings.json with correct schema', async () => {
           },
           before: {
             url: 'file:///test.html',
-            screenshot: 'screenshots/before-999.png'
+            screenshot: 'before-999.png'
           },
           after: {
             url: 'file:///test.html',
-            screenshot: 'screenshots/after-999.png'
+            screenshot: 'after-999.png'
           }
         }
       ]
@@ -280,7 +312,8 @@ test('detect generates findings.json with correct schema', async () => {
     
     if (findingsContent.findings.length > 0) {
       const finding = findingsContent.findings[0];
-      assert.strictEqual(finding.type, 'silent_failure');
+      // NAVIGATION INTELLIGENCE v2: Accept both legacy and new finding types
+      assert.ok(finding.type === 'navigation_silent_failure' || finding.type === 'silent_failure');
       assert.ok(finding.interaction);
       assert.strictEqual(typeof finding.interaction.type, 'string');
       assert.strictEqual(typeof finding.interaction.selector, 'string');

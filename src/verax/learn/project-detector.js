@@ -44,6 +44,34 @@ async function hasReactRouter(projectDir) {
   }
 }
 
+async function hasVue(projectDir) {
+  try {
+    const packageJsonPath = resolve(projectDir, 'package.json');
+    if (!existsSync(packageJsonPath)) return false;
+    
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+    const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+    
+    return !!deps.vue;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function hasVueRouter(projectDir) {
+  try {
+    const packageJsonPath = resolve(projectDir, 'package.json');
+    if (!existsSync(packageJsonPath)) return false;
+    
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+    const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+    
+    return !!deps['vue-router'];
+  } catch (error) {
+    return false;
+  }
+}
+
 export async function detectProjectType(projectDir) {
   const appDir = resolve(projectDir, 'app');
   const pagesDir = resolve(projectDir, 'pages');
@@ -61,6 +89,17 @@ export async function detectProjectType(projectDir) {
       if (pagesFiles.length > 0) {
         return 'nextjs_pages_router';
       }
+    }
+
+    const hasVueDep = await hasVue(projectDir);
+    const hasVueRouterDep = await hasVueRouter(projectDir);
+    
+    if (hasVueDep && hasVueRouterDep) {
+      return 'vue_router';
+    }
+    
+    if (hasVueDep && !hasVueRouterDep) {
+      return 'vue_spa';
     }
     
     const hasReact = await hasReactDependency(projectDir);
@@ -84,4 +123,5 @@ export async function detectProjectType(projectDir) {
 export async function hasReactRouterDom(projectDir) {
   return await hasReactRouter(projectDir);
 }
+
 

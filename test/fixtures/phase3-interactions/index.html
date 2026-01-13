@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Phase3 Interactions</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #hover-menu.hidden { display: none; }
+    #hover-menu { margin-top: 8px; padding: 6px; background: #eef; border: 1px solid #88a; }
+  </style>
+</head>
+<body>
+  <button id="keyboard-btn">Keyboard Action</button>
+  <div id="keyboard-status">idle</div>
+
+  <div id="hover-target" data-hover style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; width: 200px;">
+    Hover trigger
+    <div id="hover-menu" class="hidden">Revealed content</div>
+  </div>
+
+  <form id="upload-form" action="#" style="margin-top: 20px;">
+    <input id="file-input" type="file" name="upload" />
+    <button id="upload-submit" type="submit">Upload</button>
+  </form>
+  <div id="upload-status">no-file</div>
+
+  <script>
+    const status = document.getElementById('keyboard-status');
+    const keyboardBtn = document.getElementById('keyboard-btn');
+    keyboardBtn.addEventListener('click', () => {
+      status.textContent = 'enter-fired';
+      document.body.setAttribute('data-keyboard', 'done');
+    });
+
+    const hoverTarget = document.getElementById('hover-target');
+    const hoverMenu = document.getElementById('hover-menu');
+    hoverTarget.addEventListener('mouseenter', () => {
+      hoverMenu.classList.remove('hidden');
+      hoverMenu.setAttribute('data-hovered', 'true');
+    });
+    hoverTarget.addEventListener('mouseleave', () => {
+      hoverMenu.classList.add('hidden');
+      hoverMenu.removeAttribute('data-hovered');
+    });
+
+    const uploadInput = document.getElementById('file-input');
+    const uploadStatus = document.getElementById('upload-status');
+    document.getElementById('upload-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      uploadStatus.textContent = 'submitted';
+      uploadStatus.setAttribute('data-submitted', 'true');
+      document.body.setAttribute('data-upload', 'submitted');
+    });
+    uploadInput.addEventListener('change', () => {
+      const name = uploadInput.files && uploadInput.files[0] ? uploadInput.files[0].name : 'none';
+      uploadStatus.textContent = `selected:${name}`;
+      document.body.setAttribute('data-upload', 'selected');
+    });
+  </script>
+</body>
+</html>

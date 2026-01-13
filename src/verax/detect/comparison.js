@@ -1,5 +1,6 @@
 import { resolve } from 'path';
 import { getUrlPath, getScreenshotHash } from './evidence-validator.js';
+import { getScreenshotDir } from '../core/run-id.js';
 
 export function hasMeaningfulUrlChange(beforeUrl, afterUrl) {
   const beforePath = getUrlPath(beforeUrl);
@@ -15,9 +16,13 @@ export function hasMeaningfulUrlChange(beforeUrl, afterUrl) {
   return beforeNormalized !== afterNormalized;
 }
 
-export function hasVisibleChange(beforeScreenshot, afterScreenshot, projectDir) {
-  const beforePath = resolve(projectDir, '.veraxverax', 'observe', beforeScreenshot);
-  const afterPath = resolve(projectDir, '.veraxverax', 'observe', afterScreenshot);
+export function hasVisibleChange(beforeScreenshot, afterScreenshot, projectDir, runId) {
+  if (!runId) {
+    throw new Error('runId is required for hasVisibleChange');
+  }
+  const screenshotsDir = getScreenshotDir(projectDir, runId);
+  const beforePath = resolve(screenshotsDir, beforeScreenshot);
+  const afterPath = resolve(screenshotsDir, afterScreenshot);
   
   const beforeHash = getScreenshotHash(beforePath);
   const afterHash = getScreenshotHash(afterPath);

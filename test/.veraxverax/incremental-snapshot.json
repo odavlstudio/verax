@@ -1,0 +1,20 @@
+{
+  "timestamp": 1768105697256,
+  "routes": [],
+  "expectations": [],
+  "interactions": {
+    "http://localhost:8135/network-repeat.html": [
+      {
+        "type": "button",
+        "selector": "#fetch-btn",
+        "signature": "b6c69529f2768b11"
+      },
+      {
+        "type": "button",
+        "selector": "#fetch-btn",
+        "signature": "b6c69529f2768b11"
+      }
+    ]
+  },
+  "manifestVersion": "1.0"
+}

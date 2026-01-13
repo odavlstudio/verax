@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Network Failure</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    form { max-width: 400px; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <h1>Network Failure Test</h1>
+  <p>This form submission will trigger a network error (500) with no UI feedback.</p>
+  
+  <form id="failForm">
+    <input type="text" name="email" placeholder="Email" required>
+    <button type="submit">Submit (Will Fail)</button>
+  </form>
+
+  <script>
+    document.getElementById('failForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      try {
+        // This will fail with 500 error from server
+        const response = await fetch('/api/fail', {
+          method: 'GET'
+        });
+        
+        // NO ERROR HANDLING - silent failure
+        if (response.ok) {
+          // no feedback even on success (won't happen)
+        }
+      } catch (error) {
+        // Catch network errors but don't show feedback
+        console.error('Network error:', error);
+        // No visible feedback to user
+      }
+    });
+  </script>
+</body>
+</html>

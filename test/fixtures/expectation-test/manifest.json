@@ -1,0 +1,26 @@
+{
+  "projectName": "expectation-test",
+  "projectType": "simple-html",
+  "projectDir": "C:\\Users\\sabou\\verax\\test\\fixtures\\expectation-test",
+  "staticExpectations": [
+    {
+      "type": "navigation",
+      "fromPath": "/",
+      "targetPath": "/working.html",
+      "evidence": {
+        "selectorHint": "a#working-link"
+      },
+      "proof": "PROVEN_EXPECTATION"
+    },
+    {
+      "type": "navigation",
+      "fromPath": "/",
+      "targetPath": "/working.html",
+      "evidence": {
+        "selectorHint": "button#broken-button"
+      },
+      "proof": "PROVEN_EXPECTATION"
+    }
+  ]
+}
+

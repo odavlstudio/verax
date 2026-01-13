@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React State Toggle Fixture</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    button { padding: 8px 16px; margin: 10px 0; cursor: pointer; }
+    dialog {
+      border: 2px solid #333;
+      padding: 20px;
+      border-radius: 4px;
+    }
+    dialog[open] {
+      display: block;
+    }
+    dialog:not([open]) {
+      display: none;
+    }
+    .success-banner {
+      background-color: #90EE90;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .error-banner {
+      background-color: #FFB6C6;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>React State Toggle Fixture</h1>
+  
+  <!-- GOOD case: Dialog opens on button click -->
+  <div id="good-case">
+    <h2>Good Case (Dialog Opens)</h2>
+    <button id="openDialogBtn">Open Dialog</button>
+    <dialog id="modal" role="dialog" aria-modal="true">
+      <h3>Modal Dialog</h3>
+      <p>This dialog opened successfully.</p>
+      <button id="closeDialogBtn">Close</button>
+    </dialog>
+  </div>
+
+  <!-- BAD case: Dialog does NOT open (early return in handler) -->
+  <div id="bad-case">
+    <h2>Bad Case (No State Change)</h2>
+    <button id="noOpBtn">Try to toggle (does nothing)</button>
+    <dialog id="badModal" role="dialog" aria-modal="true" style="display: none;">
+      <h3>This should not open</h3>
+      <button id="closeBtn">Close</button>
+    </dialog>
+  </div>
+
+  <script>
+    // Good case: toggleModal() calls setOpen(true) which shows the dialog
+    function toggleModal() {
+      const modal = document.getElementById('modal');
+      if (modal.hasAttribute('open')) {
+        modal.removeAttribute('open');
+      } else {
+        modal.setAttribute('open', '');
+      }
+    }
+
+    document.getElementById('openDialogBtn').addEventListener('click', toggleModal);
+    document.getElementById('closeDialogBtn').addEventListener('click', function() {
+      document.getElementById('modal').removeAttribute('open');
+    });
+
+    // Bad case: noOp() does nothing (early return before state mutation)
+    function noOp() {
+      // Simulating early return - nothing happens
+      return;
+    }
+
+    document.getElementById('noOpBtn').addEventListener('click', noOp);
+    document.getElementById('closeBtn').addEventListener('click', function() {
+      document.getElementById('badModal').removeAttribute('open');
+    });
+  </script>
+</body>
+</html>

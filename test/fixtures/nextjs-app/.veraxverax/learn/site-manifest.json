@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "learnedAt": "2026-01-11T04:04:01.038Z",
+  "projectDir": "C:\\Users\\sabou\\verax\\test\\fixtures\\nextjs-app",
+  "projectType": "nextjs_app_router",
+  "routes": [
+    {
+      "path": "/",
+      "source": "app/page.js:1",
+      "public": true,
+      "sourceRef": "app/page.js:1"
+    },
+    {
+      "path": "/pricing",
+      "source": "app/pricing/page.js:1",
+      "public": true,
+      "sourceRef": "app/pricing/page.js:1"
+    }
+  ],
+  "publicRoutes": [
+    "/",
+    "/pricing"
+  ],
+  "internalRoutes": [],
+  "notes": [
+    {
+      "type": "truth",
+      "learn": {
+        "routesDiscovered": 2,
+        "routesSource": "nextjs_fs",
+        "routesConfidence": "HIGH",
+        "expectationsDiscovered": 0,
+        "expectationsStrong": 0,
+        "expectationsWeak": 0,
+        "warnings": [],
+        "limitations": []
+      }
+    }
+  ],
+  "staticExpectations": [
+    {
+      "type": "spa_navigation",
+      "targetPath": "/pricing",
+      "matchAttribute": "href",
+      "proof": "PROVEN_EXPECTATION",
+      "sourceRef": "app/page.js:7",
+      "selectorHint": "Link",
+      "metadata": {
+        "elementFile": "app/page.js",
+        "elementLine": 7,
+        "handlerName": null,
+        "handlerFile": null,
+        "handlerLine": null,
+        "eventType": "click"
+      }
+    },
+    {
+      "type": "spa_navigation",
+      "targetPath": "/contact",
+      "matchAttribute": "href",
+      "proof": "PROVEN_EXPECTATION",
+      "sourceRef": "app/page.js:8",
+      "selectorHint": "Link",
+      "metadata": {
+        "elementFile": "app/page.js",
+        "elementLine": 8,
+        "handlerName": null,
+        "handlerFile": null,
+        "handlerLine": null,
+        "eventType": "click"
+      }
+    },
+    {
+      "type": "spa_navigation",
+      "targetPath": "/about",
+      "matchAttribute": "href",
+      "proof": "PROVEN_EXPECTATION",
+      "sourceRef": "app/page.js:9",
+      "selectorHint": "a",
+      "metadata": {
+        "elementFile": "app/page.js",
+        "elementLine": 9,
+        "handlerName": null,
+        "handlerFile": null,
+        "handlerLine": null,
+        "eventType": "click"
+      }
+    }
+  ],
+  "expectationsStatus": "PROVEN_EXPECTATIONS_AVAILABLE",
+  "coverageGaps": [],
+  "flows": [
+    {
+      "flowId": "flow-361d1903",
+      "source": "app/page.js",
+      "stepCount": 3,
+      "steps": [
+        {
+          "stepIndex": 0,
+          "expectationType": "navigation",
+          "source": "app/page.js",
+          "handlerRef": null,
+          "targetPath": "/pricing"
+        },
+        {
+          "stepIndex": 1,
+          "expectationType": "navigation",
+          "source": "app/page.js",
+          "handlerRef": null,
+          "targetPath": "/contact"
+        },
+        {
+          "stepIndex": 2,
+          "expectationType": "navigation",
+          "source": "app/page.js",
+          "handlerRef": null,
+          "targetPath": "/about"
+        }
+      ],
+      "proof": "PROVEN_EXPECTATION"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "detectedAt": "2026-01-09T02:40:10.017Z",
+  "url": "http://localhost:8135/nav-blocked.html",
+  "findings": [
+    {
+      "type": "observed_break",
+      "interaction": {
+        "type": "button",
+        "selector": "#blocked-nav",
+        "label": "Blocked nav"
+      },
+      "reason": "navigation_not_observed",
+      "evidence": {
+        "before": "screenshots/before-1767926398522-0.png",
+        "after": "screenshots/after-1767926398522-0.png",
+        "beforeUrl": "http://localhost:8135/nav-blocked.html",
+        "afterUrl": "http://localhost:8135/nav-blocked.html",
+        "observedExpectation": {
+          "id": "obs-nav-1767926407509-ockednav",
+          "type": "navigation",
+          "expectationStrength": "OBSERVED",
+          "expectedTargetPath": "/nav-target.html",
+          "evidence": {
+            "selector": "#blocked-nav",
+            "attributeSource": "data-href",
+            "observedUrl": "/nav-target.html",
+            "sourcePage": "http://localhost:8135/nav-blocked.html"
+          },
+          "sourcePage": "http://localhost:8135/nav-blocked.html",
+          "outcome": "OBSERVED_BREAK",
+          "reason": "navigation_not_observed",
+          "repeatAttempted": false,
+          "repeated": false,
+          "confidenceLevel": "LOW"
+        }
+      },
+      "confidence": {
+        "score": 49,
+        "level": "LOW",
+        "explain": [
+          "Expectation strength is OBSERVED, not PROVEN",
+          "Expected URL change did not occur",
+          "DOM state unchanged",
+          "No visible changes",
+          "Expectation: OBSERVED"
+        ],
+        "factors": {
+          "expectationStrength": "OBSERVED",
+          "sensorsPresent": {
+            "network": true,
+            "console": true,
+            "ui": true
+          },
+          "evidenceSignals": {
+            "urlChanged": false,
+            "domChanged": false,
+            "screenshotChanged": false,
+            "networkFailed": false,
+            "consoleErrors": false,
+            "uiFeedbackDetected": false,
+            "slowRequests": false
+          },
+          "penalties": [
+            "Expectation strength is OBSERVED, not PROVEN"
+          ],
+          "boosts": [
+            "Expected URL change did not occur",
+            "DOM state unchanged",
+            "No visible changes"
+          ]
+        }
+      }
+    }
+  ],
+  "coverageGaps": [],
+  "notes": []
+}

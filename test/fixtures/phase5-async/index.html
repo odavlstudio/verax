@@ -1,0 +1,87 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Phase 5 Async Test</title>
+      <style>
+        .loader { display: none; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; width: 20px; height: 20px; }
+        .loader.active { display: inline-block; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #result { margin-top: 20px; }
+      </style>
+    </head>
+    <body>
+      <h1>Phase 5 Async Tests</h1>
+      
+      <!-- Test 1: Partial Success (network succeeds but no DOM update) -->
+      <div id="test-partial-success">
+        <button id="partial-btn">Trigger Partial Success</button>
+        <p id="partial-result"></p>
+      </div>
+      
+      <!-- Test 2: Loading Stuck (loading indicator never resolves) -->
+      <div id="test-loading-stuck">
+        <button id="loading-btn">Trigger Loading Stuck</button>
+        <div id="loading-spinner" class="loader"></div>
+        <p id="loading-status"></p>
+      </div>
+      
+      <!-- Test 3: Async State Mismatch (state changes but UI doesn't) -->
+      <div id="test-async-mismatch">
+        <button id="state-btn">Trigger State Change</button>
+        <p id="state-display" data-expected="synced">Not Synced</p>
+      </div>
+      
+      <!-- Test 4: Successful Loading Resolution -->
+      <div id="test-loading-success">
+        <button id="success-loading-btn">Trigger Success Loading</button>
+        <div id="success-spinner" class="loader"></div>
+        <p id="success-result"></p>
+      </div>
+      
+      <script>
+        // Test 1: Partial success - network succeeds but DOM unchanged
+        document.getElementById('partial-btn').addEventListener('click', async () => {
+          try {
+            const response = await fetch('/api/partial', { method: 'POST' });
+            if (response.ok) {
+              // Network succeeded but intentionally don't update DOM
+              // This simulates a silent failure
+            }
+          } catch (e) {}
+        });
+        
+        // Test 2: Loading stuck - spinner shows but never disappears
+        document.getElementById('loading-btn').addEventListener('click', async () => {
+          const spinner = document.getElementById('loading-spinner');
+          spinner.classList.add('active');
+          // Intentionally never resolve the loading state
+          setTimeout(() => {
+            // Never remove the active class - loading is stuck
+          }, 10000);
+        });
+        
+        // Test 3: Async state mismatch - update state but not UI
+        document.getElementById('state-btn').addEventListener('click', async () => {
+          // Update internal state
+          window.appState = { synced: true };
+          localStorage.setItem('appState', JSON.stringify(window.appState));
+          // But intentionally don't update the visible DOM
+          // The data-expected attribute is set but display is not updated
+        });
+        
+        // Test 4: Successful loading - spinner appears then disappears
+        document.getElementById('success-loading-btn').addEventListener('click', async () => {
+          const spinner = document.getElementById('success-spinner');
+          const result = document.getElementById('success-result');
+          spinner.classList.add('active');
+          
+          setTimeout(() => {
+            spinner.classList.remove('active');
+            result.textContent = 'Success!';
+          }, 500);
+        });
+      </script>
+    </body>
+    </html>
+  

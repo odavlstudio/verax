@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Validation Failure</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    form { max-width: 400px; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <h1>Validation Failure Test</h1>
+  <p>This form has client-side validation that fails with no visible error message.</p>
+  
+  <form id="validationForm">
+    <input type="email" name="email" placeholder="Email" required>
+    <button type="submit">Submit (Will Fail Validation)</button>
+  </form>
+
+  <script>
+    document.getElementById('validationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Validation that logs error but shows no UI feedback
+      if (!e.target.email.value.includes('@')) {
+        console.error('Invalid email format'); // Only logs error, no UI feedback
+        return;
+      }
+      
+      // Simulate required field validation failure
+      if (e.target.email.value === '') {
+        console.error('Email is required'); // Silent validation failure
+        return;
+      }
+    });
+  </script>
+</body>
+</html>

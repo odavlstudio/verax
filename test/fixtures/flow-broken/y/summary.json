@@ -1,0 +1,117 @@
+{
+  "runId": "custom",
+  "timestamp": "2026-01-08T16:35:06.999Z",
+  "url": "http://localhost:3000",
+  "projectRoot": "C:\\Users\\sabou\\verax\\test\\fixtures\\flow-broken",
+  "verdict": "INVALID_CONTEXT",
+  "verdictReasons": [
+    "Target URL does not match the analyzed project",
+    "No extracted routes found on the live site"
+  ],
+  "expectationsSummary": {
+    "total": 2,
+    "navigation": 0,
+    "networkActions": 2,
+    "stateActions": 0
+  },
+  "contextCheck": {
+    "ran": true,
+    "forced": false,
+    "matchedRoutesCount": 0,
+    "matchedLinksCount": 0,
+    "sampleMatched": []
+  },
+  "safety": {
+    "publicUrlConfirmed": false,
+    "usedYesFlag": false
+  },
+  "metrics": {
+    "learnMs": 68,
+    "validateMs": 8492,
+    "observeMs": 0,
+    "detectMs": 0,
+    "totalMs": 8562
+  },
+  "findingsCounts": {
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "UNKNOWN": 0
+  },
+  "topFindings": [],
+  "cacheStats": {},
+  "progressStats": {
+    "learn": {
+      "current": 2,
+      "total": 2
+    },
+    "validate": {
+      "current": 0,
+      "total": 1
+    },
+    "observe": {
+      "current": 0,
+      "total": 0
+    },
+    "detect": {
+      "current": 0,
+      "total": 2
+    }
+  },
+  "interactionStats": {
+    "discovered": 0,
+    "executed": 0,
+    "skipped": 0,
+    "skippedByReason": {}
+  },
+  "expectationUsageStats": {
+    "total": 2,
+    "used": 0,
+    "unused": 2,
+    "unusedByReason": {
+      "scan stopped after context validation": 2
+    }
+  },
+  "runOverview": {
+    "projectType": "static",
+    "expectationsFound": 2,
+    "expectationsByType": {
+      "navigation": 0,
+      "networkActions": 2,
+      "stateActions": 0
+    },
+    "interactionsExecuted": 0,
+    "validationStatus": "mismatch",
+    "validationReason": "URL does not match project",
+    "trustLevel": "partial",
+    "trustReasons": [
+      "2 expectations found",
+      "Context mismatch - scan stopped early",
+      "No interactions executed",
+      "2 expectation(s) unused - partial validation"
+    ]
+  },
+  "trustAssessment": {
+    "level": "partial",
+    "reasons": [
+      "2 expectations found",
+      "Context mismatch - scan stopped early",
+      "No interactions executed",
+      "2 expectation(s) unused - partial validation"
+    ]
+  },
+  "trustBadge": {
+    "badge": "LOW",
+    "reasons": [
+      "URL does not match project"
+    ]
+  },
+  "coverage": {
+    "discovered": 2,
+    "exercised": 0,
+    "percent": 0,
+    "explanation": "Most expectations (2) were not exercised"
+  },
+  "coverageGaps": [],
+  "artifactsZipPath": "C:\\Users\\sabou\\verax\\test\\fixtures\\flow-broken\\y\\artifacts.zip"
+}

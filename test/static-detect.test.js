@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
-import { resolve, join, dirname } from 'path';
+import { existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
+import { resolve, join } from 'path';
 import { tmpdir } from 'os';
 import { detect } from '../src/verax/detect/index.js';
+import { generateRunId } from '../src/verax/shared/artifact-manager.js';
 
 function createTempDir() {
   const tempDir = resolve(tmpdir(), `verax-static-detect-test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
@@ -20,12 +21,13 @@ function cleanupTempDir(dir) {
 test('detect reports finding for broken static navigation', async () => {
   const tempDir = createTempDir();
   try {
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
-    const tracesPath = join(tempDir, '.veraxverax', 'observe', 'observation-traces.json');
-    const screenshotsDir = join(tempDir, '.veraxverax', 'observe', 'screenshots');
+    const runId = generateRunId();
+    const runDir = join(tempDir, '.verax', 'runs', runId);
+    const manifestPath = join(runDir, 'site-manifest.json');
+    const tracesPath = join(runDir, 'observation-traces.json');
+    const screenshotsDir = join(runDir, 'evidence', 'screenshots');
     
-    mkdirSync(dirname(manifestPath), { recursive: true });
-    mkdirSync(dirname(tracesPath), { recursive: true });
+    mkdirSync(runDir, { recursive: true });
     mkdirSync(screenshotsDir, { recursive: true });
     
     const manifest = {
@@ -41,13 +43,15 @@ test('detect reports finding for broken static navigation', async () => {
       internalRoutes: [],
       staticExpectations: [
         {
+          id: 'nav-to-about',
           fromPath: '/',
           type: 'navigation',
           targetPath: '/about',
           evidence: {
             source: 'index.html',
             selectorHint: 'a[href="/about.html"]'
-          }
+          },
+          proof: 'PROVEN_EXPECTATION'
         }
       ],
       notes: []
@@ -64,18 +68,21 @@ test('detect reports finding for broken static navigation', async () => {
       url: 'file:///test.html',
       traces: [
         {
+          expectationDriven: true,
+          expectationId: 'nav-to-about',
+          expectationOutcome: 'SILENT_FAILURE',
           interaction: {
             type: 'link',
-            selector: 'a',
+            selector: 'a[href="/about.html"]',
             label: 'About'
           },
           before: {
             url: 'file:///test.html',
-            screenshot: 'screenshots/before-123.png'
+            screenshot: 'before-123.png'
           },
           after: {
             url: 'file:///test.html',
-            screenshot: 'screenshots/after-123.png'
+            screenshot: 'after-123.png'
           }
         }
       ]
@@ -97,12 +104,13 @@ test('detect reports finding for broken static navigation', async () => {
 test('detect reports no finding for working static navigation', async () => {
   const tempDir = createTempDir();
   try {
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
-    const tracesPath = join(tempDir, '.veraxverax', 'observe', 'observation-traces.json');
-    const screenshotsDir = join(tempDir, '.veraxverax', 'observe', 'screenshots');
+    const runId = generateRunId();
+    const runDir = join(tempDir, '.verax', 'runs', runId);
+    const manifestPath = join(runDir, 'site-manifest.json');
+    const tracesPath = join(runDir, 'observation-traces.json');
+    const screenshotsDir = join(runDir, 'evidence', 'screenshots');
     
-    mkdirSync(dirname(manifestPath), { recursive: true });
-    mkdirSync(dirname(tracesPath), { recursive: true });
+    mkdirSync(runDir, { recursive: true });
     mkdirSync(screenshotsDir, { recursive: true });
     
     const manifest = {
@@ -148,11 +156,11 @@ test('detect reports no finding for working static navigation', async () => {
           },
           before: {
             url: 'file:///test.html',
-            screenshot: 'screenshots/before-456.png'
+            screenshot: 'before-456.png'
           },
           after: {
             url: 'file:///test.html/about.html',
-            screenshot: 'screenshots/after-456.png'
+            screenshot: 'after-456.png'
           }
         }
       ]

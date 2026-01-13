@@ -1,0 +1,642 @@
+{
+  "version": 1,
+  "observedAt": "2026-01-09T15:34:22.281Z",
+  "url": "http://localhost:3457",
+  "traces": [
+    {
+      "interaction": {
+        "type": "link",
+        "selector": "#about-link",
+        "label": "About",
+        "href": "/about.html",
+        "dataHref": null,
+        "text": "About",
+        "formAction": null
+      },
+      "before": {
+        "url": "http://localhost:3457/",
+        "screenshot": "screenshots/before-1767972801295-0.png"
+      },
+      "after": {
+        "url": "http://localhost:3457/about.html",
+        "screenshot": "screenshots/after-1767972801295-0.png"
+      },
+      "sensors": {
+        "network": {
+          "windowId": 0,
+          "totalRequests": 1,
+          "failedRequests": 0,
+          "failedByStatus": {},
+          "hasNetworkActivity": true,
+          "slowRequestsCount": 0,
+          "slowRequests": [],
+          "topFailedUrls": [],
+          "duration": 1908,
+          "unfinishedCount": 0,
+          "firstRequestUrl": "http://localhost:3457/about.html",
+          "observedRequestUrls": [
+            "http://localhost:3457/about.html"
+          ]
+        },
+        "console": {
+          "windowId": 0,
+          "errorCount": 0,
+          "consoleErrorCount": 0,
+          "pageErrorCount": 0,
+          "unhandledRejectionCount": 0,
+          "lastErrors": [],
+          "hasErrors": false
+        },
+        "navigation": {
+          "windowId": 0,
+          "beforeUrl": "http://localhost:3457/",
+          "afterUrl": "http://localhost:3457/about.html",
+          "urlChanged": true,
+          "beforeHistoryLength": 8,
+          "afterHistoryLength": 9,
+          "historyLengthDelta": 1,
+          "historyChanges": [],
+          "routerEvents": [],
+          "blockedNavigations": [],
+          "hasNavigationActivity": true,
+          "duration": 6930
+        },
+        "uiSignals": {
+          "before": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "after": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "diff": {
+            "changed": false,
+            "explanation": "",
+            "summary": {
+              "loadingStateChanged": false,
+              "dialogStateChanged": false,
+              "errorSignalChanged": false,
+              "statusSignalChanged": false,
+              "liveRegionStateChanged": false,
+              "disabledButtonsChanged": false,
+              "validationFeedbackChanged": false
+            }
+          }
+        },
+        "state": {
+          "available": false,
+          "changed": [],
+          "storeType": null
+        }
+      },
+      "humanDriver": true,
+      "dom": {
+        "beforeHash": "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d",
+        "afterHash": "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74",
+        "settle": {
+          "samples": [
+            "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74",
+            "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74",
+            "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74"
+          ],
+          "domChangedDuringSettle": false
+        }
+      },
+      "humanDriverClicked": true,
+      "expectationDriven": true,
+      "expectationId": "exp-1",
+      "expectationOutcome": "SILENT_FAILURE"
+    },
+    {
+      "interaction": {
+        "type": "link",
+        "selector": "unknown",
+        "label": "Back to Home",
+        "href": "/index.html",
+        "dataHref": null,
+        "text": "Back to Home",
+        "formAction": null
+      },
+      "before": {
+        "url": "http://localhost:3457/about.html",
+        "screenshot": "screenshots/before-1767972801295-1.png"
+      },
+      "after": {
+        "url": "http://localhost:3457/index.html",
+        "screenshot": "screenshots/after-1767972801295-1.png"
+      },
+      "sensors": {
+        "network": {
+          "windowId": 0,
+          "totalRequests": 1,
+          "failedRequests": 0,
+          "failedByStatus": {},
+          "hasNetworkActivity": true,
+          "slowRequestsCount": 0,
+          "slowRequests": [],
+          "topFailedUrls": [],
+          "duration": 1937,
+          "unfinishedCount": 0,
+          "firstRequestUrl": "http://localhost:3457/index.html",
+          "observedRequestUrls": [
+            "http://localhost:3457/index.html"
+          ]
+        },
+        "console": {
+          "windowId": 0,
+          "errorCount": 0,
+          "consoleErrorCount": 0,
+          "pageErrorCount": 0,
+          "unhandledRejectionCount": 0,
+          "lastErrors": [],
+          "hasErrors": false
+        },
+        "navigation": {
+          "windowId": 0,
+          "beforeUrl": "http://localhost:3457/about.html",
+          "afterUrl": "http://localhost:3457/index.html",
+          "urlChanged": true,
+          "beforeHistoryLength": 9,
+          "afterHistoryLength": 10,
+          "historyLengthDelta": 1,
+          "historyChanges": [],
+          "routerEvents": [],
+          "blockedNavigations": [],
+          "hasNavigationActivity": true,
+          "duration": 6963
+        },
+        "uiSignals": {
+          "before": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "after": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "diff": {
+            "changed": false,
+            "explanation": "",
+            "summary": {
+              "loadingStateChanged": false,
+              "dialogStateChanged": false,
+              "errorSignalChanged": false,
+              "statusSignalChanged": false,
+              "liveRegionStateChanged": false,
+              "disabledButtonsChanged": false,
+              "validationFeedbackChanged": false
+            }
+          }
+        },
+        "state": {
+          "available": false,
+          "changed": [],
+          "storeType": null
+        }
+      },
+      "humanDriver": true,
+      "dom": {
+        "beforeHash": "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74",
+        "afterHash": "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d",
+        "settle": {
+          "samples": [
+            "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d",
+            "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d",
+            "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d"
+          ],
+          "domChangedDuringSettle": false
+        }
+      },
+      "humanDriverClicked": true,
+      "observedExpectation": {
+        "id": "obs-nav-1767972855173-unknown",
+        "type": "navigation",
+        "expectationStrength": "OBSERVED",
+        "expectedTargetPath": "/index.html",
+        "evidence": {
+          "selector": "unknown",
+          "attributeSource": "href",
+          "observedUrl": "/index.html",
+          "sourcePage": "http://localhost:3457/about.html"
+        },
+        "sourcePage": "http://localhost:3457/about.html",
+        "outcome": "VERIFIED",
+        "reason": null,
+        "repeatAttempted": false,
+        "repeated": false,
+        "confidenceLevel": "LOW"
+      },
+      "resultType": "OBSERVED_EXPECTATION"
+    },
+    {
+      "interaction": {
+        "type": "link",
+        "selector": "#about-link",
+        "label": "About",
+        "href": "/about.html",
+        "dataHref": null,
+        "text": "About",
+        "formAction": null
+      },
+      "before": {
+        "url": "http://localhost:3457/index.html",
+        "screenshot": "screenshots/before-1767972801295-2.png"
+      },
+      "after": {
+        "url": "http://localhost:3457/about.html",
+        "screenshot": "screenshots/after-1767972801295-2.png"
+      },
+      "sensors": {
+        "network": {
+          "windowId": 0,
+          "totalRequests": 1,
+          "failedRequests": 0,
+          "failedByStatus": {},
+          "hasNetworkActivity": true,
+          "slowRequestsCount": 0,
+          "slowRequests": [],
+          "topFailedUrls": [],
+          "duration": 1946,
+          "unfinishedCount": 0,
+          "firstRequestUrl": "http://localhost:3457/about.html",
+          "observedRequestUrls": [
+            "http://localhost:3457/about.html"
+          ]
+        },
+        "console": {
+          "windowId": 0,
+          "errorCount": 0,
+          "consoleErrorCount": 0,
+          "pageErrorCount": 0,
+          "unhandledRejectionCount": 0,
+          "lastErrors": [],
+          "hasErrors": false
+        },
+        "navigation": {
+          "windowId": 0,
+          "beforeUrl": "http://localhost:3457/index.html",
+          "afterUrl": "http://localhost:3457/about.html",
+          "urlChanged": true,
+          "beforeHistoryLength": 10,
+          "afterHistoryLength": 11,
+          "historyLengthDelta": 1,
+          "historyChanges": [],
+          "routerEvents": [],
+          "blockedNavigations": [],
+          "hasNavigationActivity": true,
+          "duration": 6971
+        },
+        "uiSignals": {
+          "before": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "after": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "diff": {
+            "changed": false,
+            "explanation": "",
+            "summary": {
+              "loadingStateChanged": false,
+              "dialogStateChanged": false,
+              "errorSignalChanged": false,
+              "statusSignalChanged": false,
+              "liveRegionStateChanged": false,
+              "disabledButtonsChanged": false,
+              "validationFeedbackChanged": false
+            }
+          }
+        },
+        "state": {
+          "available": false,
+          "changed": [],
+          "storeType": null
+        }
+      },
+      "humanDriver": true,
+      "dom": {
+        "beforeHash": "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d",
+        "afterHash": "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74",
+        "settle": {
+          "samples": [
+            "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74",
+            "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74",
+            "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74"
+          ],
+          "domChangedDuringSettle": false
+        }
+      },
+      "humanDriverClicked": true,
+      "expectationDriven": true,
+      "expectationId": "exp-1",
+      "expectationOutcome": "SILENT_FAILURE"
+    },
+    {
+      "interaction": {
+        "type": "link",
+        "selector": "#about-link",
+        "label": "About",
+        "href": null,
+        "dataHref": null,
+        "text": null,
+        "formAction": null
+      },
+      "before": {
+        "url": "http://localhost:3457/",
+        "screenshot": "screenshots/before-1767972801368-1.png"
+      },
+      "after": {
+        "url": "http://localhost:3457/about.html",
+        "screenshot": "screenshots/after-1767972801368-1.png"
+      },
+      "sensors": {
+        "network": {
+          "windowId": 0,
+          "totalRequests": 1,
+          "failedRequests": 0,
+          "failedByStatus": {},
+          "hasNetworkActivity": true,
+          "slowRequestsCount": 0,
+          "slowRequests": [],
+          "topFailedUrls": [],
+          "duration": 1989,
+          "unfinishedCount": 0,
+          "firstRequestUrl": "http://localhost:3457/about.html",
+          "observedRequestUrls": [
+            "http://localhost:3457/about.html"
+          ]
+        },
+        "console": {
+          "windowId": 0,
+          "errorCount": 0,
+          "consoleErrorCount": 0,
+          "pageErrorCount": 0,
+          "unhandledRejectionCount": 0,
+          "lastErrors": [],
+          "hasErrors": false
+        },
+        "navigation": {
+          "windowId": 0,
+          "beforeUrl": "http://localhost:3457/",
+          "afterUrl": "http://localhost:3457/about.html",
+          "urlChanged": true,
+          "beforeHistoryLength": 4,
+          "afterHistoryLength": 5,
+          "historyLengthDelta": 1,
+          "historyChanges": [],
+          "routerEvents": [],
+          "blockedNavigations": [],
+          "hasNavigationActivity": true,
+          "duration": 7015
+        },
+        "uiSignals": {
+          "before": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "after": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "diff": {
+            "changed": false,
+            "explanation": "",
+            "summary": {
+              "loadingStateChanged": false,
+              "dialogStateChanged": false,
+              "errorSignalChanged": false,
+              "statusSignalChanged": false,
+              "liveRegionStateChanged": false,
+              "disabledButtonsChanged": false,
+              "validationFeedbackChanged": false
+            }
+          }
+        },
+        "state": {
+          "available": false,
+          "changed": [],
+          "storeType": null
+        }
+      },
+      "humanDriver": true,
+      "dom": {
+        "beforeHash": "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d",
+        "afterHash": "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74",
+        "settle": {
+          "samples": [
+            "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74",
+            "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74",
+            "28e336f040dfb83afd860d57172689bbb99f124b112f1bf455ef8e61b19f8a74"
+          ],
+          "domChangedDuringSettle": false
+        }
+      },
+      "humanDriverClicked": true,
+      "expectationDriven": true,
+      "expectationId": "exp-1",
+      "expectationOutcome": "SILENT_FAILURE"
+    },
+    {
+      "interaction": {
+        "type": "link",
+        "selector": "#pricing-link",
+        "label": "Pricing",
+        "href": null,
+        "dataHref": null,
+        "text": null,
+        "formAction": null
+      },
+      "before": {
+        "url": "http://localhost:3457/",
+        "screenshot": "screenshots/before-1767972801368-2.png"
+      },
+      "after": {
+        "url": "http://localhost:3457/",
+        "screenshot": "screenshots/after-1767972801368-2.png"
+      },
+      "sensors": {
+        "network": {
+          "windowId": 0,
+          "totalRequests": 0,
+          "failedRequests": 0,
+          "failedByStatus": {},
+          "hasNetworkActivity": false,
+          "slowRequestsCount": 0,
+          "slowRequests": [],
+          "topFailedUrls": [],
+          "duration": 16381,
+          "unfinishedCount": 0,
+          "firstRequestUrl": null,
+          "observedRequestUrls": []
+        },
+        "console": {
+          "windowId": 0,
+          "errorCount": 0,
+          "consoleErrorCount": 0,
+          "pageErrorCount": 0,
+          "unhandledRejectionCount": 0,
+          "lastErrors": [],
+          "hasErrors": false
+        },
+        "navigation": {
+          "windowId": 0,
+          "beforeUrl": "http://localhost:3457/",
+          "afterUrl": "http://localhost:3457/",
+          "urlChanged": false,
+          "beforeHistoryLength": 6,
+          "afterHistoryLength": 6,
+          "historyLengthDelta": 0,
+          "historyChanges": [],
+          "routerEvents": [],
+          "blockedNavigations": [],
+          "hasNavigationActivity": false,
+          "duration": 21389
+        },
+        "uiSignals": {
+          "before": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "after": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "diff": {
+            "changed": false,
+            "explanation": "",
+            "summary": {
+              "loadingStateChanged": false,
+              "dialogStateChanged": false,
+              "errorSignalChanged": false,
+              "statusSignalChanged": false,
+              "liveRegionStateChanged": false,
+              "disabledButtonsChanged": false,
+              "validationFeedbackChanged": false
+            }
+          }
+        },
+        "state": {
+          "available": false,
+          "changed": [],
+          "storeType": null
+        }
+      },
+      "humanDriver": true,
+      "dom": {
+        "beforeHash": "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d",
+        "afterHash": "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d",
+        "settle": {
+          "samples": [
+            "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d",
+            "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d",
+            "e8aba95bbeeff35fd600f26c2adb52aa0c47e561ccb303a931c66d761fc7455d"
+          ],
+          "domChangedDuringSettle": false
+        }
+      },
+      "humanDriverClicked": true,
+      "policy": {
+        "timeout": true,
+        "reason": "interaction_timeout",
+        "phase": "navigation"
+      },
+      "expectationDriven": true,
+      "expectationId": "exp-2",
+      "expectationOutcome": "SILENT_FAILURE"
+    }
+  ],
+  "observedExpectations": [
+    {
+      "id": "obs-nav-1767972855173-unknown",
+      "type": "navigation",
+      "expectationStrength": "OBSERVED",
+      "expectedTargetPath": "/index.html",
+      "evidence": {
+        "selector": "unknown",
+        "attributeSource": "href",
+        "observedUrl": "/index.html",
+        "sourcePage": "http://localhost:3457/about.html"
+      },
+      "sourcePage": "http://localhost:3457/about.html",
+      "outcome": "VERIFIED",
+      "reason": null,
+      "repeatAttempted": false,
+      "repeated": false,
+      "confidenceLevel": "LOW"
+    }
+  ],
+  "coverage": {
+    "candidatesDiscovered": 5,
+    "candidatesSelected": 3,
+    "cap": null,
+    "capped": false,
+    "pagesVisited": 3,
+    "pagesDiscovered": 4,
+    "skippedInteractions": 0,
+    "interactionsDiscovered": 5,
+    "interactionsExecuted": 3
+  }
+}

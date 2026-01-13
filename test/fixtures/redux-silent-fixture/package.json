@@ -1,0 +1,11 @@
+{
+  "name": "redux-silent-failure-fixture",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^9.0.0"
+  }
+}

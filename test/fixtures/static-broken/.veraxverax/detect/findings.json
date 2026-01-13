@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "detectedAt": "2026-01-09T15:00:14.232Z",
+  "url": "http://localhost:3464",
+  "findings": [
+    {
+      "type": "navigation_silent_failure",
+      "interaction": {
+        "type": "link",
+        "selector": "#broken-pricing-link",
+        "label": "Pricing"
+      },
+      "reason": "Expected navigation did not occur and no user-visible feedback provided",
+      "evidence": {
+        "before": "screenshots/before-1767970767703-0.png",
+        "after": "screenshots/after-1767970767703-0.png",
+        "beforeUrl": "http://localhost:3464/",
+        "afterUrl": "http://localhost:3464/",
+        "expectedTarget": "/pricing",
+        "targetReached": false,
+        "urlChanged": false,
+        "historyLengthDelta": 0,
+        "uiFeedback": false
+      },
+      "confidence": {
+        "score": 88,
+        "level": "HIGH",
+        "explain": [
+          "Expected URL change did not occur",
+          "No user-visible feedback on navigation failure"
+        ],
+        "factors": {
+          "expectationStrength": "PROVEN",
+          "sensorsPresent": {
+            "network": true,
+            "console": true,
+            "ui": true
+          },
+          "evidenceSignals": {
+            "urlChanged": false,
+            "domChanged": false,
+            "screenshotChanged": false,
+            "networkFailed": false,
+            "consoleErrors": false,
+            "uiFeedbackDetected": false,
+            "slowRequests": false
+          },
+          "penalties": [],
+          "boosts": [
+            "Expected URL change did not occur",
+            "No user-visible feedback on navigation failure"
+          ]
+        }
+      }
+    },
+    {
+      "type": "navigation_silent_failure",
+      "interaction": {
+        "type": "link",
+        "selector": "#broken-pricing-link",
+        "label": "Pricing"
+      },
+      "reason": "Expected navigation did not occur and no user-visible feedback provided",
+      "evidence": {
+        "before": "screenshots/before-1767970767765-0.png",
+        "after": "screenshots/after-1767970767765-0.png",
+        "beforeUrl": "http://localhost:3464/",
+        "afterUrl": "http://localhost:3464/",
+        "expectedTarget": "/pricing",
+        "targetReached": false,
+        "urlChanged": false,
+        "historyLengthDelta": 0,
+        "uiFeedback": false
+      },
+      "confidence": {
+        "score": 88,
+        "level": "HIGH",
+        "explain": [
+          "Expected URL change did not occur",
+          "No user-visible feedback on navigation failure"
+        ],
+        "factors": {
+          "expectationStrength": "PROVEN",
+          "sensorsPresent": {
+            "network": true,
+            "console": true,
+            "ui": true
+          },
+          "evidenceSignals": {
+            "urlChanged": false,
+            "domChanged": false,
+            "screenshotChanged": false,
+            "networkFailed": false,
+            "consoleErrors": false,
+            "uiFeedbackDetected": false,
+            "slowRequests": false
+          },
+          "penalties": [],
+          "boosts": [
+            "Expected URL change did not occur",
+            "No user-visible feedback on navigation failure"
+          ]
+        }
+      }
+    }
+  ],
+  "coverageGaps": [],
+  "notes": []
+}

@@ -1,0 +1,37 @@
+{
+  "projectName": "flow-ok",
+  "projectType": "simple-html",
+  "projectDir": "test/fixtures/flow-ok",
+  "version": 1,
+  "learnedAt": "2026-01-08T16:00:00.000Z",
+  "routes": [
+    {
+      "path": "/",
+      "public": true
+    },
+    {
+      "path": "/step2",
+      "public": true
+    }
+  ],
+  "staticExpectations": [
+    {
+      "type": "navigation",
+      "fromPath": "/",
+      "targetPath": "/step2",
+      "evidence": {
+        "selectorHint": "a#step1-link",
+        "interactionType": "link"
+      }
+    },
+    {
+      "type": "network",
+      "fromPath": "/step2",
+      "targetPath": "/api/data",
+      "evidence": {
+        "selectorHint": "button#api-button",
+        "interactionType": "button"
+      }
+    }
+  ]
+}

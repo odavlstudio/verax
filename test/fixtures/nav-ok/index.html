@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Nav OK</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    button { padding: 10px 16px; background: #28a745; color: white; border: none; cursor: pointer; }
+    button:hover { background: #218838; }
+  </style>
+</head>
+<body>
+  <h1>Navigation OK Fixture</h1>
+  <p>Click will call router.push('/target') and navigation succeeds.</p>
+  <button id="navBtn">Go to Target</button>
+  
+  <script>
+    // Simulate working SPA router
+    const router = {
+      push: function(path) {
+        console.log('router.push called with:', path);
+        // Simulate successful navigation
+        window.history.pushState({}, '', path);
+        // Load target content
+        window.location.href = path;
+      }
+    };
+    
+    document.getElementById('navBtn').addEventListener('click', () => {
+      router.push('/target');
+    });
+  </script>
+</body>
+</html>

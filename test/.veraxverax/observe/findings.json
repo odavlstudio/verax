@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "detectedAt": "2026-01-11T04:27:42.948Z",
+  "url": "http://localhost:8135/nav-blocked.html",
+  "outcomeSummary": {
+    "SILENT_FAILURE": 0,
+    "COVERAGE_GAP": 0,
+    "UNPROVEN_INTERACTION": 0,
+    "SAFETY_BLOCK": 0,
+    "INFORMATIONAL": 0
+  },
+  "promiseSummary": {},
+  "findings": [],
+  "coverageGaps": [],
+  "notes": []
+}

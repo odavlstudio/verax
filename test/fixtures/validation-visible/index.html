@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Validation Visible</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    form { max-width: 400px; }
+    input { display: block; margin: 10px 0; padding: 8px; width: 100%; }
+    button { padding: 10px 16px; background: #28a745; color: white; border: none; cursor: pointer; }
+    button:hover { background: #218838; }
+    #errorMessage { 
+      margin-top: 12px; 
+      padding: 12px; 
+      background: #f8d7da; 
+      border: 1px solid #f5c6cb; 
+      color: #721c24;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Validation Visible Fixture</h1>
+  <p>Form onSubmit calls preventDefault() and shows VISIBLE error message.</p>
+  
+  <form id="testForm">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required />
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required />
+    
+    <button type="submit">Submit</button>
+  </form>
+  
+  <!-- Visible validation feedback with role=alert -->
+  <div id="errorMessage" role="alert"></div>
+  
+  <script>
+    document.getElementById('testForm').addEventListener('submit', function(event) {
+      // Validate input
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('errorMessage');
+      
+      // Clear previous errors
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+      
+      if (!email || email.length < 5) {
+        // PROVEN validation block: preventDefault WITH visible feedback
+        event.preventDefault();
+        errorDiv.textContent = 'Error: Email must be at least 5 characters';
+        errorDiv.style.display = 'block';
+        return false;
+      }
+      
+      if (!password || password.length < 8) {
+        // PROVEN validation block: preventDefault WITH visible feedback
+        event.preventDefault();
+        errorDiv.textContent = 'Error: Password must be at least 8 characters';
+        errorDiv.style.display = 'block';
+        return false;
+      }
+      
+      // If validation passed, would submit
+      // For fixture, always block to ensure consistent behavior
+      event.preventDefault();
+      errorDiv.textContent = 'Validation passed but submission blocked for testing';
+      errorDiv.style.display = 'block';
+    });
+  </script>
+</body>
+</html>

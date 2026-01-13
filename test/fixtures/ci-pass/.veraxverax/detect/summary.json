@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "computedAt": "2026-01-08T17:06:39.961Z",
+  "decision": "PASS",
+  "exitCode": 1,
+  "reasons": [
+    "No findings detected",
+    "PROVEN coverage 100% meets optimal threshold"
+  ],
+  "metrics": {
+    "findingsTotal": 0,
+    "findingsByType": {},
+    "highestConfidence": "NONE",
+    "coverageProvenPercent": 100,
+    "flowFailures": 0,
+    "silentFailures": 0
+  }
+}

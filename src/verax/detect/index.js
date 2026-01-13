@@ -1,11 +1,19 @@
 import { readFileSync, existsSync } from 'fs';
+import { dirname, basename } from 'path';
 import { expectsNavigation } from './expectation-model.js';
 import { hasMeaningfulUrlChange, hasVisibleChange, hasDomChange } from './comparison.js';
 import { writeFindings } from './findings-writer.js';
 import { getUrlPath } from './evidence-validator.js';
 import { classifySkipReason, collectSkipReasons } from './skip-classifier.js';
+import { detectInteractiveFindings } from './interactive-findings.js';
 
-export async function detect(manifestPath, tracesPath, validation = null) {
+/**
+ * @param {string} manifestPath
+ * @param {string} tracesPath
+ * @param {Object} [validation]
+ * @returns {Promise<any>}
+ */
+export async function detect(manifestPath, tracesPath, validation = null, _expectationCoverageGaps = null, _silenceTracker = null) {
   if (!existsSync(manifestPath)) {
     throw new Error(`Manifest not found: ${manifestPath}`);
   }
@@ -23,8 +31,21 @@ export async function detect(manifestPath, tracesPath, validation = null) {
   const projectDir = manifest.projectDir;
   const findings = [];
   
+  // Extract runId from tracesPath: .verax/runs/<runId>/observation-traces.json
+  let runId = null;
+  try {
+    const runDir = dirname(tracesPath);
+    const runDirBasename = basename(runDir);
+    // Check if runDir is in .verax/runs/<runId> structure
+    const parentDir = dirname(runDir);
+    if (basename(parentDir) === 'runs' && basename(dirname(parentDir)) === '.verax') {
+      runId = runDirBasename;
+    }
+  } catch {
+    // Ignore path parsing errors
+  }
+  
   let interactionsAnalyzed = 0;
-  let interactionsSkippedNoExpectation = 0;
   const skips = [];
   
   for (const trace of observation.traces) {
@@ -37,7 +58,6 @@ export async function detect(manifestPath, tracesPath, validation = null) {
     const expectsNav = expectsNavigation(manifest, interaction, beforeUrl);
     
     if (!expectsNav) {
-      interactionsSkippedNoExpectation++;
       const skipReason = classifySkipReason(manifest, interaction, beforeUrl, validation);
       if (skipReason) {
         skips.push({
@@ -67,12 +87,12 @@ export async function detect(manifestPath, tracesPath, validation = null) {
         for (const expectation of manifest.staticExpectations) {
           const normalizedFrom = expectation.fromPath.replace(/\/$/, '') || '/';
           if (normalizedFrom === normalizedBefore) {
-            const selectorHint = expectation.evidence.selectorHint || '';
+            const selectorHint = expectation.selectorHint || '';
             const interactionSelector = interaction.selector || '';
             
             if (selectorHint && interactionSelector) {
-              const normalizedSelectorHint = selectorHint.replace(/[\[\]()]/g, '');
-              const normalizedInteractionSelector = interactionSelector.replace(/[\[\]()]/g, '');
+              const normalizedSelectorHint = selectorHint.replace(/[[\]()]/g, '');
+              const normalizedInteractionSelector = interactionSelector.replace(/[[\]()]/g, '');
               
               if (selectorHint === interactionSelector || 
                   selectorHint.includes(interactionSelector) || 
@@ -115,7 +135,6 @@ export async function detect(manifestPath, tracesPath, validation = null) {
               label: interaction.label
             }
           });
-          interactionsSkippedNoExpectation++;
           continue;
         }
       }
@@ -159,7 +178,6 @@ export async function detect(manifestPath, tracesPath, validation = null) {
               label: interaction.label
             }
           });
-          interactionsSkippedNoExpectation++;
           continue;
         } else if (matchingRoutes.length === 1) {
           expectedTargetPath = matchingRoutes[0];
@@ -178,14 +196,22 @@ export async function detect(manifestPath, tracesPath, validation = null) {
           label: interaction.label
         }
       });
-      interactionsSkippedNoExpectation++;
       continue;
     }
     
     interactionsAnalyzed++;
     
     const hasUrlChange = hasMeaningfulUrlChange(beforeUrl, afterUrl);
-    const hasVisibleChangeResult = hasVisibleChange(beforeScreenshot, afterScreenshot, projectDir);
+    // hasVisibleChange requires runId, skip comparison if runId unavailable
+    let hasVisibleChangeResult = false;
+    if (runId) {
+      try {
+        hasVisibleChangeResult = hasVisibleChange(beforeScreenshot, afterScreenshot, projectDir, runId);
+      } catch (e) {
+        // If screenshot comparison fails, treat as no visible change
+        hasVisibleChangeResult = false;
+      }
+    }
     const hasDomChangeResult = hasDomChange(trace);
     
     if (expectedTargetPath) {
@@ -254,7 +280,18 @@ export async function detect(manifestPath, tracesPath, validation = null) {
     }
   }
   
-  const findingsResult = writeFindings(projectDir, observation.url, findings);
+  // Interactive and accessibility intelligence
+  detectInteractiveFindings(observation.traces, manifest, findings);
+  
+  // Infer canonical run directory from tracesPath when available
+  let runDir = null;
+  try {
+    runDir = dirname(tracesPath);
+  } catch {
+    // Ignore path parsing errors
+  }
+
+  const findingsResult = writeFindings(projectDir, observation.url, findings, [], runDir);
   
   const skipSummary = collectSkipReasons(skips);
   

@@ -1,0 +1,25 @@
+{
+  "projectName": "ci-pass-test",
+  "projectType": "simple-html",
+  "projectDir": "C:\\Users\\sabou\\verax\\test\\fixtures\\ci-pass",
+  "staticExpectations": [
+    {
+      "type": "navigation",
+      "fromPath": "/",
+      "targetPath": "/page2",
+      "evidence": {
+        "selectorHint": "a#link1"
+      },
+      "proof": "PROVEN_EXPECTATION"
+    },
+    {
+      "type": "navigation",
+      "fromPath": "/page2",
+      "targetPath": "/page3",
+      "evidence": {
+        "selectorHint": "a#link2"
+      },
+      "proof": "PROVEN_EXPECTATION"
+    }
+  ]
+}

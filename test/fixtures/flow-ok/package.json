@@ -1,0 +1,9 @@
+{
+  "name": "flow-ok-fixture",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Test fixture for flow intelligence - ok scenario",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

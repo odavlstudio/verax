@@ -1,0 +1,16 @@
+{
+  "projectType": "static",
+  "projectDir": "C:\\Users\\sabou\\verax\\test\\fixtures\\verdict-engine",
+  "staticExpectations": [
+    {
+      "id": "nav-1",
+      "type": "navigation",
+      "fromPath": "/",
+      "targetPath": "/target",
+      "proof": "direct_link_reference",
+      "evidence": {
+        "selectorHint": "#nav-link"
+      }
+    }
+  ]
+}
