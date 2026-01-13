@@ -1,0 +1,78 @@
+name: VERAX Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run full test suite
+        run: npm test
+
+      - name: Run pack E2E test
+        run: npm test -- test/wave8-pack-e2e.test.js
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Tag version: $VERSION"
+
+      - name: Verify package version matches tag
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if [ "$PACKAGE_VERSION" != "${{ steps.version.outputs.version }}" ]; then
+            echo "Error: Package version ($PACKAGE_VERSION) does not match tag version (${{ steps.version.outputs.version }})"
+            exit 1
+          fi
+          echo "Version match verified: $PACKAGE_VERSION"
+
+      - name: Publish to npm
+        id: publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "⚠️  NPM_TOKEN secret not found. Skipping publish (dry-run mode)."
+            echo "Would publish version: ${{ steps.version.outputs.version }}"
+            echo "Run with NPM_TOKEN secret to actually publish."
+            exit 0
+          fi
+          
+          echo "Publishing to npm..."
+          npm publish --access public
+          
+        continue-on-error: true
+
+      - name: Publish result
+        if: always()
+        run: |
+          if [ "${{ steps.publish.outcome }}" == "success" ]; then
+            echo "✅ Successfully published to npm"
+          elif [ -z "${{ secrets.NPM_TOKEN }}" ]; then
+            echo "ℹ️  Publish skipped (NPM_TOKEN not configured)"
+          else
+            echo "❌ Publish failed. Check logs above."
+            exit 1
+          fi
+

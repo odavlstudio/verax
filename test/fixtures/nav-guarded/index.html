@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Nav Guarded</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    button { padding: 10px 16px; background: #ffc107; color: black; border: none; cursor: pointer; }
+    button:hover { background: #e0a800; }
+    #message { margin-top: 12px; padding: 8px; background: #fff3cd; border: 1px solid #ffc107; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Navigation Guarded Fixture</h1>
+  <p>Click will call router.push('/target') but guard blocks with visible feedback.</p>
+  <button id="navBtn">Go to Target</button>
+  <div id="message" role="alert"></div>
+  
+  <script>
+    // Simulate SPA router with guard
+    const router = {
+      push: function(path) {
+        console.log('router.push called with:', path);
+        // Simulate guard blocking navigation
+        const allowed = false; // Guard rejects
+        if (!allowed) {
+          // Show user feedback
+          const msg = document.getElementById('message');
+          msg.textContent = 'Navigation blocked: Please complete the current form first';
+          msg.style.display = 'block';
+          // Do not navigate
+          return false;
+        }
+        // If allowed, would navigate here
+        window.history.pushState({}, '', path);
+        window.location.href = path;
+      }
+    };
+    
+    document.getElementById('navBtn').addEventListener('click', () => {
+      router.push('/target');
+    });
+  </script>
+</body>
+</html>

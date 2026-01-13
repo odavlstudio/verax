@@ -1,21 +1,45 @@
 {
-  "name": "@verax/verax",
-  "version": "0.1.0",
+  "name": "@veraxhq/verax",
+  "version": "0.2.1",
   "description": "VERAX - Silent failure detection for websites",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "verax": "./bin/verax.js"
   },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "test": "node --test test/learn.test.js test/observe.test.js test/detect.test.js test/static-learn.test.js test/static-detect.test.js test/observe-boundary.test.js test/static-buttons-detect.test.js test/spa-support.test.js test/scan-summary.test.js test/route-validation.test.js test/skip-reasons.test.js test/observe-stabilization.test.js test/observe-coverage.test.js"
+    "test": "node scripts/test-runner-wrapper.js",
+    "test:pack": "node scripts/test-pack.js",
+    "verify-release": "node scripts/verify-release.js",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "glob": "^10.3.10",
     "inquirer": "^9.2.15",
     "node-html-parser": "^7.0.1",
-    "playwright": "^1.40.0"
+    "playwright": "^1.40.0",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@babel/parser": "^7.28.5",
+    "@babel/traverse": "^7.28.5",
+    "@reduxjs/toolkit": "^2.11.2",
+    "@veraxhq/verax": "file:veraxhq-verax-0.2.1.tgz",
+    "eslint": "^8.57.0",
+    "next": "^16.1.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.12.0"
   }
 }

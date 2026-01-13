@@ -18,6 +18,24 @@ export async function assessLearnTruth(projectDir, projectType, routes, staticEx
   if (projectType === 'nextjs_app_router' || projectType === 'nextjs_pages_router') {
     truth.routesSource = 'nextjs_fs';
     truth.routesConfidence = 'HIGH';
+  } else if (projectType === 'vue_router') {
+    truth.routesSource = 'vue_router_ast';
+    truth.routesConfidence = 'HIGH';
+    
+    if (staticExpectations && staticExpectations.length > 0) {
+      truth.expectationsDiscovered = staticExpectations.length;
+      truth.expectationsStrong = staticExpectations.filter(e => 
+        e.type === 'spa_navigation'
+      ).length;
+      truth.expectationsWeak = 0;
+    }
+  } else if (projectType === 'vue_spa') {
+    truth.routesSource = 'vue_no_router';
+    truth.routesConfidence = 'LOW';
+    truth.limitations.push({
+      code: 'VUE_ROUTER_NOT_INSTALLED',
+      message: 'Vue detected but vue-router not installed. Routes cannot be extracted from router configuration.'
+    });
   } else if (projectType === 'static') {
     truth.routesSource = 'static_html';
     

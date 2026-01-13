@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Redux Simple Test</title>
+  <!-- Load Redux -->
+  <script src="https://unpkg.com/redux@4.2.1/dist/redux.min.js"></script>
+  <!-- Load Immer (needed for Redux Toolkit) -->
+  <script src="https://unpkg.com/immer@10.0.0/dist/immer.min.js"></script>
+  <!-- Load Redux Toolkit -->
+  <script src="https://unpkg.com/@reduxjs/toolkit@1.9.5/dist/redux-toolkit.umd.min.js"></script>
+</head>
+<body>
+  <h1>Redux State Test (Vanilla JS)</h1>
+  
+  <button id="increment-btn">Increment (Silent)</button>
+  <button id="show-count">Show Count</button>
+  
+  <div id="count-display" style="display: none;">
+    Count: <span id="count-value">0</span>
+  </div>
+  
+  <script>
+    // Wait for all libraries to load
+    function waitForLibraries() {
+      return new Promise((resolve) => {
+        const check = setInterval(() => {
+          if (typeof window.RTK !== 'undefined' && typeof window.Redux !== 'undefined') {
+            clearInterval(check);
+            console.log('[Fixture] Redux and RTK loaded');
+            resolve();
+          }
+        }, 50);
+        // Timeout after 10 seconds
+        setTimeout(() => {
+          clearInterval(check);
+          console.log('[Fixture] Timeout waiting for libraries, continuing anyway');
+          resolve();
+        }, 10000);
+      });
+    }
+    
+    waitForLibraries().then(() => {
+      console.log('[Fixture] Starting store creation');
+      console.log('[Fixture] window.RTK =', typeof window.RTK);
+      
+      // Try using the global RTK
+      const RTK = window.RTK || {};
+      const Redux = window.Redux || {};
+      
+      if (RTK.createSlice && RTK.configureStore) {
+        console.log('[Fixture] Using RTK from window');
+        const { createSlice, configureStore } = RTK;
+        
+        const counterSlice = createSlice({
+          name: 'counter',
+          initialState: { value: 0 },
+          reducers: {
+            increment: (state) => {
+              state.value += 1;
+            }
+          }
+        });
+        
+        const { increment } = counterSlice.actions;
+        
+        const store = configureStore({
+          reducer: {
+            counter: counterSlice.reducer
+          }
+        });
+        
+        window.__REDUX_STORE__ = store;
+        window.__REDUX_READY__ = true;
+        console.log('[Fixture] Store created and exposed');
+      } else if (Redux.createStore) {
+        console.log('[Fixture] Using Redux directly');
+        const { createStore } = Redux;
+        
+        const initialState = { counter: { value: 0 } };
+        
+        function counterReducer(state = initialState.counter, action) {
+          switch (action.type) {
+            case 'INCREMENT':
+              return { value: state.value + 1 };
+            default:
+              return state;
+          }
+        }
+        
+        const store = createStore(counterReducer);
+        window.__REDUX_STORE__ = store;
+        window.__REDUX_READY__ = true;
+        console.log('[Fixture] Redux store created');
+      } else {
+        console.log('[Fixture] Could not find RTK or Redux on window');
+        console.log('[Fixture] window keys with Redux:', Object.keys(window).filter(k => k.includes('Redux') || k.includes('redux')));
+      }
+      
+      // Set up handlers
+      const store = window.__REDUX_STORE__;
+      if (store) {
+        function handleIncrementClick() {
+          if (RTK.createSlice) {
+            // Using RTK - get the action
+            const counterSlice = store._reducer;
+            store.dispatch({ type: 'counter/increment' });
+          } else {
+            store.dispatch({ type: 'INCREMENT' });
+          }
+        }
+        
+        document.getElementById('increment-btn').addEventListener('click', handleIncrementClick);
+        
+        document.getElementById('show-count').addEventListener('click', function() {
+          const state = store.getState();
+          const count = state.counter?.value || state.value || 0;
+          document.getElementById('count-value').textContent = count;
+          document.getElementById('count-display').style.display = 'block';
+        });
+      }
+    });
+  </script>
+</body>
+</html>

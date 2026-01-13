@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <div id="broken-hover" aria-haspopup="true" data-hover="true">Hover me (broken)</div>
+  <script>
+    document.getElementById('broken-hover').addEventListener('mouseenter', function() {
+      // Hover handler exists but reveals nothing
+      Promise.resolve().then(() => {});
+    });
+  </script>
+</body>
+</html>

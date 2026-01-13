@@ -1,0 +1,26 @@
+
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Multi Signal Test</title>
+      </head>
+      <body>
+        <button id="multi-btn">Multi Signal</button>
+        <div id="status" role="status">Ready</div>
+        <div id="spinner" style="display:none;" aria-busy="true">Loading...</div>
+        <script>
+          document.getElementById('multi-btn').addEventListener('click', function() {
+            // Multiple feedback signals
+            document.getElementById('status').innerHTML = 'Processing...';
+            document.getElementById('spinner').style.display = 'block';
+            
+            setTimeout(() => {
+              fetch('about:blank', { method: 'HEAD' });
+              document.getElementById('status').innerHTML = 'Complete';
+              document.getElementById('spinner').style.display = 'none';
+            }, 150);
+          });
+        </script>
+      </body>
+      </html>
+    

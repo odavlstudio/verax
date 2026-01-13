@@ -1,0 +1,155 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Phase 6 A11Y Test</title>
+      <style>
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; }
+        .trap-container { outline: 1px solid red; padding: 10px; }
+      </style>
+    </head>
+    <body>
+      <h1>Phase 6 Accessibility Tests</h1>
+      
+      <!-- Test 1: Focus loss -->
+      <div id="test-focus-loss">
+        <button id="focus-loss-btn">Click to Lose Focus</button>
+        <p id="focus-status">Focus here initially</p>
+      </div>
+      
+      <!-- Test 2: Modal without focus move -->
+      <div id="test-modal-focus">
+        <button id="modal-btn">Open Modal (No Focus)</button>
+        <div id="modal" class="modal">
+          <div class="modal-content">
+            <p>This modal opened but focus wasn't moved</p>
+            <button id="modal-close">Close</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Test 3: Successful modal with focus -->
+      <div id="test-modal-success">
+        <button id="modal-success-btn">Open Modal (With Focus)</button>
+        <div id="modal-success" class="modal">
+          <div class="modal-content">
+            <p>Modal with proper focus management</p>
+            <button id="modal-success-close" autofocus>Close</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Test 4: Form submission without ARIA -->
+      <div id="test-form-no-aria">
+        <form id="form-no-aria">
+          <input type="text" placeholder="Enter name">
+          <button type="submit">Submit (No ARIA)</button>
+        </form>
+        <div id="form-result"></div>
+      </div>
+      
+      <!-- Test 5: Form submission with ARIA -->
+      <div id="test-form-with-aria">
+        <form id="form-with-aria">
+          <input type="text" placeholder="Enter name">
+          <button type="submit">Submit (With ARIA)</button>
+        </form>
+        <div id="form-result-aria" role="status" aria-live="polite"></div>
+      </div>
+      
+      <!-- Test 6: Keyboard trap scenario -->
+      <div id="test-keyboard-trap" class="trap-container">
+        <p>Keyboard Trap Container</p>
+        <button id="trap-btn-1">Trap Button 1</button>
+        <button id="trap-btn-2">Trap Button 2</button>
+        <p>Tab cycles between these buttons only</p>
+      </div>
+      
+      <script>
+        // Test 1: Focus loss - button click causes focus to be lost
+        document.getElementById('focus-loss-btn').addEventListener('click', () => {
+          // Intentionally blur and don't refocus anything
+          document.activeElement.blur();
+          // Focus moves to body implicitly
+        });
+        
+        // Test 2: Modal without focus move
+        document.getElementById('modal-btn').addEventListener('click', () => {
+          const modal = document.getElementById('modal');
+          modal.classList.add('active');
+          // Intentionally don't move focus to modal - accessibility failure
+        });
+        
+        document.getElementById('modal-close').addEventListener('click', () => {
+          const modal = document.getElementById('modal');
+          modal.classList.remove('active');
+        });
+        
+        // Test 3: Modal with proper focus management
+        document.getElementById('modal-success-btn').addEventListener('click', () => {
+          const modal = document.getElementById('modal-success');
+          modal.classList.add('active');
+          // Focus will move to autofocus button via browser
+        });
+        
+        document.getElementById('modal-success-close').addEventListener('click', () => {
+          const modal = document.getElementById('modal-success');
+          modal.classList.remove('active');
+        });
+        
+        // Test 4: Form submission without ARIA
+        document.getElementById('form-no-aria').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          try {
+            const response = await fetch('/api/submit', { method: 'POST' });
+            if (response.ok) {
+              document.getElementById('form-result').textContent = 'Success!';
+              // No ARIA announcement - accessibility failure
+            }
+          } catch (err) {}
+        });
+        
+        // Test 5: Form submission with ARIA
+        document.getElementById('form-with-aria').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          try {
+            const response = await fetch('/api/submit', { method: 'POST' });
+            if (response.ok) {
+              const liveRegion = document.getElementById('form-result-aria');
+              liveRegion.textContent = 'Form submitted successfully!';
+              // ARIA announcement provided - accessible
+            }
+          } catch (err) {}
+        });
+        
+        // Test 6: Keyboard trap - tab stays within buttons
+        const trap1 = document.getElementById('trap-btn-1');
+        const trap2 = document.getElementById('trap-btn-2');
+        
+        trap1.addEventListener('keydown', (e) => {
+          if (e.key === 'Tab' && !e.shiftKey) {
+            e.preventDefault();
+            trap2.focus();
+          }
+          if (e.key === 'Tab' && e.shiftKey) {
+            e.preventDefault();
+            trap2.focus();
+          }
+        });
+        
+        trap2.addEventListener('keydown', (e) => {
+          if (e.key === 'Tab' && !e.shiftKey) {
+            e.preventDefault();
+            trap1.focus();
+          }
+          if (e.key === 'Tab' && e.shiftKey) {
+            e.preventDefault();
+            trap1.focus();
+          }
+        });
+      </script>
+    </body>
+    </html>
+  

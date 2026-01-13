@@ -1,13 +1,13 @@
 import { glob } from 'glob';
-import { resolve, dirname, join, relative } from 'path';
+import { resolve, dirname, relative } from 'path';
 import { readFileSync, existsSync } from 'fs';
 import { parse } from 'node-html-parser';
 
 const MAX_HTML_FILES = 200;
 
 function htmlFileToRoute(file) {
-  let path = file.replace(/[\\\/]/g, '/');
-  path = path.replace(/\/index\.html$/, '');
+  let path = file.replace(/[\\/]/g, '/');
+  path = path.replace(/\/index.html$/, '');
   path = path.replace(/\.html$/, '');
   path = path.replace(/^index$/, '');
   
@@ -159,6 +159,105 @@ function extractFormSubmissionExpectations(root, fromPath, file, routeMap, proje
   return expectations;
 }
 
+function extractNetworkExpectations(root, fromPath, file, _projectDir) {
+  const expectations = [];
+  
+  // Extract from inline scripts
+  const scripts = root.querySelectorAll('script');
+  for (const script of scripts) {
+    const scriptContent = script.textContent || '';
+    if (!scriptContent) continue;
+    
+    // Find fetch() calls with string literals
+    const fetchMatches = scriptContent.matchAll(/fetch\s*\(\s*['"]([^'"]+)['"]/g);
+    for (const match of fetchMatches) {
+      const endpoint = match[1];
+      if (!endpoint) continue;
+      
+      // Only extract if it's an API endpoint (starts with /api/)
+      if (!endpoint.startsWith('/api/')) continue;
+      
+      // Find the button/function that triggers this
+      // Look for onclick handlers or function definitions
+      const buttonId = scriptContent.match(/getElementById\s*\(\s*['"]([^'"]+)['"]/)?.[1];
+      const functionName = scriptContent.match(/function\s+(\w+)\s*\(/)?.[1];
+      
+      let selectorHint = null;
+      if (buttonId) {
+        selectorHint = `#${buttonId}`;
+      } else if (functionName) {
+        // Try to find button with onclick that calls this function
+        const buttons = root.querySelectorAll(`button[onclick*="${functionName}"]`);
+        if (buttons.length > 0) {
+          const btn = buttons[0];
+          selectorHint = btn.id ? `#${btn.id}` : `button[onclick*="${functionName}"]`;
+        }
+      }
+      
+      if (selectorHint) {
+        // Determine method from fetch options if present
+        let method = 'GET';
+        const methodMatch = scriptContent.match(/method\s*:\s*['"]([^'"]+)['"]/i);
+        if (methodMatch) {
+          method = methodMatch[1].toUpperCase();
+        }
+        
+        expectations.push({
+          fromPath: fromPath,
+          type: 'network_action',
+          expectedTarget: endpoint,
+          urlPath: endpoint,
+          method: method,
+          proof: 'PROVEN_EXPECTATION',
+          sourceRef: `${file}:${scriptContent.indexOf(match[0])}`,
+          selectorHint: selectorHint,
+          evidence: {
+            source: file,
+            selectorHint: selectorHint
+          }
+        });
+      }
+    }
+  }
+  
+  // Also check onclick attributes directly
+  const buttons = root.querySelectorAll('button[onclick]');
+  for (const button of buttons) {
+    const onclick = button.getAttribute('onclick') || '';
+    const fetchMatch = onclick.match(/fetch\s*\(\s*['"]([^'"]+)['"]/);
+    if (fetchMatch) {
+      const endpoint = fetchMatch[1];
+      if (endpoint.startsWith('/api/')) {
+        const buttonId = button.getAttribute('id');
+        const selectorHint = buttonId ? `#${buttonId}` : `button[onclick*="${endpoint}"]`;
+        
+        let method = 'GET';
+        const methodMatch = onclick.match(/method\s*:\s*['"]([^'"]+)['"]/i);
+        if (methodMatch) {
+          method = methodMatch[1].toUpperCase();
+        }
+        
+        expectations.push({
+          fromPath: fromPath,
+          type: 'network_action',
+          expectedTarget: endpoint,
+          urlPath: endpoint,
+          method: method,
+          proof: 'PROVEN_EXPECTATION',
+          sourceRef: `${file}:onclick`,
+          selectorHint: selectorHint,
+          evidence: {
+            source: file,
+            selectorHint: selectorHint
+          }
+        });
+      }
+    }
+  }
+  
+  return expectations;
+}
+
 export async function extractStaticExpectations(projectDir, routes) {
   const expectations = [];
   const routeMap = new Map(routes.map(r => [r.path, r]));
@@ -187,9 +286,10 @@ export async function extractStaticExpectations(projectDir, routes) {
         const targetPath = resolveLinkPath(href, file, projectDir);
         if (!targetPath) continue;
         
-        if (!routeMap.has(targetPath)) continue;
-        
-        const linkText = link.textContent?.trim() || '';
+        // Extract expectation even if target route doesn't exist yet
+        // This allows detection of broken links or prevented navigation
+        // (The route may not exist, but the link promises navigation)
+        const _linkText = link.textContent?.trim() || '';
         const selectorHint = link.id ? `#${link.id}` : `a[href="${href}"]`;
         
         expectations.push({
@@ -208,6 +308,19 @@ export async function extractStaticExpectations(projectDir, routes) {
       
       const formExpectations = extractFormSubmissionExpectations(root, fromPath, file, routeMap, projectDir);
       expectations.push(...formExpectations);
+      
+      const networkExpectations = extractNetworkExpectations(root, fromPath, file, projectDir);
+      expectations.push(...networkExpectations);
+      
+      // NAVIGATION INTELLIGENCE v2: Extract navigation expectations from inline scripts
+      const { extractNavigationExpectations } = await import('./static-extractor-navigation.js');
+      const navigationExpectations = extractNavigationExpectations(root, fromPath, file, projectDir);
+      expectations.push(...navigationExpectations);
+      
+      // VALIDATION INTELLIGENCE v1: Extract validation_block expectations from inline scripts
+      const { extractValidationExpectations } = await import('./static-extractor-validation.js');
+      const validationExpectations = extractValidationExpectations(root, fromPath, file, projectDir);
+      expectations.push(...validationExpectations);
     } catch (error) {
       continue;
     }

@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "learnedAt": "2026-01-11T04:04:03.773Z",
+  "projectDir": "C:\\Users\\sabou\\verax\\test\\fixtures\\react-router-app",
+  "projectType": "react_spa",
+  "routes": [
+    {
+      "path": "/",
+      "source": "src/App.js:25",
+      "public": true,
+      "sourceRef": "src/App.js:25"
+    },
+    {
+      "path": "/about",
+      "source": "src/App.js:26",
+      "public": true,
+      "sourceRef": "src/App.js:26"
+    },
+    {
+      "path": "/pricing",
+      "source": "src/App.js:27",
+      "public": true,
+      "sourceRef": "src/App.js:27"
+    }
+  ],
+  "publicRoutes": [
+    "/",
+    "/about",
+    "/pricing"
+  ],
+  "internalRoutes": [],
+  "notes": [
+    {
+      "type": "truth",
+      "learn": {
+        "routesDiscovered": 3,
+        "routesSource": "react_router_regex",
+        "routesConfidence": "MEDIUM",
+        "expectationsDiscovered": 3,
+        "expectationsStrong": 3,
+        "expectationsWeak": 0,
+        "warnings": [
+          {
+            "code": "REACT_ROUTE_EXTRACTION_FRAGILE",
+            "message": "Route extraction uses regex parsing of source files. Dynamic routes, nested routers, and code-split route definitions may be missed."
+          }
+        ],
+        "limitations": []
+      }
+    }
+  ],
+  "staticExpectations": [
+    {
+      "type": "spa_navigation",
+      "targetPath": "/about",
+      "matchAttribute": "to",
+      "proof": "PROVEN_EXPECTATION",
+      "sourceRef": "src/App.js:8",
+      "selectorHint": "Link",
+      "metadata": {
+        "elementFile": "src/App.js",
+        "elementLine": 8,
+        "handlerName": null,
+        "handlerFile": null,
+        "handlerLine": null,
+        "eventType": "click"
+      }
+    },
+    {
+      "type": "spa_navigation",
+      "targetPath": "/pricing",
+      "matchAttribute": "to",
+      "proof": "PROVEN_EXPECTATION",
+      "sourceRef": "src/App.js:9",
+      "selectorHint": "Link",
+      "metadata": {
+        "elementFile": "src/App.js",
+        "elementLine": 9,
+        "handlerName": null,
+        "handlerFile": null,
+        "handlerLine": null,
+        "eventType": "click"
+      }
+    }
+  ],
+  "expectationsStatus": "PROVEN_EXPECTATIONS_AVAILABLE",
+  "coverageGaps": [],
+  "flows": [
+    {
+      "flowId": "flow-666ca579",
+      "source": "src/App.js",
+      "stepCount": 2,
+      "steps": [
+        {
+          "stepIndex": 0,
+          "expectationType": "navigation",
+          "source": "src/App.js",
+          "handlerRef": null,
+          "targetPath": "/about"
+        },
+        {
+          "stepIndex": 1,
+          "expectationType": "navigation",
+          "source": "src/App.js",
+          "handlerRef": null,
+          "targetPath": "/pricing"
+        }
+      ],
+      "proof": "PROVEN_EXPECTATION"
+    }
+  ]
+}

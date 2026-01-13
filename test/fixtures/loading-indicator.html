@@ -1,0 +1,21 @@
+
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Loading Indicator Test</title>
+      </head>
+      <body>
+        <button id="load-btn">Load</button>
+        <div id="spinner" style="display:none;" aria-busy="true">Loading...</div>
+        <script>
+          document.getElementById('load-btn').addEventListener('click', function() {
+            document.getElementById('spinner').style.display = 'block';
+            setTimeout(() => {
+              fetch('about:blank', { method: 'HEAD' });
+              document.getElementById('spinner').style.display = 'none';
+            }, 200);
+          });
+        </script>
+      </body>
+      </html>
+    

@@ -1,0 +1,21 @@
+
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Freeze-Like Test</title>
+      </head>
+      <body>
+        <button id="slow-btn">Slow Operation</button>
+        <div id="result"></div>
+        <script>
+          document.getElementById('slow-btn').addEventListener('click', function() {
+            // Simulate slow backend work (>3000ms before any feedback)
+            setTimeout(() => {
+              fetch('about:blank', { method: 'HEAD' });
+              document.getElementById('result').innerHTML = 'Done';
+            }, 3100);
+          });
+        </script>
+      </body>
+      </html>
+    

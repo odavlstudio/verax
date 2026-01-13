@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "url": "http://127.0.0.1:4191",
+  "traces": [
+    {
+      "interaction": {
+        "type": "link",
+        "selector": "a#link1",
+        "label": "Link 1"
+      },
+      "before": {
+        "url": "http://127.0.0.1:4191/",
+        "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "dom": "<html><body></body></html>"
+      },
+      "after": {
+        "url": "http://127.0.0.1:4191/page2",
+        "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "dom": "<html><body>Page 2</body></html>"
+      },
+      "timestamp": 1767891999955,
+      "attempted": true,
+      "flow": {
+        "flowId": "ci-pass-flow-1",
+        "stepIndex": 0,
+        "startedAtInteraction": 0,
+        "startedAt": 1767891999955
+      }
+    },
+    {
+      "interaction": {
+        "type": "link",
+        "selector": "a#link2",
+        "label": "Link 2"
+      },
+      "before": {
+        "url": "http://127.0.0.1:4191/page2",
+        "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "dom": "<html><body>Page 2</body></html>"
+      },
+      "after": {
+        "url": "http://127.0.0.1:4191/page3",
+        "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "dom": "<html><body>Page 3</body></html>"
+      },
+      "timestamp": 1767891999955,
+      "attempted": true,
+      "flow": {
+        "flowId": "ci-pass-flow-1",
+        "stepIndex": 1,
+        "startedAtInteraction": 0,
+        "startedAt": 1767891999955
+      }
+    }
+  ]
+}

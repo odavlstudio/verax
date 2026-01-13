@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "computedAt": "2026-01-09T15:34:22.473Z",
+  "decision": "FAIL",
+  "exitCode": 20,
+  "reasons": [
+    "1 finding(s) with HIGH confidence"
+  ],
+  "metrics": {
+    "findingsTotal": 4,
+    "findingsByType": {
+      "navigation_silent_failure": 4
+    },
+    "highestConfidence": "HIGH",
+    "coverageProvenPercent": 100,
+    "flowFailures": 0,
+    "silentFailures": 0
+  }
+}

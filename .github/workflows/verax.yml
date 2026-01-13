@@ -38,55 +38,38 @@ jobs:
       - name: Print Truth Summary
         if: always() && env.VERAX__URL != ''
         run: |
-          if [ -f ".verax/scan/scan-summary.json" ]; then
-            node -e "
-              const fs = require('fs');
-              const summary = JSON.parse(fs.readFileSync('.verax/scan/scan-summary.json', 'utf-8'));
-              const t = summary.truth;
-              
-              console.log('\n========== VERAX Truth Summary ==========');
-              console.log('Project Type: ' + summary.projectType);
-              console.log('URL: ' + summary.url);
-              console.log('');
-              console.log('Learn:');
-              console.log('  Routes: ' + t.learn.routesDiscovered + ' (confidence: ' + t.learn.routesConfidence + ', source: ' + t.learn.routesSource + ')');
-              console.log('  Expectations: ' + t.learn.expectationsDiscovered + ' (strong: ' + t.learn.expectationsStrong + ', weak: ' + t.learn.expectationsWeak + ')');
-              if (t.learn.validation) {
-                console.log('  Validation: ' + t.learn.validation.routesReachable + ' reachable, ' + t.learn.validation.routesUnreachable + ' unreachable');
-              }
-              if (t.learn.warnings && t.learn.warnings.length > 0) {
-                console.log('  Warnings: ' + t.learn.warnings.map(w => w.code).join(', '));
-              }
-              if (t.learn.limitations && t.learn.limitations.length > 0) {
-                console.log('  Limitations: ' + t.learn.limitations.map(l => l.code).join(', '));
-              }
-              console.log('');
-              console.log('Observe:');
-              console.log('  Interactions: ' + t.observe.interactionsObserved);
-              console.log('  External blocked: ' + t.observe.externalNavigationBlockedCount);
-              console.log('  Timeouts: ' + t.observe.timeoutsCount);
-              console.log('  Settle changed: ' + t.observe.settleChangedCount);
-              if (t.observe.coverage) {
-                console.log('  Coverage: ' + t.observe.coverage.candidatesSelected + '/' + t.observe.coverage.candidatesDiscovered + ' (cap: ' + t.observe.coverage.cap + (t.observe.coverage.capped ? ', capped)' : ')'));
-              }
-              if (t.observe.warnings && t.observe.warnings.length > 0) {
-                console.log('  Warnings: ' + t.observe.warnings.map(w => w.code).join(', '));
-              }
-              console.log('');
-              console.log('Detect:');
-              console.log('  Findings: ' + t.detect.findingsCount);
-              console.log('  Analyzed: ' + t.detect.interactionsAnalyzed);
-              console.log('  Skipped: ' + t.detect.interactionsSkippedNoExpectation);
-              if (t.detect.skips && t.detect.skips.reasons && t.detect.skips.reasons.length > 0) {
-                const reasons = t.detect.skips.reasons.map(r => r.code + '=' + r.count).join(', ');
-                console.log('  Skip reasons: ' + reasons);
-              }
-              console.log('');
-              console.log('Artifacts: .verax/');
-              console.log('=============================================\n');
-            "
+          # Find the most recent run directory
+          if [ -d ".verax/runs" ]; then
+            LATEST_RUN=$(ls -t .verax/runs | head -1)
+            SUMMARY_PATH=".verax/runs/$LATEST_RUN/summary.json"
+            if [ -f "$SUMMARY_PATH" ]; then
+              node -e "
+                const fs = require('fs');
+                const summary = JSON.parse(fs.readFileSync('$SUMMARY_PATH', 'utf-8'));
+                const digest = summary.digest || {};
+                
+                console.log('\n========== VERAX Summary ==========');
+                console.log('Run ID: ' + (summary.runId || 'N/A'));
+                console.log('URL: ' + (summary.url || 'N/A'));
+                console.log('Status: ' + (summary.status || 'N/A'));
+                console.log('');
+                console.log('Digest:');
+                console.log('  Expectations: ' + (digest.expectationsTotal || 0));
+                console.log('  Attempted: ' + (digest.attempted || 0));
+                console.log('  Observed: ' + (digest.observed || 0));
+                console.log('  Silent Failures: ' + (digest.silentFailures || 0));
+                console.log('  Coverage Gaps: ' + (digest.coverageGaps || 0));
+                console.log('  Unproven: ' + (digest.unproven || 0));
+                console.log('  Informational: ' + (digest.informational || 0));
+                console.log('');
+                console.log('Artifacts: .verax/runs/$LATEST_RUN/');
+                console.log('=====================================\n');
+              "
+            else
+              echo "Summary not found in run directory"
+            fi
           else
-            echo "Scan summary not found"
+            echo "No runs directory found"
           fi
       
       - name: Upload VERAX artifacts

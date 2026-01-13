@@ -1,11 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
-import { resolve, join, dirname } from 'path';
+import { resolve, join } from 'path';
 import { tmpdir } from 'os';
 import { learn } from '../src/verax/learn/index.js';
 import { observe } from '../src/verax/observe/index.js';
 import { detect } from '../src/verax/detect/index.js';
+import { generateRunId } from '../src/verax/shared/artifact-manager.js';
 
 function createTempDir() {
   const tempDir = resolve(tmpdir(), `verax-spa-test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
@@ -123,11 +124,12 @@ test('observe captures DOM signatures', async () => {
 test('detect uses DOM hash changes as effect signal', async () => {
   const tempDir = createTempDir();
   try {
-    const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
-    const tracesPath = join(tempDir, '.veraxverax', 'observe', 'observation-traces.json');
+    const runId = generateRunId();
+    const runDir = join(tempDir, '.verax', 'runs', runId);
+    const manifestPath = join(runDir, 'site-manifest.json');
+    const tracesPath = join(runDir, 'observation-traces.json');
     
-    mkdirSync(dirname(manifestPath), { recursive: true });
-    mkdirSync(dirname(tracesPath), { recursive: true });
+    mkdirSync(runDir, { recursive: true });
     
     const manifest = {
       version: 1,

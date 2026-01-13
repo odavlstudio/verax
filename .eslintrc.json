@@ -1,0 +1,55 @@
+{
+  "env": {
+    "node": true,
+    "es2022": true,
+    "browser": false
+  },
+  "globals": {
+    "document": "readonly",
+    "window": "readonly",
+    "localStorage": "readonly",
+    "MutationObserver": "readonly"
+  },
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-undef": "error",
+    "no-console": "off",
+    "no-redeclare": "error",
+    "no-unreachable": "error",
+    "no-constant-condition": "error",
+    "no-duplicate-case": "error",
+    "no-empty": "warn",
+    "no-extra-semi": "error",
+    "no-func-assign": "error",
+    "no-inner-declarations": "warn",
+    "no-irregular-whitespace": "error",
+    "no-obj-calls": "error",
+    "no-sparse-arrays": "error",
+    "no-unexpected-multiline": "error",
+    "no-useless-escape": "warn",
+    "no-prototype-builtins": "warn",
+    "no-const-assign": "error",
+    "use-isnan": "error",
+    "valid-typeof": "error"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    ".verax/",
+    "dist/",
+    "build/",
+    "coverage/",
+    "artifacts/",
+    "test/fixtures/",
+    "test/tmp/",
+    "demos/",
+    "test-projects/",
+    "verax-website/",
+    "*.tgz",
+    "*.log"
+  ]
+}

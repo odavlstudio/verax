@@ -1,7 +1,10 @@
 export function getBaseOrigin(url) {
   try {
     const urlObj = new URL(url);
-    return `${urlObj.protocol}//${urlObj.host}${urlObj.port ? `:${urlObj.port}` : ''}`;
+    if (urlObj.protocol === 'file:') {
+      return 'file://';
+    }
+    return urlObj.origin;
   } catch (error) {
     return null;
   }
@@ -12,6 +15,12 @@ export function isExternalUrl(url, baseOrigin) {
   
   try {
     const urlObj = new URL(url);
+    // Special-case file protocol: treat all file:// URLs as same-origin
+    const isFileProtocol = urlObj.protocol === 'file:';
+    const baseIsFile = baseOrigin.startsWith('file:');
+    if (isFileProtocol && baseIsFile) {
+      return false;
+    }
     const urlOrigin = urlObj.origin;
     return urlOrigin !== baseOrigin;
   } catch (error) {

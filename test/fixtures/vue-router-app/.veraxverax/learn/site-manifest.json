@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "learnedAt": "2026-01-11T04:29:02.991Z",
+  "projectDir": "C:\\Users\\sabou\\verax\\test\\fixtures\\vue-router-app",
+  "projectType": "vue_router",
+  "routes": [
+    {
+      "path": "/",
+      "source": "src/router/index.ts:8",
+      "public": true,
+      "sourceRef": "src/router/index.ts:8"
+    },
+    {
+      "path": "/about",
+      "source": "src/router/index.ts:12",
+      "public": true,
+      "sourceRef": "src/router/index.ts:12"
+    },
+    {
+      "path": "/user/1",
+      "source": "src/router/index.ts:26",
+      "public": true,
+      "sourceRef": "src/router/index.ts:26"
+    },
+    {
+      "path": "/users",
+      "source": "src/router/index.ts:16",
+      "public": true,
+      "sourceRef": "src/router/index.ts:16"
+    },
+    {
+      "path": "/users/profile",
+      "source": "src/router/index.ts:20",
+      "public": true,
+      "sourceRef": "src/router/index.ts:20"
+    }
+  ],
+  "publicRoutes": [
+    "/",
+    "/about",
+    "/user/1",
+    "/users",
+    "/users/profile"
+  ],
+  "internalRoutes": [],
+  "notes": [
+    {
+      "type": "truth",
+      "learn": {
+        "routesDiscovered": 5,
+        "routesSource": "vue_router_ast",
+        "routesConfidence": "HIGH",
+        "expectationsDiscovered": 0,
+        "expectationsStrong": 0,
+        "expectationsWeak": 0,
+        "warnings": [],
+        "limitations": []
+      }
+    }
+  ],
+  "staticExpectations": [],
+  "expectationsStatus": "NO_PROVEN_EXPECTATIONS",
+  "coverageGaps": [
+    {
+      "reason": "NO_PROVEN_EXPECTATIONS_AVAILABLE",
+      "message": "Code intelligence found no extractable literal effects (navigation, network, validation) with static string literals",
+      "projectType": "vue_router"
+    }
+  ]
+}

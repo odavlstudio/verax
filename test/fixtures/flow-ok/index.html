@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flow With Recovery</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; }
+    button { padding: 10px 20px; margin: 10px 5px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+    #msg { color: red; margin: 10px 0; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Multi-Step Flow - With Feedback</h1>
+  <button onclick="step1()">Step 1: Fetch</button>
+  <button onclick="step2()">Step 2: Save</button>
+  <div id="msg" role="alert"></div>
+  <script>
+    function step1() { fetch('/api/user').catch(() => {}); }
+    function step2() { 
+      fetch('/api/save', {method: 'POST'})
+        .catch((e) => { document.getElementById('msg').textContent = 'Error: ' + e; document.getElementById('msg').style.display = 'block'; });
+    }
+  </script>
+</body>
+</html>

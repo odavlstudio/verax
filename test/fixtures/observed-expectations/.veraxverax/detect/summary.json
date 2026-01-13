@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "computedAt": "2026-01-10T16:48:52.896Z",
+  "observations": {
+    "discrepanciesObserved": 0,
+    "byType": {},
+    "byConfidence": {
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "UNKNOWN": 0
+    }
+  },
+  "expectations": {
+    "total": 0,
+    "proven": 0
+  }
+}

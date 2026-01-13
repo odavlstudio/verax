@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "scannedAt": "2026-01-09T15:00:14.234Z",
+  "url": "http://localhost:3464",
+  "projectType": "static",
+  "expectationsSummary": {
+    "total": 0,
+    "navigation": 0,
+    "networkActions": 0,
+    "stateActions": 0
+  },
+  "truth": {
+    "learn": {
+      "routesDiscovered": 2,
+      "routesSource": "static_html",
+      "routesConfidence": "HIGH",
+      "expectationsDiscovered": 1,
+      "expectationsStrong": 1,
+      "expectationsWeak": 0,
+      "warnings": [],
+      "limitations": [],
+      "validation": {
+        "routesValidated": 2,
+        "routesReachable": 1,
+        "routesUnreachable": 1,
+        "details": [
+          {
+            "path": "/",
+            "status": "REACHABLE",
+            "httpStatus": 200,
+            "finalUrl": "http://localhost:3464/",
+            "reason": null
+          },
+          {
+            "path": "/pricing",
+            "status": "UNREACHABLE",
+            "httpStatus": 404,
+            "finalUrl": "http://localhost:3464/pricing",
+            "reason": "http_404"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    "observe": {
+      "interactionsObserved": 2,
+      "externalNavigationBlockedCount": 0,
+      "timeoutsCount": 2,
+      "settleChangedCount": 0,
+      "coverage": {
+        "candidatesDiscovered": 1,
+        "candidatesSelected": 1,
+        "cap": null,
+        "capped": false,
+        "pagesVisited": 1,
+        "pagesDiscovered": 2,
+        "skippedInteractions": 0,
+        "interactionsDiscovered": 1,
+        "interactionsExecuted": 1
+      }
+    },
+    "detect": {
+      "interactionsAnalyzed": 0,
+      "interactionsSkippedNoExpectation": 0,
+      "findingsCount": 2,
+      "findingsFromProven": 2,
+      "coverageGapsCount": 0,
+      "skips": {
+        "total": 0,
+        "reasons": [],
+        "examples": []
+      }
+    }
+  },
+  "paths": {
+    "manifest": "C:\\Users\\sabou\\verax\\test\\fixtures\\static-broken\\.veraxverax\\learn\\site-manifest.json",
+    "traces": "C:\\Users\\sabou\\verax\\test\\fixtures\\static-broken\\.veraxverax\\observe\\observation-traces.json",
+    "findings": "C:\\Users\\sabou\\verax\\test\\fixtures\\static-broken\\.veraxverax\\detect\\findings.json"
+  }
+}

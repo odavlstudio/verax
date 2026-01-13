@@ -1,0 +1,435 @@
+{
+  "version": 1,
+  "observedAt": "2026-01-11T04:28:17.254Z",
+  "url": "http://localhost:8135/network-repeat.html",
+  "traces": [
+    {
+      "interaction": {
+        "type": "button",
+        "selector": "#fetch-btn",
+        "label": "Fetch ping",
+        "href": null,
+        "dataHref": null,
+        "text": "Fetch ping",
+        "formAction": null
+      },
+      "before": {
+        "url": "http://localhost:8135/network-repeat.html",
+        "screenshot": "screenshots/before-1768105679401-0.png"
+      },
+      "after": {
+        "url": "http://localhost:8135/network-repeat.html",
+        "screenshot": "screenshots/after-1768105679401-0.png"
+      },
+      "sensors": {
+        "network": {
+          "windowId": 0,
+          "totalRequests": 1,
+          "failedRequests": 0,
+          "successfulRequests": 1,
+          "failedByStatus": {},
+          "hasNetworkActivity": true,
+          "slowRequestsCount": 0,
+          "slowRequests": [],
+          "topFailedUrls": [],
+          "duration": 3389,
+          "unfinishedCount": 0,
+          "firstRequestUrl": "http://localhost:8135/api/ping",
+          "observedRequestUrls": [
+            "http://localhost:8135/api/ping"
+          ]
+        },
+        "console": {
+          "windowId": 0,
+          "errorCount": 0,
+          "consoleErrorCount": 0,
+          "pageErrorCount": 0,
+          "unhandledRejectionCount": 0,
+          "lastErrors": [],
+          "hasErrors": false
+        },
+        "navigation": {
+          "windowId": 0,
+          "beforeUrl": "http://localhost:8135/network-repeat.html",
+          "afterUrl": "http://localhost:8135/network-repeat.html",
+          "urlChanged": false,
+          "beforeHistoryLength": 2,
+          "afterHistoryLength": 2,
+          "historyLengthDelta": 0,
+          "historyChanges": [],
+          "routerEvents": [],
+          "blockedNavigations": [],
+          "hasNavigationActivity": false,
+          "duration": 8411
+        },
+        "loading": {
+          "id": "loading_1768105685445_riy0s6h",
+          "loadingIndicators": [],
+          "isLoading": false,
+          "unresolved": false,
+          "duration": 0,
+          "timeout": null,
+          "resolveTime": null,
+          "hasLoadingIndicators": false
+        },
+        "focus": {
+          "before": {
+            "selector": "body",
+            "tagName": "BODY",
+            "id": null,
+            "role": null,
+            "ariaLabel": null
+          },
+          "after": {
+            "selector": "#fetch-btn",
+            "tagName": "BUTTON",
+            "id": "fetch-btn",
+            "role": null,
+            "ariaLabel": null,
+            "hasModal": false,
+            "focusInModal": false
+          },
+          "changed": true
+        },
+        "aria": {
+          "before": {
+            "liveRegions": [],
+            "statusRoles": [],
+            "alerts": [],
+            "ariaBusyElements": [],
+            "ariaLive": [],
+            "announcements": []
+          },
+          "after": {
+            "liveRegions": [],
+            "statusRoles": [],
+            "alerts": [],
+            "ariaBusyElements": [],
+            "ariaLive": [],
+            "announcements": []
+          },
+          "changed": false
+        },
+        "timing": {
+          "t0": 1768105680421,
+          "tNetworkFirst": 1768105680521,
+          "tLoadingStart": null,
+          "tAriaFirst": null,
+          "tUiFirst": null,
+          "tFeedback": null,
+          "elapsedMs": 8418,
+          "workStartMs": 100,
+          "feedbackDelayMs": -1,
+          "networkActivityDetected": true,
+          "feedbackDetected": false,
+          "hasFeedbackGap": true,
+          "isFreezeLike": false,
+          "feedbackGapThreshold": 1500,
+          "freezeLikeThreshold": 3000
+        },
+        "uiSignals": {
+          "before": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "after": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "diff": {
+            "changed": false,
+            "explanation": "",
+            "summary": {
+              "loadingStateChanged": false,
+              "dialogStateChanged": false,
+              "errorSignalChanged": false,
+              "statusSignalChanged": false,
+              "liveRegionStateChanged": false,
+              "disabledButtonsChanged": false,
+              "validationFeedbackChanged": false
+            }
+          }
+        },
+        "state": {
+          "available": false,
+          "changed": [],
+          "storeType": null
+        }
+      },
+      "humanDriver": true,
+      "dom": {
+        "beforeHash": "3383eeef36ce87b3381041c077dc03d5f7b8115fb4bba00b29edc6d4e2bd7fb1",
+        "afterHash": "3a09f285265ed16c21221db1e4eba817f76a14a99a1315dc3591e12ac87a0e7d",
+        "settle": {
+          "samples": [
+            "3a09f285265ed16c21221db1e4eba817f76a14a99a1315dc3591e12ac87a0e7d",
+            "3a09f285265ed16c21221db1e4eba817f76a14a99a1315dc3591e12ac87a0e7d",
+            "3a09f285265ed16c21221db1e4eba817f76a14a99a1315dc3591e12ac87a0e7d"
+          ],
+          "domChangedDuringSettle": false
+        }
+      },
+      "page": {
+        "beforeTitle": "Observed Network Repeat",
+        "afterTitle": "Observed Network Repeat",
+        "httpStatus": 200
+      },
+      "humanDriverClicked": true,
+      "incremental": false,
+      "observedExpectation": {
+        "id": "obs-net-1768105688849-fetchbtn",
+        "type": "network_action",
+        "expectationStrength": "OBSERVED",
+        "expectedRequestUrl": "http://localhost:8135/api/ping",
+        "evidence": {
+          "selector": "#fetch-btn",
+          "attributeSource": "network_request",
+          "observedRequestUrl": "http://localhost:8135/api/ping",
+          "sourcePage": "http://localhost:8135/network-repeat.html"
+        },
+        "sourcePage": "http://localhost:8135/network-repeat.html",
+        "outcome": "VERIFIED",
+        "reason": null,
+        "repeatAttempted": true,
+        "repeated": true,
+        "confidenceLevel": "MEDIUM",
+        "repeatOutcome": "VERIFIED",
+        "repeatReason": null
+      },
+      "resultType": "OBSERVED_EXPECTATION"
+    },
+    {
+      "interaction": {
+        "type": "button",
+        "selector": "#fetch-btn",
+        "label": "Fetch ping",
+        "href": null,
+        "dataHref": null,
+        "text": "Fetch ping",
+        "formAction": null
+      },
+      "before": {
+        "url": "http://localhost:8135/network-repeat.html",
+        "screenshot": "screenshots/before-1768105679401-1.png"
+      },
+      "after": {
+        "url": "http://localhost:8135/network-repeat.html",
+        "screenshot": "screenshots/after-1768105679401-1.png"
+      },
+      "sensors": {
+        "network": {
+          "windowId": 0,
+          "totalRequests": 1,
+          "failedRequests": 0,
+          "successfulRequests": 1,
+          "failedByStatus": {},
+          "hasNetworkActivity": true,
+          "slowRequestsCount": 0,
+          "slowRequests": [],
+          "topFailedUrls": [],
+          "duration": 3258,
+          "unfinishedCount": 0,
+          "firstRequestUrl": "http://localhost:8135/api/ping",
+          "observedRequestUrls": [
+            "http://localhost:8135/api/ping"
+          ]
+        },
+        "console": {
+          "windowId": 0,
+          "errorCount": 0,
+          "consoleErrorCount": 0,
+          "pageErrorCount": 0,
+          "unhandledRejectionCount": 0,
+          "lastErrors": [],
+          "hasErrors": false
+        },
+        "navigation": {
+          "windowId": 0,
+          "beforeUrl": "http://localhost:8135/network-repeat.html",
+          "afterUrl": "http://localhost:8135/network-repeat.html",
+          "urlChanged": false,
+          "beforeHistoryLength": 2,
+          "afterHistoryLength": 2,
+          "historyLengthDelta": 0,
+          "historyChanges": [],
+          "routerEvents": [],
+          "blockedNavigations": [],
+          "hasNavigationActivity": false,
+          "duration": 8304
+        },
+        "loading": {
+          "id": "loading_1768105693978_yho5gyz",
+          "loadingIndicators": [],
+          "isLoading": false,
+          "unresolved": false,
+          "duration": 0,
+          "timeout": null,
+          "resolveTime": null,
+          "hasLoadingIndicators": false
+        },
+        "focus": {
+          "before": {
+            "selector": "#fetch-btn",
+            "tagName": "BUTTON",
+            "id": "fetch-btn",
+            "role": null,
+            "ariaLabel": null
+          },
+          "after": {
+            "selector": "#fetch-btn",
+            "tagName": "BUTTON",
+            "id": "fetch-btn",
+            "role": null,
+            "ariaLabel": null,
+            "hasModal": false,
+            "focusInModal": false
+          },
+          "changed": false
+        },
+        "aria": {
+          "before": {
+            "liveRegions": [],
+            "statusRoles": [],
+            "alerts": [],
+            "ariaBusyElements": [],
+            "ariaLive": [],
+            "announcements": []
+          },
+          "after": {
+            "liveRegions": [],
+            "statusRoles": [],
+            "alerts": [],
+            "ariaBusyElements": [],
+            "ariaLive": [],
+            "announcements": []
+          },
+          "changed": false
+        },
+        "timing": {
+          "t0": 1768105688932,
+          "tNetworkFirst": 1768105689032,
+          "tLoadingStart": null,
+          "tAriaFirst": null,
+          "tUiFirst": null,
+          "tFeedback": null,
+          "elapsedMs": 8314,
+          "workStartMs": 100,
+          "feedbackDelayMs": -1,
+          "networkActivityDetected": true,
+          "feedbackDetected": false,
+          "hasFeedbackGap": true,
+          "isFreezeLike": false,
+          "feedbackGapThreshold": 1500,
+          "freezeLikeThreshold": 3000
+        },
+        "uiSignals": {
+          "before": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "after": {
+            "hasLoadingIndicator": false,
+            "hasDialog": false,
+            "hasErrorSignal": false,
+            "hasStatusSignal": false,
+            "hasLiveRegion": false,
+            "validationFeedbackDetected": false,
+            "disabledElements": [],
+            "explanation": []
+          },
+          "diff": {
+            "changed": false,
+            "explanation": "",
+            "summary": {
+              "loadingStateChanged": false,
+              "dialogStateChanged": false,
+              "errorSignalChanged": false,
+              "statusSignalChanged": false,
+              "liveRegionStateChanged": false,
+              "disabledButtonsChanged": false,
+              "validationFeedbackChanged": false
+            }
+          }
+        },
+        "state": {
+          "available": false,
+          "changed": [],
+          "storeType": null
+        }
+      },
+      "humanDriver": true,
+      "dom": {
+        "beforeHash": "3a09f285265ed16c21221db1e4eba817f76a14a99a1315dc3591e12ac87a0e7d",
+        "afterHash": "3a09f285265ed16c21221db1e4eba817f76a14a99a1315dc3591e12ac87a0e7d",
+        "settle": {
+          "samples": [
+            "3a09f285265ed16c21221db1e4eba817f76a14a99a1315dc3591e12ac87a0e7d",
+            "3a09f285265ed16c21221db1e4eba817f76a14a99a1315dc3591e12ac87a0e7d",
+            "3a09f285265ed16c21221db1e4eba817f76a14a99a1315dc3591e12ac87a0e7d"
+          ],
+          "domChangedDuringSettle": false
+        }
+      },
+      "page": {
+        "beforeTitle": "Observed Network Repeat",
+        "afterTitle": "Observed Network Repeat",
+        "httpStatus": 200
+      },
+      "humanDriverClicked": true,
+      "repeatExecution": true,
+      "repeatOfObservedExpectationId": "obs-net-1768105688849-fetchbtn",
+      "resultType": "OBSERVED_EXPECTATION_REPEAT"
+    }
+  ],
+  "observedExpectations": [
+    {
+      "id": "obs-net-1768105688849-fetchbtn",
+      "type": "network_action",
+      "expectationStrength": "OBSERVED",
+      "expectedRequestUrl": "http://localhost:8135/api/ping",
+      "evidence": {
+        "selector": "#fetch-btn",
+        "attributeSource": "network_request",
+        "observedRequestUrl": "http://localhost:8135/api/ping",
+        "sourcePage": "http://localhost:8135/network-repeat.html"
+      },
+      "sourcePage": "http://localhost:8135/network-repeat.html",
+      "outcome": "VERIFIED",
+      "reason": null,
+      "repeatAttempted": true,
+      "repeated": true,
+      "confidenceLevel": "MEDIUM",
+      "repeatOutcome": "VERIFIED",
+      "repeatReason": null
+    }
+  ],
+  "coverage": {
+    "candidatesDiscovered": 1,
+    "candidatesSelected": 2,
+    "cap": 30,
+    "capped": false,
+    "pagesVisited": 1,
+    "pagesDiscovered": 1,
+    "skippedInteractions": 0,
+    "interactionsDiscovered": 1,
+    "interactionsExecuted": 2
+  }
+}

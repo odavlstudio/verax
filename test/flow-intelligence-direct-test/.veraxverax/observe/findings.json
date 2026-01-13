@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "detectedAt": "2026-01-11T04:26:26.838Z",
+  "url": "http://127.0.0.1:4190",
+  "outcomeSummary": {
+    "SILENT_FAILURE": 1,
+    "COVERAGE_GAP": 0,
+    "UNPROVEN_INTERACTION": 0,
+    "SAFETY_BLOCK": 0,
+    "INFORMATIONAL": 0
+  },
+  "promiseSummary": {
+    "UNKNOWN_PROMISE": 1
+  },
+  "findings": [
+    {
+      "type": "silent_failure",
+      "interaction": {
+        "type": "button",
+        "selector": "button#api-button",
+        "label": "Fetch Data"
+      },
+      "reason": "Expected user-visible outcome did not occur",
+      "evidence": {
+        "before": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "after": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "beforeUrl": "http://127.0.0.1:4190/step2",
+        "afterUrl": "http://127.0.0.1:4190/step2"
+      }
+    }
+  ],
+  "coverageGaps": [],
+  "notes": []
+}

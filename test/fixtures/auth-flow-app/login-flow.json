@@ -1,0 +1,38 @@
+{
+  "name": "login",
+  "baseUrl": "http://localhost:3000",
+  "allowlist": {
+    "domains": ["localhost"],
+    "pathsPrefix": ["/"]
+  },
+  "denyKeywords": ["delete", "remove", "billing", "payment"],
+  "secrets": {
+    "emailEnv": "VERAX_USER_EMAIL",
+    "passwordEnv": "VERAX_USER_PASSWORD"
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "url": "/login"
+    },
+    {
+      "type": "fill",
+      "selector": "input[name=email]",
+      "value": "$ENV:VERAX_USER_EMAIL"
+    },
+    {
+      "type": "fill",
+      "selector": "input[name=password]",
+      "value": "$ENV:VERAX_USER_PASSWORD"
+    },
+    {
+      "type": "click",
+      "selector": "button#loginBtn"
+    },
+    {
+      "type": "expect",
+      "kind": "selector",
+      "selector": "[data-test=dashboard]"
+    }
+  ]
+}

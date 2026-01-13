@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "detectedAt": "2026-01-08T22:12:18.148Z",
+  "url": "http://localhost:3457",
+  "findings": [],
+  "coverageGaps": [
+    {
+      "expectationId": "exp-0",
+      "type": "navigation",
+      "reason": "element_not_found",
+      "fromPath": "/",
+      "source": null,
+      "evidence": {
+        "selectorHint": "a#working-link",
+        "targetPath": "/working.html",
+        "fromPath": "/",
+        "currentUrl": "http://localhost:3457/"
+      }
+    },
+    {
+      "expectationId": "exp-1",
+      "type": "navigation",
+      "reason": "element_not_found",
+      "fromPath": "/",
+      "source": null,
+      "evidence": {
+        "selectorHint": "button#broken-button",
+        "targetPath": "/working.html",
+        "fromPath": "/",
+        "currentUrl": "http://localhost:3457/"
+      }
+    }
+  ],
+  "notes": []
+}

@@ -1,0 +1,27 @@
+
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Feedback Gap Test - With Feedback</title>
+      </head>
+      <body>
+        <button id="fetch-btn">Fetch Data</button>
+        <div id="status" role="status"></div>
+        <div id="result"></div>
+        <script>
+          document.getElementById('fetch-btn').addEventListener('click', function() {
+            // Immediate feedback via ARIA
+            const status = document.getElementById('status');
+            status.setAttribute('aria-live', 'polite');
+            status.innerHTML = 'Loading...';
+            
+            // Then do work
+            setTimeout(() => {
+              fetch('about:blank', { method: 'HEAD' });
+              status.innerHTML = 'Done';
+            }, 100);
+          });
+        </script>
+      </body>
+      </html>
+    

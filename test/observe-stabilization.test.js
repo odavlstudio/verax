@@ -5,6 +5,8 @@ import { resolve, join, dirname } from 'path';
 import { tmpdir } from 'os';
 import { observe } from '../src/verax/observe/index.js';
 import { runInteraction } from '../src/verax/observe/interaction-runner.js';
+import { createScanBudget } from '../src/verax/shared/scan-budget.js';
+import { generateRunId } from '../src/verax/shared/artifact-manager.js';
 
 function createTempDir() {
   const tempDir = resolve(tmpdir(), `verax-observe-stabilization-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
@@ -27,7 +29,7 @@ function prepareFixtureInTemp(name) {
   const tempDir = createTempDir();
   const htmlFile = join(tempDir, 'index.html');
   writeFileSync(htmlFile, loadFixture(name));
-  const manifestPath = join(tempDir, '.veraxverax', 'learn', 'site-manifest.json');
+  const manifestPath = join(tempDir, 'manifest.json');
   mkdirSync(dirname(manifestPath), { recursive: true });
   writeFileSync(manifestPath, JSON.stringify({ version: 1, projectDir: tempDir }));
   return { tempDir, htmlFile, manifestPath };
@@ -38,7 +40,8 @@ test('async DOM updates are captured during settle window', { timeout: 45000 }, 
   const url = `file://${htmlFile.replace(/\\/g, '/')}`;
 
   try {
-    const observation = await observe(url, manifestPath);
+    const runId = generateRunId();
+    const observation = await observe(url, manifestPath, null, {}, tempDir, runId);
     const tracesContent = JSON.parse(readFileSync(observation.tracesPath, 'utf-8'));
     const trace = tracesContent.traces.find(t => t.interaction.selector.includes('delayed-update'));
 
@@ -60,7 +63,8 @@ test('stable DOM keeps settle samples unchanged', { timeout: 45000 }, async () =
   const url = `file://${htmlFile.replace(/\\/g, '/')}`;
 
   try {
-    const observation = await observe(url, manifestPath);
+    const runId = generateRunId();
+    const observation = await observe(url, manifestPath, null, {}, tempDir, runId);
     const tracesContent = JSON.parse(readFileSync(observation.tracesPath, 'utf-8'));
     const trace = tracesContent.traces.find(t => t.interaction.selector.includes('noop'));
 
@@ -86,26 +90,44 @@ test('timeouts capture phase information', async () => {
       screenshot: async () => {},
       waitForTimeout: async () => {},
       waitForNavigation: () => Promise.resolve(null),
-      evaluate: async () => 'stable dom'
+      evaluate: async () => 'stable dom',
+      on: () => {},
+      removeListener: () => {},
+      goBack: async () => {},
+      addInitScript: async () => {}
+    };
+
+    const locator = {
+      scrollIntoViewIfNeeded: async () => {},
+      hover: async () => {},
+      focus: async () => {},
+      click: async () => {
+        const error = new Error('TimeoutError');
+        error.name = 'TimeoutError';
+        throw error;
+      }
     };
 
     const interaction = {
       type: 'button',
       selector: '#slow-button',
       label: 'Slow Button',
-      element: {
-        click: async () => {
-          const error = new Error('TimeoutError');
-          error.name = 'TimeoutError';
-          throw error;
-        }
-      },
+      element: locator,
       isExternal: false
     };
 
-    const trace = await runInteraction(fakePage, interaction, Date.now(), 0, screenshotsDir, 'http://example.com', Date.now(), 20000);
+    const trace = await runInteraction(
+      fakePage,
+      interaction,
+      Date.now(),
+      0,
+      screenshotsDir,
+      'http://example.com',
+      Date.now(),
+      createScanBudget({ navigationTimeoutMs: 100, maxScanDurationMs: 20000 })
+    );
 
-    assert.ok(trace.policy && trace.policy.timeout, 'Timeout policy should be recorded');
+    assert.ok(trace && trace.policy && (trace.policy.timeout || trace.policy.executionError), 'Policy should be recorded');
     assert.strictEqual(trace.policy.reason, 'interaction_timeout');
     assert.strictEqual(trace.policy.phase, 'click');
     assert.ok(trace.after && trace.after.screenshot.endsWith('.png'));

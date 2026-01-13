@@ -1,0 +1,18 @@
+
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>No Network Test</title>
+      </head>
+      <body>
+        <button id="sync-btn">Sync Operation</button>
+        <div id="result"></div>
+        <script>
+          document.getElementById('sync-btn').addEventListener('click', function() {
+            // Pure synchronous operation - no network
+            document.getElementById('result').innerHTML = 'Done';
+          });
+        </script>
+      </body>
+      </html>
+    

@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "url": "http://127.0.0.1:4190",
+  "traces": [
+    {
+      "interaction": {
+        "type": "link",
+        "selector": "a#step1-link",
+        "label": "Navigate"
+      },
+      "before": {
+        "url": "http://127.0.0.1:4190/",
+        "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "dom": {
+          "tag": "html",
+          "children": []
+        }
+      },
+      "after": {
+        "url": "http://127.0.0.1:4190/step2",
+        "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "dom": {
+          "tag": "html",
+          "children": []
+        }
+      },
+      "flow": {
+        "flowId": "flow-test-1",
+        "stepIndex": 0,
+        "startedAtInteraction": 0
+      }
+    },
+    {
+      "interaction": {
+        "type": "button",
+        "selector": "button#api-button",
+        "label": "Fetch Data"
+      },
+      "before": {
+        "url": "http://127.0.0.1:4190/step2",
+        "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "dom": {
+          "tag": "html",
+          "children": []
+        }
+      },
+      "after": {
+        "url": "http://127.0.0.1:4190/step2",
+        "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "dom": {
+          "tag": "html",
+          "children": []
+        }
+      },
+      "flow": {
+        "flowId": "flow-test-1",
+        "stepIndex": 1,
+        "startedAtInteraction": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Observed Network Repeat</title>
+  </head>
+  <body>
+    <h1>Network repetition</h1>
+    <button id="fetch-btn">Fetch ping</button>
+    <div id="status"></div>
+    <script>
+      const btn = document.getElementById('fetch-btn');
+      btn.addEventListener('click', async () => {
+        const status = document.getElementById('status');
+        status.textContent = 'pending';
+        try {
+          const res = await fetch('/api/ping');
+          const data = await res.json();
+          status.textContent = data.ok ? 'done' : 'failed';
+        } catch (err) {
+          status.textContent = 'failed';
+        }
+      });
+    </script>
+  </body>
+</html>

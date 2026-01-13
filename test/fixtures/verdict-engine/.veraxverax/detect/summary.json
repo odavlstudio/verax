@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "computedAt": "2026-01-09T02:40:10.032Z",
+  "decision": "PASS",
+  "exitCode": 0,
+  "reasons": [
+    "All 1 findings are LOW confidence",
+    "PROVEN coverage 100% meets optimal threshold"
+  ],
+  "metrics": {
+    "findingsTotal": 1,
+    "findingsByType": {
+      "observed_break": 1
+    },
+    "highestConfidence": "LOW",
+    "coverageProvenPercent": 100,
+    "flowFailures": 0,
+    "silentFailures": 0
+  }
+}

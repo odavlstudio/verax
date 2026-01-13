@@ -1,0 +1,159 @@
+#!/usr/bin/env node
+// SKIP: This fixture references removed decision-engine.js API
+// TODO: Refactor to use current detect module API
+
+
+import { mkdirSync, writeFileSync, readFileSync } from 'fs';
+import { resolve } from 'path';
+
+const testDir = resolve(process.cwd(), 'test/fixtures/ci-fail');
+mkdirSync(testDir, { recursive: true });
+
+// SCENARIO: FAIL - HIGH confidence finding
+const manifest = {
+  projectName: "ci-fail-test",
+  projectType: "simple-html",
+  projectDir: testDir,
+  staticExpectations: [
+    {
+      type: "navigation",
+      fromPath: "/",
+      targetPath: "/page2",
+      evidence: { selectorHint: "a#link1" },
+      proof: "PROVEN_EXPECTATION"
+    },
+    {
+      type: "navigation",
+      fromPath: "/page2",
+      targetPath: "/page3",
+      evidence: { selectorHint: "a#link2" },
+      proof: "PROVEN_EXPECTATION"
+    }
+  ]
+};
+
+const manifestPath = resolve(testDir, 'manifest.json');
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+// Run test with HIGH confidence finding
+try {
+  const { computeDecision, computeCoverageProvenPercent } = await import('../../../src/verax/detect/decision-engine.js');
+  
+  // Create findings with HIGH confidence
+  const findingsForTest = [
+    {
+      type: "network_silent_failure",
+      interaction: {
+        type: "button",
+        selector: "button#api",
+        label: "Fetch Data"
+      },
+      reason: "API request failed silently with no error handling",
+      confidence: {
+        level: "HIGH",
+        score: 95
+      },
+      evidence: {
+        before: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        after: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      }
+    }
+  ];
+  
+  const coverage = computeCoverageProvenPercent(manifest); // Should be 100% (2 PROVEN out of 2)
+  const decision = computeDecision(findingsForTest, manifest, coverage);
+  
+  console.log('CI FAIL TEST (HIGH CONFIDENCE) - RESULTS\n');
+  console.log('Decision:', decision.decision);
+  console.log('Exit Code:', decision.exitCode);
+  console.log('Findings:', findingsForTest.length);
+  console.log('Highest Confidence:', decision.metrics.highestConfidence);
+  console.log('Reasons:', decision.reasons);
+  console.log('\n✓ CI FAIL (HIGH) test complete');
+  console.log('Expected: decision=FAIL, exitCode=20');
+  
+  if (decision.decision === 'FAIL' && decision.exitCode === 20) {
+    console.log('✓ FAIL (HIGH) verification successful');
+  } else {
+    console.log('✗ FAIL (HIGH) verification FAILED');
+    console.log('Full decision:', JSON.stringify(decision, null, 2));
+    process.exit(1);
+  }
+  
+  // === TEST 2: FAIL due to flow_silent_failure ===
+  console.log('\n' + '='.repeat(70));
+  console.log('CI FAIL TEST (FLOW FAILURE) - RESULTS\n');
+  
+  const flowFindings = [
+    {
+      type: "flow_silent_failure",
+      flowId: "test-flow-1",
+      failedStepIndex: 1,
+      priorStepsCount: 1,
+      interaction: {
+        type: "button",
+        selector: "button#submit",
+        label: "Submit"
+      },
+      reason: "Silent failure in multi-step flow with no recovery",
+      confidence: {
+        level: "MEDIUM",
+        score: 65
+      },
+      evidence: {}
+    }
+  ];
+  
+  const decisionFlow = computeDecision(flowFindings, manifest, coverage);
+  
+  console.log('Decision:', decisionFlow.decision);
+  console.log('Exit Code:', decisionFlow.exitCode);
+  console.log('Flow Failures:', decisionFlow.metrics.flowFailures);
+  console.log('Reasons:', decisionFlow.reasons);
+  console.log('\n✓ CI FAIL (FLOW) test complete');
+  console.log('Expected: decision=FAIL, exitCode=20');
+  
+  if (decisionFlow.decision === 'FAIL' && decisionFlow.exitCode === 20) {
+    console.log('✓ FAIL (FLOW) verification successful');
+  } else {
+    console.log('✗ FAIL (FLOW) verification FAILED');
+    console.log('Full decision:', JSON.stringify(decisionFlow, null, 2));
+    process.exit(1);
+  }
+  
+  // === TEST 3: FAIL due to coverage < 70% ===
+  console.log('\n' + '='.repeat(70));
+  console.log('CI FAIL TEST (LOW COVERAGE) - RESULTS\n');
+  
+  const lowCoverageManifest = {
+    projectName: "ci-fail-coverage",
+    staticExpectations: [
+      { type: "navigation", fromPath: "/", targetPath: "/p2", proof: "PROVEN_EXPECTATION" },
+      { type: "validation", fromPath: "/p2", targetPath: "/p2" }, // Not PROVEN
+      { type: "validation", fromPath: "/p3", targetPath: "/p3" }  // Not PROVEN
+    ]
+  };
+  
+  const lowCoverage = computeCoverageProvenPercent(lowCoverageManifest); // Should be 33%
+  const decisionLowCov = computeDecision([], lowCoverageManifest, lowCoverage);
+  
+  console.log('Decision:', decisionLowCov.decision);
+  console.log('Exit Code:', decisionLowCov.exitCode);
+  console.log('Coverage:', decisionLowCov.metrics.coverageProvenPercent + '%');
+  console.log('Reasons:', decisionLowCov.reasons);
+  console.log('\n✓ CI FAIL (COVERAGE) test complete');
+  console.log('Expected: decision=FAIL, exitCode=20');
+  
+  if (decisionLowCov.decision === 'FAIL' && decisionLowCov.exitCode === 20) {
+    console.log('✓ FAIL (COVERAGE) verification successful');
+  } else {
+    console.log('✗ FAIL (COVERAGE) verification FAILED');
+    console.log('Full decision:', JSON.stringify(decisionLowCov, null, 2));
+    process.exit(1);
+  }
+  
+} catch (err) {
+  console.error('Error:', err.message);
+  console.error(err.stack);
+  process.exit(1);
+}

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
-import { resolve, join, dirname } from 'path';
+import { existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
+import { resolve, join } from 'path';
 import { tmpdir } from 'os';
 import { learn } from '../src/verax/learn/index.js';
 

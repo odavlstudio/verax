@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "learnedAt": "2026-01-08T22:12:09.550Z",
+  "projectDir": "C:\\Users\\sabou\\verax\\test\\fixtures\\expectation-test",
+  "projectType": "static",
+  "routes": [
+    {
+      "path": "/",
+      "source": "index.html",
+      "public": true,
+      "sourceRef": null
+    },
+    {
+      "path": "/working",
+      "source": "working.html",
+      "public": true,
+      "sourceRef": null
+    }
+  ],
+  "publicRoutes": [
+    "/",
+    "/working"
+  ],
+  "internalRoutes": [],
+  "notes": [
+    {
+      "type": "truth",
+      "learn": {
+        "routesDiscovered": 2,
+        "routesSource": "static_html",
+        "routesConfidence": "HIGH",
+        "expectationsDiscovered": 2,
+        "expectationsStrong": 2,
+        "expectationsWeak": 0,
+        "warnings": [],
+        "limitations": []
+      }
+    }
+  ],
+  "staticExpectations": [
+    {
+      "fromPath": "/working",
+      "type": "navigation",
+      "targetPath": "/",
+      "evidence": {
+        "source": "working.html",
+        "selectorHint": "a[href=\"/index.html\"]"
+      }
+    },
+    {
+      "fromPath": "/",
+      "type": "navigation",
+      "targetPath": "/working",
+      "evidence": {
+        "source": "index.html",
+        "selectorHint": "#working-link"
+      }
+    }
+  ],
+  "expectationsStatus": "PROVEN_EXPECTATIONS_AVAILABLE",
+  "coverageGaps": []
+}

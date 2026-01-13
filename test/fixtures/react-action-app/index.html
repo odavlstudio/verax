@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Action App - Wave 5 Test</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <script type="text/babel">
+    const { useState } = React;
+    
+    function App() {
+      const [message, setMessage] = useState('');
+      
+      // Network action: POST to /api/save
+      const handleSave = () => {
+        fetch('/api/save', { method: 'POST', body: JSON.stringify({ data: 'test' }) })
+          .then(response => {
+            if (!response.ok) {
+              // NO UI FEEDBACK - silent failure
+              console.error('Save failed');
+            }
+            return response.json();
+          })
+          .then(data => setMessage('Saved!'))
+          .catch(err => {
+            // NO UI FEEDBACK - silent failure
+            console.error('Error:', err);
+          });
+      };
+      
+      return (
+        <div>
+          <h1>React Action App</h1>
+          <button onClick={handleSave} data-verax-source="test/fixtures/react-action-app/index.html:34:10">
+            Save Data
+          </button>
+          {message && <p>{message}</p>}
+        </div>
+      );
+    }
+    
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>

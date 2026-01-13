@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Proper Loading Indicator</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    form { max-width: 400px; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .loading-spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-top: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Proper Loading Indicator</h1>
+  <p>This form triggers a slow request with a proper loading indicator.</p>
+  
+  <form id="goodForm">
+    <input type="text" name="data" placeholder="Data" required>
+    <button type="submit">Submit (Slow, Good UX)</button>
+  </form>
+  <div class="loading-spinner" id="spinner" aria-busy="false"></div>
+
+  <script>
+    document.getElementById('goodForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Show loading indicator
+      const spinner = document.getElementById('spinner');
+      spinner.style.display = 'block';
+      spinner.setAttribute('aria-busy', 'true');
+      
+      try {
+        const response = await fetch('/api/slow-endpoint', {
+          method: 'POST',
+          body: JSON.stringify({ data: e.target.data.value }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        spinner.style.display = 'none';
+        spinner.setAttribute('aria-busy', 'false');
+        
+        if (response.ok) {
+          window.location.href = '/success.html';
+        }
+      } catch (error) {
+        spinner.style.display = 'none';
+        spinner.setAttribute('aria-busy', 'false');
+        console.error('Error:', error);
+      }
+    });
+  </script>
+</body>
+</html>

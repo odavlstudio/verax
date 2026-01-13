@@ -1,0 +1,16 @@
+{
+  "name": "test-react-cra",
+  "version": "1.0.0",
+  "description": "Test Create React App project",
+  "private": true,
+  "scripts": {
+    "dev": "react-scripts start",
+    "build": "react-scripts build",
+    "start": "react-scripts start"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.0"
+  }
+}

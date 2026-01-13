@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <button id="broken-btn" tabindex="0">Broken Button</button>
+  <script>
+    document.getElementById('broken-btn').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        // Promise triggered but no visible feedback, no network, no DOM change
+        Promise.resolve().then(() => {});
+      }
+    });
+  </script>
+</body>
+</html>
