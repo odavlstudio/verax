@@ -1,0 +1,17 @@
+{
+  "veraxVersion": "0.3.0",
+  "nodeVersion": "v20.19.5",
+  "platform": "win32",
+  "cwd": "C:\\Users\\sabou\\verax",
+  "command": "run",
+  "args": {
+    "url": "https://example.com",
+    "src": "demos/demo-static",
+    "out": "tmp/test-evidence-gate"
+  },
+  "url": "https://example.com",
+  "src": "C:\\Users\\sabou\\verax\\demos\\demo-static",
+  "startedAt": "2026-01-14T21:19:40.302Z",
+  "completedAt": "2026-01-14T21:19:59.571Z",
+  "error": null
+}

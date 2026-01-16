@@ -30,6 +30,7 @@ const projectRoot = resolve(__dirname, '..');
 
 function readJson(path) {
   try {
+  // @ts-expect-error - readFileSync with encoding returns string
     return JSON.parse(readFileSync(path, 'utf8'));
   } catch (error) {
     throw new Error(`Failed to read ${path}: ${error.message}`);
@@ -165,6 +166,7 @@ async function main() {
         new RegExp(`^##\\s*\\[${inputVersion.replace(/\./g, '\\.')}\\]\\s*-`, 'm'),
       ];
       
+  // @ts-expect-error - readFileSync with encoding returns string
       const hasVersionEntry = versionPatterns.some(pattern => pattern.test(changelog));
       
       if (!hasVersionEntry) {

@@ -1,0 +1,32 @@
+{"type":"project:detected","timestamp":"2026-01-14T21:55:07.586Z","framework":"static-html","router":null,"sourceRoot":"C:\\Users\\sabou\\verax\\demos\\demo-static","packageManager":"unknown"}
+{"type":"phase:started","timestamp":"2026-01-14T21:55:07.586Z","phase":"Detect Project","message":"Detecting project structure..."}
+{"type":"phase:started","timestamp":"2026-01-14T21:55:07.586Z","phase":"Resolve URL","message":"Using URL: https://example.com"}
+{"type":"phase:started","timestamp":"2026-01-14T21:55:07.586Z","phase":"Initialize Run","message":"Initializing run artifacts..."}
+{"type":"phase:started","timestamp":"2026-01-14T21:55:07.589Z","phase":"Learn","message":"Analyzing project structure..."}
+{"type":"phase:completed","timestamp":"2026-01-14T21:55:07.594Z","phase":"Learn","message":"Project analysis complete"}
+{"type":"phase:started","timestamp":"2026-01-14T21:55:07.594Z","phase":"Observe","message":"Launching browser and observing expectations..."}
+{"type":"navigation","timestamp":"2026-01-14T21:55:08.565Z","event":"observe:attempt","index":1,"total":4,"promise":{"kind":"navigate","value":"/"}}
+{"type":"heartbeat","phase":"Observe","elapsedMs":2503,"elapsedSeconds":2,"timestamp":"2026-01-14T21:55:10.097Z"}
+{"type":"heartbeat","phase":"Observe","elapsedMs":5006,"elapsedSeconds":5,"timestamp":"2026-01-14T21:55:12.600Z"}
+{"type":"observe:result","timestamp":"2026-01-14T21:55:13.271Z","event":"observe:result","index":1,"attempted":true,"observed":true,"reason":null}
+{"type":"navigation","timestamp":"2026-01-14T21:55:13.271Z","event":"observe:attempt","index":2,"total":4,"promise":{"kind":"navigate","value":"/about"}}
+{"type":"observe:result","timestamp":"2026-01-14T21:55:14.013Z","event":"observe:result","index":2,"attempted":true,"observed":false,"reason":"not-found"}
+{"type":"navigation","timestamp":"2026-01-14T21:55:14.013Z","event":"observe:attempt","index":3,"total":4,"promise":{"kind":"navigate","value":"/contact"}}
+{"type":"heartbeat","phase":"Observe","elapsedMs":7521,"elapsedSeconds":7,"timestamp":"2026-01-14T21:55:15.115Z"}
+{"type":"heartbeat","phase":"Observe","elapsedMs":10024,"elapsedSeconds":10,"timestamp":"2026-01-14T21:55:17.618Z"}
+{"type":"observe:result","timestamp":"2026-01-14T21:55:17.912Z","event":"observe:result","index":3,"attempted":true,"observed":true,"reason":null}
+{"type":"navigation","timestamp":"2026-01-14T21:55:17.912Z","event":"observe:attempt","index":4,"total":4,"promise":{"kind":"navigate","value":"/products"}}
+{"type":"observe:result","timestamp":"2026-01-14T21:55:18.628Z","event":"observe:result","index":4,"attempted":true,"observed":false,"reason":"not-found"}
+{"type":"phase:completed","timestamp":"2026-01-14T21:55:18.722Z","phase":"Observe","message":"Browser observation complete"}
+{"type":"phase:started","timestamp":"2026-01-14T21:55:18.722Z","phase":"Detect","message":"Analyzing findings and detecting silent failures..."}
+{"type":"navigation","timestamp":"2026-01-14T21:55:18.723Z","event":"detect:attempt","index":1,"total":4,"expectationId":"exp_af851a","value":"/"}
+{"type":"detect:classified","timestamp":"2026-01-14T21:55:18.723Z","event":"detect:classified","index":1,"classification":"observed","impact":"HIGH","confidence":1,"expectationId":"exp_af851a"}
+{"type":"navigation","timestamp":"2026-01-14T21:55:18.723Z","event":"detect:attempt","index":2,"total":4,"expectationId":"exp_dafa82","value":"/about"}
+{"type":"detect:classified","timestamp":"2026-01-14T21:55:18.723Z","event":"detect:classified","index":2,"classification":"silent-failure:not-found","impact":"HIGH","confidence":0.75,"expectationId":"exp_dafa82"}
+{"type":"navigation","timestamp":"2026-01-14T21:55:18.723Z","event":"detect:attempt","index":3,"total":4,"expectationId":"exp_7a37b6","value":"/contact"}
+{"type":"detect:classified","timestamp":"2026-01-14T21:55:18.723Z","event":"detect:classified","index":3,"classification":"observed","impact":"HIGH","confidence":1,"expectationId":"exp_7a37b6"}
+{"type":"navigation","timestamp":"2026-01-14T21:55:18.723Z","event":"detect:attempt","index":4,"total":4,"expectationId":"exp_72f678","value":"/products"}
+{"type":"detect:classified","timestamp":"2026-01-14T21:55:18.723Z","event":"detect:classified","index":4,"classification":"silent-failure:not-found","impact":"HIGH","confidence":0.75,"expectationId":"exp_72f678"}
+{"type":"detect:completed","timestamp":"2026-01-14T21:55:18.725Z","event":"detect:completed","total":4,"stats":{"total":4,"silentFailures":2,"observed":2,"coverageGaps":0,"unproven":0,"informational":0}}
+{"type":"phase:completed","timestamp":"2026-01-14T21:55:18.725Z","phase":"Detect","message":"Silent failure detection complete"}
+{"type":"phase:started","timestamp":"2026-01-14T21:55:18.725Z","phase":"Finalize Artifacts","message":"Writing run results..."}

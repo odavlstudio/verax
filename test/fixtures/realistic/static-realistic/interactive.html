@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Elements - Acme Corp</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    nav {
+      background: #333;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 2rem;
+      padding: 0.5rem 1rem;
+    }
+    nav a:hover {
+      background: #555;
+    }
+    .interactive-section {
+      background: #f8f9fa;
+      padding: 2rem;
+      margin: 2rem 0;
+      border-radius: 8px;
+    }
+    .interactive-section h2 {
+      margin-top: 0;
+    }
+    button, .clickable {
+      padding: 0.75rem 1.5rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0.5rem;
+      font-size: 1rem;
+    }
+    button:hover, .clickable:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .clickable {
+      display: inline-block;
+    }
+    .analytics-tracker {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/products.html">Products</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/search.html">Search</a>
+    <a href="/interactive.html">Interactive</a>
+  </nav>
+
+  <h1>Interactive Elements Test Page</h1>
+  <p>This page demonstrates various interactive elements without href attributes.</p>
+
+  <div class="interactive-section">
+    <h2>CONFIRMED: Broken Navigation Button (interactive-element-no-href)</h2>
+    <p>Button promises navigation but fails silently.</p>
+    <button id="nav-button" onclick="navigateToAbout()">Go to About Page</button>
+    <script>
+      // INTENTIONAL SILENT FAILURE: Button promises navigation but fails
+      function navigateToAbout() {
+        // Promise: Should navigate to /about.html
+        // Reality: Nothing happens - silent failure
+        // No window.location change, no feedback, no error
+        setTimeout(() => {
+          // Intentionally do nothing - silent failure
+        }, 100);
+      }
+    </script>
+  </div>
+
+  <div class="interactive-section">
+    <h2>CONFIRMED: Broken Action Button (interactive-element-no-href)</h2>
+    <p>Clickable div promises action but fails silently.</p>
+    <div class="clickable" id="action-div" onclick="performAction()">Perform Action</div>
+    <script>
+      // INTENTIONAL SILENT FAILURE: Div promises action but fails
+      function performAction() {
+        // Promise: Should show success message or navigate
+        // Reality: Nothing happens - silent failure
+        // No UI feedback, no navigation, no error message
+        setTimeout(() => {
+          // Intentionally do nothing - silent failure
+        }, 100);
+      }
+    </script>
+  </div>
+
+  <div class="interactive-section">
+    <h2>FALSE POSITIVE TRAP: Analytics Tracker (should NOT be reported)</h2>
+    <p>Analytics tracking button that intentionally does nothing.</p>
+    <button id="analytics-btn" class="analytics-tracker" onclick="trackAnalytics()">Track</button>
+    <script>
+      // FALSE POSITIVE TRAP: Analytics tracking - should NOT be reported
+      function trackAnalytics() {
+        // Intentionally does nothing - this is expected behavior
+        // Not a user-facing promise, so should not be reported
+        // This is for analytics tracking only
+      }
+    </script>
+  </div>
+
+  <div class="interactive-section">
+    <h2>FALSE POSITIVE TRAP: Noop Handler (should NOT be reported)</h2>
+    <p>Button with noop handler - not a user-facing promise.</p>
+    <button id="noop-btn" onclick="noop()">Noop Button</button>
+    <script>
+      // FALSE POSITIVE TRAP: Noop handler - should NOT be reported
+      function noop() {
+        // Intentionally does nothing - not a user-facing promise
+        return false;
+      }
+    </script>
+  </div>
+
+  <div class="interactive-section">
+    <h2>GUARDRAILS: Disabled Button (should NOT be reported)</h2>
+    <p>Disabled button - interaction is prevented, not a silent failure.</p>
+    <button id="disabled-btn" disabled onclick="disabledAction()">Disabled Button</button>
+    <script>
+      function disabledAction() {
+        // This should never be called because button is disabled
+        console.log('This should not execute');
+      }
+    </script>
+  </div>
+
+  <div class="interactive-section">
+    <h2>GUARDRAILS: Prevented Interaction (should NOT be reported)</h2>
+    <p>Button with preventDefault - interaction is explicitly prevented.</p>
+    <button id="prevented-btn" onclick="preventedAction(event)">Prevented Button</button>
+    <script>
+      function preventedAction(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        // Interaction is explicitly prevented - not a silent failure
+        // User feedback: interaction is prevented, not failed
+      }
+    </script>
+  </div>
+
+  <div class="interactive-section">
+    <h2>AMBIGUOUS: Conditional Action (confidence < 1)</h2>
+    <p>Button that may or may not work depending on state.</p>
+    <button id="conditional-btn" onclick="conditionalAction()">Conditional Action</button>
+    <span id="conditional-status"></span>
+    <script>
+      let actionEnabled = false; // State that determines if action works
+      
+      function conditionalAction() {
+        if (actionEnabled) {
+          // Action works when enabled
+          document.getElementById('conditional-status').textContent = 'Action performed';
+        } else {
+          // Action doesn't work when disabled - ambiguous case
+          // May or may not be a failure depending on expected state
+          setTimeout(() => {
+            // Intentionally do nothing - ambiguous failure
+          }, 100);
+        }
+      }
+    </script>
+  </div>
+
+  <div class="interactive-section">
+    <h2>AMBIGUOUS: Guarded Interaction (confidence < 1)</h2>
+    <p>Button with guard condition that may prevent action.</p>
+    <button id="guarded-btn" onclick="guardedAction()">Guarded Action</button>
+    <script>
+      function guardedAction() {
+        const isReady = false; // Guard condition
+        if (!isReady) {
+          // Guard prevents action - ambiguous whether this is a failure
+          // Could be expected behavior or a silent failure
+          return;
+        }
+        // Action would proceed if guard passes
+      }
+    </script>
+  </div>
+</body>
+</html>
+

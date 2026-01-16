@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Operations - Acme Corp</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    nav {
+      background: #333;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 2rem;
+      padding: 0.5rem 1rem;
+    }
+    nav a:hover {
+      background: #555;
+    }
+    .network-section {
+      background: #f8f9fa;
+      padding: 2rem;
+      margin: 2rem 0;
+      border-radius: 8px;
+    }
+    .network-section h2 {
+      margin-top: 0;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0.5rem;
+      font-size: 1rem;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 4px;
+      display: none;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+    .analytics-tracker {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/products.html">Products</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/search.html">Search</a>
+    <a href="/interactive.html">Interactive</a>
+    <a href="/network.html">Network</a>
+  </nav>
+
+  <h1>Network Operations Test Page</h1>
+  <p>This page demonstrates various network-based promises and failures.</p>
+
+  <div class="network-section">
+    <h2>CONFIRMED: Broken Submit Form (network-silent-failure)</h2>
+    <p>Form submission promises network request but fails silently.</p>
+    <form id="submit-form">
+      <input type="text" id="submit-input" placeholder="Enter data" required>
+      <button type="submit" id="submit-btn">Submit</button>
+    </form>
+    <div id="submit-status" class="status"></div>
+    <script>
+      // INTENTIONAL SILENT FAILURE: Form submission network failure
+      document.getElementById('submit-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const data = document.getElementById('submit-input').value;
+        if (!data) return;
+        
+        // Promise: Should make POST request to /api/submit
+        // Reality: Request fails silently, no error, no feedback
+        try {
+          const response = await fetch('/api/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data })
+          });
+          
+          // Intentionally ignore response and errors
+          // No success message, no error handling, no UI feedback
+          // Silent failure
+        } catch (error) {
+          // Intentionally swallow error - silent failure
+          // No error message shown to user
+        }
+      });
+    </script>
+  </div>
+
+  <div class="network-section">
+    <h2>CONFIRMED: Broken Save Action (network-silent-failure)</h2>
+    <p>Button promises network request but fails silently.</p>
+    <button id="save-btn" onclick="saveData()">Save Data</button>
+    <div id="save-status" class="status"></div>
+    <script>
+      // INTENTIONAL SILENT FAILURE: Save button network failure
+      async function saveData() {
+        // Promise: Should make PUT request to /api/data/save
+        // Reality: Request fails silently, no error, no feedback
+        try {
+          const response = await fetch('/api/data/save', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: 1, value: 'test' })
+          });
+          
+          // Intentionally ignore response and errors
+          // No success message, no error handling, no UI feedback
+          // Silent failure
+        } catch (error) {
+          // Intentionally swallow error - silent failure
+          // No error message shown to user
+        }
+      }
+    </script>
+  </div>
+
+  <div class="network-section">
+    <h2>FALSE POSITIVE TRAP: Analytics Beacon (should NOT be reported)</h2>
+    <p>Analytics tracking request that intentionally does nothing.</p>
+    <button id="analytics-btn" class="analytics-tracker" onclick="trackAnalytics()">Track</button>
+    <script>
+      // FALSE POSITIVE TRAP: Analytics beacon - should NOT be reported
+      function trackAnalytics() {
+        // Intentionally does nothing - this is expected behavior
+        // Not a user-facing promise, so should not be reported
+        fetch('/api/analytics/beacon', {
+          method: 'POST',
+          body: JSON.stringify({ event: 'click' }),
+          keepalive: true
+        }).catch(() => {
+          // Intentionally ignore - this is expected behavior
+        });
+      }
+    </script>
+  </div>
+
+  <div class="network-section">
+    <h2>FALSE POSITIVE TRAP: Background Polling (should NOT be reported)</h2>
+    <p>Background polling request that intentionally does nothing.</p>
+    <script>
+      // FALSE POSITIVE TRAP: Background polling - should NOT be reported
+      // This runs automatically, not triggered by user interaction
+      setInterval(() => {
+        fetch('/api/poll/status', { method: 'GET' })
+          .catch(() => {
+            // Intentionally ignore - background polling failures are not user-facing
+          });
+      }, 30000); // Poll every 30 seconds
+    </script>
+  </div>
+
+  <div class="network-section">
+    <h2>GUARDRAILS: Network Success + No UI (should NOT be CONFIRMED)</h2>
+    <p>Network request succeeds but no UI feedback - should be SUSPECTED, not CONFIRMED.</p>
+    <button id="success-no-ui-btn" onclick="successNoUI()">Success No UI</button>
+    <script>
+      // GUARDRAILS CASE: Network succeeds but no UI feedback
+      async function successNoUI() {
+        // Network request succeeds but no UI feedback provided
+        try {
+          const response = await fetch('/api/success', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'test' })
+          });
+          
+          if (response.ok) {
+            // Request succeeded but no UI feedback
+            // Should be SUSPECTED, not CONFIRMED
+            // (This is handled by guardrails, not a silent failure)
+          }
+        } catch (error) {
+          // Network error
+        }
+      }
+    </script>
+  </div>
+
+  <div class="network-section">
+    <h2>AMBIGUOUS: Optimistic UI (confidence < 1)</h2>
+    <p>Network request with optimistic UI update - ambiguous whether failure is silent.</p>
+    <button id="optimistic-btn" onclick="optimisticUpdate()">Optimistic Update</button>
+    <div id="optimistic-status" class="status"></div>
+    <script>
+      // AMBIGUOUS CASE: Optimistic UI update
+      let optimisticState = false;
+      
+      async function optimisticUpdate() {
+        // Optimistic UI: Update UI immediately, then sync with server
+        optimisticState = !optimisticState;
+        document.getElementById('optimistic-status').textContent = optimisticState ? 'Updated (optimistic)' : 'Reverted';
+        document.getElementById('optimistic-status').className = 'status success';
+        
+        try {
+          const response = await fetch('/api/optimistic', {
+            method: 'POST',
+            body: JSON.stringify({ state: optimisticState })
+          });
+          
+          if (!response.ok) {
+            // Server rejected - revert optimistic update
+            optimisticState = !optimisticState;
+            document.getElementById('optimistic-status').textContent = 'Reverted (server rejected)';
+            document.getElementById('optimistic-status').className = 'status error';
+          }
+        } catch (error) {
+          // Network error - ambiguous whether to revert or keep optimistic state
+          // This creates ambiguity - is the failure silent or handled?
+        }
+      }
+    </script>
+  </div>
+
+  <div class="network-section">
+    <h2>AMBIGUOUS: Retry Logic (confidence < 1)</h2>
+    <p>Network request with retry logic - ambiguous whether failure is silent.</p>
+    <button id="retry-btn" onclick="retryRequest()">Retry Request</button>
+    <div id="retry-status" class="status"></div>
+    <script>
+      // AMBIGUOUS CASE: Retry logic
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      async function retryRequest() {
+        retryCount = 0;
+        document.getElementById('retry-status').textContent = 'Attempting...';
+        document.getElementById('retry-status').className = 'status';
+        document.getElementById('retry-status').style.display = 'block';
+        
+        while (retryCount < maxRetries) {
+          try {
+            const response = await fetch('/api/retry', {
+              method: 'POST',
+              body: JSON.stringify({ attempt: retryCount + 1 })
+            });
+            
+            if (response.ok) {
+              document.getElementById('retry-status').textContent = 'Success after ' + (retryCount + 1) + ' attempts';
+              document.getElementById('retry-status').className = 'status success';
+              return;
+            }
+          } catch (error) {
+            // Network error - will retry
+          }
+          
+          retryCount++;
+          if (retryCount < maxRetries) {
+            // Wait before retry (deterministic delay)
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        }
+        
+        // All retries failed - ambiguous whether this is a silent failure
+        // or expected behavior (retries exhausted)
+        document.getElementById('retry-status').textContent = 'Failed after ' + maxRetries + ' attempts';
+        document.getElementById('retry-status').className = 'status error';
+      }
+    </script>
+  </div>
+</body>
+</html>
+

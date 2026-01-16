@@ -1,0 +1,18 @@
+<div class="home-page">
+  <h1>Welcome</h1>
+  
+  <button (click)="navigateToAbout()">Go to About</button>
+  
+  <form (submit)="handleSubmit()">
+    <input type="email" placeholder="Email" />
+    <button type="submit">Submit</button>
+  </form>
+  
+  <button (click)="trackAnalytics()">Track Event</button>
+  
+  <button (click)="toggleModal()">Toggle Modal</button>
+  <div *ngIf="isOpen" class="modal">Modal Content</div>
+  
+  <button (click)="incrementCount()">Count: {{count}}</button>
+</div>
+

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Forms Heavy</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/register.html">Register</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/wizard.html">Wizard</a>
+    <a href="/survey.html">Survey</a>
+  </nav>
+
+  <h1>Create Account</h1>
+  <p>Register for a new account.</p>
+
+  <form id="register-form">
+    <div class="form-group">
+      <label for="username">Username *</label>
+      <input type="text" id="username" name="username" required>
+      <span class="error-message" id="username-error">Username is required</span>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email *</label>
+      <input type="email" id="email" name="email" required>
+      <span class="error-message" id="email-error">Valid email is required</span>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password *</label>
+      <input type="password" id="password" name="password" required minlength="8">
+      <span class="error-message" id="password-error">Password must be at least 8 characters</span>
+    </div>
+
+    <div class="form-group">
+      <label for="confirm-password">Confirm Password *</label>
+      <input type="password" id="confirm-password" name="confirm-password" required>
+      <span class="error-message" id="confirm-password-error">Passwords must match</span>
+    </div>
+
+    <button type="submit" id="submit-btn">Create Account</button>
+  </form>
+
+  <script>
+    // INTENTIONAL SILENT FAILURE #1: Registration form submission
+    // Form promises POST request but fails silently
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      
+      // Basic validation
+      let hasErrors = false;
+      
+      if (!username) {
+        hasErrors = true;
+        document.getElementById('username-error').classList.add('show');
+      } else {
+        document.getElementById('username-error').classList.remove('show');
+      }
+      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        hasErrors = true;
+        document.getElementById('email-error').classList.add('show');
+      } else {
+        document.getElementById('email-error').classList.remove('show');
+      }
+      
+      if (!password || password.length < 8) {
+        hasErrors = true;
+        document.getElementById('password-error').classList.add('show');
+      } else {
+        document.getElementById('password-error').classList.remove('show');
+      }
+      
+      if (password !== confirmPassword) {
+        hasErrors = true;
+        document.getElementById('confirm-password-error').classList.add('show');
+      } else {
+        document.getElementById('confirm-password-error').classList.remove('show');
+      }
+      
+      if (!hasErrors) {
+        // Promise: Should make POST request to /api/register
+        // Reality: Request fails silently, no error, no feedback, no navigation
+        fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        })
+        .then(response => {
+          // Intentionally ignore response
+          // No success message, no navigation, no error handling
+          // Silent failure
+        })
+        .catch(error => {
+          // Intentionally swallow error - silent failure
+        });
+      }
+    });
+  </script>
+</body>
+</html>
+

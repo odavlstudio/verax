@@ -1,0 +1,77 @@
+{
+  "expectations": [
+    {
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 59,
+        "column": 7
+      },
+      "confidence": 1,
+      "id": "exp_af851a"
+    },
+    {
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/about"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 60,
+        "column": 7
+      },
+      "confidence": 1,
+      "id": "exp_dafa82"
+    },
+    {
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/contact"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 61,
+        "column": 7
+      },
+      "confidence": 1,
+      "id": "exp_7a37b6"
+    },
+    {
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/products"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 68,
+        "column": 7
+      },
+      "confidence": 1,
+      "id": "exp_72f678"
+    }
+  ],
+  "stats": {
+    "totalExpectations": 4,
+    "byType": {
+      "navigation": 4,
+      "network": 0,
+      "state": 0
+    }
+  },
+  "skipped": {
+    "dynamic": 0,
+    "computed": 0,
+    "external": 0,
+    "parseError": 0,
+    "other": 0,
+    "total": 0
+  },
+  "learnedAt": "2026-01-14T21:55:18.741Z"
+}

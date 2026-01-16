@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Survey - Forms Heavy</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/register.html">Register</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/wizard.html">Wizard</a>
+    <a href="/survey.html">Survey</a>
+  </nav>
+
+  <h1>Customer Survey</h1>
+  <p>Help us improve by completing this survey.</p>
+
+  <form id="survey-form">
+    <div class="form-group">
+      <label>How satisfied are you? *</label>
+      <label><input type="radio" name="satisfaction" value="very-satisfied" required> Very Satisfied</label>
+      <label><input type="radio" name="satisfaction" value="satisfied" required> Satisfied</label>
+      <label><input type="radio" name="satisfaction" value="neutral" required> Neutral</label>
+      <label><input type="radio" name="satisfaction" value="dissatisfied" required> Dissatisfied</label>
+      <label><input type="radio" name="satisfaction" value="very-dissatisfied" required> Very Dissatisfied</label>
+    </div>
+
+    <div class="form-group">
+      <label for="feedback">Additional Feedback</label>
+      <textarea id="feedback" name="feedback"></textarea>
+    </div>
+
+    <button type="submit" id="submit-btn">Submit Survey</button>
+  </form>
+
+  <script>
+    // INTENTIONAL SILENT FAILURE #5: Missing submit feedback
+    // Submit button promises loading state but none appears
+    document.getElementById('survey-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submit-btn');
+      const originalText = submitBtn.textContent;
+      
+      // Promise: Should show loading state
+      // Reality: Loading state is set but UI doesn't show it
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+      
+      // INTENTIONAL: Loading state exists but UI doesn't reflect it (silent failure)
+      submitBtn.style.opacity = '1'; // Should be 0.5 or show spinner, but doesn't
+      
+      fetch('/api/survey', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          satisfaction: document.querySelector('input[name="satisfaction"]:checked').value,
+          feedback: document.getElementById('feedback').value
+        })
+      })
+      .then(response => {
+        // Intentionally ignore response - silent failure
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      })
+      .catch(error => {
+        // Intentionally swallow error - silent failure
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      });
+    });
+  </script>
+</body>
+</html>
+

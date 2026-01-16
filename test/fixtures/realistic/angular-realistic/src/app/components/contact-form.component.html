@@ -1,0 +1,6 @@
+<form (submit)="handleSubmit()">
+  <input type="email" [(ngModel)]="email" placeholder="Email" />
+  <div *ngIf="errorMessage" class="error">{{errorMessage}}</div>
+  <button type="submit">Submit</button>
+</form>
+

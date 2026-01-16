@@ -1,0 +1,30 @@
+{
+  "runId": "2026-01-14T20-36-53Z_b548f2",
+  "status": "COMPLETE",
+  "startedAt": "2026-01-14T20:36:53.356Z",
+  "completedAt": "2026-01-14T20:37:17.899Z",
+  "command": "run",
+  "url": "https://example.com",
+  "notes": "Run completed successfully",
+  "metrics": {
+    "learnMs": 0,
+    "observeMs": 0,
+    "detectMs": 0,
+    "totalMs": 24543
+  },
+  "findingsCounts": {
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "UNKNOWN": 0
+  },
+  "digest": {
+    "expectationsTotal": 4,
+    "attempted": 4,
+    "observed": 3,
+    "silentFailures": 1,
+    "coverageGaps": 0,
+    "unproven": 0,
+    "informational": 0
+  }
+}

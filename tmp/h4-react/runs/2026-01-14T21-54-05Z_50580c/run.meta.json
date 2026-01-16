@@ -1,0 +1,17 @@
+{
+  "veraxVersion": "0.3.0",
+  "nodeVersion": "v20.19.5",
+  "platform": "win32",
+  "cwd": "C:\\Users\\sabou\\verax",
+  "command": "run",
+  "args": {
+    "url": "https://example.com",
+    "src": "demos/demo-react",
+    "out": "tmp/h4-react"
+  },
+  "url": "https://example.com",
+  "src": "C:\\Users\\sabou\\verax\\demos\\demo-react",
+  "startedAt": "2026-01-14T21:54:05.559Z",
+  "completedAt": "2026-01-14T21:54:09.595Z",
+  "error": null
+}

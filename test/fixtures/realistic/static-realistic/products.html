@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - Acme Corp</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    nav {
+      background: #333;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 2rem;
+      padding: 0.5rem 1rem;
+    }
+    nav a:hover {
+      background: #555;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .product-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .product-card h3 {
+      margin-top: 0;
+    }
+    .product-card button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .product-card button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/products.html">Products</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/search.html">Search</a>
+  </nav>
+
+  <h1>Our Products</h1>
+  <p>Discover our range of innovative solutions.</p>
+
+  <div class="product-grid">
+    <div class="product-card">
+      <h3>Product A</h3>
+      <p>Amazing features for your business.</p>
+      <button onclick="window.location.href='/product-a.html'">Learn More</button>
+    </div>
+    <div class="product-card">
+      <h3>Product B</h3>
+      <p>Next-generation technology.</p>
+      <button onclick="window.location.href='/product-b.html'">Learn More</button>
+    </div>
+    <div class="product-card">
+      <h3>Product C</h3>
+      <p>Enterprise-grade solution.</p>
+      <button onclick="window.location.href='/product-c.html'">Learn More</button>
+    </div>
+  </div>
+</body>
+</html>
+

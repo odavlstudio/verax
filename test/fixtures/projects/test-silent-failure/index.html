@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Silent Failure Demo</title>
+</head>
+<body>
+  <h1>Silent Failure Test</h1>
+  <button onclick="makeRequest()">Make Request</button>
+  
+  <script>
+    async function makeRequest() {
+      // This expectation will be created: network call to /api/data
+      // But it will silently fail (request returns 500) with no visible feedback to the user
+      try {
+        const response = await fetch('/api/data');
+        // Error happens here but no catch, no feedback
+        // This is the "silent failure" - user clicked, nothing happened visually
+      } catch (e) {
+        // Not even logging
+      }
+    }
+  </script>
+</body>
+</html>

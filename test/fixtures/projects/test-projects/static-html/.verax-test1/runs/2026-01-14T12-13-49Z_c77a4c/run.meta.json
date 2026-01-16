@@ -1,0 +1,37 @@
+{
+  "contractVersion": 1,
+  "artifactVersions": {
+    "runStatus": 1,
+    "runMeta": 1,
+    "summary": 1,
+    "findings": 1,
+    "learn": 1,
+    "observe": 1,
+    "project": 1,
+    "traces": 1,
+    "evidence": 1,
+    "scanSummary": 1,
+    "determinismReport": 1,
+    "evidenceIntent": 1,
+    "guardrailsReport": 1,
+    "confidenceReport": 1,
+    "determinismContract": 1
+  },
+  "veraxVersion": "0.3.0",
+  "nodeVersion": "v20.19.5",
+  "platform": "win32",
+  "cwd": "C:\\Users\\sabou\\verax\\test-projects\\static-html",
+  "command": "run",
+  "args": {
+    "url": "http://localhost:3000",
+    "fixture": null,
+    "src": ".",
+    "out": ".verax-test1"
+  },
+  "url": "http://localhost:3000",
+  "fixtureId": null,
+  "src": "C:\\Users\\sabou\\verax\\test-projects\\static-html",
+  "startedAt": "2026-01-14T12:13:49.205Z",
+  "completedAt": "2026-01-14T12:14:23.887Z",
+  "error": "Analysis failed due to data integrity violation: INVARIANT VIOLATION: Expected 6 expectations but accounted for 7 (analyzed=0, skipped=7). Some expectations disappeared during analysis."
+}

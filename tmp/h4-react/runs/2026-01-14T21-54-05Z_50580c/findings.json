@@ -1,0 +1,84 @@
+{
+  "findings": [
+    {
+      "id": "exp_2bfb9f",
+      "type": "state",
+      "promise": {
+        "kind": "state_mutation",
+        "value": "state management"
+      },
+      "source": {
+        "file": "App.jsx",
+        "line": 4,
+        "column": 32
+      },
+      "classification": "silent-failure:no-change",
+      "impact": "MEDIUM",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_1_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_1_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_1_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "no-change",
+      "findingId": "finding_exp_2bfb9f"
+    },
+    {
+      "id": "exp_33cb69",
+      "type": "interaction",
+      "promise": {
+        "kind": "click",
+        "value": "button click"
+      },
+      "source": {
+        "file": "App.jsx",
+        "line": 26,
+        "column": 8
+      },
+      "classification": "silent-failure:not-found",
+      "impact": "LOW",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_2_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_2_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_2_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "not-found",
+      "findingId": "finding_exp_33cb69"
+    }
+  ],
+  "total": 2,
+  "stats": {
+    "total": 2,
+    "silentFailures": 2,
+    "observed": 0,
+    "coverageGaps": 0,
+    "unproven": 0,
+    "informational": 0
+  },
+  "detectedAt": "2026-01-14T21:54:09.594Z"
+}

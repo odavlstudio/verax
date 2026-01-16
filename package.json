@@ -1,6 +1,6 @@
 {
   "name": "@veraxhq/verax",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "VERAX - Silent failure detection for websites",
   "license": "MIT",
   "type": "module",
@@ -14,13 +14,18 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node scripts/test-runner-wrapper.js",
-    "test:pack": "node scripts/test-pack.js",
+    "test": "node test/infrastructure/test-runner-wrapper.js",
+    "test:fast": "node test/infrastructure/test-runner-fast.js",
+    "test:integration": "node test/infrastructure/test-runner-integration.js",
+    "test:all": "node --test test",
+    "test:pack": "node test/infrastructure/test-pack.js",
     "verify-release": "node scripts/verify-release.js",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@babel/parser": "^7.28.5",
+    "@babel/traverse": "^7.28.5",
     "glob": "^10.3.10",
     "inquirer": "^9.2.15",
     "node-html-parser": "^7.0.1",
@@ -31,10 +36,9 @@
     "node": ">=18.0.0"
   },
   "devDependencies": {
-    "@babel/parser": "^7.28.5",
-    "@babel/traverse": "^7.28.5",
     "@reduxjs/toolkit": "^2.11.2",
-    "@veraxhq/verax": "file:veraxhq-verax-0.2.1.tgz",
+    "@types/node": "^18.0.0",
+    "@veraxhq/verax": "file:veraxhq-verax-0.3.0.tgz",
     "eslint": "^8.57.0",
     "next": "^16.1.1",
     "react": "^19.2.3",

@@ -1,0 +1,346 @@
+{
+  "contractVersion": 1,
+  "artifactVersions": {
+    "runStatus": 1,
+    "runMeta": 1,
+    "summary": 1,
+    "findings": 1,
+    "learn": 1,
+    "observe": 1,
+    "project": 1,
+    "traces": 1,
+    "evidence": 1,
+    "scanSummary": 1,
+    "determinismReport": 1,
+    "evidenceIntent": 1,
+    "guardrailsReport": 1,
+    "confidenceReport": 1,
+    "determinismContract": 1
+  },
+  "findings": [
+    {
+      "id": "exp_e7afba",
+      "expectationId": "exp_e7afba",
+      "type": "network_silent_failure",
+      "promise": {
+        "kind": "request",
+        "value": "https://external.api.com/v1/users",
+        "method": "GET"
+      },
+      "source": {
+        "file": "app.js",
+        "line": 3,
+        "column": 0,
+        "context": "top-level",
+        "astSource": "fetch('https://external.api.com/v1/users')"
+      },
+      "classification": "observed",
+      "impact": "MEDIUM",
+      "confidence": {
+        "level": "HIGH",
+        "score": 100
+      },
+      "evidence": {
+        "type": "network_activity",
+        "hasDomChange": false,
+        "hasUrlChange": false,
+        "hasNetworkActivity": true,
+        "hasStateChange": false,
+        "networkRequests": [
+          {
+            "type": "network-log",
+            "path": "network_1.json",
+            "available": true
+          }
+        ]
+      },
+      "reason": "Expectation observed at runtime",
+      "status": "CONFIRMED",
+      "signals": {
+        "impact": "MEDIUM",
+        "userRisk": "CONFUSES",
+        "ownership": "FRONTEND",
+        "grouping": {
+          "expectationType": "network"
+        }
+      },
+      "interaction": {
+        "type": "network",
+        "selector": "https://external.api.com/v1/users"
+      },
+      "what_happened": "Expectation observed at runtime",
+      "what_was_expected": "https://external.api.com/v1/users",
+      "what_was_observed": "Expectation observed at runtime",
+      "why_it_matters": "Potential silent failure identified by expectation vs observation.",
+      "findingId": "finding_exp_e7afba"
+    },
+    {
+      "id": "exp_16db0b",
+      "expectationId": "exp_16db0b",
+      "type": "navigation_silent_failure",
+      "promise": {
+        "kind": "navigate",
+        "value": "/"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 9,
+        "column": 5
+      },
+      "classification": "observed",
+      "impact": "HIGH",
+      "confidence": {
+        "level": "HIGH",
+        "score": 100
+      },
+      "evidence": {
+        "hasDomChange": true,
+        "hasUrlChange": false,
+        "hasNetworkActivity": false,
+        "hasStateChange": false,
+        "networkRequests": [],
+        "before": "nav_2_after.png"
+      },
+      "reason": "Expectation observed at runtime",
+      "status": "CONFIRMED",
+      "signals": {
+        "impact": "HIGH",
+        "userRisk": "CONFUSES",
+        "ownership": "FRONTEND",
+        "grouping": {
+          "expectationType": "navigation"
+        }
+      },
+      "interaction": {
+        "type": "navigation",
+        "selector": "/"
+      },
+      "what_happened": "Expectation observed at runtime",
+      "what_was_expected": "/",
+      "what_was_observed": "Expectation observed at runtime",
+      "why_it_matters": "Potential silent failure identified by expectation vs observation.",
+      "findingId": "finding_exp_16db0b"
+    },
+    {
+      "id": "exp_a74472",
+      "expectationId": "exp_a74472",
+      "type": "navigation_silent_failure",
+      "promise": {
+        "kind": "navigate",
+        "value": "/about"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 10,
+        "column": 5
+      },
+      "classification": "silent-failure",
+      "impact": "HIGH",
+      "confidence": {
+        "level": "LOW",
+        "score": 40
+      },
+      "evidence": {
+        "hasDomChange": false,
+        "hasUrlChange": false,
+        "hasNetworkActivity": false,
+        "hasStateChange": false,
+        "networkRequests": []
+      },
+      "reason": "No matching event observed",
+      "status": "SUSPECTED",
+      "signals": {
+        "impact": "HIGH",
+        "userRisk": "CONFUSES",
+        "ownership": "FRONTEND",
+        "grouping": {
+          "expectationType": "navigation"
+        }
+      },
+      "interaction": {
+        "type": "navigation",
+        "selector": "/about"
+      },
+      "what_happened": "No matching event observed",
+      "what_was_expected": "/about",
+      "what_was_observed": "No matching event observed",
+      "why_it_matters": "Potential silent failure identified by expectation vs observation.",
+      "findingId": "finding_exp_a74472"
+    },
+    {
+      "id": "exp_443bd2",
+      "expectationId": "exp_443bd2",
+      "type": "navigation_silent_failure",
+      "promise": {
+        "kind": "navigate",
+        "value": "/contact"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 11,
+        "column": 5
+      },
+      "classification": "silent-failure",
+      "impact": "HIGH",
+      "confidence": {
+        "level": "LOW",
+        "score": 40
+      },
+      "evidence": {
+        "hasDomChange": false,
+        "hasUrlChange": false,
+        "hasNetworkActivity": false,
+        "hasStateChange": false,
+        "networkRequests": []
+      },
+      "reason": "No matching event observed",
+      "status": "SUSPECTED",
+      "signals": {
+        "impact": "HIGH",
+        "userRisk": "CONFUSES",
+        "ownership": "FRONTEND",
+        "grouping": {
+          "expectationType": "navigation"
+        }
+      },
+      "interaction": {
+        "type": "navigation",
+        "selector": "/contact"
+      },
+      "what_happened": "No matching event observed",
+      "what_was_expected": "/contact",
+      "what_was_observed": "No matching event observed",
+      "why_it_matters": "Potential silent failure identified by expectation vs observation.",
+      "findingId": "finding_exp_443bd2"
+    },
+    {
+      "id": "exp_36442f",
+      "expectationId": "exp_36442f",
+      "type": "network_silent_failure",
+      "promise": {
+        "kind": "request",
+        "value": "/api/data",
+        "method": "GET"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 17,
+        "column": 0,
+        "context": "top-level",
+        "astSource": "fetch('/api/data')"
+      },
+      "classification": "silent-failure",
+      "impact": "MEDIUM",
+      "confidence": {
+        "level": "LOW",
+        "score": 40
+      },
+      "evidence": {
+        "hasDomChange": false,
+        "hasUrlChange": false,
+        "hasNetworkActivity": false,
+        "hasStateChange": false,
+        "networkRequests": []
+      },
+      "reason": "No matching event observed",
+      "status": "SUSPECTED",
+      "signals": {
+        "impact": "MEDIUM",
+        "userRisk": "CONFUSES",
+        "ownership": "FRONTEND",
+        "grouping": {
+          "expectationType": "network"
+        }
+      },
+      "interaction": {
+        "type": "network",
+        "selector": "/api/data"
+      },
+      "what_happened": "No matching event observed",
+      "what_was_expected": "/api/data",
+      "what_was_observed": "No matching event observed",
+      "why_it_matters": "Potential silent failure identified by expectation vs observation.",
+      "findingId": "finding_exp_36442f"
+    },
+    {
+      "id": "exp_a3ff93",
+      "expectationId": "exp_a3ff93",
+      "type": "network_silent_failure",
+      "promise": {
+        "kind": "request",
+        "value": "https://external.api.com/v1/users",
+        "method": "GET"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 18,
+        "column": 4,
+        "context": "top-level",
+        "astSource": "fetch('https://external.api.com/v1/users')"
+      },
+      "classification": "observed",
+      "impact": "MEDIUM",
+      "confidence": {
+        "level": "HIGH",
+        "score": 100
+      },
+      "evidence": {
+        "type": "network_activity",
+        "hasDomChange": false,
+        "hasUrlChange": false,
+        "hasNetworkActivity": true,
+        "hasStateChange": false,
+        "networkRequests": [
+          {
+            "type": "network-log",
+            "path": "network_6.json",
+            "available": true
+          }
+        ]
+      },
+      "reason": "Expectation observed at runtime",
+      "status": "CONFIRMED",
+      "signals": {
+        "impact": "MEDIUM",
+        "userRisk": "CONFUSES",
+        "ownership": "FRONTEND",
+        "grouping": {
+          "expectationType": "network"
+        }
+      },
+      "interaction": {
+        "type": "network",
+        "selector": "https://external.api.com/v1/users"
+      },
+      "what_happened": "Expectation observed at runtime",
+      "what_was_expected": "https://external.api.com/v1/users",
+      "what_was_observed": "Expectation observed at runtime",
+      "why_it_matters": "Potential silent failure identified by expectation vs observation.",
+      "findingId": "finding_exp_a3ff93"
+    }
+  ],
+  "total": 6,
+  "stats": {
+    "total": 6,
+    "silentFailures": 3,
+    "observed": 3,
+    "coverageGaps": 0,
+    "unproven": 0,
+    "informational": 0
+  },
+  "detectedAt": "2026-01-14T11:08:27.682Z",
+  "enforcement": {
+    "droppedCount": 0,
+    "downgradedCount": 0,
+    "downgrades": [],
+    "dropped": []
+  },
+  "integrity": {
+    "status": "COMPLETE",
+    "atomic": true,
+    "writer": "verax",
+    "writerVersion": "0.3.0",
+    "writtenAt": "2026-01-14T11:08:27.686Z",
+    "notes": []
+  }
+}

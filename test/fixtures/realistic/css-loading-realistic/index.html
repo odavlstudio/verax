@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Loading Indicators Test</title>
+  <style>
+    /* CONFIRMED SUCCESS: Border spinner */
+    .spinner-border {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    
+    .spinner-border.active {
+      display: block;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* CONFIRMED SUCCESS: Rotation spinner */
+    .spinner-rotate {
+      width: 30px;
+      height: 30px;
+      border: 3px solid #e0e0e0;
+      border-left: 3px solid #9b59b6;
+      border-radius: 50%;
+      animation: rotate 0.8s linear infinite;
+      display: none;
+    }
+    
+    .spinner-rotate.active {
+      display: block;
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* FALSE POSITIVE TRAP: Decorative rotating icon (always present) */
+    .decorative-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      border-radius: 50%;
+      animation: decorative-spin 3s linear infinite;
+      position: fixed;
+      top: 10px;
+      right: 10px;
+    }
+    
+    @keyframes decorative-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* AMBIGUOUS: Pulse animation (no corroborating signals) */
+    .spinner-pulse {
+      width: 20px;
+      height: 20px;
+      background: #3498db;
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+      display: none;
+    }
+    
+    .spinner-pulse.active {
+      display: block;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    
+    /* MIXED: Skeleton screen (opacity pulse) */
+    .skeleton {
+      width: 200px;
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      animation: skeleton-pulse 1.5s ease-in-out infinite;
+      display: none;
+    }
+    
+    .skeleton.active {
+      display: block;
+    }
+    
+    @keyframes skeleton-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    
+    .content {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      min-height: 100px;
+    }
+    
+    .spinner-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>CSS Loading Indicators Test Cases</h1>
+  
+  <!-- Decorative icon (always present - should NOT be detected) -->
+  <div class="decorative-icon"></div>
+  
+  <section>
+    <h2>1. CONFIRMED SUCCESS: Border Spinner + Disabled Button</h2>
+    <p>Clicking triggers spinner appearance + button disabled + content update</p>
+    <button id="btn-confirmed-success" onclick="handleConfirmedSuccess()">Load Data (Success)</button>
+    <div class="spinner-container">
+      <div id="spinner-confirmed" class="spinner-border"></div>
+      <span id="status-confirmed"></span>
+    </div>
+    <div id="content-confirmed" class="content"></div>
+  </section>
+  
+  <section>
+    <h2>2. CONFIRMED SUCCESS: Rotation Spinner + Pointer Events Disabled</h2>
+    <p>Spinner appears + pointer-events disabled on container</p>
+    <button id="btn-rotation-success" onclick="handleRotationSuccess()">Load with Rotation</button>
+    <div id="container-rotation" class="spinner-container">
+      <div id="spinner-rotation" class="spinner-rotate"></div>
+    </div>
+    <div id="content-rotation" class="content"></div>
+  </section>
+  
+  <section>
+    <h2>3. AMBIGUOUS: Pulse Spinner Only (No Corroboration)</h2>
+    <p>Spinner appears but no disabled button or pointer-events change</p>
+    <button id="btn-ambiguous" onclick="handleAmbiguous()">Load (Ambiguous)</button>
+    <div class="spinner-container">
+      <div id="spinner-ambiguous" class="spinner-pulse"></div>
+    </div>
+    <div id="content-ambiguous" class="content"></div>
+  </section>
+  
+  <section>
+    <h2>4. MIXED: Skeleton Screen</h2>
+    <p>Skeleton screen with opacity pulse (should be detected if rules allow)</p>
+    <button id="btn-skeleton" onclick="handleSkeleton()">Load with Skeleton</button>
+    <div id="skeleton-container" class="content">
+      <div id="skeleton-1" class="skeleton"></div>
+      <div id="skeleton-2" class="skeleton" style="margin-top: 10px;"></div>
+    </div>
+  </section>
+  
+  <section>
+    <h2>5. Disabled Button Only (No Spinner)</h2>
+    <p>Button disabled but no spinner - should not count as spinner feedback</p>
+    <button id="btn-disabled-only" onclick="handleDisabledOnly()" disabled>Already Disabled</button>
+  </section>
+
+  <script>
+    function handleConfirmedSuccess() {
+      const btn = document.getElementById('btn-confirmed-success');
+      const spinner = document.getElementById('spinner-confirmed');
+      const status = document.getElementById('status-confirmed');
+      const content = document.getElementById('content-confirmed');
+      
+      // Disable button (corroborating signal 1)
+      btn.disabled = true;
+      
+      // Show spinner (signal 1)
+      spinner.classList.add('active');
+      status.textContent = 'Loading...';
+      
+      // Simulate async operation
+      setTimeout(() => {
+        spinner.classList.remove('active');
+        btn.disabled = false;
+        status.textContent = 'Loaded!';
+        content.innerHTML = '<p>Data loaded successfully</p>';
+      }, 1500);
+    }
+    
+    function handleRotationSuccess() {
+      const btn = document.getElementById('btn-rotation-success');
+      const container = document.getElementById('container-rotation');
+      const spinner = document.getElementById('spinner-rotation');
+      const content = document.getElementById('content-rotation');
+      
+      // Disable pointer events (corroborating signal 1)
+      container.style.pointerEvents = 'none';
+      
+      // Show spinner (signal 1)
+      spinner.classList.add('active');
+      
+      // Simulate async operation
+      setTimeout(() => {
+        spinner.classList.remove('active');
+        container.style.pointerEvents = 'auto';
+        content.innerHTML = '<p>Content loaded with rotation spinner</p>';
+      }, 1500);
+    }
+    
+    function handleAmbiguous() {
+      const spinner = document.getElementById('spinner-ambiguous');
+      const content = document.getElementById('content-ambiguous');
+      
+      // Show spinner only (no corroborating signals)
+      spinner.classList.add('active');
+      
+      // Simulate async operation
+      setTimeout(() => {
+        spinner.classList.remove('active');
+        content.innerHTML = '<p>Content loaded (ambiguous - no corroboration)</p>';
+      }, 1500);
+    }
+    
+    function handleSkeleton() {
+      const skeleton1 = document.getElementById('skeleton-1');
+      const skeleton2 = document.getElementById('skeleton-2');
+      const container = document.getElementById('skeleton-container');
+      
+      // Show skeleton screens
+      skeleton1.classList.add('active');
+      skeleton2.classList.add('active');
+      
+      // Disable pointer events (corroborating signal)
+      container.style.pointerEvents = 'none';
+      
+      // Simulate async operation
+      setTimeout(() => {
+        skeleton1.classList.remove('active');
+        skeleton2.classList.remove('active');
+        container.style.pointerEvents = 'auto';
+        container.innerHTML = '<p>Content loaded with skeleton screen</p>';
+      }, 1500);
+    }
+    
+    function handleDisabledOnly() {
+      // This button is already disabled - no spinner, no action
+      // Should not be counted as spinner feedback
+    }
+  </script>
+</body>
+</html>
+

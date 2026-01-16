@@ -1,0 +1,35 @@
+{"type":"project:detected","timestamp":"2026-01-14T21:19:40.301Z","framework":"static-html","router":null,"sourceRoot":"C:\\Users\\sabou\\verax\\demos\\demo-static","packageManager":"unknown"}
+{"type":"phase:started","timestamp":"2026-01-14T21:19:40.302Z","phase":"Detect Project","message":"Detecting project structure..."}
+{"type":"phase:started","timestamp":"2026-01-14T21:19:40.302Z","phase":"Resolve URL","message":"Using URL: https://example.com"}
+{"type":"phase:started","timestamp":"2026-01-14T21:19:40.302Z","phase":"Initialize Run","message":"Initializing run artifacts..."}
+{"type":"phase:started","timestamp":"2026-01-14T21:19:40.305Z","phase":"Learn","message":"Analyzing project structure..."}
+{"type":"phase:completed","timestamp":"2026-01-14T21:19:40.311Z","phase":"Learn","message":"Project analysis complete"}
+{"type":"phase:started","timestamp":"2026-01-14T21:19:40.311Z","phase":"Observe","message":"Launching browser and observing expectations..."}
+{"type":"navigation","timestamp":"2026-01-14T21:19:41.385Z","event":"observe:attempt","index":1,"total":4,"promise":{"kind":"navigate","value":"/"}}
+{"type":"heartbeat","phase":"Observe","elapsedMs":2502,"elapsedSeconds":2,"timestamp":"2026-01-14T21:19:42.813Z"}
+{"type":"heartbeat","phase":"Observe","elapsedMs":5006,"elapsedSeconds":5,"timestamp":"2026-01-14T21:19:45.317Z"}
+{"type":"heartbeat","phase":"Observe","elapsedMs":7506,"elapsedSeconds":7,"timestamp":"2026-01-14T21:19:47.817Z"}
+{"type":"observe:result","timestamp":"2026-01-14T21:19:47.854Z","event":"observe:result","index":1,"observed":true,"reason":null}
+{"type":"navigation","timestamp":"2026-01-14T21:19:47.854Z","event":"observe:attempt","index":2,"total":4,"promise":{"kind":"navigate","value":"/about"}}
+{"type":"heartbeat","phase":"Observe","elapsedMs":10018,"elapsedSeconds":10,"timestamp":"2026-01-14T21:19:50.329Z"}
+{"type":"heartbeat","phase":"Observe","elapsedMs":12525,"elapsedSeconds":12,"timestamp":"2026-01-14T21:19:52.836Z"}
+{"type":"observe:result","timestamp":"2026-01-14T21:19:53.640Z","event":"observe:result","index":2,"observed":true,"reason":null}
+{"type":"navigation","timestamp":"2026-01-14T21:19:53.640Z","event":"observe:attempt","index":3,"total":4,"promise":{"kind":"navigate","value":"/contact"}}
+{"type":"heartbeat","phase":"Observe","elapsedMs":15035,"elapsedSeconds":15,"timestamp":"2026-01-14T21:19:55.346Z"}
+{"type":"heartbeat","phase":"Observe","elapsedMs":17541,"elapsedSeconds":17,"timestamp":"2026-01-14T21:19:57.852Z"}
+{"type":"observe:result","timestamp":"2026-01-14T21:19:59.380Z","event":"observe:result","index":3,"observed":true,"reason":null}
+{"type":"navigation","timestamp":"2026-01-14T21:19:59.380Z","event":"observe:attempt","index":4,"total":4,"promise":{"kind":"navigate","value":"/products"}}
+{"type":"observe:result","timestamp":"2026-01-14T21:19:59.467Z","event":"observe:result","index":4,"observed":false,"reason":"No matching event observed"}
+{"type":"phase:completed","timestamp":"2026-01-14T21:19:59.568Z","phase":"Observe","message":"Browser observation complete"}
+{"type":"phase:started","timestamp":"2026-01-14T21:19:59.568Z","phase":"Detect","message":"Analyzing findings and detecting silent failures..."}
+{"type":"navigation","timestamp":"2026-01-14T21:19:59.569Z","event":"detect:attempt","index":1,"total":4,"expectationId":"exp_af851a","value":"/"}
+{"type":"detect:classified","timestamp":"2026-01-14T21:19:59.569Z","event":"detect:classified","index":1,"classification":"observed","impact":"HIGH","confidence":1,"expectationId":"exp_af851a"}
+{"type":"navigation","timestamp":"2026-01-14T21:19:59.569Z","event":"detect:attempt","index":2,"total":4,"expectationId":"exp_dafa82","value":"/about"}
+{"type":"detect:classified","timestamp":"2026-01-14T21:19:59.569Z","event":"detect:classified","index":2,"classification":"observed","impact":"HIGH","confidence":1,"expectationId":"exp_dafa82"}
+{"type":"navigation","timestamp":"2026-01-14T21:19:59.569Z","event":"detect:attempt","index":3,"total":4,"expectationId":"exp_7a37b6","value":"/contact"}
+{"type":"detect:classified","timestamp":"2026-01-14T21:19:59.569Z","event":"detect:classified","index":3,"classification":"observed","impact":"HIGH","confidence":1,"expectationId":"exp_7a37b6"}
+{"type":"navigation","timestamp":"2026-01-14T21:19:59.569Z","event":"detect:attempt","index":4,"total":4,"expectationId":"exp_72f678","value":"/products"}
+{"type":"detect:classified","timestamp":"2026-01-14T21:19:59.569Z","event":"detect:classified","index":4,"classification":"unproven","impact":"MEDIUM","confidence":0,"expectationId":"exp_72f678"}
+{"type":"detect:completed","timestamp":"2026-01-14T21:19:59.570Z","event":"detect:completed","total":4,"stats":{"total":4,"silentFailures":0,"observed":3,"coverageGaps":0,"unproven":1,"informational":0}}
+{"type":"phase:completed","timestamp":"2026-01-14T21:19:59.571Z","phase":"Detect","message":"Silent failure detection complete"}
+{"type":"phase:started","timestamp":"2026-01-14T21:19:59.571Z","phase":"Finalize Artifacts","message":"Writing run results..."}

@@ -1,0 +1,13 @@
+{
+  "observations": [],
+  "stats": {
+    "attempted": 0,
+    "observed": 0,
+    "notObserved": 0
+  },
+  "redaction": {
+    "headersRedacted": 0,
+    "tokensRedacted": 0
+  },
+  "observedAt": "2026-01-14T20:52:23.001Z"
+}

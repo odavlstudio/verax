@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Finalization Test</title>
+  <meta charset="utf-8">
+</head>
+<body>
+  <h1>Test Page</h1>
+  <a href="/page1" id="link1">Link 1</a>
+  <a href="/page2" id="link2">Link 2</a>
+  <button onclick="fetch('/api/data').then(r => r.json())">API Button</button>
+  <script>
+    // State change
+    let state = { count: 0 };
+    function increment() {
+      state.count++;
+      console.log('State updated');
+    }
+  </script>
+</body>
+</html>

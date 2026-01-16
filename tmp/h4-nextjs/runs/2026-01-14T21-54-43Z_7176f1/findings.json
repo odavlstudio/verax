@@ -1,0 +1,189 @@
+{
+  "findings": [
+    {
+      "id": "exp_e6a738",
+      "type": "feedback",
+      "promise": {
+        "kind": "validation",
+        "value": "validation feedback"
+      },
+      "source": {
+        "file": "app\\page.js",
+        "line": 5,
+        "column": 15
+      },
+      "classification": "silent-failure:no-change",
+      "impact": "LOW",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_1_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_1_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_1_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "no-change",
+      "findingId": "finding_exp_e6a738"
+    },
+    {
+      "id": "exp_5fab12",
+      "type": "state",
+      "promise": {
+        "kind": "state_mutation",
+        "value": "state management"
+      },
+      "source": {
+        "file": "app\\page.js",
+        "line": 6,
+        "column": 36
+      },
+      "classification": "silent-failure:no-change",
+      "impact": "MEDIUM",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_2_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_2_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_2_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "no-change",
+      "findingId": "finding_exp_5fab12"
+    },
+    {
+      "id": "exp_9ca6c2",
+      "type": "state",
+      "promise": {
+        "kind": "state_mutation",
+        "value": "state management"
+      },
+      "source": {
+        "file": "app\\page.js",
+        "line": 7,
+        "column": 32
+      },
+      "classification": "silent-failure:no-change",
+      "impact": "MEDIUM",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_3_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_3_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_3_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "no-change",
+      "findingId": "finding_exp_9ca6c2"
+    },
+    {
+      "id": "exp_5650ab",
+      "type": "interaction",
+      "promise": {
+        "kind": "submit",
+        "value": "form submission"
+      },
+      "source": {
+        "file": "app\\page.js",
+        "line": 50,
+        "column": 6
+      },
+      "classification": "silent-failure:not-found",
+      "impact": "LOW",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_4_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_4_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_4_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "not-found",
+      "findingId": "finding_exp_5650ab"
+    },
+    {
+      "id": "exp_16eefd",
+      "type": "feedback",
+      "promise": {
+        "kind": "validation",
+        "value": "required field validation"
+      },
+      "source": {
+        "file": "app\\page.js",
+        "line": 55,
+        "column": 10
+      },
+      "classification": "silent-failure:no-change",
+      "impact": "LOW",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_5_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_5_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_5_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "no-change",
+      "findingId": "finding_exp_16eefd"
+    }
+  ],
+  "total": 5,
+  "stats": {
+    "total": 5,
+    "silentFailures": 5,
+    "observed": 0,
+    "coverageGaps": 0,
+    "unproven": 0,
+    "informational": 0
+  },
+  "detectedAt": "2026-01-14T21:54:50.834Z"
+}

@@ -1,0 +1,18 @@
+<div class="app">
+  <h1>Angular Fixture</h1>
+  
+  <button id="test-button" (click)="increment()">
+    Count: {{ count }}
+  </button>
+
+  <form id="test-form" (ngSubmit)="handleSubmit()">
+    <input [(ngModel)]="message" name="message" placeholder="Enter message" />
+    <button type="submit">Submit</button>
+  </form>
+
+  <p *ngIf="submitted">Message: {{ message }}</p>
+
+  <nav>
+    <a href="/">Home</a>
+  </nav>
+</div>

@@ -1,0 +1,142 @@
+{
+  "observations": [
+    {
+      "id": "exp_af851a",
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 59,
+        "column": 7
+      },
+      "attempted": true,
+      "observed": true,
+      "action": "click",
+      "reason": null,
+      "observedAt": "2026-01-14T21:55:13.271Z",
+      "evidenceFiles": [
+        "exp_1_before.png",
+        "exp_1_after.png",
+        "exp_1_dom_diff.json"
+      ],
+      "signals": {
+        "navigationChanged": true,
+        "domChanged": true,
+        "feedbackSeen": false,
+        "networkActivity": false,
+        "consoleErrors": false,
+        "meaningfulDomChange": false,
+        "correlatedNetworkActivity": false
+      }
+    },
+    {
+      "id": "exp_dafa82",
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/about"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 60,
+        "column": 7
+      },
+      "attempted": true,
+      "observed": false,
+      "action": "click",
+      "reason": "not-found",
+      "observedAt": "2026-01-14T21:55:14.013Z",
+      "evidenceFiles": [
+        "exp_2_before.png",
+        "exp_2_after.png",
+        "exp_2_dom_diff.json"
+      ],
+      "signals": {
+        "navigationChanged": false,
+        "domChanged": false,
+        "feedbackSeen": false,
+        "networkActivity": false,
+        "consoleErrors": false,
+        "meaningfulDomChange": false,
+        "correlatedNetworkActivity": false
+      }
+    },
+    {
+      "id": "exp_7a37b6",
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/contact"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 61,
+        "column": 7
+      },
+      "attempted": true,
+      "observed": true,
+      "action": "click",
+      "reason": null,
+      "observedAt": "2026-01-14T21:55:17.912Z",
+      "evidenceFiles": [
+        "exp_3_before.png",
+        "exp_3_after.png",
+        "exp_3_dom_diff.json"
+      ],
+      "signals": {
+        "navigationChanged": true,
+        "domChanged": true,
+        "feedbackSeen": false,
+        "networkActivity": false,
+        "consoleErrors": false,
+        "meaningfulDomChange": false,
+        "correlatedNetworkActivity": false
+      }
+    },
+    {
+      "id": "exp_72f678",
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/products"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 68,
+        "column": 7
+      },
+      "attempted": true,
+      "observed": false,
+      "action": "click",
+      "reason": "not-found",
+      "observedAt": "2026-01-14T21:55:18.628Z",
+      "evidenceFiles": [
+        "exp_4_before.png",
+        "exp_4_after.png",
+        "exp_4_dom_diff.json"
+      ],
+      "signals": {
+        "navigationChanged": false,
+        "domChanged": false,
+        "feedbackSeen": false,
+        "networkActivity": false,
+        "consoleErrors": false,
+        "meaningfulDomChange": false,
+        "correlatedNetworkActivity": false
+      }
+    }
+  ],
+  "stats": {
+    "attempted": 4,
+    "observed": 2,
+    "notObserved": 2
+  },
+  "redaction": {
+    "headersRedacted": 0,
+    "tokensRedacted": 0
+  },
+  "observedAt": "2026-01-14T21:55:18.628Z"
+}

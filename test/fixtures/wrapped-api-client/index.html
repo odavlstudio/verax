@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Wrapped API Client Test</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    // Wrapped API client pattern
+    const apiClient = {
+      post: (url, data) => {
+        return fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      }
+    };
+    
+    function submitData() {
+      return apiClient.post('/api/submit', { action: 'submit' });
+    }
+    
+    const button = document.createElement('button');
+    button.textContent = 'Submit';
+    button.addEventListener('click', submitData);
+    document.getElementById('root').appendChild(button);
+  </script>
+</body>
+</html>
+

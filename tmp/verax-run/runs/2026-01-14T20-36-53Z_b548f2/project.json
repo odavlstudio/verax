@@ -1,0 +1,12 @@
+{
+  "framework": "static-html",
+  "router": null,
+  "sourceRoot": "C:\\Users\\sabou\\verax\\demos\\demo-static",
+  "packageManager": "unknown",
+  "scripts": {
+    "dev": null,
+    "build": null,
+    "start": null
+  },
+  "detectedAt": "2026-01-14T20:36:53.355Z"
+}

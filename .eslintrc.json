@@ -36,8 +36,24 @@
     "no-const-assign": "error",
     "use-isnan": "error",
     "valid-typeof": "error"
-  },
-  "ignorePatterns": [
+  },  "overrides": [
+    {
+      "files": ["test/**/*.js"],
+      "globals": {
+        "test": "readonly",
+        "describe": "readonly",
+        "it": "readonly",
+        "beforeEach": "readonly",
+        "afterEach": "readonly",
+        "beforeAll": "readonly",
+        "afterAll": "readonly"
+      },
+      "rules": {
+        "no-undef": "error",
+        "no-prototype-builtins": "error"
+      }
+    }
+  ],  "ignorePatterns": [
     "node_modules/",
     ".verax/",
     "dist/",

@@ -1,0 +1,1604 @@
+
+> @veraxhq/verax@0.3.0 test
+> node test/infrastructure/test-runner-wrapper.js
+
+TAP version 13
+# Subtest: Phase 6A: Cryptographic Integrity
+    # Subtest: should compute file integrity (SHA256)
+    ok 1 - should compute file integrity (SHA256)
+      ---
+      duration_ms: 5.7843
+      type: 'test'
+      ...
+    # Subtest: should return error for non-existent file
+    ok 2 - should return error for non-existent file
+      ---
+      duration_ms: 1.5895
+      type: 'test'
+      ...
+    # Subtest: should generate integrity manifest for artifacts
+    ok 3 - should generate integrity manifest for artifacts
+      ---
+      duration_ms: 5.7414
+      type: 'test'
+      ...
+    # Subtest: should write integrity manifest atomically
+    ok 4 - should write integrity manifest atomically
+      ---
+      duration_ms: 2.4897
+      type: 'test'
+      ...
+    # Subtest: should verify artifact integrity against manifest
+    ok 5 - should verify artifact integrity against manifest
+      ---
+      duration_ms: 2.3848
+      type: 'test'
+      ...
+    # Subtest: should detect hash mismatch (tampering)
+    ok 6 - should detect hash mismatch (tampering)
+      ---
+      duration_ms: 2.1215
+      type: 'test'
+      ...
+    # Subtest: should detect size mismatch
+    ok 7 - should detect size mismatch
+      ---
+      duration_ms: 2.0646
+      type: 'test'
+      ...
+    # Subtest: should load integrity manifest
+    ok 8 - should load integrity manifest
+      ---
+      duration_ms: 1.7524
+      type: 'test'
+      ...
+    # Subtest: should verify all artifacts in manifest
+    ok 9 - should verify all artifacts in manifest
+      ---
+      duration_ms: 3.2527
+      type: 'test'
+      ...
+    # Subtest: should report all failed verifications
+    ok 10 - should report all failed verifications
+      ---
+      duration_ms: 3.1797
+      type: 'test'
+      ...
+    # Subtest: should discover JSON artifacts
+    ok 11 - should discover JSON artifacts
+      ---
+      duration_ms: 2.9544
+      type: 'test'
+      ...
+    # Subtest: should handle empty directory
+    ok 12 - should handle empty directory
+      ---
+      duration_ms: 0.8352
+      type: 'test'
+      ...
+    1..12
+ok 1 - Phase 6A: Cryptographic Integrity
+  ---
+  duration_ms: 36.4802
+  type: 'suite'
+  ...
+# Subtest: registry artifacts are written with contract metadata
+ok 2 - registry artifacts are written with contract metadata
+  ---
+  duration_ms: 1760.2966
+  type: 'test'
+  ...
+# Subtest: Phase 6A: Transactional Artifacts
+    # Subtest: should create staging directory
+    ok 1 - should create staging directory
+      ---
+      duration_ms: 4.1844
+      type: 'test'
+      ...
+    # Subtest: should clean up existing staging on create
+    ok 2 - should clean up existing staging on create
+      ---
+      duration_ms: 3.0606
+      type: 'test'
+      ...
+    # Subtest: should commit staging directory atomically
+    ok 3 - should commit staging directory atomically
+      ---
+      duration_ms: 4.2353
+      type: 'test'
+      ...
+    # Subtest: should fail commit if staging does not exist
+    ok 4 - should fail commit if staging does not exist
+      ---
+      duration_ms: 1.1966
+      type: 'test'
+      ...
+    # Subtest: should rollback staging directory
+    ok 5 - should rollback staging directory
+      ---
+      duration_ms: 2.1789
+      type: 'test'
+      ...
+    # Subtest: should handle rollback when staging does not exist
+    ok 6 - should handle rollback when staging does not exist
+      ---
+      duration_ms: 1.7176
+      type: 'test'
+      ...
+    # Subtest: should get staging path
+    ok 7 - should get staging path
+      ---
+      duration_ms: 0.7195
+      type: 'test'
+      ...
+    # Subtest: should get final path
+    ok 8 - should get final path
+      ---
+      duration_ms: 0.6716
+      type: 'test'
+      ...
+    # Subtest: should check if staging directory exists
+    ok 9 - should check if staging directory exists
+      ---
+      duration_ms: 2.8265
+      type: 'test'
+      ...
+    # Subtest: should list files in staging
+    ok 10 - should list files in staging
+      ---
+      duration_ms: 2.5796
+      type: 'test'
+      ...
+    # Subtest: should return empty list when staging does not exist
+    ok 11 - should return empty list when staging does not exist
+      ---
+      duration_ms: 0.7614
+      type: 'test'
+      ...
+    # Subtest: transactional workflow: write-commit
+    ok 12 - transactional workflow: write-commit
+      ---
+      duration_ms: 3.8435
+      type: 'test'
+      ...
+    # Subtest: transactional workflow: write-rollback
+    ok 13 - transactional workflow: write-rollback
+      ---
+      duration_ms: 1.7604
+      type: 'test'
+      ...
+    # Subtest: should replace existing artifacts directory on commit
+    ok 14 - should replace existing artifacts directory on commit
+      ---
+      duration_ms: 3.1078
+      type: 'test'
+      ...
+    1..14
+ok 3 - Phase 6A: Transactional Artifacts
+  ---
+  duration_ms: 34.6354
+  type: 'suite'
+  ...
+# Subtest: fully valid run ÔåÆ VALID
+ok 4 - fully valid run ÔåÆ VALID
+  ---
+  duration_ms: 14.4583
+  type: 'test'
+  ...
+# Subtest: missing artifact ÔåÆ INVALID
+ok 5 - missing artifact ÔåÆ INVALID
+  ---
+  duration_ms: 7.2555
+  type: 'test'
+  ...
+# Subtest: artifact without contractVersion ÔåÆ INVALID
+ok 6 - artifact without contractVersion ÔåÆ INVALID
+  ---
+  duration_ms: 6.9151
+  type: 'test'
+  ...
+# Subtest: findings with invalid CONFIRMED entry ÔåÆ INVALID
+ok 7 - findings with invalid CONFIRMED entry ÔåÆ INVALID
+  ---
+  duration_ms: 7.7438
+  type: 'test'
+  ...
+# Subtest: registry mismatch ÔåÆ INVALID
+ok 8 - registry mismatch ÔåÆ INVALID
+  ---
+  duration_ms: 7.125
+  type: 'test'
+  ...
+# Subtest: only minor mismatch ÔåÆ VALID_WITH_WARNINGS
+ok 9 - only minor mismatch ÔåÆ VALID_WITH_WARNINGS
+  ---
+  duration_ms: 7.4079
+  type: 'test'
+  ...
+# Subtest: invalid JSON ÔåÆ INVALID
+ok 10 - invalid JSON ÔåÆ INVALID
+  ---
+  duration_ms: 7.0422
+  type: 'test'
+  ...
+# Subtest: missing required fields in findings ÔåÆ INVALID
+ok 11 - missing required fields in findings ÔåÆ INVALID
+  ---
+  duration_ms: 7.069
+  type: 'test'
+  ...
+# Subtest: evidence directory missing ÔåÆ WARNING (non-blocking)
+ok 12 - evidence directory missing ÔåÆ WARNING (non-blocking)
+  ---
+  duration_ms: 7.4992
+  type: 'test'
+  ...
+# Subtest: enforcement summary is computed correctly
+ok 13 - enforcement summary is computed correctly
+  ---
+  duration_ms: 6.8245
+  type: 'test'
+  ...
+# Subtest: CLI EXIT CODE CONTRACT
+    # Subtest: Exit code 0: --help flag
+    ok 1 - Exit code 0: --help flag
+      ---
+      duration_ms: 1675.8151
+      type: 'test'
+      ...
+    # Subtest: Exit code 0: --version flag
+    ok 2 - Exit code 0: --version flag
+      ---
+      duration_ms: 1694.2742
+      type: 'test'
+      ...
+    # Subtest: Exit code 64: run without required --url
+    ok 3 - Exit code 64: run without required --url
+      ---
+      duration_ms: 1713.7393
+      type: 'test'
+      ...
+    # Subtest: Exit code 65: inspect non-existent path
+    ok 4 - Exit code 65: inspect non-existent path
+      ---
+      duration_ms: 1732.6742
+      type: 'test'
+      ...
+    1..4
+ok 14 - CLI EXIT CODE CONTRACT
+  ---
+  duration_ms: 6855.0134
+  type: 'test'
+  ...
+# Subtest: CLI run command
+    # Subtest: run command executes successfully with valid URL
+    ok 1 - run command executes successfully with valid URL
+      ---
+      duration_ms: 1766.0458
+      type: 'test'
+      ...
+    # Subtest: run command with --json outputs valid JSON
+    ok 2 - run command with --json outputs valid JSON
+      ---
+      duration_ms: 1781.8848
+      type: 'test'
+      ...
+    # Subtest: run command fails with missing URL
+    ok 3 - run command fails with missing URL
+      ---
+      duration_ms: 1727.6767
+      type: 'test'
+      ...
+    1..3
+ok 15 - CLI run command
+  ---
+  duration_ms: 5291.0696
+  type: 'suite'
+  ...
+# Subtest: Artifact path consistency
+    # Subtest: artifacts always go to .verax/runs/<runId>/
+    ok 1 - artifacts always go to .verax/runs/<runId>/
+      ---
+      duration_ms: 6.2108
+      type: 'test'
+      ...
+    1..1
+ok 16 - Artifact path consistency
+  ---
+  duration_ms: 6.3544
+  type: 'suite'
+  ...
+# Subtest: MANDATORY OUTPUT FORMAT: confidence has score, level, explain, factors
+ok 17 - MANDATORY OUTPUT FORMAT: confidence has score, level, explain, factors
+  ---
+  duration_ms: 1.9207
+  type: 'test'
+  ...
+# Subtest: HARD RULE: HIGH level requires PROVEN expectation AND all sensors
+ok 18 - HARD RULE: HIGH level requires PROVEN expectation AND all sensors
+  ---
+  duration_ms: 0.3911
+  type: 'test'
+  ...
+# Subtest: DETERMINISM: Same inputs produce identical outputs across runs
+ok 19 - DETERMINISM: Same inputs produce identical outputs across runs
+  ---
+  duration_ms: 1.2489
+  type: 'test'
+  ...
+# Subtest: PENALTY: Missing sensors incurs -15 penalty
+ok 20 - PENALTY: Missing sensors incurs -15 penalty
+  ---
+  duration_ms: 0.5137
+  type: 'test'
+  ...
+# Subtest: PENALTY: Not PROVEN expectation incurs -10 penalty
+ok 21 - PENALTY: Not PROVEN expectation incurs -10 penalty
+  ---
+  duration_ms: 0.2987
+  type: 'test'
+  ...
+# Subtest: EVIDENCE SIGNALS: urlChanged extracted correctly
+ok 22 - EVIDENCE SIGNALS: urlChanged extracted correctly
+  ---
+  duration_ms: 0.3432
+  type: 'test'
+  ...
+# Subtest: EVIDENCE SIGNALS: domChanged extracted correctly
+ok 23 - EVIDENCE SIGNALS: domChanged extracted correctly
+  ---
+  duration_ms: 0.1699
+  type: 'test'
+  ...
+# Subtest: EVIDENCE SIGNALS: networkFailed extracted correctly
+ok 24 - EVIDENCE SIGNALS: networkFailed extracted correctly
+  ---
+  duration_ms: 0.1409
+  type: 'test'
+  ...
+# Subtest: EVIDENCE SIGNALS: consoleErrors extracted correctly
+ok 25 - EVIDENCE SIGNALS: consoleErrors extracted correctly
+  ---
+  duration_ms: 0.3288
+  type: 'test'
+  ...
+# Subtest: BOOSTS: network_silent_failure adds boost for network failure
+ok 26 - BOOSTS: network_silent_failure adds boost for network failure
+  ---
+  duration_ms: 0.4172
+  type: 'test'
+  ...
+# Subtest: BOOSTS: no_effect_silent_failure adds boosts for URL/DOM not changed
+ok 27 - BOOSTS: no_effect_silent_failure adds boosts for URL/DOM not changed
+  ---
+  duration_ms: 0.2491
+  type: 'test'
+  ...
+# Subtest: SCORE CLAMPING: Score never exceeds 100
+ok 28 - SCORE CLAMPING: Score never exceeds 100
+  ---
+  duration_ms: 0.8423
+  type: 'test'
+  ...
+# Subtest: SCORE CLAMPING: Score never goes below 0
+ok 29 - SCORE CLAMPING: Score never goes below 0
+  ---
+  duration_ms: 0.1585
+  type: 'test'
+  ...
+# Subtest: LEVEL MAPPING: score < 55 => LOW
+ok 30 - LEVEL MAPPING: score < 55 => LOW
+  ---
+  duration_ms: 0.1016
+  type: 'test'
+  ...
+# Subtest: LEVEL MAPPING: 55 <= score < 80 => MEDIUM
+ok 31 - LEVEL MAPPING: 55 <= score < 80 => MEDIUM
+  ---
+  duration_ms: 0.0845
+  type: 'test'
+  ...
+# Subtest: LEVEL MAPPING: score >= 80 with PROVEN + allSensors => HIGH
+ok 32 - LEVEL MAPPING: score >= 80 with PROVEN + allSensors => HIGH
+  ---
+  duration_ms: 0.1014
+  type: 'test'
+  ...
+# Subtest: EXPLAIN ARRAY: ordered by importance (penalties first, then boosts)
+ok 33 - EXPLAIN ARRAY: ordered by importance (penalties first, then boosts)
+  ---
+  duration_ms: 0.094
+  type: 'test'
+  ...
+# Subtest: EXPECTATION STRENGTH: proof=PROVEN_EXPECTATION => "PROVEN"
+ok 34 - EXPECTATION STRENGTH: proof=PROVEN_EXPECTATION => "PROVEN"
+  ---
+  duration_ms: 0.0844
+  type: 'test'
+  ...
+# Subtest: EXPECTATION STRENGTH: sourceRef present => "PROVEN"
+ok 35 - EXPECTATION STRENGTH: sourceRef present => "PROVEN"
+  ---
+  duration_ms: 0.0794
+  type: 'test'
+  ...
+# Subtest: EXPECTATION STRENGTH: no metadata => "UNKNOWN"
+ok 36 - EXPECTATION STRENGTH: no metadata => "UNKNOWN"
+  ---
+  duration_ms: 0.0618
+  type: 'test'
+  ...
+# Subtest: NO PLACEHOLDERS: All fields are concrete values, not TODOs
+ok 37 - NO PLACEHOLDERS: All fields are concrete values, not TODOs
+  ---
+  duration_ms: 0.126
+  type: 'test'
+  ...
+# Subtest: TYPE-SPECIFIC SCORING: validation_silent_failure awards boost for console errors
+ok 38 - TYPE-SPECIFIC SCORING: validation_silent_failure awards boost for console errors
+  ---
+  duration_ms: 0.1628
+  type: 'test'
+  ...
+# Subtest: TYPE-SPECIFIC SCORING: missing_feedback_failure awards boost for slow requests
+ok 39 - TYPE-SPECIFIC SCORING: missing_feedback_failure awards boost for slow requests
+  ---
+  duration_ms: 0.1576
+  type: 'test'
+  ...
+# Subtest: TYPE-SPECIFIC SCORING: missing_network_action awards boost for PROVEN expectation
+ok 40 - TYPE-SPECIFIC SCORING: missing_network_action awards boost for PROVEN expectation
+  ---
+  duration_ms: 0.1436
+  type: 'test'
+  ...
+# Subtest: TYPE-SPECIFIC SCORING: missing_state_action awards boost for PROVEN expectation
+ok 41 - TYPE-SPECIFIC SCORING: missing_state_action awards boost for PROVEN expectation
+  ---
+  duration_ms: 0.145
+  type: 'test'
+  ...
+# Subtest: Confidence System - determinism
+ok 42 - Confidence System - determinism
+  ---
+  duration_ms: 2.1608
+  type: 'test'
+  ...
+# Subtest: Confidence System - sensitivity to promise strength
+ok 43 - Confidence System - sensitivity to promise strength
+  ---
+  duration_ms: 0.2663
+  type: 'test'
+  ...
+# Subtest: Confidence System - sensitivity to observation strength
+ok 44 - Confidence System - sensitivity to observation strength
+  ---
+  duration_ms: 0.2045
+  type: 'test'
+  ...
+# Subtest: Confidence System - guardrails and contradictions
+ok 45 - Confidence System - guardrails and contradictions
+  ---
+  duration_ms: 0.1701
+  type: 'test'
+  ...
+# Subtest: Confidence System - evidence completeness
+ok 46 - Confidence System - evidence completeness
+  ---
+  duration_ms: 0.4064
+  type: 'test'
+  ...
+# Subtest: Confidence System - level determination
+ok 47 - Confidence System - level determination
+  ---
+  duration_ms: 0.2324
+  type: 'test'
+  ...
+# Subtest: Confidence System - computeConfidenceForFinding wrapper
+ok 48 - Confidence System - computeConfidenceForFinding wrapper
+  ---
+  duration_ms: 1.1547
+  type: 'test'
+  ...
+# Subtest: Confidence System - reason code stability
+ok 49 - Confidence System - reason code stability
+  ---
+  duration_ms: 0.9942
+  type: 'test'
+  ...
+# ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+# EVIDENCE LAW DEMONSTRATION
+# ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+# Input Finding:
+#   Status: CONFIRMED (CONFIRMED)
+#   Evidence: {} (EMPTY - INVALID)
+# Expected Result:
+#   Status should be downgraded to: SUSPECTED
+#   Reason: Evidence Law enforced - no evidence exists for CONFIRMED status
+# Actual Result:
+#   Status: SUSPECTED
+#   Evidence: {}
+#   Enforcement Note: Evidence Law enforced - no evidence exists for CONFIRMED status
+# Ô£ô Evidence Law enforced: CONFIRMED findings without evidence are downgraded to SUSPECTED
+# ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+# Subtest: writeFindings: valid finding is written to artifact
+ok 50 - writeFindings: valid finding is written to artifact
+  ---
+  duration_ms: 7.5946
+  type: 'test'
+  ...
+# Subtest: writeFindings: artifact includes contractVersion field
+ok 51 - writeFindings: artifact includes contractVersion field
+  ---
+  duration_ms: 1.7578
+  type: 'test'
+  ...
+# Subtest: writeFindings: artifact includes enforcement metadata
+ok 52 - writeFindings: artifact includes enforcement metadata
+  ---
+  duration_ms: 2.0715
+  type: 'test'
+  ...
+# Subtest: writeFindings: finding without evidence is downgraded in artifact
+ok 53 - writeFindings: finding without evidence is downgraded in artifact
+  ---
+  duration_ms: 2.0234
+  type: 'test'
+  ...
+# Subtest: writeFindings: critically invalid finding is dropped from artifact
+ok 54 - writeFindings: critically invalid finding is dropped from artifact
+  ---
+  duration_ms: 2.6304
+  type: 'test'
+  ...
+# Subtest: writeFindings: mixed valid, downgraded, and dropped findings are handled correctly
+ok 55 - writeFindings: mixed valid, downgraded, and dropped findings are handled correctly
+  ---
+  duration_ms: 3.1503
+  type: 'test'
+  ...
+# Subtest: writeFindings: outcome summary uses enforced findings
+ok 56 - writeFindings: outcome summary uses enforced findings
+  ---
+  duration_ms: 2.2384
+  type: 'test'
+  ...
+# Subtest: writeFindings: downgrade includes detailed reason
+ok 57 - writeFindings: downgrade includes detailed reason
+  ---
+  duration_ms: 2.274
+  type: 'test'
+  ...
+# Subtest: writeFindings: artifact remains valid JSON format
+ok 58 - writeFindings: artifact remains valid JSON format
+  ---
+  duration_ms: 3.5731
+  type: 'test'
+  ...
+# Subtest: writeFindings: backward compatible with version field
+ok 59 - writeFindings: backward compatible with version field
+  ---
+  duration_ms: 2.8841
+  type: 'test'
+  ...
+# Subtest: DEMO: Invalid finding is visibly downgraded to SUSPECTED
+ok 60 - DEMO: Invalid finding is visibly downgraded to SUSPECTED
+  ---
+  duration_ms: 2.9271
+  type: 'test'
+  ...
+# Subtest: detect finds silent failure when expected navigation does not occur
+ok 61 - detect finds silent failure when expected navigation does not occur
+  ---
+  duration_ms: 12.7919
+  type: 'test'
+  ...
+# Subtest: detect does not report failure when navigation occurs
+ok 62 - detect does not report failure when navigation occurs
+  ---
+  duration_ms: 6.0645
+  type: 'test'
+  ...
+# Subtest: detect does not report failure when visible change occurs
+ok 63 - detect does not report failure when visible change occurs
+  ---
+  duration_ms: 5.769
+  type: 'test'
+  ...
+# Subtest: detect generates findings.json with correct schema
+ok 64 - detect generates findings.json with correct schema
+  ---
+  duration_ms: 6.3791
+  type: 'test'
+  ...
+# Subtest: PHASE 4: Determinism & Reproducibility
+    # Subtest: Core Determinism Model
+        # Subtest: should initialize with deterministic state by default
+        ok 1 - should initialize with deterministic state by default
+          ---
+          duration_ms: 1.7868
+          type: 'test'
+          ...
+        # Subtest: should export determinism object in toAnalysisObject()
+        ok 2 - should export determinism object in toAnalysisObject()
+          ---
+          duration_ms: 0.7787
+          type: 'test'
+          ...
+        # Subtest: should record determinism factors without duplicates
+        ok 3 - should record determinism factors without duplicates
+          ---
+          duration_ms: 1.2803
+          type: 'test'
+          ...
+        # Subtest: should classify TIMEOUT_RISK as NON_DETERMINISTIC
+        ok 4 - should classify TIMEOUT_RISK as NON_DETERMINISTIC
+          ---
+          duration_ms: 0.3336
+          type: 'test'
+          ...
+        # Subtest: should classify ASYNC_DOM as CONTROLLED_NON_DETERMINISTIC
+        ok 5 - should classify ASYNC_DOM as CONTROLLED_NON_DETERMINISTIC
+          ---
+          duration_ms: 0.4481
+          type: 'test'
+          ...
+        # Subtest: should prioritize NON_DETERMINISTIC over CONTROLLED
+        ok 6 - should prioritize NON_DETERMINISTIC over CONTROLLED
+          ---
+          duration_ms: 0.1839
+          type: 'test'
+          ...
+        1..6
+    ok 1 - Core Determinism Model
+      ---
+      duration_ms: 5.9482
+      type: 'suite'
+      ...
+    # Subtest: Determinism Factor Recording
+        # Subtest: should record TIMEOUT_RISK when recordTimeout() is called
+        ok 1 - should record TIMEOUT_RISK when recordTimeout() is called
+          ---
+          duration_ms: 0.344
+          type: 'test'
+          ...
+        # Subtest: should classify all non-deterministic factors correctly
+        ok 2 - should classify all non-deterministic factors correctly
+          ---
+          duration_ms: 0.304
+          type: 'test'
+          ...
+        # Subtest: should classify all controlled factors correctly
+        ok 3 - should classify all controlled factors correctly
+          ---
+          duration_ms: 0.2969
+          type: 'test'
+          ...
+        1..3
+    ok 2 - Determinism Factor Recording
+      ---
+      duration_ms: 1.1992
+      type: 'suite'
+      ...
+    # Subtest: Run Comparison
+        # Subtest: should mark comparison as not comparable when no previous runs exist
+        ok 1 - should mark comparison as not comparable when no previous runs exist
+          ---
+          duration_ms: 10.5474
+          type: 'test'
+          ...
+        # Subtest: should compare with most recent previous run
+        ok 2 - should compare with most recent previous run
+          ---
+          duration_ms: 20.2124
+          type: 'test'
+          ...
+        # Subtest: should detect when findings differ between runs
+        ok 3 - should detect when findings differ between runs
+          ---
+          duration_ms: 5.5249
+          type: 'test'
+          ...
+        # Subtest: should detect when counts differ between runs
+        ok 4 - should detect when counts differ between runs
+          ---
+          duration_ms: 6.9952
+          type: 'test'
+          ...
+        # Subtest: should update reproducible flag for CONTROLLED_NON_DETERMINISTIC with matching runs
+        ok 5 - should update reproducible flag for CONTROLLED_NON_DETERMINISTIC with matching runs
+          ---
+          duration_ms: 5.3451
+          type: 'test'
+          ...
+        # Subtest: should update reproducible flag for CONTROLLED_NON_DETERMINISTIC with differing runs
+        ok 6 - should update reproducible flag for CONTROLLED_NON_DETERMINISTIC with differing runs
+          ---
+          duration_ms: 4.2937
+          type: 'test'
+          ...
+        1..6
+    ok 3 - Run Comparison
+      ---
+      duration_ms: 53.2588
+      type: 'suite'
+      ...
+    # Subtest: Console Output Visibility
+        # Subtest: should include determinism information in console summary
+        ok 1 - should include determinism information in console summary
+          ---
+          duration_ms: 0.5812
+          type: 'test'
+          ...
+        # Subtest: should show warning for NON_DETERMINISTIC runs
+        ok 2 - should show warning for NON_DETERMINISTIC runs
+          ---
+          duration_ms: 0.1847
+          type: 'test'
+          ...
+        # Subtest: should not show warning for DETERMINISTIC runs
+        ok 3 - should not show warning for DETERMINISTIC runs
+          ---
+          duration_ms: 0.133
+          type: 'test'
+          ...
+        # Subtest: should show NONE when no factors detected
+        ok 4 - should show NONE when no factors detected
+          ---
+          duration_ms: 0.1028
+          type: 'test'
+          ...
+        1..4
+    ok 4 - Console Output Visibility
+      ---
+      duration_ms: 1.1545
+      type: 'suite'
+      ...
+    # Subtest: Stable Ordering
+        # Subtest: should ensure expectations are sorted deterministically
+        ok 1 - should ensure expectations are sorted deterministically
+          ---
+          duration_ms: 0.1765
+          type: 'test'
+          ...
+        # Subtest: should ensure skipReasons are output in stable order
+        ok 2 - should ensure skipReasons are output in stable order
+          ---
+          duration_ms: 0.2454
+          type: 'test'
+          ...
+        1..2
+    ok 5 - Stable Ordering
+      ---
+      duration_ms: 0.4955
+      type: 'suite'
+      ...
+    # Subtest: Integration
+        # Subtest: should maintain determinism through full analysis lifecycle
+        ok 1 - should maintain determinism through full analysis lifecycle
+          ---
+          duration_ms: 0.2119
+          type: 'test'
+          ...
+        # Subtest: should maintain determinism data through JSON serialization
+        ok 2 - should maintain determinism data through JSON serialization
+          ---
+          duration_ms: 0.176
+          type: 'test'
+          ...
+        1..2
+    ok 6 - Integration
+      ---
+      duration_ms: 0.462
+      type: 'suite'
+      ...
+    1..6
+ok 65 - PHASE 4: Determinism & Reproducibility
+  ---
+  duration_ms: 63.3408
+  type: 'suite'
+  ...
+# Subtest: Determinism - deterministic fixture run results should be DETERMINISTIC
+ok 66 - Determinism - deterministic fixture run results should be DETERMINISTIC
+  ---
+  duration_ms: 4.8332
+  type: 'test'
+  ...
+# Subtest: Determinism - simulate nondeterminism: reorder findings
+ok 67 - Determinism - simulate nondeterminism: reorder findings
+  ---
+  duration_ms: 10.7721
+  type: 'test'
+  ...
+# Subtest: Determinism - simulate nondeterminism: random timestamp fields
+ok 68 - Determinism - simulate nondeterminism: random timestamp fields
+  ---
+  duration_ms: 1.0033
+  type: 'test'
+  ...
+# Subtest: Determinism - ensure normalization removes volatile diffs
+ok 69 - Determinism - ensure normalization removes volatile diffs
+  ---
+  duration_ms: 0.4187
+  type: 'test'
+  ...
+# Subtest: Determinism - ensure stable finding identity works
+ok 70 - Determinism - ensure stable finding identity works
+  ---
+  duration_ms: 0.3299
+  type: 'test'
+  ...
+# Subtest: Determinism - ensure diff report includes stable reason codes
+ok 71 - Determinism - ensure diff report includes stable reason codes
+  ---
+  duration_ms: 0.2349
+  type: 'test'
+  ...
+# Subtest: Determinism - deterministic output for the determinism checker itself
+ok 72 - Determinism - deterministic output for the determinism checker itself
+  ---
+  duration_ms: 0.5435
+  type: 'test'
+  ...
+# Subtest: Determinism - forced nondeterminism injection: NON_DETERMINISTIC with correct diff categories
+ok 73 - Determinism - forced nondeterminism injection: NON_DETERMINISTIC with correct diff categories
+  ---
+  duration_ms: 0.7233
+  type: 'test'
+  ...
+# Subtest: Determinism - missing evidence dir should be normalized or flagged appropriately
+ok 74 - Determinism - missing evidence dir should be normalized or flagged appropriately
+  ---
+  duration_ms: 0.5021
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - No adaptive events ÔåÆ DETERMINISTIC
+ok 75 - Determinism Truth Lock - No adaptive events ÔåÆ DETERMINISTIC
+  ---
+  duration_ms: 1.2528
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Adaptive stabilization extension ÔåÆ NON_DETERMINISTIC
+ok 76 - Determinism Truth Lock - Adaptive stabilization extension ÔåÆ NON_DETERMINISTIC
+  ---
+  duration_ms: 0.2561
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Retry triggered ÔåÆ NON_DETERMINISTIC
+ok 77 - Determinism Truth Lock - Retry triggered ÔåÆ NON_DETERMINISTIC
+  ---
+  duration_ms: 0.2194
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Truncation occurred ÔåÆ NON_DETERMINISTIC
+ok 78 - Determinism Truth Lock - Truncation occurred ÔåÆ NON_DETERMINISTIC
+  ---
+  duration_ms: 0.1446
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Multiple adaptive events ÔåÆ NON_DETERMINISTIC
+ok 79 - Determinism Truth Lock - Multiple adaptive events ÔåÆ NON_DETERMINISTIC
+  ---
+  duration_ms: 0.2426
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - HARD RULE: adaptiveEvents.length > 0 ÔåÆ MUST be NON_DETERMINISTIC
+ok 80 - Determinism Truth Lock - HARD RULE: adaptiveEvents.length > 0 ÔåÆ MUST be NON_DETERMINISTIC
+  ---
+  duration_ms: 0.1924
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Adaptive stabilization enabled but NOT extended ÔåÆ Still DETERMINISTIC
+ok 81 - Determinism Truth Lock - Adaptive stabilization enabled but NOT extended ÔåÆ Still DETERMINISTIC
+  ---
+  duration_ms: 0.1284
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Write determinism report with HARD verdict
+ok 82 - Determinism Truth Lock - Write determinism report with HARD verdict
+  ---
+  duration_ms: 2.3914
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Report from file (decisions.json)
+ok 83 - Determinism Truth Lock - Report from file (decisions.json)
+  ---
+  duration_ms: 2.4293
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - No DecisionRecorder ÔåÆ NON_DETERMINISTIC
+ok 84 - Determinism Truth Lock - No DecisionRecorder ÔåÆ NON_DETERMINISTIC
+  ---
+  duration_ms: 1.1637
+  type: 'test'
+  ...
+# Subtest: determinism: first learn produces consistent expectation IDs
+ok 85 - determinism: first learn produces consistent expectation IDs
+  ---
+  duration_ms: 1.3379
+  type: 'test'
+  ...
+# Subtest: determinism: expectations are deterministically ordered
+ok 86 - determinism: expectations are deterministically ordered
+  ---
+  duration_ms: 0.2498
+  type: 'test'
+  ...
+# Subtest: determinism: extracting twice produces identical ID sequence
+ok 87 - determinism: extracting twice produces identical ID sequence
+  ---
+  duration_ms: 0.8312
+  type: 'test'
+  ...
+# Subtest: determinism: same expectation source produces same ID
+ok 88 - determinism: same expectation source produces same ID
+  ---
+  duration_ms: 0.6414
+  type: 'test'
+  ...
+# Subtest: determinism: different sources produce different IDs
+ok 89 - determinism: different sources produce different IDs
+  ---
+  duration_ms: 0.3381
+  type: 'test'
+  ...
+# Subtest: determinism: finding IDs are deterministic from expectation IDs
+ok 90 - determinism: finding IDs are deterministic from expectation IDs
+  ---
+  duration_ms: 0.1297
+  type: 'test'
+  ...
+# Subtest: determinism: expectations maintain order after multiple extractions
+ok 91 - determinism: expectations maintain order after multiple extractions
+  ---
+  duration_ms: 0.464
+  type: 'test'
+  ...
+# Subtest: determinism: file path normalization handles backslashes
+ok 92 - determinism: file path normalization handles backslashes
+  ---
+  duration_ms: 0.1894
+  type: 'test'
+  ...
+# Subtest: Doctor Command Termination
+    # Subtest: doctor --json exits within 5 seconds with fast smoke test
+    ok 1 - doctor --json exits within 5 seconds with fast smoke test
+      ---
+      duration_ms: 1989.9892
+      type: 'test'
+      ...
+    # Subtest: doctor (human mode) exits within 5 seconds with fast smoke test
+    ok 2 - doctor (human mode) exits within 5 seconds with fast smoke test
+      ---
+      duration_ms: 1950.9566
+      type: 'test'
+      ...
+    1..2
+ok 93 - Doctor Command Termination
+  ---
+  duration_ms: 3942.3297
+  type: 'suite'
+  ...
+# Subtest: Phase 6A: Formal Exit Code Verification
+    # Subtest: Exit Code 0: COMPLETE + No Findings
+        # Subtest: empty analysis with no expectations
+        ok 1 - empty analysis with no expectations
+          ---
+          duration_ms: 0.9728
+          type: 'test'
+          ...
+        # Subtest: complete analysis with expectations but no findings
+        ok 2 - complete analysis with expectations but no findings
+          ---
+          duration_ms: 0.1795
+          type: 'test'
+          ...
+        # Subtest: all expectations analyzed, zero findings
+        ok 3 - all expectations analyzed, zero findings
+          ---
+          duration_ms: 0.1595
+          type: 'test'
+          ...
+        1..3
+    ok 1 - Exit Code 0: COMPLETE + No Findings
+      ---
+      duration_ms: 2.1979
+      type: 'suite'
+      ...
+    # Subtest: Exit Code 1: COMPLETE + Findings Present
+        # Subtest: complete analysis with findings
+        ok 1 - complete analysis with findings
+          ---
+          duration_ms: 1.1933
+          type: 'test'
+          ...
+        # Subtest: single finding detected
+        ok 2 - single finding detected
+          ---
+          duration_ms: 0.1842
+          type: 'test'
+          ...
+        # Subtest: many findings detected
+        ok 3 - many findings detected
+          ---
+          duration_ms: 0.2859
+          type: 'test'
+          ...
+        1..3
+    ok 2 - Exit Code 1: COMPLETE + Findings Present
+      ---
+      duration_ms: 2.0528
+      type: 'suite'
+      ...
+    # Subtest: Exit Code 2: FAILED State
+        # Subtest: analysis failed with error
+        ok 1 - analysis failed with error
+          ---
+          duration_ms: 0.3096
+          type: 'test'
+          ...
+        # Subtest: contract violations present
+        ok 2 - contract violations present
+          ---
+          duration_ms: 0.1414
+          type: 'test'
+          ...
+        # Subtest: failed state overrides findings
+        ok 3 - failed state overrides findings
+          ---
+          duration_ms: 0.2165
+          type: 'test'
+          ...
+        1..3
+    ok 3 - Exit Code 2: FAILED State
+      ---
+      duration_ms: 1.0699
+      type: 'suite'
+      ...
+    # Subtest: Exit Code 66: INCOMPLETE State
+        # Subtest: no expectations extracted
+        ok 1 - no expectations extracted
+          ---
+          duration_ms: 0.4346
+          type: 'test'
+          ...
+        # Subtest: budget exceeded
+        ok 2 - budget exceeded
+          ---
+          duration_ms: 0.1732
+          type: 'test'
+          ...
+        # Subtest: observe timeout
+        ok 3 - observe timeout
+          ---
+          duration_ms: 0.1234
+          type: 'test'
+          ...
+        # Subtest: detect timeout
+        ok 4 - detect timeout
+          ---
+          duration_ms: 0.1658
+          type: 'test'
+          ...
+        # Subtest: total timeout
+        ok 5 - total timeout
+          ---
+          duration_ms: 0.1053
+          type: 'test'
+          ...
+        # Subtest: incomplete with findings still returns 66
+        ok 6 - incomplete with findings still returns 66
+          ---
+          duration_ms: 0.0751
+          type: 'test'
+          ...
+        # Subtest: incomplete overrides complete
+        ok 7 - incomplete overrides complete
+          ---
+          duration_ms: 0.074
+          type: 'test'
+          ...
+        1..7
+    ok 4 - Exit Code 66: INCOMPLETE State
+      ---
+      duration_ms: 1.3315
+      type: 'suite'
+      ...
+    # Subtest: State Precedence Rules
+        # Subtest: FAILED takes precedence over INCOMPLETE
+        ok 1 - FAILED takes precedence over INCOMPLETE
+          ---
+          duration_ms: 0.1
+          type: 'test'
+          ...
+        # Subtest: FAILED takes precedence over findings
+        ok 2 - FAILED takes precedence over findings
+          ---
+          duration_ms: 0.0729
+          type: 'test'
+          ...
+        # Subtest: INCOMPLETE takes precedence over findings
+        ok 3 - INCOMPLETE takes precedence over findings
+          ---
+          duration_ms: 0.1595
+          type: 'test'
+          ...
+        1..3
+    ok 5 - State Precedence Rules
+      ---
+      duration_ms: 0.4363
+      type: 'suite'
+      ...
+    # Subtest: Edge Cases
+        # Subtest: zero expectations discovered, complete
+        ok 1 - zero expectations discovered, complete
+          ---
+          duration_ms: 0.1136
+          type: 'test'
+          ...
+        # Subtest: partial skip but still complete
+        ok 2 - partial skip but still complete
+          ---
+          duration_ms: 0.0675
+          type: 'test'
+          ...
+        # Subtest: all expectations skipped = incomplete
+        ok 3 - all expectations skipped = incomplete
+          ---
+          duration_ms: 0.0892
+          type: 'test'
+          ...
+        1..3
+    ok 6 - Edge Cases
+      ---
+      duration_ms: 0.3532
+      type: 'suite'
+      ...
+    # Subtest: Integrity Violation Cases (Phase 6A)
+        # Subtest: poisoned run = FAILED = exit 2
+        ok 1 - poisoned run = FAILED = exit 2
+          ---
+          duration_ms: 0.1008
+          type: 'test'
+          ...
+        # Subtest: integrity hash mismatch = FAILED = exit 2
+        ok 2 - integrity hash mismatch = FAILED = exit 2
+          ---
+          duration_ms: 0.0661
+          type: 'test'
+          ...
+        # Subtest: artifact write failure = FAILED = exit 2
+        ok 3 - artifact write failure = FAILED = exit 2
+          ---
+          duration_ms: 0.0617
+          type: 'test'
+          ...
+        1..3
+    ok 7 - Integrity Violation Cases (Phase 6A)
+      ---
+      duration_ms: 0.3047
+      type: 'suite'
+      ...
+    # Subtest: Property-Based: All Valid States
+        # Subtest: exhaustive state-findings matrix
+        ok 1 - exhaustive state-findings matrix
+          ---
+          duration_ms: 0.5657
+          type: 'test'
+          ...
+        1..1
+    ok 8 - Property-Based: All Valid States
+      ---
+      duration_ms: 0.6539
+      type: 'suite'
+      ...
+    # Subtest: Determinism Impact on Exit Code
+        # Subtest: determinism level does not affect exit code
+        ok 1 - determinism level does not affect exit code
+          ---
+          duration_ms: 0.2748
+          type: 'test'
+          ...
+        # Subtest: reproducible flag does not affect exit code
+        ok 2 - reproducible flag does not affect exit code
+          ---
+          duration_ms: 0.1244
+          type: 'test'
+          ...
+        1..2
+    ok 9 - Determinism Impact on Exit Code
+      ---
+      duration_ms: 1.2808
+      type: 'suite'
+      ...
+    1..9
+ok 94 - Phase 6A: Formal Exit Code Verification
+  ---
+  duration_ms: 10.9267
+  type: 'suite'
+  ...
+# file:///C:/Users/sabou/verax/test/release/final-gate.test.js:23
+# import { spawn } from 'child_process';
+#          ^^^^^
+# SyntaxError: Identifier 'spawn' has already been declared
+#     at compileSourceTextModule (node:internal/modules/esm/utils:346:16)
+#     at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:107:18)
+#     at \#translate (node:internal/modules/esm/loader:546:20)
+#     at afterLoad (node:internal/modules/esm/loader:596:29)
+#     at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:601:12)
+#     at \#createModuleJob (node:internal/modules/esm/loader:624:36)
+#     at \#getJobFromResolveResult (node:internal/modules/esm/loader:343:34)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:311:41)
+#     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:664:25)
+# Node.js v22.22.0
+# Subtest: test\\release\\final-gate.test.js
+not ok 17 - test\\release\\final-gate.test.js
+  ---
+  duration_ms: 6001.65
+  type: 'test'
+  location: 'C:\\Users\\sabou\\verax\\test\\release\\final-gate.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Phase 21.7: Release Integrity
+    # Subtest: Provenance Builder
+        # Subtest: should build provenance with all required fields
+        ok 1 - should build provenance with all required fields
+          ---
+          duration_ms: 661.473
+          type: 'test'
+          ...
+        # Subtest: should write provenance to file
+        ok 2 - should write provenance to file
+          ---
+          duration_ms: 679.2437
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Provenance Builder
+      ---
+      duration_ms: 1341.7106
+      type: 'suite'
+      ...
+    # Subtest: SBOM Builder
+        # Subtest: should build SBOM with CycloneDX format
+        ok 1 - should build SBOM with CycloneDX format
+          ---
+          duration_ms: 3355.2613
+          type: 'test'
+          ...
+        # Subtest: should include main package in SBOM
+        ok 2 - should include main package in SBOM
+          ---
+          duration_ms: 3294.3591
+          type: 'test'
+          ...
+        # Subtest: should write SBOM to file
+        ok 3 - should write SBOM to file
+          ---
+          duration_ms: 3263.9655
+          type: 'test'
+          ...
+        1..3
+    ok 2 - SBOM Builder
+      ---
+      duration_ms: 9914.0632
+      type: 'suite'
+      ...
+    # Subtest: Reproducibility Check
+        # Subtest: should check reproducibility and generate report
+        ok 1 - should check reproducibility and generate report
+          ---
+          duration_ms: 247.8509
+          type: 'test'
+          ...
+        # Subtest: should write reproducibility report to file
+        ok 2 - should write reproducibility report to file
+          ---
+          duration_ms: 217.7859
+          type: 'test'
+          ...
+        1..2
+    ok 3 - Reproducibility Check
+      ---
+      duration_ms: 466.0816
+      type: 'suite'
+      ...
+    # Subtest: Release Enforcer
+        # Subtest: should block release when provenance is missing
+        ok 1 - should block release when provenance is missing
+          ---
+          duration_ms: 2.9191
+          type: 'test'
+          ...
+        # Subtest: should block release when SBOM is missing
+        ok 2 - should block release when SBOM is missing
+          ---
+          duration_ms: 746.0695
+          type: 'test'
+          ...
+        # Subtest: should block release when reproducibility report is missing
+        ok 3 - should block release when reproducibility report is missing
+          ---
+          duration_ms: 4338.7085
+          type: 'test'
+          ...
+        # Subtest: should block release when reproducibility is NON_REPRODUCIBLE
+        ok 4 - should block release when reproducibility is NON_REPRODUCIBLE
+          ---
+          duration_ms: 3674.1555
+          type: 'test'
+          ...
+        1..4
+    ok 4 - Release Enforcer
+      ---
+      duration_ms: 8762.1397
+      type: 'suite'
+      ...
+    1..4
+ok 96 - Phase 21.7: Release Integrity
+  ---
+  duration_ms: 20484.9129
+  type: 'suite'
+  ...
+# Subtest: Phase 6A: Semantic Determinism
+    # Subtest: should compare identical summaries
+    ok 1 - should compare identical summaries
+      ---
+      duration_ms: 3.716
+      type: 'test'
+      ...
+    # Subtest: should ignore timestamps in comparison
+    ok 2 - should ignore timestamps in comparison
+      ---
+      duration_ms: 1.3442
+      type: 'test'
+      ...
+    # Subtest: should ignore runId in comparison
+    ok 3 - should ignore runId in comparison
+      ---
+      duration_ms: 2.532
+      type: 'test'
+      ...
+    # Subtest: should ignore duration fields in comparison
+    ok 4 - should ignore duration fields in comparison
+      ---
+      duration_ms: 1.4459
+      type: 'test'
+      ...
+    # Subtest: should normalize paths in comparison
+    ok 5 - should normalize paths in comparison
+      ---
+      duration_ms: 1.7639
+      type: 'test'
+      ...
+    # Subtest: should detect semantic differences in findings
+    ok 6 - should detect semantic differences in findings
+      ---
+      duration_ms: 1.383
+      type: 'test'
+      ...
+    # Subtest: should detect difference in findings count
+    ok 7 - should detect difference in findings count
+      ---
+      duration_ms: 1.5106
+      type: 'test'
+      ...
+    # Subtest: should normalize findings for comparison
+    ok 8 - should normalize findings for comparison
+      ---
+      duration_ms: 13.5429
+      type: 'test'
+      ...
+    # Subtest: should load and compare runs from disk
+    ok 9 - should load and compare runs from disk
+      ---
+      duration_ms: 5.6623
+      type: 'test'
+      ...
+    # Subtest: should handle comparison errors gracefully
+    ok 10 - should handle comparison errors gracefully
+      ---
+      duration_ms: 2.9819
+      type: 'test'
+      ...
+    # Subtest: should detect type mismatch
+    ok 11 - should detect type mismatch
+      ---
+      duration_ms: 1.0249
+      type: 'test'
+      ...
+    # Subtest: should detect missing fields
+    ok 12 - should detect missing fields
+      ---
+      duration_ms: 1.1834
+      type: 'test'
+      ...
+    # Subtest: should handle nested object comparison
+    ok 13 - should handle nested object comparison
+      ---
+      duration_ms: 0.9688
+      type: 'test'
+      ...
+    # Subtest: should handle array comparison
+    ok 14 - should handle array comparison
+      ---
+      duration_ms: 0.7751
+      type: 'test'
+      ...
+    # Subtest: should detect array length mismatch
+    ok 15 - should detect array length mismatch
+      ---
+      duration_ms: 1.5767
+      type: 'test'
+      ...
+    1..15
+ok 97 - Phase 6A: Semantic Determinism
+  ---
+  duration_ms: 43.5498
+  type: 'suite'
+  ...
+# Subtest: ZERO CONFIG | config-loader.js must not exist
+ok 98 - ZERO CONFIG | config-loader.js must not exist
+  ---
+  duration_ms: 1.4247
+  type: 'test'
+  ...
+# Subtest: ZERO CONFIG | no references to config loading in entry.js
+ok 99 - ZERO CONFIG | no references to config loading in entry.js
+  ---
+  duration_ms: 0.4315
+  type: 'test'
+  ...
+# Subtest: ZERO CONFIG | run command does not accept --config flags
+ok 100 - ZERO CONFIG | run command does not accept --config flags
+  ---
+  duration_ms: 0.4454
+  type: 'test'
+  ...
+# Subtest: DETERMINISM | run-id generator does not use Date.now()
+ok 101 - DETERMINISM | run-id generator does not use Date.now()
+  ---
+  duration_ms: 0.3471
+  type: 'test'
+  ...
+# Subtest: DETERMINISM | run-id generator does not use Math.random()
+ok 102 - DETERMINISM | run-id generator does not use Math.random()
+  ---
+  duration_ms: 0.404
+  type: 'test'
+  ...
+# Subtest: DETERMINISM | core run-id generator uses deterministic hash
+ok 103 - DETERMINISM | core run-id generator uses deterministic hash
+  ---
+  duration_ms: 0.5357
+  type: 'test'
+  ...
+# Subtest: DETERMINISM | safetyFlags.allowWrites hardcoded to false
+ok 104 - DETERMINISM | safetyFlags.allowWrites hardcoded to false
+  ---
+  duration_ms: 0.4174
+  type: 'test'
+  ...
+# Subtest: NO GUESSING | detect/ has no opinionated guessing functions
+ok 105 - NO GUESSING | detect/ has no opinionated guessing functions
+  ---
+  duration_ms: 17.4768
+  type: 'test'
+  ...
+# Subtest: NO GUESSING | observe/ has no opinionated guessing functions
+ok 106 - NO GUESSING | observe/ has no opinionated guessing functions
+  ---
+  duration_ms: 8.3337
+  type: 'test'
+  ...
+# Subtest: NO GUESSING | cli/ has no opinionated guessing functions
+ok 107 - NO GUESSING | cli/ has no opinionated guessing functions
+  ---
+  duration_ms: 11.1117
+  type: 'test'
+  ...
+# Subtest: NO INTERACTIVE | inquirer import exists only in disabled default.js
+ok 108 - NO INTERACTIVE | inquirer import exists only in disabled default.js
+  ---
+  duration_ms: 0.7586
+  type: 'test'
+  ...
+# Subtest: NO INTERACTIVE | CLI entry.js rejects no-args with usage error
+ok 109 - NO INTERACTIVE | CLI entry.js rejects no-args with usage error
+  ---
+  duration_ms: 1995.5505
+  type: 'test'
+  ...
+# Subtest: NO INTERACTIVE | no interactive prompt logic in entry.js
+ok 110 - NO INTERACTIVE | no interactive prompt logic in entry.js
+  ---
+  duration_ms: 0.4636
+  type: 'test'
+  ...
+# Subtest: READ ONLY | no --allow-writes CLI flag exists
+ok 111 - READ ONLY | no --allow-writes CLI flag exists
+  ---
+  duration_ms: 0.3458
+  type: 'test'
+  ...
+# Subtest: READ ONLY | safety-observer blocks POST/PUT/PATCH/DELETE
+ok 112 - READ ONLY | safety-observer blocks POST/PUT/PATCH/DELETE
+  ---
+  duration_ms: 0.4359
+  type: 'test'
+  ...
+# Subtest: READ ONLY | safety-observer checks allowWrites
+ok 113 - READ ONLY | safety-observer checks allowWrites
+  ---
+  duration_ms: 0.2801
+  type: 'test'
+  ...
+# Subtest: READ ONLY | observe() enforces write blocking
+ok 114 - READ ONLY | observe() enforces write blocking
+  ---
+  duration_ms: 0.3524
+  type: 'test'
+  ...
+# Subtest: GUARDRAILS | vision-enforcement.test.js exists as regression guard
+ok 115 - GUARDRAILS | vision-enforcement.test.js exists as regression guard
+  ---
+  duration_ms: 0.2225
+  type: 'test'
+  ...
+# Subtest: GUARDRAILS | vision-compliance.test.js exists as constitutional test
+ok 116 - GUARDRAILS | vision-compliance.test.js exists as constitutional test
+  ---
+  duration_ms: 0.1797
+  type: 'test'
+  ...
+# Subtest: GUARDRAILS | VISION.md documents core principles
+ok 117 - GUARDRAILS | VISION.md documents core principles
+  ---
+  duration_ms: 0.5511
+  type: 'test'
+  ...
+# Subtest: GUARDRAILS | no temporary artifacts in root directory
+ok 118 - GUARDRAILS | no temporary artifacts in root directory
+  ---
+  duration_ms: 0.3518
+  type: 'test'
+  ...
+# Subtest: config system is absent
+ok 119 - config system is absent
+  ---
+  duration_ms: 1.0867
+  type: 'test'
+  ...
+# Subtest: run IDs are deterministic
+ok 120 - run IDs are deterministic
+  ---
+  duration_ms: 1.5955
+  type: 'test'
+  ...
+# Subtest: interactive mode is disabled
+ok 121 - interactive mode is disabled
+  ---
+  duration_ms: 1986.8887
+  type: 'test'
+  ...
+1..121
+# tests 225
+# suites 28
+# pass 224
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 41126.6995
+
+[TEST CLEANUP] Exit code: 1, Reason: test_complete
+[TEST CLEANUP] Playwright resources closed
+[EVENT LOOP] Active handles: 4, Active requests: 0
+  Handle 0: Socket
+  Handle 1: Socket
+  Handle 2: ChildProcess
+  Handle 3: ReadStream

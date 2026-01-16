@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Feedback Test - Acme Corp</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    nav {
+      background: #333;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 2rem;
+      padding: 0.5rem 1rem;
+    }
+    nav a:hover {
+      background: #555;
+    }
+    .feedback-section {
+      background: #f8f9fa;
+      padding: 2rem;
+      margin: 2rem 0;
+      border-radius: 8px;
+    }
+    .feedback-section h2 {
+      margin-top: 0;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0.5rem;
+      font-size: 1rem;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .loading {
+      display: none;
+      color: #007bff;
+      margin-left: 1rem;
+    }
+    .loading.active {
+      display: inline-block;
+    }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      background: #28a745;
+      color: white;
+      border-radius: 4px;
+      display: none;
+      z-index: 1000;
+    }
+    .toast.show {
+      display: block;
+    }
+    .toast.error {
+      background: #dc3545;
+    }
+    .message {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 4px;
+      display: none;
+    }
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+    .content-area {
+      margin-top: 1rem;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-height: 100px;
+    }
+    .content-area.loading {
+      background: #f8f9fa;
+      color: #666;
+    }
+    .content-area.loaded {
+      background: white;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/products.html">Products</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/search.html">Search</a>
+    <a href="/interactive.html">Interactive</a>
+    <a href="/network.html">Network</a>
+    <a href="/feedback.html">Feedback</a>
+  </nav>
+
+  <h1>UI Feedback Test Page</h1>
+  <p>This page demonstrates various UI feedback scenarios and missing feedback cases.</p>
+
+  <div class="feedback-section">
+    <h2>CONFIRMED: Missing Loading Indicator (ui-feedback-missing)</h2>
+    <p>Action promises loading indicator but none appears.</p>
+    <button id="load-data-btn" onclick="loadData()">Load Data</button>
+    <span id="load-loading" class="loading">Loading...</span>
+    <div id="load-content" class="content-area"></div>
+    <script>
+      // INTENTIONAL SILENT FAILURE: Missing loading indicator
+      async function loadData() {
+        // Promise: Should show loading indicator while fetching
+        // Reality: No loading indicator appears, no feedback at all
+        // Silent failure - user doesn't know action is processing
+        
+        // Intentionally do NOT show loading indicator
+        // document.getElementById('load-loading').classList.add('active'); // COMMENTED OUT
+        
+        try {
+          // Simulate network request
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Update content but no feedback shown
+          document.getElementById('load-content').textContent = 'Data loaded';
+          document.getElementById('load-content').className = 'content-area loaded';
+        } catch (error) {
+          // Intentionally swallow error - no feedback
+        }
+      }
+    </script>
+  </div>
+
+  <div class="feedback-section">
+    <h2>CONFIRMED: Missing Success Feedback (ui-feedback-missing)</h2>
+    <p>Action completes successfully but no feedback is shown.</p>
+    <button id="save-feedback-btn" onclick="saveWithNoFeedback()">Save Changes</button>
+    <div id="save-message" class="message"></div>
+    <script>
+      // INTENTIONAL SILENT FAILURE: Missing success feedback
+      async function saveWithNoFeedback() {
+        // Promise: Should show success message after save
+        // Reality: No success message, no feedback at all
+        // Silent failure - user doesn't know action succeeded
+        
+        try {
+          // Simulate save operation
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          // Intentionally do NOT show success message
+          // document.getElementById('save-message').textContent = 'Changes saved successfully!';
+          // document.getElementById('save-message').className = 'message success'; // COMMENTED OUT
+        } catch (error) {
+          // Intentionally swallow error - no feedback
+        }
+      }
+    </script>
+  </div>
+
+  <div class="feedback-section">
+    <h2>CONFIRMED: Missing Error Feedback (ui-feedback-missing)</h2>
+    <p>Action fails but no error message is shown.</p>
+    <button id="error-feedback-btn" onclick="actionWithNoErrorFeedback()">Perform Action</button>
+    <div id="error-message" class="message"></div>
+    <script>
+      // INTENTIONAL SILENT FAILURE: Missing error feedback
+      async function actionWithNoErrorFeedback() {
+        // Promise: Should show error message if action fails
+        // Reality: Action fails but no error message shown
+        // Silent failure - user doesn't know action failed
+        
+        try {
+          // Simulate failing operation
+          throw new Error('Operation failed');
+        } catch (error) {
+          // Intentionally do NOT show error message
+          // document.getElementById('error-message').textContent = 'Action failed. Please try again.';
+          // document.getElementById('error-message').className = 'message error'; // COMMENTED OUT
+        }
+      }
+    </script>
+  </div>
+
+  <div class="feedback-section">
+    <h2>FALSE POSITIVE TRAP: Loading Indicator Present (should NOT be reported)</h2>
+    <p>Action shows loading indicator - feedback exists, not a silent failure.</p>
+    <button id="loading-present-btn" onclick="loadWithFeedback()">Load with Feedback</button>
+    <span id="loading-present" class="loading">Loading...</span>
+    <div id="loading-content" class="content-area"></div>
+    <script>
+      // FALSE POSITIVE TRAP: Loading indicator is present
+      async function loadWithFeedback() {
+        // Loading indicator is shown - feedback exists
+        document.getElementById('loading-present').classList.add('active');
+        document.getElementById('loading-content').className = 'content-area loading';
+        
+        try {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          document.getElementById('loading-content').textContent = 'Data loaded';
+          document.getElementById('loading-content').className = 'content-area loaded';
+        } catch (error) {
+          // Error handling
+        } finally {
+          document.getElementById('loading-present').classList.remove('active');
+        }
+      }
+    </script>
+  </div>
+
+  <div class="feedback-section">
+    <h2>FALSE POSITIVE TRAP: Toast Notification Present (should NOT be reported)</h2>
+    <p>Action shows toast notification - feedback exists, not a silent failure.</p>
+    <button id="toast-btn" onclick="actionWithToast()">Action with Toast</button>
+    <div id="toast" class="toast">Success!</div>
+    <script>
+      // FALSE POSITIVE TRAP: Toast notification is present
+      function actionWithToast() {
+        // Toast notification is shown - feedback exists
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      }
+    </script>
+  </div>
+
+  <div class="feedback-section">
+    <h2>FALSE POSITIVE TRAP: DOM Change Present (should NOT be reported)</h2>
+    <p>Action causes visible DOM change - feedback exists, not a silent failure.</p>
+    <button id="dom-change-btn" onclick="actionWithDOMChange()">Action with DOM Change</button>
+    <div id="dom-change-area" class="content-area">Initial content</div>
+    <script>
+      // FALSE POSITIVE TRAP: DOM change is present
+      function actionWithDOMChange() {
+        // DOM change is visible - feedback exists
+        const area = document.getElementById('dom-change-area');
+        area.textContent = 'Content updated!';
+        area.style.backgroundColor = '#d4edda';
+        area.style.color = '#155724';
+      }
+    </script>
+  </div>
+
+  <div class="feedback-section">
+    <h2>GUARDRAILS: Validation Feedback Present (should NOT be reported)</h2>
+    <p>Validation feedback is shown - prevents silent failure claim.</p>
+    <form id="validation-form">
+      <input type="email" id="validation-email" placeholder="Enter email" required>
+      <button type="submit">Submit</button>
+    </form>
+    <div id="validation-message" class="message"></div>
+    <script>
+      // GUARDRAILS CASE: Validation feedback is present
+      document.getElementById('validation-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('validation-email').value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!email || !emailRegex.test(email)) {
+          // Validation feedback is shown - prevents silent failure
+          document.getElementById('validation-message').textContent = 'Please enter a valid email address';
+          document.getElementById('validation-message').className = 'message error';
+        } else {
+          // Valid email - proceed
+          document.getElementById('validation-message').textContent = 'Email is valid';
+          document.getElementById('validation-message').className = 'message success';
+        }
+      });
+    </script>
+  </div>
+
+  <div class="feedback-section">
+    <h2>AMBIGUOUS: Delayed Feedback (confidence < 1)</h2>
+    <p>Feedback appears after delay - ambiguous whether failure is silent.</p>
+    <button id="delayed-btn" onclick="actionWithDelayedFeedback()">Action with Delayed Feedback</button>
+    <div id="delayed-message" class="message"></div>
+    <script>
+      // AMBIGUOUS CASE: Delayed feedback
+      async function actionWithDelayedFeedback() {
+        // Feedback appears after delay - ambiguous whether failure is silent
+        // or just delayed
+        
+        try {
+          // Simulate operation
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Feedback appears after delay
+          document.getElementById('delayed-message').textContent = 'Action completed';
+          document.getElementById('delayed-message').className = 'message success';
+        } catch (error) {
+          // Error handling with delayed feedback
+          setTimeout(() => {
+            document.getElementById('delayed-message').textContent = 'Action failed';
+            document.getElementById('delayed-message').className = 'message error';
+          }, 500);
+        }
+      }
+    </script>
+  </div>
+
+  <div class="feedback-section">
+    <h2>AMBIGUOUS: Partial DOM Change (confidence < 1)</h2>
+    <p>Partial DOM change occurs - ambiguous whether feedback is sufficient.</p>
+    <button id="partial-btn" onclick="actionWithPartialChange()">Action with Partial Change</button>
+    <div id="partial-area" class="content-area">Initial state</div>
+    <script>
+      // AMBIGUOUS CASE: Partial DOM change
+      function actionWithPartialChange() {
+        // Partial DOM change occurs - ambiguous whether feedback is sufficient
+        const area = document.getElementById('partial-area');
+        // Only partial change - not clear if this is sufficient feedback
+        area.style.color = '#666'; // Subtle change
+        // No text change, no clear success indicator
+        // Ambiguous whether this is sufficient feedback
+      }
+    </script>
+  </div>
+
+  <div class="feedback-section">
+    <h2>AMBIGUOUS: Button State Change Only (confidence < 1)</h2>
+    <p>Only button state changes - ambiguous whether feedback is sufficient.</p>
+    <button id="state-btn" onclick="actionWithStateChange()">Click Me</button>
+    <script>
+      // AMBIGUOUS CASE: Button state change only
+      function actionWithStateChange() {
+        const btn = document.getElementById('state-btn');
+        // Only button state changes - ambiguous whether feedback is sufficient
+        btn.disabled = true;
+        btn.textContent = 'Processing...';
+        
+        // No other feedback - ambiguous whether this is sufficient
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Click Me';
+        }, 1000);
+      }
+    </script>
+  </div>
+</body>
+</html>
+

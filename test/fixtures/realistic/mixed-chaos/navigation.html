@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navigation Chaos - Mixed Chaos</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    nav {
+      background: #333;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 2rem;
+      padding: 0.5rem 1rem;
+    }
+    .chaos-section {
+      background: #f8f9fa;
+      padding: 2rem;
+      border-radius: 8px;
+      margin: 2rem 0;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/navigation.html">Navigation</a>
+    <a href="/network.html">Network</a>
+    <a href="/state.html">State</a>
+    <a href="/forms.html">Forms</a>
+  </nav>
+
+  <h1>Navigation Chaos</h1>
+  <p>Multiple navigation failures in one page.</p>
+
+  <div class="chaos-section">
+    <h2>CONFIRMED: Broken Link</h2>
+    <a href="/target.html" id="broken-link">Broken Link (should navigate but doesn't)</a>
+    <script>
+      // INTENTIONAL SILENT FAILURE #1: Broken link
+      document.getElementById('broken-link').addEventListener('click', function(e) {
+        e.preventDefault();
+        // Promise: Should navigate to /target.html
+        // Reality: Nothing happens - silent failure
+      });
+    </script>
+  </div>
+
+  <div class="chaos-section">
+    <h2>CONFIRMED: Broken Button Navigation</h2>
+    <button id="nav-button">Navigate to Home (fails silently)</button>
+    <script>
+      // INTENTIONAL SILENT FAILURE: Button navigation
+      document.getElementById('nav-button').addEventListener('click', function() {
+        // Promise: Should navigate to /index.html
+        // Reality: Nothing happens - silent failure
+        window.location.href = '/index.html';
+        // But immediately prevented
+        setTimeout(() => {
+          // Intentionally do nothing - navigation fails silently
+        }, 0);
+      });
+    </script>
+  </div>
+
+  <div class="chaos-section">
+    <h2>FALSE POSITIVE TRAP: Analytics Navigation</h2>
+    <a href="/analytics" id="analytics-nav">Analytics (should NOT be reported)</a>
+    <script>
+      // FALSE POSITIVE TRAP: Analytics link
+      document.getElementById('analytics-nav').addEventListener('click', function(e) {
+        e.preventDefault();
+        // Intentionally does nothing - not a user-facing promise
+      });
+    </script>
+  </div>
+</body>
+</html>
+

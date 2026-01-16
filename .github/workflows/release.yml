@@ -1,3 +1,29 @@
+##############################################################################
+# RELEASE WORKFLOW
+#
+# Purpose: Publish VERAX to npm registry.
+# Runs only on manual dispatch or tag push.
+#
+# Triggers:
+# - workflow_dispatch (manual release)
+# - push to tags matching v*
+#
+# Prerequisites checked:
+# - Tests pass (including Vision Compliance)
+# - Lint passes
+# - Typecheck passes
+# - Package version matches tag
+# - Release script verification passes
+#
+# Actions:
+# - Pack tarball for smoke testing
+# - Publish to npm (if NPM_TOKEN configured)
+# - Create git tag
+#
+# Constitutional Status: LOCKED
+# Release is blocked if Vision tests fail.
+##############################################################################
+
 name: Release
 
 on:
@@ -7,6 +33,9 @@ on:
         description: 'Version to release (e.g., 0.3.0)'
         required: true
         type: string
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   release:
@@ -20,7 +49,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '20.x'
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
 
@@ -30,8 +59,10 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run tests
+      - name: Run tests (includes Vision Compliance)
         run: npm test
+        # Vision Compliance Tests must pass before release.
+        # Release is blocked if VERAX violates constitutional principles.
 
       - name: Run lint
         run: npm run lint
@@ -40,7 +71,28 @@ jobs:
         run: npm run typecheck
 
       - name: Verify release prerequisites
-        run: node scripts/verify-release.js "${{ inputs.version }}"
+        run: node scripts/verify-release.js
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
+
+      - name: Verify package version matches
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          RELEASE_VERSION="${{ steps.version.outputs.version }}"
+          if [ "$PACKAGE_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "❌ Error: Package version ($PACKAGE_VERSION) != Release version ($RELEASE_VERSION)"
+            exit 1
+          fi
+          echo "✅ Version match verified: $PACKAGE_VERSION"
 
       - name: Pack tarball
         id: pack
@@ -48,18 +100,7 @@ jobs:
           npm pack
           TARBALL=$(ls veraxhq-verax-*.tgz | head -1)
           echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
-          echo "Packed: $TARBALL"
-
-      - name: Dry-run publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "⚠️  NPM_TOKEN not configured. Running dry-run without auth."
-            npm publish --dry-run
-          else
-            npm publish --dry-run --access public
-          fi
+          echo "✅ Packed: $TARBALL"
 
       - name: Smoke test tarball
         run: |
@@ -76,9 +117,38 @@ jobs:
           
           echo "✅ Smoke tests passed"
 
-      - name: Create git tag
+      - name: Dry-run publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          VERSION="${{ inputs.version }}"
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "⚠️  NPM_TOKEN not configured. Running dry-run without auth."
+            npm publish --dry-run
+          else
+            npm publish --dry-run --access public
+          fi
+
+      - name: Publish to npm
+        id: publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "⚠️  NPM_TOKEN secret not found. Skipping publish (dry-run only)."
+            echo "To publish: set NPM_TOKEN secret in GitHub Settings"
+            exit 0
+          fi
+          
+          echo "📦 Publishing version ${{ steps.version.outputs.version }} to npm..."
+          npm publish --access public
+          
+          echo "✅ Successfully published to npm"
+        continue-on-error: false
+
+      - name: Create git tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
           TAG="v${VERSION}"
           
           # Check if tag already exists
@@ -93,4 +163,11 @@ jobs:
           
           echo "✅ Created tag: $TAG"
           echo "⚠️  Tag not pushed. Push manually with: git push origin $TAG"
+
+      - name: Release complete
+        run: |
+          echo "✅ Release ${{ steps.version.outputs.version }} complete!"
+          echo "Version: ${{ steps.version.outputs.version }}"
+          echo "Vision Compliance: LOCKED ✅"
+          echo "All tests passed before release"
 

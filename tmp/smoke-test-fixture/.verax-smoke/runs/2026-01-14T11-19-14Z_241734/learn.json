@@ -1,0 +1,21 @@
+{
+  "contractVersion": 1,
+  "expectations": [],
+  "stats": {
+    "totalExpectations": 0,
+    "byType": {
+      "navigation": 0,
+      "network": 0,
+      "state": 0
+    }
+  },
+  "skipped": {
+    "dynamic": 0,
+    "computed": 0,
+    "external": 0,
+    "parseError": 0,
+    "other": 0,
+    "total": 0
+  },
+  "learnedAt": "2026-01-14T11:19:14.649Z"
+}

@@ -51,11 +51,11 @@ It means the observation produced no verifiable effect for the promise being eva
 
 🧠 Extracts expectations from source code using static analysis:
 
-Navigation from HTML links and React Router / Next.js routes
+Navigation from HTML links, React Router, Vue Router, and Next.js routes
 
 Network actions from fetch / axios calls with static URLs
 
-State mutations from React useState, Redux dispatch, Zustand set
+State mutations from React useState, Redux, Vuex, Pinia, Zustand set operations
 
 🖱️ Observes websites like a real user using Playwright
 (clicks, forms, navigation, scrolling)
@@ -76,11 +76,15 @@ DOM and state changes
 
 🧱 Supports real-world projects:
 
-Static HTML sites
+**Fully verified (production-ready):**
+- Static HTML sites
+- React SPAs (with react-router-dom)
 
-React SPAs
-
-Next.js (App Router & Pages Router)
+**Supported (learn-only / partial observation):**
+- Next.js (App Router & Pages Router)
+- Vue.js (with Vue Router)
+- Angular
+- SvelteKit
 
 🔐 Protects privacy by automatically redacting secrets and sensitive data
 

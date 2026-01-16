@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "tool": "verax",
+    "version": "1.0.0",
+    "node": "v20.19.5",
+    "os": "win32",
+    "timestamp": "2026-01-14T11:08:27.704Z",
+    "runId": "2026-01-14T11-08-15Z_da4317",
+    "url": "file:///c:/Users/sabou/verax/test-projects/static-html/index.html",
+    "src": "unknown"
+  },
+  "analysis": {
+    "state": "ANALYSIS_COMPLETE",
+    "analysisComplete": true,
+    "expectationsDiscovered": 6,
+    "expectationsAnalyzed": 3,
+    "expectationsSkipped": 4,
+    "completenessRatio": 0.5,
+    "skipReasons": {
+      "EXTERNAL_URL_SKIPPED": 1,
+      "OBSERVATION_FAILED": 3
+    },
+    "skipExamples": {
+      "EXTERNAL_URL_SKIPPED": [],
+      "OBSERVATION_FAILED": [
+        "exp_a74472",
+        "exp_443bd2",
+        "exp_36442f"
+      ]
+    },
+    "systemicReasons": {},
+    "nonSystemicReasons": {
+      "EXTERNAL_URL_SKIPPED": 1,
+      "OBSERVATION_FAILED": 3
+    },
+    "budgets": {
+      "maxExpectations": 0,
+      "exceeded": false,
+      "skippedCount": 0
+    },
+    "timeouts": {
+      "observeMs": 0,
+      "detectMs": 0,
+      "totalMs": 0,
+      "timedOut": false,
+      "phase": null
+    },
+    "warnings": [],
+    "notes": [],
+    "determinism": {
+      "level": "DETERMINISTIC",
+      "reproducible": true,
+      "factors": [],
+      "notes": [],
+      "comparison": {
+        "comparable": false,
+        "baselineRunId": null,
+        "differences": null
+      }
+    }
+  },
+  "results": {
+    "findingsCount": 0,
+    "hasFindings": false,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "UNKNOWN": 0
+  },
+  "findings": [],
+  "evidence": {
+    "screenshots": [],
+    "networkLogs": [],
+    "consoleLogs": [],
+    "traces": []
+  },
+  "integrity": {
+    "status": "COMPLETE",
+    "atomic": true,
+    "writer": "verax",
+    "writerVersion": "0.3.0",
+    "writtenAt": "2026-01-14T11:08:27.712Z",
+    "notes": []
+  }
+}

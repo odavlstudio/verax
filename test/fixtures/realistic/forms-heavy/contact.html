@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - Forms Heavy</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/register.html">Register</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/wizard.html">Wizard</a>
+    <a href="/survey.html">Survey</a>
+  </nav>
+
+  <h1>Contact Us</h1>
+  <p>Send us a message.</p>
+
+  <form id="contact-form">
+    <div class="form-group">
+      <label for="name">Name *</label>
+      <input type="text" id="name" name="name" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email *</label>
+      <input type="email" id="email" name="email" required>
+      <!-- INTENTIONAL: No validation feedback shown (validation-silent-failure) -->
+    </div>
+
+    <div class="form-group">
+      <label for="message">Message *</label>
+      <textarea id="message" name="message" required></textarea>
+    </div>
+
+    <!-- FALSE POSITIVE TRAP: Honeypot field (should NOT be reported) -->
+    <input type="text" name="website" style="display: none;" id="website-field">
+    <script>
+      // Intentionally does nothing - this is a honeypot for spam prevention
+      // Should not be reported as a failure
+      document.getElementById('website-field').addEventListener('change', function() {
+        // Intentionally do nothing
+      });
+    </script>
+
+    <button type="submit" id="submit-btn">Send Message</button>
+  </form>
+
+  <script>
+    // INTENTIONAL SILENT FAILURE #2: Missing validation feedback
+    // Invalid email submission proceeds without feedback
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      
+      // INTENTIONAL: Should show error for invalid email but doesn't
+      // Form proceeds even with invalid email (validation-silent-failure)
+      if (!emailRegex.test(email)) {
+        // Intentionally do nothing - no error message, no feedback
+        // This is validation-silent-failure
+      }
+      
+      // Form always submits (even with invalid email)
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('name').value,
+          email: email,
+          message: document.getElementById('message').value
+        })
+      })
+      .then(response => {
+        // Intentionally ignore response - silent failure
+      })
+      .catch(error => {
+        // Intentionally swallow error - silent failure
+      });
+    });
+  </script>
+</body>
+</html>
+

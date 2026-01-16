@@ -254,8 +254,8 @@ export function stopFixtureServer(server) {
 // IMPORTANT: Only run if this is the actual script being executed, not when imported
 const isDirectExecution = process.argv[1] && 
                          (process.argv[1].endsWith('fixture-server.js') || 
-                          process.argv[1].includes('/test/helpers/fixture-server.js') ||
-                          process.argv[1].includes('\\test\\helpers\\fixture-server.js'));
+                          process.argv[1].includes('/test/infrastructure/fixture-server.js') ||
+                          process.argv[1].includes('\\test\\infrastructure\\fixture-server.js'));
 
 if (isDirectExecution) {
   const fixtureDir = pathResolve(__dirname, '../../test/fixtures/static-site');

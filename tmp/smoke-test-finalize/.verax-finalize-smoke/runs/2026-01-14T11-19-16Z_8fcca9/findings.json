@@ -1,0 +1,143 @@
+{
+  "contractVersion": 1,
+  "artifactVersions": {
+    "runStatus": 1,
+    "runMeta": 1,
+    "summary": 1,
+    "findings": 1,
+    "learn": 1,
+    "observe": 1,
+    "project": 1,
+    "traces": 1,
+    "evidence": 1,
+    "scanSummary": 1,
+    "determinismReport": 1,
+    "evidenceIntent": 1,
+    "guardrailsReport": 1,
+    "confidenceReport": 1,
+    "determinismContract": 1
+  },
+  "findings": [
+    {
+      "id": "exp_0e08a4",
+      "expectationId": "exp_0e08a4",
+      "type": "navigation_silent_failure",
+      "summary": "navigation /page1 was observed at runtime",
+      "promise": {
+        "kind": "navigate",
+        "value": "/page1"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 9,
+        "column": 3
+      },
+      "observed": true,
+      "classification": "observed",
+      "impact": "MEDIUM",
+      "confidence": {
+        "level": "HIGH",
+        "score": 100
+      },
+      "evidence": {
+        "hasDomChange": true,
+        "hasUrlChange": false,
+        "hasNetworkActivity": false,
+        "hasStateChange": false,
+        "networkRequests": [],
+        "before": "nav_1_after.png"
+      },
+      "reason": "Expectation observed at runtime",
+      "status": "CONFIRMED",
+      "signals": {
+        "impact": "MEDIUM",
+        "userRisk": "CONFUSES",
+        "ownership": "FRONTEND",
+        "grouping": {
+          "expectationType": "navigation"
+        }
+      },
+      "interaction": {
+        "type": "navigation",
+        "selector": "/page1"
+      },
+      "what_happened": "Expectation observed at runtime",
+      "what_was_expected": "/page1",
+      "what_was_observed": "Expectation observed at runtime",
+      "why_it_matters": "Potential silent failure identified by expectation vs observation.",
+      "findingId": "finding_exp_0e08a4"
+    },
+    {
+      "id": "exp_63bcec",
+      "expectationId": "exp_63bcec",
+      "type": "navigation_silent_failure",
+      "summary": "navigation /page2 was attempted but no observable effect occurred",
+      "promise": {
+        "kind": "navigate",
+        "value": "/page2"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 10,
+        "column": 3
+      },
+      "observed": false,
+      "classification": "silent-failure",
+      "impact": "MEDIUM",
+      "confidence": {
+        "level": "LOW",
+        "score": 40
+      },
+      "evidence": {
+        "hasDomChange": false,
+        "hasUrlChange": false,
+        "hasNetworkActivity": false,
+        "hasStateChange": false,
+        "networkRequests": []
+      },
+      "reason": "No matching event observed",
+      "status": "SUSPECTED",
+      "signals": {
+        "impact": "MEDIUM",
+        "userRisk": "CONFUSES",
+        "ownership": "FRONTEND",
+        "grouping": {
+          "expectationType": "navigation"
+        }
+      },
+      "interaction": {
+        "type": "navigation",
+        "selector": "/page2"
+      },
+      "what_happened": "No matching event observed",
+      "what_was_expected": "/page2",
+      "what_was_observed": "No matching event observed",
+      "why_it_matters": "Potential silent failure identified by expectation vs observation.",
+      "findingId": "finding_exp_63bcec"
+    }
+  ],
+  "total": 2,
+  "stats": {
+    "total": 2,
+    "silentFailures": 1,
+    "observed": 1,
+    "coverageGaps": 0,
+    "unproven": 0,
+    "informational": 0
+  },
+  "detectedAt": "2026-01-14T11:19:23.088Z",
+  "enforcement": {
+    "droppedCount": 0,
+    "downgradedCount": 0,
+    "downgrades": [],
+    "dropped": []
+  },
+  "integrity": {
+    "status": "COMPLETE",
+    "atomic": true,
+    "writer": "verax",
+    "writerVersion": "0.3.0",
+    "writtenAt": "2026-01-14T11:19:23.090Z",
+    "notes": []
+  }
+}

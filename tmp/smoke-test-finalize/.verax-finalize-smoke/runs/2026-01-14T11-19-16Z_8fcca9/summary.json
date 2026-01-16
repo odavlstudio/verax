@@ -1,0 +1,115 @@
+{
+  "meta": {
+    "tool": "verax",
+    "version": "1.0.0",
+    "node": "v20.19.5",
+    "os": "win32",
+    "timestamp": "2026-01-14T11:19:23.088Z",
+    "runId": "2026-01-14T11-19-16Z_8fcca9",
+    "url": "file:///C:/Users/sabou/verax/tmp/smoke-test-finalize/index.html",
+    "src": "unknown"
+  },
+  "analysis": {
+    "state": "ANALYSIS_COMPLETE",
+    "analysisComplete": true,
+    "expectationsDiscovered": 2,
+    "expectationsAnalyzed": 1,
+    "expectationsSkipped": 1,
+    "completenessRatio": 0.5,
+    "skipReasons": {
+      "OBSERVATION_FAILED": 1
+    },
+    "skipExamples": {
+      "OBSERVATION_FAILED": [
+        "exp_63bcec"
+      ]
+    },
+    "systemicReasons": {},
+    "nonSystemicReasons": {
+      "OBSERVATION_FAILED": 1
+    },
+    "budgets": {
+      "maxExpectations": 0,
+      "exceeded": false,
+      "skippedCount": 0
+    },
+    "timeouts": {
+      "observeMs": 0,
+      "detectMs": 0,
+      "totalMs": 6758,
+      "timedOut": false,
+      "phase": null
+    },
+    "warnings": [],
+    "notes": [],
+    "determinism": {
+      "level": "DETERMINISTIC",
+      "reproducible": true,
+      "factors": [],
+      "notes": [
+        "Could not compare with previous run: Cannot read from this run: poison marker present (incomplete/corrupted run). The previous scan did not complete successfully. Artifacts may be incomplete or corrupted. Run 'verax doctor' to diagnose."
+      ],
+      "comparison": {
+        "comparable": false,
+        "baselineRunId": null,
+        "differences": null
+      }
+    }
+  },
+  "results": {
+    "findingsCount": 2,
+    "hasFindings": true,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "UNKNOWN": 0
+  },
+  "findings": [
+    {
+      "id": "exp_0e08a4",
+      "expectationId": "exp_0e08a4",
+      "type": "navigation",
+      "summary": "navigation /page1 was observed at runtime",
+      "promise": {
+        "kind": "navigate",
+        "value": "/page1"
+      },
+      "observed": true,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "nav_1_after.png",
+          "available": true
+        }
+      ],
+      "confidence": 1
+    },
+    {
+      "id": "exp_63bcec",
+      "expectationId": "exp_63bcec",
+      "type": "navigation",
+      "summary": "navigation /page2 was attempted but no observable effect occurred",
+      "promise": {
+        "kind": "navigate",
+        "value": "/page2"
+      },
+      "observed": "Action did not occur or behaved differently",
+      "evidence": [],
+      "confidence": 0.4
+    }
+  ],
+  "evidence": {
+    "screenshots": [],
+    "networkLogs": [],
+    "consoleLogs": [],
+    "traces": []
+  },
+  "integrity": {
+    "status": "COMPLETE",
+    "atomic": true,
+    "writer": "verax",
+    "writerVersion": "0.3.0",
+    "writtenAt": "2026-01-14T11:19:23.102Z",
+    "notes": []
+  }
+}

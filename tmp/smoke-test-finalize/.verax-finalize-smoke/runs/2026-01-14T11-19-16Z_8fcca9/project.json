@@ -1,0 +1,13 @@
+{
+  "contractVersion": 1,
+  "framework": "static-html",
+  "router": null,
+  "sourceRoot": "C:\\Users\\sabou\\verax\\tmp\\smoke-test-finalize",
+  "packageManager": "unknown",
+  "scripts": {
+    "dev": null,
+    "build": null,
+    "start": null
+  },
+  "detectedAt": "2026-01-14T11:19:16.329Z"
+}

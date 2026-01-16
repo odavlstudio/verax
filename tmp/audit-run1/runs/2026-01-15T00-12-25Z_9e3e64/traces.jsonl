@@ -1,0 +1,12 @@
+{"type":"project:detected","timestamp":"2026-01-15T00:12:25.947Z","framework":"nextjs","router":null,"sourceRoot":"C:\\Users\\sabou\\verax","packageManager":"npm"}
+{"type":"phase:started","timestamp":"2026-01-15T00:12:25.947Z","phase":"Detect Project","message":"Detecting project structure..."}
+{"type":"phase:started","timestamp":"2026-01-15T00:12:25.947Z","phase":"Resolve URL","message":"Using URL: file://./test/fixtures/static-buttons"}
+{"type":"phase:started","timestamp":"2026-01-15T00:12:25.947Z","phase":"Initialize Run","message":"Initializing run artifacts..."}
+{"type":"phase:started","timestamp":"2026-01-15T00:12:25.950Z","phase":"Learn","message":"Analyzing project structure..."}
+{"type":"phase:completed","timestamp":"2026-01-15T00:12:25.953Z","phase":"Learn","message":"Project analysis complete"}
+{"type":"phase:started","timestamp":"2026-01-15T00:12:25.953Z","phase":"Observe","message":"Launching browser and observing expectations..."}
+{"type":"phase:completed","timestamp":"2026-01-15T00:12:25.954Z","phase":"Observe","message":"Browser observation complete"}
+{"type":"phase:started","timestamp":"2026-01-15T00:12:25.954Z","phase":"Detect","message":"Analyzing findings and detecting silent failures..."}
+{"type":"detect:completed","timestamp":"2026-01-15T00:12:25.955Z","event":"detect:completed","total":0,"stats":{"total":0,"silentFailures":0,"observed":0,"coverageGaps":0,"unproven":0,"informational":0}}
+{"type":"phase:completed","timestamp":"2026-01-15T00:12:25.955Z","phase":"Detect","message":"Silent failure detection complete"}
+{"type":"phase:started","timestamp":"2026-01-15T00:12:25.955Z","phase":"Finalize Artifacts","message":"Writing run results..."}

@@ -1,0 +1,12 @@
+{
+  "framework": "nextjs",
+  "router": "app",
+  "sourceRoot": "C:\\Users\\sabou\\verax\\demos\\demo-nextjs",
+  "packageManager": "npm",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "detectedAt": "2026-01-14T21:54:43.805Z"
+}

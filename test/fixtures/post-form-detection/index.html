@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>POST Blocking Test</title>
+</head>
+<body>
+  <h1>POST Blocking Test</h1>
+  <button id="post-btn">Make POST Request</button>
+  <div id="result">Result will appear here</div>
+  
+  <script>
+    // This simulates an expectation: clicking the button should trigger a POST
+    window.postPromise = async function() {
+      try {
+        const response = await fetch('/api/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ test: true })
+        });
+        document.getElementById('result').textContent = 'POST request sent (or blocked)';
+        return response;
+      } catch (e) {
+        document.getElementById('result').textContent = 'POST blocked or failed: ' + e.message;
+        throw e;
+      }
+    };
+    
+    document.getElementById('post-btn').addEventListener('click', async () => {
+      await window.postPromise();
+    });
+  </script>
+</body>
+</html>

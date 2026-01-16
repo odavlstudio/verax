@@ -1,3 +1,24 @@
+##############################################################################
+# CI WORKFLOW
+# 
+# Purpose: Automated testing, linting, and verification on every push and PR.
+# Ensures code quality and Vision compliance before merge.
+# 
+# Triggers:
+# - push to main/master
+# - pull requests to main/master
+#
+# Guarantees:
+# - Vision Compliance Tests ALWAYS run (vision-enforcement + vision-compliance)
+# - Tests run on Node 18.x and 20.x
+# - Tests run on Ubuntu, Windows, and macOS
+# - Lint and typecheck pass
+# - Release can be verified
+#
+# Constitutional Status: LOCKED
+# Vision tests cannot be skipped or conditionally disabled.
+##############################################################################
+
 name: CI
 
 on:
@@ -14,6 +35,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18.x, 20.x]
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,8 +49,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run tests (includes Vision Compliance)
         run: npm test
+        # Vision Compliance Tests are mandatory and cannot be skipped.
+        # They will fail if VERAX violates its constitutional principles.
 
       - name: Run lint
         run: npm run lint
@@ -36,7 +63,57 @@ jobs:
       - name: Run typecheck
         run: npm run typecheck
 
-      - name: Verify release (packed tarball smoke tests)
+      - name: Verify release prerequisites
         if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
         run: node scripts/verify-release.js
+
+  # Optional: Self-scan VERAX on Ubuntu (demonstrates tool usage)
+  verax-self-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start fixture server
+        id: fixture-server
+        run: |
+          node test/helpers/fixture-server.js &
+          SERVER_PID=$!
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+          sleep 3
+          echo "url=http://127.0.0.1:8888" >> $GITHUB_OUTPUT
+
+      - name: Run VERAX self-scan
+        id: verax
+        run: |
+          node bin/verax.js run --url ${{ steps.fixture-server.outputs.url }} --src test/fixtures/static-site --out .verax
+        continue-on-error: true
+
+      - name: Stop fixture server
+        if: always()
+        run: |
+          if [ ! -z "$SERVER_PID" ]; then
+            kill $SERVER_PID 2>/dev/null || true
+          fi
+
+      - name: Upload VERAX artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-verax-artifacts
+          path: .verax/
+          retention-days: 7
+          if-no-files-found: ignore
 

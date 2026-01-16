@@ -1,0 +1,17 @@
+{
+  "name": "remix-minimal-fixture",
+  "version": "1.0.0",
+  "description": "Minimal Remix-like fixture for VERAX H6 testing",
+  "type": "module",
+  "scripts": {
+    "dev": "node --loader tsx/esm ./server.js",
+    "build": "echo 'build'",
+    "start": "node ./server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0"
+  },
+  "devDependencies": {
+    "tsx": "^3.13.0"
+  }
+}

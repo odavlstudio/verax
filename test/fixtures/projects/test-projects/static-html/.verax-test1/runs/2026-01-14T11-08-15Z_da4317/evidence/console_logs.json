@@ -1,0 +1,12 @@
+[
+  {
+    "type": "error",
+    "text": "Fetch API cannot load file:///C:/api/data. URL scheme \"file\" is not supported.",
+    "timestamp": "2026-01-14T11:08:16.026Z"
+  },
+  {
+    "type": "error",
+    "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+    "timestamp": "2026-01-14T11:08:16.127Z"
+  }
+]

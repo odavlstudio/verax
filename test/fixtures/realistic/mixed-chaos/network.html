@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Chaos - Mixed Chaos</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    nav {
+      background: #333;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 2rem;
+      padding: 0.5rem 1rem;
+    }
+    .chaos-section {
+      background: #f8f9fa;
+      padding: 2rem;
+      border-radius: 8px;
+      margin: 2rem 0;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/navigation.html">Navigation</a>
+    <a href="/network.html">Network</a>
+    <a href="/state.html">State</a>
+    <a href="/forms.html">Forms</a>
+  </nav>
+
+  <h1>Network Chaos</h1>
+  <p>Multiple network failures in one page.</p>
+
+  <div class="chaos-section">
+    <h2>CONFIRMED: Network Cascade Failure</h2>
+    <button id="save-btn">Save Data (fails silently)</button>
+    <button id="load-btn">Load Data (fails silently)</button>
+    <button id="delete-btn">Delete Data (fails silently)</button>
+    <script>
+      // INTENTIONAL SILENT FAILURE #2: Network cascade failure
+      document.getElementById('save-btn').addEventListener('click', function() {
+        // Promise: Should POST to /api/save
+        fetch('/api/save', { method: 'POST', body: JSON.stringify({ data: 'test' }) })
+          .then(() => {
+            // Intentionally ignore - silent failure
+          })
+          .catch(() => {
+            // Intentionally swallow - silent failure
+          });
+      });
+
+      document.getElementById('load-btn').addEventListener('click', function() {
+        // Promise: Should GET from /api/load
+        fetch('/api/load')
+          .then(() => {
+            // Intentionally ignore - silent failure
+          })
+          .catch(() => {
+            // Intentionally swallow - silent failure
+          });
+      });
+
+      document.getElementById('delete-btn').addEventListener('click', function() {
+        // Promise: Should DELETE /api/delete
+        fetch('/api/delete', { method: 'DELETE' })
+          .then(() => {
+            // Intentionally ignore - silent failure
+          })
+          .catch(() => {
+            // Intentionally swallow - silent failure
+          });
+      });
+    </script>
+  </div>
+
+  <div class="chaos-section">
+    <h2>FALSE POSITIVE TRAP: Analytics Requests</h2>
+    <button id="track-btn">Track Event (should NOT be reported)</button>
+    <script>
+      // FALSE POSITIVE TRAP: Analytics
+      document.getElementById('track-btn').addEventListener('click', function() {
+        fetch('/api/analytics/track', { method: 'POST', body: JSON.stringify({ event: 'click' }) })
+          .catch(() => {
+            // Intentionally ignore - not a user-facing promise
+          });
+      });
+    </script>
+  </div>
+</body>
+</html>
+

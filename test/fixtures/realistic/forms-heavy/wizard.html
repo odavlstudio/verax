@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-step Wizard - Forms Heavy</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/register.html">Register</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/wizard.html">Wizard</a>
+    <a href="/survey.html">Survey</a>
+  </nav>
+
+  <h1>Multi-step Form Wizard</h1>
+  <p>Complete this multi-step form.</p>
+
+  <form id="wizard-form">
+    <div id="step-1" class="wizard-step">
+      <h2>Step 1: Personal Information</h2>
+      <div class="form-group">
+        <label for="first-name">First Name *</label>
+        <input type="text" id="first-name" name="first-name" required>
+      </div>
+      <div class="form-group">
+        <label for="last-name">Last Name *</label>
+        <input type="text" id="last-name" name="last-name" required>
+      </div>
+      <button type="button" id="next-1">Next</button>
+    </div>
+
+    <div id="step-2" class="wizard-step" style="display: none;">
+      <h2>Step 2: Contact Information</h2>
+      <div class="form-group">
+        <label for="wizard-email">Email *</label>
+        <input type="email" id="wizard-email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone">
+      </div>
+      <button type="button" id="prev-2">Previous</button>
+      <button type="button" id="next-2">Next</button>
+    </div>
+
+    <div id="step-3" class="wizard-step" style="display: none;">
+      <h2>Step 3: Review & Submit</h2>
+      <div id="review-content"></div>
+      <button type="button" id="prev-3">Previous</button>
+      <button type="submit" id="submit-wizard">Submit</button>
+    </div>
+  </form>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 3;
+
+    // PARTIAL/AMBIGUOUS CASE: Multi-step form (confidence < 1)
+    // Form progression may or may not work (depends on step)
+    function showStep(step) {
+      // Hide all steps
+      for (let i = 1; i <= totalSteps; i++) {
+        document.getElementById(`step-${i}`).style.display = 'none';
+      }
+      // Show current step
+      document.getElementById(`step-${step}`).style.display = 'block';
+    }
+
+    function goToNextStep() {
+      if (currentStep < totalSteps) {
+        // Ambiguous case: progression may or may not work
+        // Step 2 always works, but step 3 may fail silently
+        if (currentStep === 2) {
+          // Deterministic ambiguity: step 3 progression depends on step number
+          // This creates ambiguity without randomness
+          const stepNumber = currentStep;
+          if (stepNumber === 2) {
+            // Sometimes works (deterministic based on step)
+            currentStep++;
+            showStep(currentStep);
+            updateReview();
+          } else {
+            // Silent failure - no feedback
+          }
+        } else {
+          currentStep++;
+          showStep(currentStep);
+          if (currentStep === 3) {
+            updateReview();
+          }
+        }
+      }
+    }
+
+    function goToPrevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+
+    function updateReview() {
+      const review = document.getElementById('review-content');
+      review.innerHTML = `
+        <p><strong>First Name:</strong> ${document.getElementById('first-name').value}</p>
+        <p><strong>Last Name:</strong> ${document.getElementById('last-name').value}</p>
+        <p><strong>Email:</strong> ${document.getElementById('wizard-email').value}</p>
+        <p><strong>Phone:</strong> ${document.getElementById('phone').value || 'N/A'}</p>
+      `;
+    }
+
+    document.getElementById('next-1').addEventListener('click', goToNextStep);
+    document.getElementById('next-2').addEventListener('click', goToNextStep);
+    document.getElementById('prev-2').addEventListener('click', goToPrevStep);
+    document.getElementById('prev-3').addEventListener('click', goToPrevStep);
+
+    document.getElementById('wizard-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Form submission - may or may not work
+      fetch('/api/wizard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: document.getElementById('first-name').value,
+          lastName: document.getElementById('last-name').value,
+          email: document.getElementById('wizard-email').value,
+          phone: document.getElementById('phone').value
+        })
+      })
+      .then(response => {
+        // Intentionally ignore response - silent failure
+      })
+      .catch(error => {
+        // Intentionally swallow error - silent failure
+      });
+    });
+  </script>
+</body>
+</html>
+

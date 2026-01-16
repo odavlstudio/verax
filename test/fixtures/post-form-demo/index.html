@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>POST Form Demo - VERAX Read-Only Test</title>
+</head>
+<body>
+  <h1>Contact Form (POST)</h1>
+  <form id="contact-form" method="POST" action="/api/contact">
+    <label>Name: <input type="text" name="name" value="Test User" /></label><br/>
+    <label>Email: <input type="email" name="email" value="test@example.com" /></label><br/>
+    <button type="submit" id="submit-btn">Submit</button>
+  </form>
+  
+  <div id="result"></div>
+  
+  <script>
+    // Prevent actual navigation on submit for local testing
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      // Form will try to POST - VERAX should block this
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Test User',
+          email: 'test@example.com'
+        })
+      }).then(r => {
+        document.getElementById('result').textContent = 'Form submitted!';
+      }).catch(err => {
+        document.getElementById('result').textContent = 'Network error (expected in test)';
+      });
+      e.preventDefault();
+    });
+  </script>
+</body>
+</html>

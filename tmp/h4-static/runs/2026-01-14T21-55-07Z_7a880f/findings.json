@@ -1,0 +1,154 @@
+{
+  "findings": [
+    {
+      "id": "exp_af851a",
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 59,
+        "column": 7
+      },
+      "classification": "observed",
+      "impact": "HIGH",
+      "confidence": 1,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_1_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_1_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_1_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "Expectation observed at runtime",
+      "findingId": "finding_exp_af851a"
+    },
+    {
+      "id": "exp_dafa82",
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/about"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 60,
+        "column": 7
+      },
+      "classification": "silent-failure:not-found",
+      "impact": "HIGH",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_2_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_2_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_2_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "not-found",
+      "findingId": "finding_exp_dafa82"
+    },
+    {
+      "id": "exp_7a37b6",
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/contact"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 61,
+        "column": 7
+      },
+      "classification": "observed",
+      "impact": "HIGH",
+      "confidence": 1,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_3_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_3_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_3_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "Expectation observed at runtime",
+      "findingId": "finding_exp_7a37b6"
+    },
+    {
+      "id": "exp_72f678",
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/products"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 68,
+        "column": 7
+      },
+      "classification": "silent-failure:not-found",
+      "impact": "HIGH",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "exp_4_before.png",
+          "available": true
+        },
+        {
+          "type": "screenshot",
+          "path": "exp_4_after.png",
+          "available": true
+        },
+        {
+          "type": "network-log",
+          "path": "exp_4_dom_diff.json",
+          "available": true
+        }
+      ],
+      "reason": "not-found",
+      "findingId": "finding_exp_72f678"
+    }
+  ],
+  "total": 4,
+  "stats": {
+    "total": 4,
+    "silentFailures": 2,
+    "observed": 2,
+    "coverageGaps": 0,
+    "unproven": 0,
+    "informational": 0
+  },
+  "detectedAt": "2026-01-14T21:55:18.725Z"
+}

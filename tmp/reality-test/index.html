@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VERAX Reality Test</title>
+</head>
+<body>
+  <h1>VERAX Reality Test</h1>
+  
+  <nav>
+    <a href="/" id="home-link">Home</a>
+    <a href="/about" id="about-link">About</a>
+    <a href="/broken" id="broken-link">Broken Link (Silent Failure)</a>
+  </nav>
+  
+  <button id="submit-button">Submit Form</button>
+  
+  <script>
+    // INTENTIONAL SILENT FAILURE: Broken link prevents default but does nothing
+    document.getElementById('broken-link').addEventListener('click', function(event) {
+      event.preventDefault();
+      // Does nothing - no navigation, no feedback, no observable effect
+    });
+    
+    // INTENTIONAL SILENT FAILURE: Button promises action but does nothing
+    document.getElementById('submit-button').addEventListener('click', function() {
+      // Code exists, user clicks, but nothing happens
+      // No fetch, no DOM update, no feedback
+    });
+  </script>
+</body>
+</html>

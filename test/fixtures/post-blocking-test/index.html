@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>POST Form Test</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    button { padding: 10px 20px; cursor: pointer; }
+    .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>POST Request Test</h1>
+  
+  <button id="post-btn">Submit POST Request</button>
+  <button id="get-btn">Submit GET Request</button>
+  
+  <div class="result">
+    <h2>Results:</h2>
+    <p id="post-result">POST Result: (pending)</p>
+    <p id="get-result">GET Result: (pending)</p>
+  </div>
+
+  <script>
+    // POST promise - should be blocked
+    window.postRequest = function() {
+      return fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ test: 'data' })
+      }).then(r => r.json()).catch(e => ({ error: e.message }));
+    };
+
+    // GET promise - should succeed (no blocking)
+    window.getRequest = function() {
+      return fetch('/api/data', { method: 'GET' })
+        .then(r => r.json())
+        .catch(e => ({ error: e.message }));
+    };
+
+    document.getElementById('post-btn').addEventListener('click', async () => {
+      const result = await window.postRequest();
+      document.getElementById('post-result').innerText = 
+        'POST Result: ' + (result.error ? `Error: ${result.error}` : 'Success');
+    });
+
+    document.getElementById('get-btn').addEventListener('click', async () => {
+      const result = await window.getRequest();
+      document.getElementById('get-result').innerText = 
+        'GET Result: ' + (result.error ? `Error: ${result.error}` : 'Success');
+    });
+  </script>
+</body>
+</html>

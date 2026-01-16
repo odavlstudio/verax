@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "runId": "2026-01-14T11-08-15Z_da4317",
+    "url": "file:///c:/Users/sabou/verax/test-projects/static-html/index.html",
+    "src": "C:\\Users\\sabou\\verax\\test-projects\\static-html",
+    "timestamp": "2026-01-14T11:08:27.700Z",
+    "version": "0.3.0"
+  },
+  "state": "ANALYSIS_FAILED",
+  "exitCode": 2,
+  "primaryError": {
+    "name": "AnalysisFailedError",
+    "message": "Analysis failed due to data integrity violation: INVARIANT VIOLATION: Expected 6 expectations but accounted for 7 (analyzed=3, skipped=4). Some expectations disappeared during analysis.",
+    "stack": "AnalysisFailedError: Analysis failed due to data integrity violation: INVARIANT VIOLATION: Expected 6 expectations but accounted for 7 (analyzed=3, skipped=4). Some expectations disappeared during analysis.\n    at runCommandInternal (file:///C:/Users/sabou/verax/src/cli/commands/run.js:673:13)\n    at async runCommand (file:///C:/Users/sabou/verax/src/cli/commands/run.js:45:10)\n    at async dispatch (file:///C:/Users/sabou/verax/src/cli/entry.js:295:28)\n    at async main (file:///C:/Users/sabou/verax/src/cli/entry.js:350:5)"
+  },
+  "phase": "unknown",
+  "notes": [
+    "Error: Analysis failed due to data integrity violation: INVARIANT VIOLATION: Expected 6 expectations but accounted for 7 (analyzed=3, skipped=4). Some expectations disappeared during analysis.",
+    "State: ANALYSIS_COMPLETE",
+    "Expectations: 6"
+  ]
+}

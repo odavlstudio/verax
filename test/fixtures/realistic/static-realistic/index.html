@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acme Corp - Home</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    nav {
+      background: #333;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 2rem;
+      padding: 0.5rem 1rem;
+    }
+    nav a:hover {
+      background: #555;
+    }
+    .hero {
+      text-align: center;
+      padding: 3rem 0;
+    }
+    .cta-button {
+      display: inline-block;
+      background: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      border-radius: 4px;
+      margin: 1rem;
+      cursor: pointer;
+    }
+    .cta-button:hover {
+      background: #0056b3;
+    }
+    .newsletter {
+      background: #f8f9fa;
+      padding: 2rem;
+      margin: 2rem 0;
+      border-radius: 8px;
+    }
+    .newsletter input {
+      padding: 0.75rem;
+      width: 300px;
+      margin-right: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .newsletter button {
+      padding: 0.75rem 1.5rem;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .newsletter button:hover {
+      background: #218838;
+    }
+    footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/about.html">About</a>
+    <a href="/products.html">Products</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/search.html">Search</a>
+  </nav>
+
+  <div class="hero">
+    <h1>Welcome to Acme Corp</h1>
+    <p>We build amazing products that solve real problems.</p>
+    <a href="/products.html" class="cta-button">View Products</a>
+    <a href="/contact.html" class="cta-button">Get in Touch</a>
+  </div>
+
+  <div class="newsletter">
+    <h2>Subscribe to Our Newsletter</h2>
+    <p>Stay updated with our latest news and offers.</p>
+    <form id="newsletter-form">
+      <input type="email" id="newsletter-email" placeholder="Enter your email" required>
+      <button type="submit" id="newsletter-submit">Subscribe</button>
+    </form>
+    <p id="newsletter-message" style="display: none; color: #28a745; margin-top: 1rem;"></p>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 Acme Corp. All rights reserved.</p>
+    <!-- Analytics tracking link - intentionally does nothing (FALSE POSITIVE TRAP) -->
+    <a href="/analytics" style="display: none;" id="analytics-link">Analytics</a>
+  </footer>
+
+  <script>
+    // INTENTIONAL SILENT FAILURE #2: Newsletter signup button
+    // Button promises navigation to /newsletter-success but fails silently
+    document.getElementById('newsletter-form').addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevents default form submission
+      
+      const email = document.getElementById('newsletter-email').value;
+      if (email) {
+        // Simulates API call that fails silently
+        // Promise: Should navigate to /newsletter-success
+        // Reality: Nothing happens, no feedback, no navigation
+        setTimeout(() => {
+          // Intentionally do nothing - silent failure
+          // No navigation, no feedback, no error message
+        }, 100);
+      }
+    });
+
+    // Analytics link - FALSE POSITIVE TRAP (should NOT be reported)
+    // This is intentionally a no-op for tracking purposes
+    document.getElementById('analytics-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      // Intentionally does nothing - this is expected behavior
+      // Not a user-facing promise, so should not be reported
+    });
+  </script>
+</body>
+</html>
+

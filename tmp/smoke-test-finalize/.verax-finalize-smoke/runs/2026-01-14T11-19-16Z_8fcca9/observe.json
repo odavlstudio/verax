@@ -1,0 +1,53 @@
+{
+  "contractVersion": 1,
+  "observations": [
+    {
+      "id": "exp_0e08a4",
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/page1"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 9,
+        "column": 3
+      },
+      "attempted": true,
+      "observed": true,
+      "observedAt": "2026-01-14T11:19:22.928Z",
+      "evidenceFiles": [
+        "nav_1_after.png"
+      ],
+      "reason": null
+    },
+    {
+      "id": "exp_63bcec",
+      "type": "navigation",
+      "promise": {
+        "kind": "navigate",
+        "value": "/page2"
+      },
+      "source": {
+        "file": "index.html",
+        "line": 10,
+        "column": 3
+      },
+      "attempted": true,
+      "observed": false,
+      "observedAt": null,
+      "evidenceFiles": [],
+      "reason": "No matching event observed"
+    }
+  ],
+  "stats": {
+    "attempted": 2,
+    "observed": 1,
+    "notObserved": 1
+  },
+  "redaction": {
+    "headersRedacted": 0,
+    "tokensRedacted": 0
+  },
+  "observedAt": "2026-01-14T11:19:23.010Z"
+}

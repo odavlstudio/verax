@@ -1,0 +1,7 @@
+{
+  "name": "http-post-blocking-fixture",
+  "version": "1.0.0",
+    "type": "module",
+  "description": "Test fixture for POST blocking proof",
+  "private": true
+}
