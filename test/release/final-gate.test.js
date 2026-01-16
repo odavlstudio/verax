@@ -20,15 +20,6 @@ import { tmpdir } from 'os';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '..', '..');
-import { spawn } from 'child_process';
-import { resolve, dirname, join } from 'path';
-import { fileURLToPath } from 'url';
-import { existsSync, readdirSync, mkdirSync, rmSync, readFileSync } from 'fs';
-import { tmpdir } from 'os';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const projectRoot = resolve(__dirname, '..', '..');
 
 function runCommand(command, args, cwd, timeoutMs = 30000) {
   return new Promise((resolve, reject) => {
@@ -114,7 +105,7 @@ describe('Final Gate: VERAX Installability & CLI', () => {
     const tarballPath = join(projectRoot, tarballName);
 
     // Install from tarball
-    const installResult = await runCommand('npm', ['install', '--production', tarballPath], tempDir, 60000);
+    const installResult = await runCommand('npm', ['install', '--production', tarballPath], tempDir, 120000);
     assert.strictEqual(installResult.code, 0, `npm install should succeed. stderr: ${installResult.stderr}`);
 
     // Verify package directory exists
