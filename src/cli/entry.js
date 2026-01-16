@@ -12,18 +12,35 @@
  * - 2:  internal crash
  * - 64: invalid CLI usage
  * - 65: invalid input data
+ * 
+ * DESIGN: Lazy imports for heavy modules
+ * --version and --help are fast and don't load Playwright or observation-engine
+ * Heavy modules are only loaded when running actual commands (run, inspect, doctor)
  */
 
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { readFileSync } from 'fs';
-import { runCommand } from './commands/run.js';
-import { inspectCommand } from './commands/inspect.js';
-import { doctorCommand } from './commands/doctor.js';
 import { getExitCode, UsageError } from './util/errors.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Lazy loaders for heavy modules (loaded only when needed)
+async function loadRunCommand() {
+  const mod = await import('./commands/run.js');
+  return mod.runCommand;
+}
+
+async function loadInspectCommand() {
+  const mod = await import('./commands/inspect.js');
+  return mod.inspectCommand;
+}
+
+async function loadDoctorCommand() {
+  const mod = await import('./commands/doctor.js');
+  return mod.doctorCommand;
+}
 
 // Read package.json for version
 function getVersion() {
@@ -73,6 +90,7 @@ async function main() {
         throw new UsageError('run command requires --url <url> argument');
       }
       
+      const runCommand = await loadRunCommand();
       await runCommand({ url, src, out, json, verbose });
       process.exit(0);
     }
@@ -86,6 +104,7 @@ async function main() {
       const runPath = args[1];
       const json = args.includes('--json');
       
+      const inspectCommand = await loadInspectCommand();
       await inspectCommand(runPath, { json });
       process.exit(0);
     }
@@ -95,6 +114,7 @@ async function main() {
       const allowedFlags = new Set(['--json']);
       const extraFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
       const json = args.includes('--json');
+      const doctorCommand = await loadDoctorCommand();
       await doctorCommand({ json, extraFlags });
       process.exit(0);
     }
