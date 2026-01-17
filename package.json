@@ -1,12 +1,30 @@
 {
   "name": "@veraxhq/verax",
-  "version": "0.3.0",
-  "description": "VERAX - Silent failure detection for websites",
+  "version": "0.4.0",
+  "description": "Public Flow Sanity Guard — Trust-Locked, Deterministic, CI-Safe.",
+  "keywords": [
+    "public-flows",
+    "pre-auth",
+    "sanity-guard",
+    "silent-failures",
+    "deterministic",
+    "trust-lock",
+    "ci-safe",
+    "playwright"
+  ],
   "license": "MIT",
   "type": "module",
   "bin": {
     "verax": "./bin/verax.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/odavlstudio/verax.git"
+  },
+  "bugs": {
+    "url": "https://github.com/odavlstudio/verax/issues"
+  },
+  "homepage": "https://github.com/odavlstudio/verax#readme",
   "files": [
     "bin/",
     "src/",
@@ -15,9 +33,6 @@
   ],
   "scripts": {
     "test": "node test/infrastructure/test-runner-wrapper.js",
-    "test:fast": "node test/infrastructure/test-runner-fast.js",
-    "test:integration": "node test/infrastructure/test-runner-integration.js",
-    "test:all": "node --test test",
     "test:pack": "node test/infrastructure/test-pack.js",
     "verify-release": "node scripts/verify-release.js",
     "lint": "eslint . --max-warnings 0",
@@ -31,6 +46,9 @@
     "node-html-parser": "^7.0.1",
     "playwright": "^1.40.0",
     "typescript": "^5.9.3"
+  },
+  "optionalDependencies": {
+    "pngjs": "^7.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
