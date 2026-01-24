@@ -1,9 +1,10 @@
 import { glob } from 'glob';
 import { hasReactRouterDom } from './project-detector.js';
+import { resolveScanConfig, rootsToGlobPatterns } from './scan-roots.js';
 
 const MAX_HTML_FILES = 200;
 
-export async function assessLearnTruth(projectDir, projectType, routes, staticExpectations) {
+export async function assessLearnTruth(projectDir, projectType, routes, staticExpectations, scanOptions = {}) {
   const truth = {
     routesDiscovered: routes.length,
     routesSource: 'none',
@@ -39,11 +40,22 @@ export async function assessLearnTruth(projectDir, projectType, routes, staticEx
   } else if (projectType === 'static') {
     truth.routesSource = 'static_html';
     
-    const htmlFiles = await glob('**/*.html', {
-      cwd: projectDir,
-      absolute: false,
-      ignore: ['node_modules/**']
-    });
+    // Use scan-roots to find HTML files in appropriate directories
+    const scanConfig = resolveScanConfig(projectDir, projectType, scanOptions);
+    const baseDir = scanConfig.cwd;
+    const globPatterns = rootsToGlobPatterns(scanConfig.roots, '*.html');
+    
+    let htmlFiles = [];
+    for (const pattern of globPatterns) {
+      const matchedFiles = await glob(pattern, {
+        cwd: baseDir,
+        absolute: false,
+        ignore: scanConfig.excludes
+      });
+      matchedFiles.sort((a, b) => a.localeCompare(b, 'en'));
+      htmlFiles = htmlFiles.concat(matchedFiles);
+    }
+    htmlFiles = Array.from(new Set(htmlFiles)).sort((a, b) => a.localeCompare(b, 'en'));
     
     if (htmlFiles.length <= MAX_HTML_FILES) {
       truth.routesConfidence = 'HIGH';
@@ -96,4 +108,7 @@ export async function assessLearnTruth(projectDir, projectType, routes, staticEx
   
   return truth;
 }
+
+
+
 

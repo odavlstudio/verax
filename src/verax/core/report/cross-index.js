@@ -4,8 +4,11 @@
  * Builds cross-index linking findingId to all related artifacts.
  */
 
-import { readFileSync, existsSync, writeFileSync, readdirSync as _readdirSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve, relative as _relative } from 'path';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { safeParseJsonFile } from '../../../cli/util/support/atomic-write.js';
 
 /**
  * Build cross-index
@@ -23,19 +26,28 @@ export function buildCrossIndex(projectDir, runId) {
   
   const index = {};
   
-  // Load findings
+  // Load findings with validation
   const findingsPath = resolve(runDir, 'findings.json');
   if (!existsSync(findingsPath)) {
     return {
       runId,
       findings: {},
       summary: { total: 0 },
-      generatedAt: new Date().toISOString()
+      generatedAt: getTimeProvider().iso()
     };
   }
   
-  // @ts-expect-error - readFileSync with encoding returns string
-  const findings = JSON.parse(readFileSync(findingsPath, 'utf-8'));
+  // Parse findings with safe validation - reject if corrupt
+  const findings = safeParseJsonFile(findingsPath);
+  if (!findings) {
+    return {
+      runId,
+      findings: {},
+      summary: { total: 0, error: 'FAIL_DATA' },
+      generatedAt: getTimeProvider().iso()
+    };
+  }
+  
   const _evidenceIndex = loadArtifact(runDir, 'evidence.index.json');
   const decisionTrace = loadArtifact(runDir, 'decisions.trace.json');
   const timeline = loadArtifact(runDir, 'run.timeline.json');
@@ -47,7 +59,7 @@ export function buildCrossIndex(projectDir, runId) {
       runId,
       findings: {},
       summary: { total: 0 },
-      generatedAt: new Date().toISOString()
+      generatedAt: getTimeProvider().iso()
     };
   }
   
@@ -135,7 +147,7 @@ export function buildCrossIndex(projectDir, runId) {
       withFailures: Object.values(index).filter(e => e.failures.length > 0).length,
       withTimeline: Object.values(index).filter(e => e.timeline.length > 0).length
     },
-    generatedAt: new Date().toISOString()
+    generatedAt: getTimeProvider().iso()
   };
 }
 
@@ -192,4 +204,7 @@ export function loadCrossIndex(projectDir, runId) {
     return null;
   }
 }
+
+
+
 

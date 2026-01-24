@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - SPA Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    nav { margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+    nav a { margin-right: 15px; text-decoration: none; color: #0066cc; }
+    nav a.active { font-weight: bold; color: #000; }
+    #app { min-height: 300px; padding: 20px; background: #f5f5f5; }
+    .page { display: none; }
+    .page.active { display: block; }
+  </style>
+</head>
+<body>
+  <h1>SPA Route Sensor Test</h1>
+  
+  <nav>
+    <a href="/" data-route="home" class="nav-link active">Home</a>
+    <a href="/about" data-route="about" class="nav-link">About</a>
+    <a href="/contact" data-route="contact" class="nav-link">Contact</a>
+  </nav>
+  
+  <div id="app">
+    <div class="page active" data-page="home">
+      <h2>Home Page</h2>
+      <p>This is the home page content. Click navigation links to test SPA routing.</p>
+      <button id="about-btn">Navigate to About (via button)</button>
+    </div>
+    
+    <div class="page" data-page="about">
+      <h2>About Page</h2>
+      <p>This is the about page content. The URL changed via History API.</p>
+      <button id="home-btn">Navigate to Home (via button)</button>
+    </div>
+    
+    <div class="page" data-page="contact">
+      <h2>Contact Page</h2>
+      <p>This is the contact page content. Also using History API.</p>
+    </div>
+  </div>
+  
+  <script>
+    // Simple SPA router using History API (no URL changes, just pushState)
+    const app = document.getElementById('app');
+    const pages = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    function navigateTo(route, pushState = true) {
+      // Hide all pages
+      pages.forEach(p => p.classList.remove('active'));
+      navLinks.forEach(l => l.classList.remove('active'));
+      
+      // Show target page
+      const targetPage = document.querySelector(`[data-page="${route}"]`);
+      const targetLink = document.querySelector(`[data-route="${route}"]`);
+      
+      if (targetPage) {
+        targetPage.classList.add('active');
+      }
+      if (targetLink) {
+        targetLink.classList.add('active');
+      }
+      
+      // Update title
+      document.title = `${route.charAt(0).toUpperCase() + route.slice(1)} - SPA Test`;
+      
+      // Update history (SPA navigation without full URL change)
+      if (pushState) {
+        history.pushState({ route }, '', `/${route === 'home' ? '' : route}`);
+      }
+    }
+    
+    // Handle nav link clicks
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const route = link.getAttribute('data-route');
+        navigateTo(route);
+      });
+    });
+    
+    // Handle button clicks
+    document.getElementById('about-btn')?.addEventListener('click', () => {
+      navigateTo('about');
+    });
+    
+    document.getElementById('home-btn')?.addEventListener('click', () => {
+      navigateTo('home');
+    });
+    
+    // Handle popstate (back/forward)
+    window.addEventListener('popstate', (event) => {
+      const route = event.state?.route || 'home';
+      navigateTo(route, false);
+    });
+    
+    // Initialize with home route
+    history.replaceState({ route: 'home' }, '', '/');
+  </script>
+</body>
+</html>

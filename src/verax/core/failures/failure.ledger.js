@@ -8,6 +8,8 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { resolve, dirname as _dirname } from 'path';
 import { validateFailure } from './failure.types.js';
+// Use CLI time provider shared across modules
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
 
 /**
  * Failure Ledger
@@ -19,7 +21,8 @@ export class FailureLedger {
     this.runId = runId;
     this.projectDir = projectDir;
     this.failures = [];
-    this.startTime = Date.now();
+    this.timeProvider = getTimeProvider();
+    this.startTime = this.timeProvider.now();
   }
   
   /**
@@ -35,7 +38,7 @@ export class FailureLedger {
     const sequencedFailure = {
       ...failure,
       sequence: this.failures.length,
-      relativeTime: Date.now() - this.startTime
+      relativeTime: this.timeProvider.now() - this.startTime
     };
     
     this.failures.push(sequencedFailure);
@@ -105,8 +108,8 @@ export class FailureLedger {
     const ledgerData = {
       runId: this.runId,
       startTime: this.startTime,
-      endTime: Date.now(),
-      duration: Date.now() - this.startTime,
+      endTime: this.timeProvider.now(),
+      duration: this.timeProvider.now() - this.startTime,
       summary: this.getSummary(),
       failures: this.failures
     };
@@ -130,4 +133,7 @@ export class FailureLedger {
     };
   }
 }
+
+
+
 

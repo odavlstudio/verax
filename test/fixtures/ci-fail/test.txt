@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// SKIP: This fixture references removed decision-engine.js API
-// TODO: Refactor to use current detect module API (real issue: decision-engine removal not fully migrated)
+// FIXTURE UNAVAILABLE: This fixture references removed decision-engine.js API.
+// Updating requires new fixture strategy; not prioritized for current release cycle.
 
 import { mkdirSync, writeFileSync, readFileSync } from 'fs';
 import { resolve } from 'path';

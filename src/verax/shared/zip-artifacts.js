@@ -8,6 +8,7 @@
 import { createWriteStream } from 'fs';
 import { dirname, resolve, basename } from 'path';
 import { mkdirSync } from 'fs';
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 
 // Dynamic import for archiver (dev dependency)
 let archiver;
@@ -25,7 +26,7 @@ async function getArchiver() {
  * @param {string} outputPath - Full path where zip should be created (optional, defaults to runDir/artifacts.zip)
  * @returns {Promise<string>} Path to created zip file
  */
-export async function createArtifactsZip(runDir, outputPath = null) {
+export async function createArtifactsZip(runDir, outputPath = null, timeProvider = getTimeProvider()) {
   const Archiver = await getArchiver();
   
   return new Promise((resolvePromise, reject) => {
@@ -63,10 +64,15 @@ export async function createArtifactsZip(runDir, outputPath = null) {
     
     // Add directory contents to archive
     // Use glob pattern to include all files recursively
-    archive.directory(runDir, basename(runDir), { date: new Date() });
+    const archiveDate = typeof timeProvider?.date === 'function' ? timeProvider.date() : undefined;
+    const directoryOptions = archiveDate ? { date: archiveDate } : undefined;
+    archive.directory(runDir, basename(runDir), directoryOptions);
     
     // Finalize the archive
     archive.finalize();
   });
 }
+
+
+
 

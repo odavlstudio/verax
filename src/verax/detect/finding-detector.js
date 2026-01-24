@@ -13,7 +13,7 @@
  */
 
 import { hasMeaningfulUrlChange, hasVisibleChange, hasDomChange } from './comparison.js';
-import { computeConfidence } from './confidence-engine.js';
+import { computeConfidence } from '../core/confidence/index.js';
 import { generateHumanSummary, generateActionHint, deriveConfidenceExplanation } from './explanation-helpers.js';
 import { mapFindingTypeToOutcome } from '../core/canonical-outcomes.js';
 import { inferPromiseFromInteraction } from '../core/promise-model.js';
@@ -54,7 +54,12 @@ export function computeFindingConfidence(finding, matchedExpectation, trace, com
       hasDomChange: comparisons.hasDomChange || false,
       hasVisibleChange: comparisons.hasVisibleChange || false
     },
-    attemptMeta: {}
+    attemptMeta: {},
+    evidenceIntent: null,
+    guardrailsOutcome: null,
+    truthStatus: 'SUSPECTED',
+    evidence: {},
+    options: {}
   });
   
   return confidence;
@@ -382,7 +387,12 @@ export function createObservedBreakFinding(trace, projectDir) {
       uiSignals: sensors.uiSignals || {}
     },
     comparisons,
-    attemptMeta: { repeated: obs?.repeated === true }
+    attemptMeta: { repeated: obs?.repeated === true },
+    evidenceIntent: null,
+    guardrailsOutcome: null,
+    truthStatus: 'SUSPECTED',
+    evidence: {},
+    options: {}
   });
 
   bindPromiseToFinding(finding, trace);
@@ -448,3 +458,6 @@ export function computeObservedConfidence(finding, observedExp, trace, compariso
     }
   };
 }
+
+
+

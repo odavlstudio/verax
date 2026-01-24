@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Safe Action Policy Test</title>
+</head>
+<body>
+  <h1>Safe Action Policy Test</h1>
+  
+  <!-- Safe button - should be clicked -->
+  <button id="safe-button">Click Me</button>
+  
+  <!-- Destructive button - should be skipped -->
+  <button id="delete-button">Delete Account</button>
+  
+  <!-- Another safe button -->
+  <button id="submit-button">Submit Form</button>
+  
+  <!-- Logout button - should be skipped -->
+  <button id="logout-button">Log Out</button>
+  
+  <!-- Purchase button - should be skipped -->
+  <button id="purchase-button">Purchase Now</button>
+  
+  <!-- Button with data-danger attribute - should be skipped -->
+  <button id="danger-button" data-danger="true">Remove Item</button>
+  
+  <!-- Button with aria-label containing destructive keyword - should be skipped -->
+  <button id="aria-danger-button" aria-label="Delete file">🗑️</button>
+  
+  <script>
+    // Track which buttons were clicked
+    window.clickedButtons = [];
+    
+    document.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.clickedButtons.push(btn.id);
+        console.log('Clicked:', btn.id);
+      });
+    });
+  </script>
+</body>
+</html>

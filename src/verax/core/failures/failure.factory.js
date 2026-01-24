@@ -6,6 +6,7 @@
  */
 
 import { FAILURE_CODE as _FAILURE_CODE, FAILURE_CATEGORY, FAILURE_SEVERITY, EXECUTION_PHASE, validateFailure } from './failure.types.js';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
 
 /**
  * Create a failure object
@@ -47,7 +48,7 @@ export function createFailure(params) {
     isRecoverable,
     message,
     component,
-    timestamp: Date.now(),
+    timestamp: getTimeProvider().now(),
     context,
     ...(stack && { stack }),
     ...(recoveryAction && { recoveryAction }),
@@ -222,4 +223,7 @@ export function errorToFailure(error, code, category, phase, component, context 
     impact: 'Unexpected error - execution may be incomplete'
   });
 }
+
+
+
 

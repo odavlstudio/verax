@@ -1,0 +1,33 @@
+# ESLint Ignore - Exclude heavy/generated directories from linting
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+coverage/
+
+# Runtime artifacts
+.verax/
+tmp/
+tmp-*/
+artifacts/
+
+# Dependencies
+node_modules/
+
+# Git
+.git/
+
+# Test artifacts and reports
+test-results/
+playwright-report/
+screenshots/
+*.log
+
+# Large fixtures that don't need linting
+test/fixtures/**/node_modules/
+demos/**/node_modules/
+demos/**/.next/
+demos/**/dist/
+demos/**/build/

@@ -5,3 +5,5 @@ export function legacyRequest(url) {
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify({ data: 'test' }));
 }
+
+

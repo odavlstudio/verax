@@ -8,7 +8,7 @@
  * - Deterministic: uses waitForSettle after each interactive step
  */
 
-import { waitForSettle } from '../observe/settle.js';
+import { waitForSettle } from '../observe/wait-for-settle.js';
 import { resolveSecrets, extractSecretValues } from './flow-spec.js';
 import { redactObject } from './redaction.js';
 
@@ -265,3 +265,6 @@ async function stepExpect(page, step, result) {
   result.findingType = 'flow_step_failed';
   return result;
 }
+
+
+

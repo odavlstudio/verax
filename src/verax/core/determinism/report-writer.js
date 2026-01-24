@@ -7,6 +7,7 @@
 
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
 import { ARTIFACT_REGISTRY, getArtifactVersions } from '../artifacts/registry.js';
 import { computeDeterminismVerdict, DETERMINISM_VERDICT, DETERMINISM_REASON } from './contract.js';
 import { DecisionRecorder } from '../determinism-model.js';
@@ -28,7 +29,7 @@ export function writeDeterminismReport(runDir, decisionRecorder) {
     version: 1,
     contractVersion: 1,
     artifactVersions: getArtifactVersions(),
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     // PHASE 21.2: HARD TRUTH - binary verdict only
     verdict: verdict.verdict,
     message: verdict.message,
@@ -74,7 +75,7 @@ export function writeDeterminismReportFromFile(runDir) {
       version: 1,
       contractVersion: 1,
       artifactVersions: getArtifactVersions(),
-      generatedAt: new Date().toISOString(),
+      generatedAt: getTimeProvider().iso(),
       verdict: DETERMINISM_VERDICT.NON_DETERMINISTIC,
       message: `Cannot determine determinism: ${error.message}`,
       reasons: [DETERMINISM_REASON.ENVIRONMENT_VARIANCE],
@@ -90,4 +91,7 @@ export function writeDeterminismReportFromFile(runDir) {
     return reportPath;
   }
 }
+
+
+
 

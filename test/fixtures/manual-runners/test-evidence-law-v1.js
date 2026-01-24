@@ -72,3 +72,5 @@ console.log('Evidence Law v1 enforces:');
 console.log('  - Context anchor (before state)');
 console.log('  - Effect evidence (after state or change indicators)');
 console.log('  - Downgrades CONFIRMED appropriately when evidence incomplete');
+
+

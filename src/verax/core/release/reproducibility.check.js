@@ -5,10 +5,12 @@
  * Difference = NON_REPRODUCIBLE (BLOCKING for GA).
  */
 
-import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
 import { createHash } from 'crypto';
 import { execSync } from 'child_process';
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
 
 /**
  * Get current git commit
@@ -132,7 +134,7 @@ export async function checkReproducibility(projectDir) {
     gitCommit,
     policies: policyHashes,
     artifacts: artifactHashes,
-    checkedAt: new Date().toISOString()
+    checkedAt: getTimeProvider().iso()
   };
   
   const previous = loadPreviousReport(projectDir);
@@ -195,7 +197,7 @@ export async function checkReproducibility(projectDir) {
     differences,
     current,
     previous: previous || null,
-    checkedAt: new Date().toISOString()
+    checkedAt: getTimeProvider().iso()
   };
   
   return report;
@@ -219,4 +221,7 @@ export function writeReproducibilityReport(projectDir, report) {
   
   return outputPath;
 }
+
+
+
 

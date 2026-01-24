@@ -1,14 +1,36 @@
 /**
- * PHASE 14 — Dynamic Routes: Truth, Intent & Safe Support
+ * PHASE 14 — DYNAMIC ROUTE INTELLIGENCE
  * 
- * Dynamic route intelligence layer that:
- * - Classifies dynamic routes by verifiability
- * - Correlates navigation promises with route definitions and UI outcomes
- * - Produces evidence-backed findings or explicit ambiguity
- * - Prevents false positives and false promises
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * RESPONSIBILITY: RUNTIME & JS-DRIVEN ROUTE ANALYSIS
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * 
+ * This module handles RUNTIME and PROGRAMMATIC routing patterns:
+ * - JS-driven navigation (router.push(), navigate(), etc.)
+ * - Dynamic parameter resolution at runtime
+ * - Auth-gated route verification
+ * - SSR-only route detection
+ * - Observable signal correlation for route outcomes
+ * 
+ * EXPLICITLY HANDLES:
+ * ✓ Dynamic route verifiability classification
+ * ✓ Runtime navigation correlation with trace data
+ * ✓ Auth-gated, SSR-only, runtime-only route detection
+ * ✓ Observable signal verification (URL, DOM, UI feedback)
+ * ✓ Route verdict determination (VERIFIED, SILENT_FAILURE, AMBIGUOUS)
+ * 
+ * EXPLICITLY DOES NOT HANDLE:
+ * ✗ Static/declarative route extraction (file-system, JSX, config)
+ * ✗ Basic route model construction
+ * ✗ Simple static path correlation
+ * 
+ * FOR STATIC ROUTES: See route-intelligence.js
+ * FOR SHARED UTILITIES: See shared/dynamic-route-normalizer.js
+ * 
+ * ═══════════════════════════════════════════════════════════════════════════════
  */
 
-import { isDynamicPath, normalizeDynamicRoute, normalizeNavigationTarget } from '../shared/dynamic-route-utils.js';
+import { isDynamicPath, normalizeDynamicRoute, normalizeNavigationTarget } from '../shared/dynamic-route-normalizer.js';
 import { correlateNavigationWithRoute, evaluateRouteNavigation } from './route-intelligence.js';
 import { scoreUIFeedback, detectUIFeedbackSignals } from './ui-feedback-intelligence.js';
 
@@ -34,6 +56,11 @@ export const ROUTE_VERDICT = {
 
 /**
  * PHASE 14: Classify dynamic route by verifiability
+ * 
+ * RESPONSIBILITY: Runtime route classification (auth-gated, SSR-only, observable signals)
+ * Only for JS-driven/programmatic routes, NOT static file-system routes
+ * 
+ * For static route models, see route-intelligence.js
  * 
  * @param {Object} routeModel - Route model from route intelligence
  * @param {Object} trace - Interaction trace (optional, for runtime analysis)
@@ -107,6 +134,9 @@ export function classifyDynamicRoute(routeModel, trace = null) {
 
 /**
  * Check if route is auth-gated
+ * 
+ * NOTE: Auth detection is runtime-specific behavior.
+ * Static routes should use route-intelligence.js for basic correlation.
  */
 function isAuthGatedRoute(routeModel, _trace) {
   // Check route path patterns
@@ -308,6 +338,11 @@ function extractPathFromUrl(url) {
 
 /**
  * PHASE 14: Correlate navigation promise with dynamic route and UI feedback
+ * 
+ * RESPONSIBILITY: Runtime correlation using observable signals (URL, DOM, UI feedback)
+ * Verifies route outcomes with trace data, handles ambiguous cases
+ * 
+ * For basic static correlation, see route-intelligence.js correlateNavigationWithRoute
  * 
  * @param {Object} expectation - Navigation expectation
  * @param {Object} routeModel - Route model
@@ -526,4 +561,7 @@ export function shouldSkipDynamicRoute(routeModel, trace) {
     confidence: 0,
   };
 }
+
+
+
 

@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "learnedAt": "2026-01-09T15:34:23.926Z",
+  "projectDir": "C:\\Users\\sabou\\verax\\test\\fixtures\\static-site",
+  "projectType": "static",
+  "routes": [
+    {
+      "path": "/",
+      "source": "index.html",
+      "public": true,
+      "sourceRef": null
+    },
+    {
+      "path": "/about",
+      "source": "about.html",
+      "public": true,
+      "sourceRef": null
+    },
+    {
+      "path": "/pricing",
+      "source": "pricing.html",
+      "public": true,
+      "sourceRef": null
+    }
+  ],
+  "publicRoutes": [
+    "/",
+    "/about",
+    "/pricing"
+  ],
+  "internalRoutes": [],
+  "notes": [
+    {
+      "type": "truth",
+      "learn": {
+        "routesDiscovered": 3,
+        "routesSource": "static_html",
+        "routesConfidence": "HIGH",
+        "expectationsDiscovered": 4,
+        "expectationsStrong": 4,
+        "expectationsWeak": 0,
+        "warnings": [],
+        "limitations": []
+      }
+    }
+  ],
+  "staticExpectations": [
+    {
+      "fromPath": "/pricing",
+      "type": "navigation",
+      "targetPath": "/",
+      "evidence": {
+        "source": "pricing.html",
+        "selectorHint": "a[href=\"/index.html\"]"
+      }
+    },
+    {
+      "fromPath": "/",
+      "type": "navigation",
+      "targetPath": "/about",
+      "evidence": {
+        "source": "index.html",
+        "selectorHint": "#about-link"
+      }
+    },
+    {
+      "fromPath": "/",
+      "type": "navigation",
+      "targetPath": "/pricing",
+      "evidence": {
+        "source": "index.html",
+        "selectorHint": "#pricing-link"
+      }
+    },
+    {
+      "fromPath": "/about",
+      "type": "navigation",
+      "targetPath": "/",
+      "evidence": {
+        "source": "about.html",
+        "selectorHint": "a[href=\"/index.html\"]"
+      }
+    }
+  ],
+  "expectationsStatus": "PROVEN_EXPECTATIONS_AVAILABLE",
+  "coverageGaps": [],
+  "flows": [
+    {
+      "flowId": "flow-42f9d3ac",
+      "source": "index.html",
+      "stepCount": 2,
+      "steps": [
+        {
+          "stepIndex": 0,
+          "expectationType": "navigation",
+          "source": "index.html",
+          "targetPath": "/about"
+        },
+        {
+          "stepIndex": 1,
+          "expectationType": "navigation",
+          "source": "index.html",
+          "targetPath": "/pricing"
+        }
+      ],
+      "proof": "PROVEN_EXPECTATION"
+    }
+  ]
+}

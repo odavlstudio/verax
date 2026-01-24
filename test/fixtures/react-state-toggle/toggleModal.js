@@ -14,3 +14,5 @@ export function toggleModal() {
 export function noOp() {
   return; // Early return - state never changes
 }
+
+

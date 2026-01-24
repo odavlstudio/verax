@@ -10,6 +10,8 @@
  * NO side effects outside its scope
  */
 
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { recordTruncation } from '../../core/determinism-model.js';
 
 /**
@@ -26,7 +28,8 @@ import { recordTruncation } from '../../core/determinism-model.js';
 export function checkBudget(context, runState, options) {
   const { scanBudget, startTime, routeBudget, decisionRecorder, silenceTracker, frontier, page } = context;
   const { remainingInteractions = 0, currentTotalExecuted = 0, limitType } = options;
-  const now = Date.now();
+  const timeProvider = getTimeProvider();
+  const now = timeProvider.now();
   
   if (limitType === 'time' && now - startTime > scanBudget.maxScanDurationMs) {
     // PHASE 6: Record truncation decision
@@ -182,4 +185,7 @@ export function checkBudget(context, runState, options) {
   
   return { exceeded: false };
 }
+
+
+
 

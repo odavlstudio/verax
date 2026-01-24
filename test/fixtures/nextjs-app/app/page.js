@@ -1,14 +1,21 @@
-import React from 'react';
-import Link from 'next/link.js';
+'use client';
 
-// Converted from JSX to React.createElement to keep fixtures parseable by node --test
+import Link from 'next/link';
+
+/**
+ * Home page with navigation links
+ * Tests extraction of next/link href attributes
+ */
 export default function Home() {
-  return React.createElement(
-    'div',
-    null,
-    React.createElement('h1', null, 'Home'),
-    React.createElement(Link, { href: '/pricing' }, 'Pricing'),
-    React.createElement(Link, { href: '/contact' }, 'Contact'),
-    React.createElement('a', { href: '/about' }, 'Plain Link to About')
+  return (
+    <div>
+      <h1>Home</h1>
+      <Link href="/pricing">Pricing</Link>
+      <Link href="/contact">Contact</Link>
+      <Link href="/about">Plain Link to About</Link>
+      <a href="/settings">Settings</a>
+    </div>
   );
 }
+
+

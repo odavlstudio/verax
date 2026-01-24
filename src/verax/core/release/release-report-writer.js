@@ -4,8 +4,10 @@
  * Writes release.report.json artifact with release readiness check results.
  */
 
-import { writeFileSync, mkdirSync, existsSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 
 /**
  * Write release report
@@ -24,7 +26,7 @@ export function writeReleaseReport(projectDir, releaseStatus) {
   
   const report = {
     contractVersion: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     releaseReady: releaseStatus.releaseReady || false,
     status: releaseStatus.status || {},
     summary: releaseStatus.summary || {},
@@ -37,4 +39,7 @@ export function writeReleaseReport(projectDir, releaseStatus) {
   
   return reportPath;
 }
+
+
+
 

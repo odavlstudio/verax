@@ -4,6 +4,7 @@
  * Handles execution of interactions on pages, evidence capture, and tracing.
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 import { runInteraction } from './interaction-runner.js';
 import { deriveObservedExpectation, shouldAttemptRepeatObservedExpectation, evaluateObservedExpectation } from './observed-expectation.js';
 import { isExternalUrl } from './domain-boundary.js';
@@ -70,9 +71,10 @@ export async function executeInteraction(
         trace.resultType = 'OBSERVED_EXPECTATION';
 
         // Attempt repeat if eligible and budget allows
+        const timeProvider = getTimeProvider();
         const repeatEligible = shouldAttemptRepeatObservedExpectation(observedExpectation, trace);
         const budgetAllowsRepeat = repeatEligible &&
-          (Date.now() - startTime) < routeBudget.maxScanDurationMs;
+          (timeProvider.now() - startTime) < routeBudget.maxScanDurationMs;
 
         if (budgetAllowsRepeat) {
           const repeatIndex = interactionIndex + 1;
@@ -190,3 +192,6 @@ async function repeatObservedInteraction(
     repeatEvaluation
   };
 }
+
+
+

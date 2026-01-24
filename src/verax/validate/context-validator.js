@@ -242,3 +242,6 @@ export async function validateContext(manifest, baseUrl, forced = false) {
 		await browser.close();
 	}
 }
+
+
+

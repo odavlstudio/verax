@@ -1,5 +1,5 @@
 /**
- * PHASE 6A: Cryptographic Integrity Tests
+ *  Cryptographic Integrity Tests
  * 
  * Verifies SHA256-based artifact integrity system.
  */
@@ -9,6 +9,7 @@ import assert from 'node:assert';
 import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { getTimeProvider } from '../../src/cli/util/support/time-provider.js';
 import {
   computeFileIntegrity,
   generateIntegrityManifest,
@@ -17,11 +18,11 @@ import {
   loadIntegrityManifest,
   verifyAllArtifacts,
   discoverArtifacts,
-} from '../src/verax/core/integrity/integrity.js';
+} from '../../src/verax/core/integrity/integrity.js';
 
-const testDir = join(tmpdir(), `verax-integrity-test-${Date.now()}`);
+const testDir = join(tmpdir(), `verax-integrity-test-${getTimeProvider().now()}`);
 
-describe('Phase 6A: Cryptographic Integrity', () => {
+describe(' Cryptographic Integrity', () => {
   test.beforeEach(() => {
     if (rmSync(testDir, { recursive: true, force: true })) {
       // Cleanup
@@ -82,7 +83,7 @@ describe('Phase 6A: Cryptographic Integrity', () => {
   test('should write integrity manifest atomically', () => {
     const manifest = {
       version: 1,
-      generatedAt: new Date().toISOString(),
+      generatedAt: getTimeProvider().iso(),
       runDir: testDir,
       artifacts: {
         'test.json': {
@@ -175,7 +176,7 @@ describe('Phase 6A: Cryptographic Integrity', () => {
   test('should load integrity manifest', () => {
     const manifest = {
       version: 1,
-      generatedAt: new Date().toISOString(),
+      generatedAt: getTimeProvider().iso(),
       artifacts: {},
     };
     
@@ -241,4 +242,5 @@ describe('Phase 6A: Cryptographic Integrity', () => {
     assert.strictEqual(artifacts.length, 0);
   });
 });
+
 

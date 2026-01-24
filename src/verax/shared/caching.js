@@ -103,3 +103,6 @@ export function getASTCacheKey(projectDir, files) {
   const tsconfigPath = resolve(projectDir, 'tsconfig.json');
   return `ast:${computeCacheKey(projectDir, tsconfigPath, files)}`;
 }
+
+
+

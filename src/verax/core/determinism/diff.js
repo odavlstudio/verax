@@ -237,7 +237,9 @@ function diffFinding(findingA, findingB, identity) {
   // Check confidence reasons
   const reasonsA = findingA.confidenceReasons || [];
   const reasonsB = findingB.confidenceReasons || [];
-  if (JSON.stringify(reasonsA.sort()) !== JSON.stringify(reasonsB.sort())) {
+  const reasonsASorted = [...reasonsA].sort((a, b) => String(a).localeCompare(String(b), 'en'));
+  const reasonsBSorted = [...reasonsB].sort((a, b) => String(a).localeCompare(String(b), 'en'));
+  if (JSON.stringify(reasonsASorted) !== JSON.stringify(reasonsBSorted)) {
     diffs.push({
       category: DIFF_CATEGORY.FINDINGS,
       severity: DIFF_SEVERITY.WARN,
@@ -246,8 +248,8 @@ function diffFinding(findingA, findingB, identity) {
       artifact: 'findings',
       findingIdentity: identity,
       field: 'confidenceReasons',
-      oldValue: reasonsA,
-      newValue: reasonsB,
+      oldValue: reasonsASorted,
+      newValue: reasonsBSorted,
     });
   }
   
@@ -346,8 +348,12 @@ function diffFinding(findingA, findingB, identity) {
         newValue: evidencePackageB.isComplete,
       });
     }
-    const missingA = Array.isArray(evidencePackageA.missingEvidence) ? evidencePackageA.missingEvidence.sort() : [];
-    const missingB = Array.isArray(evidencePackageB.missingEvidence) ? evidencePackageB.missingEvidence.sort() : [];
+    const missingA = Array.isArray(evidencePackageA.missingEvidence)
+      ? [...evidencePackageA.missingEvidence].sort((a, b) => String(a).localeCompare(String(b), 'en'))
+      : [];
+    const missingB = Array.isArray(evidencePackageB.missingEvidence)
+      ? [...evidencePackageB.missingEvidence].sort((a, b) => String(a).localeCompare(String(b), 'en'))
+      : [];
     if (missingA.join('|') !== missingB.join('|')) {
       diffs.push({
         category: DIFF_CATEGORY.EVIDENCE,
@@ -402,4 +408,7 @@ function computeFindingIdentitySimple(finding) {
   ];
   return parts.join('|');
 }
+
+
+
 

@@ -1,0 +1,6 @@
+{
+  "name": "stage4-multipage-flow",
+  "version": "1.0.0",
+  "description": "Test fixture for multi-page observation with navigation and follow-up action",
+  "private": true
+}

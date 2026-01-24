@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment - Multi-Page Flow</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    form { border: 1px solid #ddd; padding: 20px; max-width: 400px; }
+    input { display: block; margin: 10px 0; padding: 8px; width: 100%; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    button { background: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+    .success { color: #2e7d32; display: none; margin-top: 10px; padding: 10px; background: #f1f8e9; }
+  </style>
+</head>
+<body>
+  <h1>Payment Page</h1>
+  <p>Step 2: Enter payment details</p>
+  
+  <form id="paymentForm">
+    <label for="cardNumber">Card Number:</label>
+    <input type="text" id="cardNumber" name="cardNumber" required>
+    
+    <label for="cvv">CVV:</label>
+    <input type="text" id="cvv" name="cvv" required>
+    
+    <button type="submit">Complete Purchase</button>
+  </form>
+  
+  <div class="success" id="success">Payment successful! Order confirmed.</div>
+  
+  <script>
+    const form = document.getElementById('paymentForm');
+    const success = document.getElementById('success');
+    
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      // Simulate payment processing
+      const card = document.getElementById('cardNumber').value.trim();
+      const cvv = document.getElementById('cvv').value.trim();
+      
+      if (!card || !cvv) {
+        return;
+      }
+      
+      // Show success message
+      success.style.display = 'block';
+      form.style.display = 'none';
+    });
+  </script>
+</body>
+</html>

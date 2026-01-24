@@ -7,6 +7,8 @@
  * - Safety tracking via SilenceTracker
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+
 /**
  * Setup network interception firewall for safety mode
  * 
@@ -19,6 +21,7 @@
 export async function setupNetworkFirewall(page, baseOrigin, allowCrossOrigin, silenceTracker) {
   const blockedNetworkWrites = [];
   const blockedCrossOrigin = [];
+  const timeProvider = getTimeProvider();
 
   await page.route('**/*', (route) => {
     const request = route.request();
@@ -36,7 +39,7 @@ export async function setupNetworkFirewall(page, baseOrigin, allowCrossOrigin, s
             origin: reqOrigin,
             method,
             resourceType,
-            timestamp: Date.now()
+            timestamp: timeProvider.now()
           });
           
           silenceTracker.record({
@@ -64,7 +67,7 @@ export async function setupNetworkFirewall(page, baseOrigin, allowCrossOrigin, s
         method,
         resourceType,
         isGraphQLMutation,
-        timestamp: Date.now()
+        timestamp: timeProvider.now()
       });
       
       silenceTracker.record({
@@ -84,3 +87,6 @@ export async function setupNetworkFirewall(page, baseOrigin, allowCrossOrigin, s
   
   return { blockedNetworkWrites, blockedCrossOrigin };
 }
+
+
+

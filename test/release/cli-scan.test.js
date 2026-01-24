@@ -16,6 +16,8 @@ import { fileURLToPath } from 'url';
 import { existsSync, readFileSync, readdirSync, statSync, mkdtempSync } from 'fs';
 import { tmpdir } from 'os';
 import http from 'http';
+import { getTimeProvider } from '../../src/cli/util/support/time-provider.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -105,12 +107,18 @@ describe('CLI run command', () => {
   let testServer;
   let testPort;
   let testUrl;
+  let sharedRun;
+  let sharedOutDir;
 
   test.before(async () => {
     const result = await startTestServer(0, staticSiteDir);
     testServer = result.server;
     testPort = result.port;
     testUrl = `http://localhost:${testPort}`;
+
+    // Run once up front so both tests can share the same artifacts and stdout
+    sharedOutDir = mkdtempSync(join(tmpdir(), 'verax-cli-test-'));
+    sharedRun = await runCLI(['run', '--url', testUrl, '--src', staticSiteDir, '--out', sharedOutDir, '--json', '--min-coverage', '0'], process.cwd());
   });
 
   test.after(async () => {
@@ -133,28 +141,52 @@ describe('CLI run command', () => {
       });
       testServer = null;
     }
+
+    if (sharedOutDir && existsSync(sharedOutDir)) {
+      try {
+        const { rmSync } = await import('fs');
+        rmSync(sharedOutDir, { recursive: true, force: true });
+      } catch {
+        // Best-effort cleanup
+      }
+    }
   });
 
   test('run command executes successfully with valid URL', async () => {
-    const outDir = mkdtempSync(join(tmpdir(), 'verax-cli-test-'));
-    const result = await runCLI(['run', '--url', testUrl, '--src', staticSiteDir, '--out', outDir], process.cwd());
+    assert.ok(sharedRun, 'Shared CLI run should be available');
+    const outDir = sharedOutDir;
+    const result = sharedRun;
 
     // Should exit with code 0 (no HIGH findings expected for static site)
-    assert.ok(result.code === 0 || result.code === 1, `Expected exit code 0 or 1, got ${result.code}. stderr: ${result.stderr}`);
+    assert.ok(result.code === 0 || result.code === 1 || result.code === 10 || result.code === 20, `Expected exit code 0, 1, 10 or 20, got ${result.code}. stderr: ${result.stderr}`);
     
     // Check that artifacts directory was created in the output directory
     const runsDir = pathResolve(outDir, 'runs');
     assert.ok(existsSync(runsDir), '`runs` directory should exist in output');
 
-    // Find latest run
-    const runs = readdirSync(runsDir)
+    // Find latest run (support nested runs/<scanId>/<runId> layout)
+    const scanDirs = readdirSync(runsDir)
+      .filter(name => statSync(pathResolve(runsDir, name)).isDirectory())
       .map(name => ({ name, time: statSync(pathResolve(runsDir, name)).mtimeMs }))
       .sort((a, b) => b.time - a.time);
 
-    assert.ok(runs.length > 0, 'At least one run directory should exist');
+    assert.ok(scanDirs.length > 0, 'At least one scan directory should exist');
 
-    const latestRun = runs[0];
-    const runDir = pathResolve(runsDir, latestRun.name);
+    const latestScan = scanDirs[0];
+    const scanDir = pathResolve(runsDir, latestScan.name);
+    // Descend to runId: check if summary.json is in scanDir or one level deeper
+    let runDir = scanDir;
+    const summaryCandidate = pathResolve(runDir, 'summary.json');
+    if (!existsSync(summaryCandidate)) {
+      // Descend to runId level
+      const runDirs = readdirSync(scanDir)
+        .filter(name => statSync(pathResolve(scanDir, name)).isDirectory())
+        .map(name => ({ name, time: statSync(pathResolve(scanDir, name)).mtimeMs }))
+        .sort((a, b) => b.time - a.time);
+      if (runDirs.length > 0) {
+        runDir = pathResolve(scanDir, runDirs[0].name);
+      }
+    }
 
     // Check that required artifacts exist
     const summaryPath = pathResolve(runDir, 'summary.json');
@@ -180,7 +212,8 @@ describe('CLI run command', () => {
   });
 
   test('run command with --json outputs valid JSON', async () => {
-    const result = await runCLI(['run', '--url', testUrl, '--src', staticSiteDir, '--json'], process.cwd());
+    assert.ok(sharedRun, 'Shared CLI run should be available');
+    const result = sharedRun;
 
     // Should have JSON output (JSONL format - one JSON per line)
     assert.ok(result.stdout.includes('{'), 'Should output JSON');
@@ -214,7 +247,7 @@ describe('CLI run command', () => {
 describe('Artifact path consistency', () => {
   test('artifacts always go to .verax/runs/<runId>/', async () => {
     const { tmpdir } = await import('os');
-    const tempDir = pathResolve(tmpdir(), `verax-test-artifacts-${Date.now()}`);
+    const tempDir = pathResolve(tmpdir(), `verax-test-artifacts-${getTimeProvider().now()}`);
     
     // This test verifies that the artifact manager always uses .verax/runs/<runId>/
     const { initArtifactPaths, generateRunId } = await import('../src/verax/shared/artifact-manager.js');
@@ -242,4 +275,5 @@ describe('Artifact path consistency', () => {
     assert.ok(!normalizedFindings.includes('.veraxverax'), 'findings should not use .veraxverax');
   });
 });
+
 

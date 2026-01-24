@@ -8,7 +8,7 @@
  * Enterprise Rule: Hanging is worse than failing.
  * 
  * Protections:
- * 1. Hard timeout (5 minutes max)
+ * 1. Hard timeout (3 minutes max)
  * 2. Force close all Playwright browsers on timeout
  * 3. Event loop drain guarantee
  * 4. Track active handles (sockets, timers, etc.)
@@ -32,6 +32,19 @@ global.__veraxTestServers = activeServers;
 if (!process.env.VERAX_TEST_MODE) {
   process.env.VERAX_TEST_MODE = '1';
 }
+
+// Speed up outcome watcher during tests without changing product defaults
+if (!process.env.VERAX_TEST_FAST_OUTCOME) {
+  process.env.VERAX_TEST_FAST_OUTCOME = '1';
+}
+
+// WEEK 1 / TASK 2: Enforce deterministic time in tests
+// Set VERAX_TEST_TIME if not already set (for CI and local consistency)
+if (!process.env.VERAX_TEST_TIME) {
+  process.env.VERAX_TEST_TIME = '2026-01-01T00:00:00.000Z';
+  console.log('[TEST ENV] VERAX_TEST_TIME set to:', process.env.VERAX_TEST_TIME);
+}
+
 // Ensure npm_command points to npm (npm sets this to the script name during npm test)
 process.env.npm_command = 'npm';
 
@@ -144,10 +157,10 @@ function exitProcess(code) {
 }
 
 // Launch test runner with no stdin (prevents Windows hang)
-// Scope: run only release tests by default using glob pattern
-const testPattern = process.platform === 'win32'
-  ? 'test\\release\\**\\*.test.js'
-  : 'test/release/**/*.test.js';
+// Scope: Tier 1 (release) by default, Tier 2 (integration) via env flag
+const testPattern = process.env.VERAX_TEST_INTEGRATION === '1'
+  ? (process.platform === 'win32' ? 'test\\integration\\**\\*.test.js' : 'test/integration/**/*.test.js')
+  : (process.platform === 'win32' ? 'test\\release\\**\\*.test.js' : 'test/release/**/*.test.js');
 
 const testRunner = spawn('node', ['--test', testPattern], {
   cwd: rootDir,
@@ -160,20 +173,25 @@ const testRunner = spawn('node', ['--test', testPattern], {
 testRunner.stdin.end();
 
 /**
- * PER-TEST-FILE TIMEOUT POLICY
+ * TIMEOUT POLICY: TIER-BASED
  * 
  * Enterprise rule: Hanging is worse than failing.
  * 
- * Timeout budget by test type:
- * - final-gate.test.js: 120s (npm pack + npm install are legitimately slow)
- * - All other tests: 60s (increased from 30s for stability)
+ * Tier 1 (Default/Release): 60s max
+ * - Unit, contract, determinism tests
+ * - NO Playwright browser launches
+ * 
+ * Tier 2 (Integration): 300s max
+ * - Playwright-based E2E tests
+ * - Framework integration (Vue, Next.js, etc.)
+ * - Runtime discovery phases
  */
-const DEFAULT_TIMEOUT_MS = 60 * 1000;  // 60 seconds for normal tests
-const SLOW_TEST_TIMEOUT_MS = 120 * 1000;  // 120 seconds for final-gate
+const TIER1_TIMEOUT_MS = 60 * 1000;  // 60 seconds for fast default tests
+const TIER2_TIMEOUT_MS = 300 * 1000; // 300 seconds for Playwright integration
 
-// For now, use extended timeout since we run all tests including final-gate
-// In the future, we could parse which files are being tested and adjust dynamically
-const TEST_TIMEOUT_MS = SLOW_TEST_TIMEOUT_MS;
+const TEST_TIMEOUT_MS = process.env.VERAX_TEST_INTEGRATION === '1' 
+  ? TIER2_TIMEOUT_MS 
+  : TIER1_TIMEOUT_MS;
 
 const timeoutHandle = setTimeout(() => {
   console.error(`\n❌ FATAL: Test runner exceeded ${TEST_TIMEOUT_MS / 1000}-second timeout`);
@@ -238,3 +256,4 @@ process.on('unhandledRejection', (reason) => {
   console.error('❌ Unhandled rejection:', reason);
   cleanupAndExit(1, 'unhandled_rejection');
 });
+

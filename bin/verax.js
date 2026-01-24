@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 
 /**
  * VERAX CLI Shim
@@ -9,3 +9,7 @@ import('../src/cli/entry.js').catch((error) => {
   console.error(`Failed to load CLI: ${error.message}`);
   process.exit(2);
 });
+
+
+
+

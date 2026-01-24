@@ -1,22 +1,32 @@
+/*
+Command: verax inspect
+Purpose: Validate and summarize an existing run directory without modifying artifacts.
+Required: <runPath>
+Optional: --json
+Outputs: Exactly one RESULT/REASON/ACTION block (JSON or text) plus optional JSON payload of run metadata.
+Exit Codes: 0 SUCCESS | 50 EVIDENCE_LAW_VIOLATION | 40 INFRA_FAILURE | 64 USAGE_ERROR
+Forbidden: artifact mutation; multiple RESULT/REASON/ACTION blocks; unsupported flags; non-deterministic logs without --debug.
+*/
+
 import { resolve } from 'path';
 import { existsSync, readFileSync, readdirSync } from 'fs';
-import { DataError } from '../util/errors.js';
+import { DataError, UsageError } from '../util/support/errors.js';
+import { MANIFEST_FILENAME, verifyRunIntegrityManifest } from '../util/evidence/integrity-manifest.js';
+import { buildOutcome, EXIT_CODES } from '../config/cli-contract.js';
 
-/**
- * `verax inspect` command
- * Read an existing run folder and display summary
- */
 export async function inspectCommand(runPath, options = {}) {
-  const { json = false } = options;
+  const { json: _json = false } = options;
   
+  if (!runPath) {
+    throw new UsageError('inspect requires <runPath> argument');
+  }
+
   const fullPath = resolve(runPath);
   
-  // Validate run directory exists
   if (!existsSync(fullPath)) {
     throw new DataError(`Run directory not found: ${fullPath}`);
   }
   
-  // Check for required files
   const requiredFiles = ['summary.json', 'findings.json'];
   const missingFiles = [];
   
@@ -28,84 +38,113 @@ export async function inspectCommand(runPath, options = {}) {
   }
   
   if (missingFiles.length > 0) {
-    throw new DataError(
-      `Invalid run directory. Missing files: ${missingFiles.join(', ')}`
-    );
+    throw new DataError(`Invalid run directory. Missing files: ${missingFiles.join(', ')}`);
   }
   
-  // Read summary and findings
-  let summary, findings;
+  let summary;
+  let findings;
   
   try {
-  // @ts-expect-error - readFileSync with encoding returns string
-    summary = JSON.parse(readFileSync(`${fullPath}/summary.json`, 'utf-8'));
+    summary = JSON.parse(readFileSync(`${fullPath}/summary.json`, 'utf-8').toString());
   } catch (error) {
     throw new DataError(`Failed to parse summary.json: ${error.message}`);
   }
   
   try {
-  // @ts-expect-error - readFileSync with encoding returns string
-    findings = JSON.parse(readFileSync(`${fullPath}/findings.json`, 'utf-8'));
+    findings = JSON.parse(readFileSync(`${fullPath}/findings.json`, 'utf-8').toString());
   } catch (error) {
     throw new DataError(`Failed to parse findings.json: ${error.message}`);
   }
   
-  // Check for evidence directory
   const evidenceDir = `${fullPath}/evidence`;
   const hasEvidence = existsSync(evidenceDir);
   let evidenceCount = 0;
   
   if (hasEvidence) {
     try {
-      evidenceCount = readdirSync(evidenceDir).length;
-    } catch (error) {
+      evidenceCount = readdirSync(evidenceDir).sort((a, b) => a.localeCompare(b, 'en')).length;
+    } catch {
       evidenceCount = 0;
     }
   }
   
-  // Build output
+  const findingsCount = (() => {
+    if (Array.isArray(findings)) return findings.length;
+    if (Array.isArray(findings?.findings)) return findings.findings.length;
+    if (typeof findings?.total === 'number') return findings.total;
+    return 0;
+  })();
+
+  const summaryCount = (() => {
+    if (typeof summary?.findingsCount === 'number') return summary.findingsCount;
+    if (summary?.findingsCounts) {
+      return Object.values(summary.findingsCounts).reduce((acc, val) => acc + (typeof val === 'number' ? val : 0), 0);
+    }
+    if (summary?.observations?.discrepanciesObserved !== undefined) {
+      return summary.observations.discrepanciesObserved;
+    }
+    return null;
+  })();
+
+  const warnings = [];
+  if (summaryCount !== null && summaryCount !== findingsCount) {
+    warnings.push(`findings.json count (${findingsCount}) differs from summary (${summaryCount})`);
+  }
+
+  const manifestPath = `${fullPath}/${MANIFEST_FILENAME}`;
+  let integrityResult = {
+    status: 'MISSING',
+    missing: [],
+    mismatched: [],
+    extraArtifacts: [],
+  };
+  
+  if (existsSync(manifestPath)) {
+    try {
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8').toString());
+      integrityResult = verifyRunIntegrityManifest(fullPath, manifest);
+    } catch (error) {
+      integrityResult = {
+        status: 'FAILED',
+        missing: [],
+        mismatched: [],
+        extraArtifacts: [],
+        error: error.message,
+      };
+    }
+  }
+  
   const output = {
     runId: summary.runId || 'unknown',
     status: summary.status || 'unknown',
     startedAt: summary.startedAt || null,
     completedAt: summary.completedAt || null,
     url: summary.url || null,
-    findingsCount: Array.isArray(findings) ? findings.length : 0,
+    findingsCount,
     evidenceDir: hasEvidence ? evidenceDir : null,
     evidenceFileCount: evidenceCount,
+    warnings,
+    integrity: integrityResult,
   };
-  
-  if (json) {
-    // Output as single JSON object
-    console.log(JSON.stringify(output, null, 2));
-  } else {
-    // Output as human-readable summary
-    console.log('\n=== Run Summary ===\n');
-    console.log(`Run ID: ${output.runId}`);
-    console.log(`Status: ${output.status}`);
-    
-    if (output.startedAt) {
-      console.log(`Started: ${output.startedAt}`);
-    }
-    
-    if (output.completedAt) {
-      console.log(`Completed: ${output.completedAt}`);
-    }
-    
-    if (output.url) {
-      console.log(`URL: ${output.url}`);
-    }
-    
-    console.log(`\nFindings: ${output.findingsCount}`);
-    
-    if (output.evidenceDir) {
-      console.log(`Evidence: ${output.evidenceDir} (${output.evidenceFileCount} files)`);
-    } else {
-      console.log(`Evidence: not found`);
-    }
-    
-    console.log('');
-  }
-  
-  return output;
+
+  const evidenceIssues = integrityResult.status !== 'OK' && integrityResult.status !== 'MISSING' ? true : false;
+  const exitCode = evidenceIssues ? EXIT_CODES.EVIDENCE_VIOLATION : EXIT_CODES.SUCCESS;
+  const reason = evidenceIssues
+    ? 'Artifacts failed integrity validation'
+    : `Run ${output.status} with ${output.findingsCount} findings`;
+  const action = evidenceIssues
+    ? `Repair or regenerate run artifacts in ${fullPath}`
+    : `Review findings in ${fullPath}`;
+
+  const outcome = buildOutcome({
+    command: 'inspect',
+    exitCode,
+    reason,
+    action,
+  });
+
+  return { outcome, jsonPayload: output };
 }
+
+
+

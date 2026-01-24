@@ -193,19 +193,13 @@ test('NO GUESSING | cli/ has no opinionated guessing functions', async () => {
 // CORE PRINCIPLE 4: NO INTERACTIVE MODE
 // ============================================================================
 
-test('NO INTERACTIVE | inquirer import exists only in disabled default.js', () => {
+test('NO INTERACTIVE | default.js removed in Stage 5', () => {
   const defaultPath = resolve(CLI, 'commands', 'default.js');
   
   assert.equal(
     existsSync(defaultPath),
-    true,
-    'default.js file should exist (as evidence of disabled interactive mode)'
-  );
-  
-  const content = readFileSync(defaultPath, 'utf-8');
-  assert.ok(
-    /import.*inquirer|require.*inquirer/.test(content),
-    'default.js should import inquirer (showing it exists but is disabled)'
+    false,
+    'default.js removed in Stage 5 - interactive mode disabled per vision §17'
   );
 });
 
@@ -336,3 +330,4 @@ test('GUARDRAILS | no temporary artifacts in root directory', () => {
   
   assert.ok(rootContents.includes('"name"'), 'package.json structure intact');
 });
+

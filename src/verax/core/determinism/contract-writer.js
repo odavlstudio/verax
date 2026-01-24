@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
 /**
  * PHASE 25 — Determinism Contract Writer
  * 
@@ -70,7 +71,7 @@ export function writeDeterminismContract(runDir, decisionRecorder) {
   
   const contract = {
     version: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     adaptiveEvents,
     retryEvents,
     timingAdjustments,
@@ -86,4 +87,7 @@ export function writeDeterminismContract(runDir, decisionRecorder) {
   
   return contractPath;
 }
+
+
+
 

@@ -95,7 +95,9 @@ function isSourceCodeAvailable(srcPath) {
  */
 function hasSourceIndicators(srcPath) {
   try {
-    const entries = readdirSync(srcPath, { withFileTypes: true });
+    const entries = readdirSync(srcPath, { withFileTypes: true })
+      // @ts-ignore - Dirent has name property
+      .sort((a, b) => a.name.localeCompare(b.name));
     
     // Look for common source code patterns
     const indicators = {
@@ -190,3 +192,6 @@ export function formatModeForOutput(modeInfo) {
 Confidence Ceiling: ${Math.round(modeInfo.ceiling * 100)}%
 Reason: ${modeInfo.reason}`;
 }
+
+
+

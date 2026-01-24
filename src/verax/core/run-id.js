@@ -8,24 +8,13 @@
 import { createHash } from 'crypto';
 import { join } from 'path';
 import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { VERSION } from '../../version.js';
 
 /**
  * Get VERAX version from package.json
  */
 export function getVeraxVersion() {
-  try {
-    const packagePath = join(__dirname, '..', '..', '..', 'package.json');
-  // @ts-expect-error - readFileSync with encoding returns string
-    const pkg = JSON.parse(readFileSync(packagePath, 'utf-8'));
-    return pkg.version || '0.1.0';
-  } catch (error) {
-    return '0.1.0';
-  }
+  return VERSION;
 }
 
 /**
@@ -72,7 +61,7 @@ export function generateRunId(params) {
   // Sort keys at all levels for deterministic serialization
   const configString = JSON.stringify(runConfig, (key, value) => {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      return Object.keys(value).sort().reduce((sorted, k) => {
+      return Object.keys(value).sort((a, b) => a.localeCompare(b, 'en')).reduce((sorted, k) => {
         sorted[k] = value[k];
         return sorted;
       }, {});
@@ -176,3 +165,6 @@ export function computeArtifactHashes(projectDir, runId) {
   
   return hashes;
 }
+
+
+

@@ -357,7 +357,7 @@ function normalizeGuardrailsReport(artifact) {
   // Normalize perFinding (already sorted by findingIdentity, but normalize timestamps if any)
   if (normalized.perFinding && typeof normalized.perFinding === 'object') {
     const perFindingNormalized = {};
-    const sortedKeys = Object.keys(normalized.perFinding).sort();
+    const sortedKeys = Object.keys(normalized.perFinding).sort((a, b) => a.localeCompare(b, 'en'));
     for (const key of sortedKeys) {
       const entry = normalized.perFinding[key];
       perFindingNormalized[key] = {
@@ -388,7 +388,7 @@ function normalizeConfidenceReport(artifact) {
   // Normalize perFinding (already sorted by findingIdentity, but normalize timestamps if any)
   if (normalized.perFinding && typeof normalized.perFinding === 'object') {
     const perFindingNormalized = {};
-    const sortedKeys = Object.keys(normalized.perFinding).sort();
+    const sortedKeys = Object.keys(normalized.perFinding).sort((a, b) => a.localeCompare(b, 'en'));
     for (const key of sortedKeys) {
       const entry = normalized.perFinding[key];
       perFindingNormalized[key] = {
@@ -463,4 +463,7 @@ function normalizeUrl(url) {
     return url;
   }
 }
+
+
+
 

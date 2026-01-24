@@ -1,0 +1,7 @@
+{
+  "name": "stage5-truly-empty",
+  "version": "1.0.0",
+  "description": "Test fixture with absolutely no extractable promises",
+  "scripts": {},
+  "dependencies": {}
+}

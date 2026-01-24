@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Network Failed Test</title>
+</head>
+<body>
+  <h1>Network Failed Test</h1>
+  <button id="fetch-fail-btn" onclick="handleFetchFail()">Fetch Fail</button>
+  <div id="result"></div>
+  
+  <script>
+    async function handleFetchFail() {
+      // PROVEN expectation: fetch('/api/fail') - literal string
+      const response = await fetch('/api/fail');
+      const data = await response.json();
+      // NO UI feedback - this should trigger network_silent_failure
+      console.log('Failed:', data);
+    }
+  </script>
+</body>
+</html>
+

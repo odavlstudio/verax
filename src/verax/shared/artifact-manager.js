@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 /**
  * Wave 9 — Artifact Manager
  *
@@ -10,11 +11,14 @@
  *   - flows/ (flow diagrams if enabled)
  *
  * All artifacts are redacted before writing.
+ * All writes use atomic operations to prevent corruption (Week 3).
  */
 
-import { existsSync, mkdirSync, writeFileSync, appendFileSync } from 'fs';
+import { existsSync, appendFileSync } from 'fs';
 import { resolve } from 'path';
+import { atomicWriteFileSync, atomicWriteJsonSync, atomicMkdirSync } from '../../cli/util/atomic-write.js';
 import { generateRunId as generateDeterministicRunId } from '../core/run-id.js';
+import { generateScanId, generateUniqueRunId } from '../../cli/util/support/run-id.js';
 
 const ZERO_BUDGET = Object.freeze({
   maxScanDurationMs: 0,
@@ -51,10 +55,12 @@ export function generateRunId(seed = 'about:blank') {
  * @returns {Object} - Paths to each artifact location
  */
 export function initArtifactPaths(projectRoot, runId = null, seed = projectRoot) {
-  const id = runId || generateRunId(seed);
-  const runDir = resolve(projectRoot, '.verax', 'runs', id);
+  const scanId = generateScanId({ url: typeof seed === 'string' ? seed : 'about:blank', srcPath: projectRoot });
+  const id = runId || generateUniqueRunId();
+  const runDir = resolve(projectRoot, '.verax', 'runs', scanId, id);
 
   const paths = {
+    scanId,
     runId: id,
     runDir,
     summary: resolve(runDir, 'summary.json'),
@@ -66,10 +72,11 @@ export function initArtifactPaths(projectRoot, runId = null, seed = projectRoot)
     artifacts: resolve(projectRoot, '.verax', 'artifacts') // Legacy compat
   };
 
-  // Create directories
-  [runDir, paths.evidence, paths.flows].forEach(dir => {
+  // Create directories using atomic mkdir
+  [resolve(projectRoot, '.verax', 'runs', scanId), runDir, paths.evidence, paths.flows].forEach(dir => {
     if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
+      // @ts-ignore - atomicMkdirSync supports recursive option
+      atomicMkdirSync(dir, { recursive: true });
     }
   });
 
@@ -136,6 +143,7 @@ export function computeExpectationsSummary(manifest) {
 
 /**
  * Write summary.json with metadata and metrics.
+ * Uses atomic write to prevent corruption (Week 3).
  * @param {Object} paths - Artifact paths from initArtifactPaths
  * @param {Object} summary - Summary data { url, duration, findings, metrics, manifest, contextCheck }
  */
@@ -167,7 +175,7 @@ export function writeSummary(paths, summary) {
   
   const data = {
     runId: paths.runId,
-    timestamp: new Date().toISOString(),
+    timestamp: getTimeProvider().iso(),
     url: summary.url,
     projectRoot: summary.projectRoot,
     expectationsSummary: expectationsSummary,
@@ -205,23 +213,24 @@ export function writeSummary(paths, summary) {
     coverageGaps: summary.coverageGaps || []
   };
 
-  writeFileSync(paths.summary, JSON.stringify(data, null, 2) + '\n');
+  atomicWriteJsonSync(paths.summary, data);
 }
 
 /**
  * Write findings.json with all detected issues.
+ * Uses atomic write to prevent corruption (Week 3).
  * @param {Object} paths - Artifact paths
  * @param {Array} findings - Array of finding objects
  */
 export function writeFindings(paths, findings) {
   const data = {
     runId: paths.runId,
-    timestamp: new Date().toISOString(),
+    timestamp: getTimeProvider().iso(),
     total: findings.length,
     findings
   };
 
-  writeFileSync(paths.findings, JSON.stringify(data, null, 2) + '\n');
+  atomicWriteJsonSync(paths.findings, data);
 }
 
 /**
@@ -236,6 +245,7 @@ export function appendTrace(paths, trace) {
 
 /**
  * Write evidence file (screenshot, network log, etc.).
+ * Uses atomic write to prevent corruption (Week 3).
  * @param {Object} paths - Artifact paths
  * @param {string} filename - Evidence filename
  * @param {*} data - Data to write (string or buffer)
@@ -243,11 +253,7 @@ export function appendTrace(paths, trace) {
 export function writeEvidence(paths, filename, data) {
   const filepath = resolve(paths.evidence, filename);
   
-  if (typeof data === 'string') {
-    writeFileSync(filepath, data);
-  } else {
-    writeFileSync(filepath, data);
-  }
+  atomicWriteFileSync(filepath, data);
 }
 
 /**
@@ -259,3 +265,6 @@ export function writeEvidence(paths, filename, data) {
 export function getArtifactPaths(projectRoot, runId) {
   return initArtifactPaths(projectRoot, runId);
 }
+
+
+

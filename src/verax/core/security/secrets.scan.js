@@ -5,10 +5,12 @@
  * Any secret detected = BLOCKING.
  */
 
-import { readFileSync, existsSync, readdirSync, writeFileSync, mkdirSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve, relative } from 'path';
 import { execSync } from 'child_process';
 import { createHash } from 'crypto';
+import { readdirSync, readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
 
 /**
  * Secret patterns to detect
@@ -136,7 +138,9 @@ function scanWorkingTree(projectDir) {
   
   function scanDirectory(dir) {
     try {
-      const entries = readdirSync(dir, { withFileTypes: true });
+      const entries = readdirSync(dir, { withFileTypes: true })
+        // @ts-ignore - Dirent has name property
+        .sort((a, b) => a.name.localeCompare(b.name, 'en'));
       
       for (const entry of entries) {
         const fullPath = resolve(dir, entry.name);
@@ -225,7 +229,9 @@ function scanArtifacts(projectDir) {
   
   function scanArtifactDir(dir) {
     try {
-      const entries = readdirSync(dir, { withFileTypes: true });
+      const entries = readdirSync(dir, { withFileTypes: true })
+        // @ts-ignore - Dirent has name property
+        .sort((a, b) => a.name.localeCompare(b.name, 'en'));
       
       for (const entry of entries) {
         const fullPath = resolve(dir, entry.name);
@@ -303,7 +309,7 @@ export async function scanSecrets(projectDir) {
         acc[f.type] = (acc[f.type] || 0) + 1;
         return acc;
       }, {}),
-      scannedAt: new Date().toISOString()
+      scannedAt: getTimeProvider().iso()
     }
   };
 }
@@ -326,4 +332,7 @@ export function writeSecretsReport(projectDir, report) {
   
   return outputPath;
 }
+
+
+
 

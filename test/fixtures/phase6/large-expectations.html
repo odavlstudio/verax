@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Large Fixture - Budget Exhaustion Test</title>
+</head>
+<body>
+  <h1>Budget Exhaustion Test Fixture</h1>
+  <p>This fixture generates 250+ expectations to test budget limits.</p>
+  
+  <div id="link-container"></div>
+  
+  <script>
+    // Generate 250 navigation links to exceed MAX_EXPECTATIONS budget (default: 200)
+    const container = document.getElementById('link-container');
+    
+    for (let i = 1; i <= 250; i++) {
+      const link = document.createElement('a');
+      link.href = `#/page-${i}`;
+      link.id = `link-${i}`;
+      link.textContent = `Page ${i}`;
+      link.setAttribute('data-testid', `link-${i}`);
+      link.onclick = function(e) {
+        e.preventDefault();
+        // Each link click would be an expectation (navigation promise)
+        console.log(`Link ${i} clicked`);
+        // No visible feedback (silent failure pattern)
+      };
+      container.appendChild(link);
+      container.appendChild(document.createTextNode(' | '));
+      
+      // Add some spacing
+      if (i % 10 === 0) {
+        container.appendChild(document.createElement('br'));
+      }
+    }
+  </script>
+</body>
+</html>

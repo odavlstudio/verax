@@ -4,7 +4,8 @@ import { readFileSync } from 'fs';
 import { glob } from 'glob';
 import { resolve } from 'path';
 import { ExpectationProof } from '../shared/expectation-validation.js';
-import { normalizeTemplateLiteral } from '../shared/dynamic-route-utils.js';
+import { normalizeTemplateLiteral } from '../shared/dynamic-route-normalizer.js';
+import { resolveScanConfig, rootsToGlobPatterns } from './scan-roots.js';
 
 const MAX_FILES_TO_SCAN = 200;
 
@@ -322,24 +323,47 @@ function extractContractsFromFile(filePath, fileContent) {
  * Returns array of PROVEN navigation contracts.
  * 
  * Wave 1 - CODE TRUTH ENGINE: AST-derived PROVEN expectations only.
+ * 
+ * @param {string} projectDir - Project root directory
+ * @param {string} projectType - Detected project type for scan root detection
+ * @param {Object} [scanOptions] - Optional scan configuration overrides
  */
-export async function extractASTContracts(projectDir) {
+export async function extractASTContracts(projectDir, projectType = 'unknown', scanOptions = {}) {
   const contracts = [];
   
   try {
-    // Find all JS/JSX/TS/TSX files (excluding node_modules, dist, build)
-    const files = await glob('**/*.{js,jsx,ts,tsx}', {
-      cwd: projectDir,
-      absolute: false,
-      ignore: ['node_modules/**', 'dist/**', 'build/**', '.next/**', 'out/**']
-    });
+    // Resolve scan roots using framework-aware detection
+    // Will throw if no roots found and allowEmptyLearn is false
+    const scanConfig = resolveScanConfig(projectDir, projectType, scanOptions);
+    const baseDir = scanConfig.cwd;
+    
+    // Generate glob patterns from scan roots
+    const globPatterns = rootsToGlobPatterns(scanConfig.roots, '*.{js,jsx,ts,tsx}');
+    
+    // Collect files from all patterns
+    let files = [];
+    for (const pattern of globPatterns) {
+      const matchedFiles = await glob(pattern, {
+        cwd: baseDir,
+        absolute: false,
+        ignore: scanConfig.excludes
+      });
+      matchedFiles.sort((a, b) => a.localeCompare(b, 'en'));
+      files = files.concat(matchedFiles);
+    }
+    files = Array.from(new Set(files)).sort((a, b) => a.localeCompare(b, 'en'));
+    
+    // Verbose logging (minimal)
+    if (scanOptions.verbose) {
+      console.log(`[AST Contracts] Scan roots: ${scanConfig.roots.join(', ')}, Files matched: ${files.length}`);
+    }
     
     // Limit files to scan
     const filesToScan = files.slice(0, MAX_FILES_TO_SCAN);
     
     for (const file of filesToScan) {
       try {
-        const filePath = resolve(projectDir, file);
+        const filePath = resolve(baseDir, file);
         const content = readFileSync(filePath, 'utf-8');
         const fileContracts = extractContractsFromFile(file, content);
         contracts.push(...fileContracts);
@@ -395,3 +419,6 @@ export function contractsToExpectations(contracts, _projectType) {
   
   return expectations;
 }
+
+
+

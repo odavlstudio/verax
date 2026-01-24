@@ -18,3 +18,4 @@ export function handleSetBad() {
   // Intentionally missing store.set() call
   return;
 }
+

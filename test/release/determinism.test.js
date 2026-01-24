@@ -1,12 +1,12 @@
 /**
- * Phase 8.3 Determinism Test
+ * Determinism Test
  * Verifies that same inputs produce stable outputs: same IDs, same order, same classifications
  */
 
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { extractExpectations } from '../src/cli/util/expectation-extractor.js';
-import { compareExpectations, expIdFromHash, findingIdFromExpectationId } from '../src/cli/util/idgen.js';
+import { extractExpectations } from '../../src/cli/util/observation/expectation-extractor.js';
+import { compareExpectations, expIdFromHash, findingIdFromExpectationId } from '../../src/cli/util/support/idgen.js';
 
 // Mock project profile for a simple test fixture
 const mockProjectProfile = {
@@ -132,3 +132,4 @@ test('determinism: file path normalization handles backslashes', () => {
   assert.strictEqual(idForward, idBackslash, 
     'Forward slashes and backslashes should produce same ID (cross-platform)');
 });
+

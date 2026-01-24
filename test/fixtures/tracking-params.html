@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tracking Parameters Test</title>
+</head>
+<body>
+  <h1>Tracking Parameters Test</h1>
+  <p>Testing URL normalization with tracking parameters</p>
+  
+  <a href="page.html?utm_source=google&utm_medium=search&utm_campaign=spring2024">Link with utm params</a>
+  <a href="page.html?id=123&utm_source=google&name=test">Mixed params</a>
+  <a href="page.html?gclid=abc123&id=456">Link with gclid</a>
+  <a href="page.html?id=789&fbclid=def456">Link with fbclid</a>
+  <a href="page.html#section&utm_source=direct">Link with hash and utm</a>
+  
+  <script>
+    // Expose links for frontier testing
+    window.links = Array.from(document.querySelectorAll('a')).map(a => a.href);
+  </script>
+</body>
+</html>

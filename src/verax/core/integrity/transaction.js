@@ -133,8 +133,11 @@ export function listStagingFiles(runDir) {
       return [];
     }
     
-    return readdirSync(stagingDir);
+    return readdirSync(stagingDir).sort((a, b) => a.localeCompare(b));
   } catch (error) {
     return [];
   }
 }
+
+
+

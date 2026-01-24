@@ -1,35 +1,86 @@
+# ============================================================================
+# VERAX .gitignore — CRITICAL ARTIFACT PREVENTION
+# ============================================================================
+# This file prevents build artifacts, temporary files, and runtime outputs
+# from polluting the repository. DO NOT remove entries marked as CRITICAL.
+# See: docs/governance/ci-reports.md for artifact management policy
+# ============================================================================
+
+# Node.js dependencies and environment
 node_modules/
 .env
 .env.*
 /.DS_Store
 /data/feedback.log
+
+# Build outputs
 dist/
 build/
 coverage/
 .nyc_output/
+
+# Log files
 *.log
+
+# ============================================================================
+# CRITICAL: NPM Package Artifacts
+# ============================================================================
+# Prevents npm pack artifacts from being committed (see STAGE 1 cleanup)
+# These files should NEVER exist in the working directory
 *.tgz
+*.tgz.*
+*.tar
+*.tar.gz
 
-# VERAX artifacts - isolation at all levels
-**/.verax/
+# ============================================================================
+# CRITICAL: Temporary Directories
+# ============================================================================
+# Prevents uncontrolled temporary directories at root or nested levels
+# Use OS temp directories or .verax/runs/ for transient files
+tmp/
+tmp/**
+tmp-*
+tmp-run*/
+tmp-live/
+tmp-live2/
+tmp-out/
+
+# ============================================================================
+# CRITICAL: VERAX Runtime Outputs
+# ============================================================================
+# All VERAX runtime artifacts go into .verax/ (never committed)
+# Use 'npm run clean' to remove these after development/testing
 .verax/
+.verax/runs/
+.verax/observe/
+**/.verax/
+extension/.verax/
 
-# Artifacts directory
+# ============================================================================
+# CRITICAL: Artifacts Directories
+# ============================================================================
+# Prevents artifact placeholder directories from being created
+# All artifacts should be runtime-generated, never pre-created
 artifacts/
 test-artifacts/
 test-output/
 tmp-artifacts/
-tmp-*
-tmp-live/
-tmp-live2/
-tmp-out/
+
+# ============================================================================
+# Test & Development Artifacts
+# ============================================================================
 override-out/
 test-manual*/
 verify-run-*/
+test/.test-equiv-output/
 website/.next/
 playwright-report/
 trace.zip
 real-test-output.log
+
+# Image and archive files (test outputs)
+*.png
+*.zip
 
 # Runtime artifact directories (generated markdown files should not be committed)
 test/.test-equiv-output/

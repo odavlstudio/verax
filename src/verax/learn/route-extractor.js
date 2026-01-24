@@ -16,10 +16,10 @@ function isInternalRoute(path) {
   return INTERNAL_PATH_PATTERNS.some(pattern => pattern.test(path));
 }
 
-export async function extractRoutes(projectDir, projectType) {
+export async function extractRoutes(projectDir, projectType, scanOptions = {}) {
   // Static sites: use file-based extractor (no regex, just file system)
   if (projectType === 'static') {
-    return await extractStaticRoutes(projectDir);
+    return await extractStaticRoutes(projectDir, projectType, scanOptions);
   }
 
   // React SPAs, Next.js, and Vue: use AST-based intel module (NO REGEX)
@@ -50,4 +50,7 @@ export async function extractRoutes(projectDir, projectType) {
   
   return [];
 }
+
+
+
 

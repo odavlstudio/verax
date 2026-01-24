@@ -1,5 +1,5 @@
 /**
- * PHASE 6A: Transactional Artifacts Tests
+ *  Transactional Artifacts Tests
  * 
  * Verifies ALL-OR-NOTHING artifact writes with staging.
  */
@@ -9,6 +9,7 @@ import assert from 'node:assert';
 import { mkdirSync, rmSync, existsSync, writeFileSync, readdirSync as _readdirSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { getTimeProvider } from '../../src/cli/util/support/time-provider.js';
 import {
   createStagingDir,
   commitStagingDir,
@@ -17,11 +18,11 @@ import {
   getFinalPath,
   hasStagingDir,
   listStagingFiles,
-} from '../src/verax/core/integrity/transaction.js';
+} from '../../src/verax/core/integrity/transaction.js';
 
-const testDir = join(tmpdir(), `verax-transaction-test-${Date.now()}`);
+const testDir = join(tmpdir(), `verax-transaction-test-${getTimeProvider().now()}`);
 
-describe('Phase 6A: Transactional Artifacts', () => {
+describe(' Transactional Artifacts', () => {
   test.beforeEach(() => {
     if (rmSync(testDir, { recursive: true, force: true })) {
       // Cleanup
@@ -208,4 +209,5 @@ describe('Phase 6A: Transactional Artifacts', () => {
     assert.ok(existsSync(join(artifactsDir, 'new.json')));
   });
 });
+
 

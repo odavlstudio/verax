@@ -34,7 +34,8 @@ export const VERAX_PRODUCT_DEFINITION = {
     'Detect every bug - only gaps backed by explicit code promises',
     'Operate as a hosted or public-website scanner - runs locally with your repository',
     'Run without source code - requires local access to codebase',
-    'Create CONFIRMED findings without evidence - Evidence Law is mandatory'
+    'Create CONFIRMED findings without evidence - Evidence Law is mandatory',
+    'Provide enterprise gates (GA, security scanning, release provenance) - planned for future release'
   ],
 
   // Success conditions: when does a VERAX run succeed?
@@ -125,3 +126,6 @@ export function formatEvidenceLawForDisplay() {
 }
 
 export default VERAX_PRODUCT_DEFINITION;
+
+
+

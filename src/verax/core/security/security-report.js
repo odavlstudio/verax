@@ -4,8 +4,10 @@
  * Produces security.report.json with all security check results in one unified artifact.
  */
 
-import { writeFileSync, mkdirSync, existsSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 
 /**
  * Write unified security report
@@ -26,7 +28,7 @@ export function writeSecurityReport(projectDir, report, outputPath = null) {
   
   const unifiedReport = {
     contractVersion: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     securityOk: report.securityOk,
     status: report.status,
     summary: report.summary,
@@ -47,4 +49,7 @@ export function writeSecurityReport(projectDir, report, outputPath = null) {
   
   return unifiedPath;
 }
+
+
+
 

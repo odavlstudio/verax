@@ -12,7 +12,7 @@ import {
   buildRouteEvidence,
   isRouteChangeFalsePositive,
 } from '../core/route-intelligence.js';
-import { computeConfidenceForFinding } from '../core/confidence-engine.js';
+import { computeConfidenceForFinding } from '../core/confidence/index.js';
 import { buildAndEnforceEvidencePackage } from '../core/evidence-builder.js';
 import { applyGuardrails } from '../core/guardrails-engine.js';
 
@@ -85,6 +85,10 @@ export function detectRouteFindings(traces, manifest, _findings) {
             urlChanged: evidence.signals.urlChanged,
             domChanged: evidence.signals.domChanged,
           },
+          attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
           evidence,
           options: {}
         });
@@ -216,4 +220,7 @@ function extractPathFromUrl(url) {
     return pathMatch ? pathMatch[1] : url;
   }
 }
+
+
+
 

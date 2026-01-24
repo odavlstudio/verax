@@ -8,6 +8,8 @@
  * NO loop control - caller controls iteration
  */
 
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { discoverAllInteractions } from '../interaction-discovery.js';
 import { runInteraction } from '../interaction-runner.js';
 import { isExternalUrl } from '../domain-boundary.js';
@@ -235,7 +237,7 @@ export async function checkAndSkipInteraction(
         reason: blockCheck.reason
       },
       outcome: 'BLOCKED_BY_SAFETY_MODE',
-      timestamp: Date.now()
+      timestamp: getTimeProvider().now()
     };
     traces.push(blockedTrace);
     
@@ -320,8 +322,9 @@ export async function executeInteraction(
         observedExpectations.push(observedExpectation);
 
         const repeatEligible = shouldAttemptRepeatObservedExpectation(observedExpectation, trace);
+        const timeProvider = getTimeProvider();
         const budgetAllowsRepeat = repeatEligible &&
-          (Date.now() - startTime) < scanBudget.maxScanDurationMs &&
+          (timeProvider.now() - startTime) < scanBudget.maxScanDurationMs &&
           (interactionIndex + 1) < scanBudget.maxTotalInteractions;
 
         if (budgetAllowsRepeat) {
@@ -469,3 +472,6 @@ async function repeatObservedInteraction(
     repeatEvaluation
   };
 }
+
+
+

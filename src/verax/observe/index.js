@@ -1,5 +1,6 @@
 import { resolve, dirname } from 'path';
 import { mkdirSync, readFileSync, existsSync, writeFileSync } from 'fs';
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 import { createBrowser, navigateToUrl, closeBrowser } from './browser.js';
 import { discoverAllInteractions } from './interaction-discovery.js';
 import { captureScreenshot } from './evidence-capture.js';
@@ -11,7 +12,7 @@ import { getBaseOrigin, isExternalUrl } from './domain-boundary.js';
 import { setupNetworkFirewall } from './network-firewall.js';
 
 // STAGE D2.1: Extracted modules for snapshot operations
-import { initializeSnapshot, finalizeSnapshot } from './snapshot-ops.js';
+import { initializeSnapshot, finalizeSnapshot } from './snapshot-operations.js';
 
 // STAGE D2.2: Extracted modules for coverage gap accumulation and warnings
 import { accumulateCoverageGaps, buildCoverageObject, generateCoverageWarnings } from './coverage-gaps.js';
@@ -22,7 +23,7 @@ import { buildIncrementalPhantomTrace } from './incremental-skip.js';
 import { DEFAULT_SCAN_BUDGET } from '../shared/scan-budget.js';
 import { executeProvenExpectations } from './expectation-executor.js';
 import { isProvenExpectation } from '../shared/expectation-prover.js';
-import { PageFrontier } from './page-frontier.js';
+import { PageFrontier } from './page-reachability-tracker.js';
 import { deriveObservedExpectation, shouldAttemptRepeatObservedExpectation, evaluateObservedExpectation } from './observed-expectation.js';
 import { computeRouteBudget } from '../core/budget-engine.js';
 import { shouldSkipInteractionIncremental } from '../core/incremental-store.js';
@@ -54,7 +55,8 @@ import { DecisionRecorder, recordBudgetProfile, recordTimeoutConfig, recordTrunc
 export async function observe(url, manifestPath = null, scanBudgetOverride = null, safetyFlags = {}, projectDir = null, runId = null) {
   const scanBudget = scanBudgetOverride || DEFAULT_SCAN_BUDGET;
   const { browser, page } = await createBrowser();
-  const startTime = Date.now();
+  const timeProvider = getTimeProvider();
+  const startTime = timeProvider.now();
   const baseOrigin = getBaseOrigin(url);
   const silenceTracker = new SilenceTracker();
   
@@ -69,17 +71,17 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
   // Record environment decisions
   recordEnvironment(decisionRecorder, { browserType: 'chromium', viewport: { width: 1280, height: 720 } });
   
-  // Phase 5: Detect projectDir if not provided (for backwards compatibility with tests)
+  // Detect projectDir if not provided (for backwards compatibility with tests)
   if (!projectDir) {
     projectDir = process.cwd();
   }
   
-  // Phase 4: Extract safety flags
+  // Extract safety flags
   const { allowRiskyActions = false, allowCrossOrigin = false } = safetyFlags;
   let blockedNetworkWrites = [];
   let blockedCrossOrigin = [];
   
-  // Phase 4: Setup network interception firewall (STAGE D1: moved to module)
+  // Setup network interception firewall
   const firewallResult = await setupNetworkFirewall(page, baseOrigin, allowCrossOrigin, silenceTracker);
   blockedNetworkWrites = firewallResult.blockedNetworkWrites;
   blockedCrossOrigin = firewallResult.blockedCrossOrigin;
@@ -95,7 +97,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
     const screenshotsDir = getScreenshotDir(projectDir, runId);
     mkdirSync(screenshotsDir, { recursive: true });
     
-    const timestamp = Date.now();
+    const timestamp = timeProvider.now();
     const initialScreenshot = resolve(screenshotsDir, `initial-${timestamp}.png`);
     await captureScreenshot(page, initialScreenshot);
     
@@ -113,7 +115,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
   // @ts-expect-error - readFileSync with encoding returns string
         manifest = JSON.parse(manifestContent);
         
-        // STAGE D2.1: Snapshot initialization (moved to snapshot-ops module)
+        // STAGE D2.1: Snapshot initialization (moved to snapshot-operations module)
         const snapshotResult = await initializeSnapshot(projectDir, manifest);
         oldSnapshot = snapshotResult.oldSnapshot;
         snapshotDiff = snapshotResult.snapshotDiff;
@@ -158,7 +160,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
 
     let nextPageUrl = frontier.getNextUrl();
 
-    while (nextPageUrl && Date.now() - startTime < scanBudget.maxScanDurationMs) {
+    while (nextPageUrl && timeProvider.now() - startTime < scanBudget.maxScanDurationMs) {
       if (frontier.isPageLimitExceeded()) {
         // PHASE 6: Record truncation decision
         recordTruncation(decisionRecorder, 'pages', {
@@ -277,11 +279,11 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
 
       // Execute discovered interactions on this page (sorted for determinism)
       for (let i = 0; i < sortedInteractions.length; i++) {
-        if (Date.now() - startTime > scanBudget.maxScanDurationMs) {
+        if (timeProvider.now() - startTime > scanBudget.maxScanDurationMs) {
           // PHASE 6: Record truncation decision
           recordTruncation(decisionRecorder, 'time', {
             limit: scanBudget.maxScanDurationMs,
-            elapsed: Date.now() - startTime
+            elapsed: timeProvider.now() - startTime
           });
           
           // Mark remaining interactions as COVERAGE_GAP
@@ -290,7 +292,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
             reason: 'scan_time_exceeded',
             description: `Scan time limit (${scanBudget.maxScanDurationMs}ms) exceeded`,
             context: { 
-              elapsed: Date.now() - startTime,
+              elapsed: timeProvider.now() - startTime,
               maxDuration: scanBudget.maxScanDurationMs,
               remainingInteractions: sortedInteractions.length - i
             },
@@ -499,7 +501,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
               reason: blockCheck.reason
             },
             outcome: 'BLOCKED_BY_SAFETY_MODE',
-            timestamp: Date.now()
+            timestamp: timeProvider.now()
           };
           traces.push(blockedTrace);
           
@@ -543,7 +545,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
 
               const repeatEligible = shouldAttemptRepeatObservedExpectation(observedExpectation, trace);
               const budgetAllowsRepeat = repeatEligible &&
-                (Date.now() - startTime) < scanBudget.maxScanDurationMs &&
+                (timeProvider.now() - startTime) < scanBudget.maxScanDurationMs &&
                 (totalInteractionsExecuted + 1) < scanBudget.maxTotalInteractions;
 
               if (budgetAllowsRepeat) {
@@ -741,7 +743,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
       observation.expectationCoverageGaps = expectationCoverageGaps;
     }
     
-    // STAGE D2.1: Snapshot finalization (moved to snapshot-ops module)
+    // STAGE D2.1: Snapshot finalization (moved to snapshot-operations module)
     const incrementalMetadata = await finalizeSnapshot(
       manifest,
       traces,
@@ -845,3 +847,6 @@ async function repeatObservedInteraction(
     repeatEvaluation
   };
 }
+
+
+

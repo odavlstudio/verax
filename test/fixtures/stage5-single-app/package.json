@@ -1,0 +1,12 @@
+{
+  "name": "stage5-single-app",
+  "version": "1.0.0",
+  "description": "Test fixture for zero-config single app resolution",
+  "scripts": {
+    "dev": "react-scripts start"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}

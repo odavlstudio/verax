@@ -1,11 +1,11 @@
-import { describe, it, beforeEach } from 'node:test';
+import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { RunResult } from '../src/cli/util/run-result.js';
-import { SKIP_REASON } from '../src/cli/util/types.js';
+import { RunResult } from '../../src/cli/util/support/run-result.js';
+import { SKIP_REASON } from '../../src/cli/util/support/types.js';
 import { mkdirSync, writeFileSync, existsSync, rmSync } from 'fs';
 import { join } from 'path';
 
-describe('PHASE 4: Determinism & Reproducibility', () => {
+describe('Determinism & Reproducibility Contract', () => {
   let runResult;
   const testRunId = 'test-run-determinism';
 
@@ -106,7 +106,7 @@ describe('PHASE 4: Determinism & Reproducibility', () => {
   });
 
   describe('Run Comparison', () => {
-    const testProjectRoot = join(process.cwd(), 'tmp', 'phase4-comparison-test');
+    const testProjectRoot = join(process.cwd(), 'tmp', 'determinism-comparison-test');
     const runsDir = join(testProjectRoot, '.verax', 'runs');
 
     beforeEach(() => {
@@ -115,6 +115,12 @@ describe('PHASE 4: Determinism & Reproducibility', () => {
         rmSync(testProjectRoot, { recursive: true, force: true });
       }
       mkdirSync(runsDir, { recursive: true });
+    });
+
+    afterEach(() => {
+      if (existsSync(testProjectRoot)) {
+        rmSync(testProjectRoot, { recursive: true, force: true });
+      }
     });
 
     it('should mark comparison as not comparable when no previous runs exist', async () => {
@@ -391,4 +397,5 @@ describe('PHASE 4: Determinism & Reproducibility', () => {
     });
   });
 });
+
 

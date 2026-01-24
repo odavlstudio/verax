@@ -15,6 +15,22 @@ declare global {
     __VERAX_STATE_SENSOR__?: any;
     __unhandledRejections?: any[];
     __ZUSTAND_STORE__?: any;
+    __VERAX_ROUTE_SENSOR_INJECTED__?: boolean;
+    __VERAX_ROUTE_TRANSITIONS__?: Array<{type: string; timestamp: number; url: string; state: any}>;
+    __veraxRouteLastChanged?: number;
+    __veraxDomSnapshot?: number;
+    __veraxLoadingDetected?: boolean;
+    __veraxMutationSummary?: {
+      nodesAdded: number;
+      nodesRemoved: number;
+      attributeChanges: Record<string, number>;
+      textChanges: Array<{text: string; length: number}>;
+    };
+    __veraxMutationObserver?: MutationObserver;
+  }
+  
+  interface Error {
+    exitCode?: number;
   }
 }
 
@@ -96,6 +112,17 @@ declare module 'path' {
     dirname: typeof dirname;
     basename: typeof basename;
   };
+}
+
+declare module 'readline/promises' {
+  export interface Interface {
+    question(query: string): Promise<string>;
+    close(): void;
+  }
+  export function createInterface(options: {
+    input: any;
+    output: any;
+  }): Interface;
 }
 
 declare module 'crypto' {

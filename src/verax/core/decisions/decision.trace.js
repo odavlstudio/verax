@@ -1,3 +1,5 @@
+// @ts-expect-error - TypeScript module resolution issue with time-provider path
+import { getTimeProvider } from '../../../../cli/util/support/time-provider.js';
 /**
  * PHASE 21.10 — Decision Trace
  * 
@@ -7,6 +9,7 @@
 
 import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
+import { safeParseJsonFile } from '../../../cli/util/support/atomic-write.js';
 
 /**
  * Build decision trace for findings
@@ -27,8 +30,16 @@ export function buildDecisionTrace(projectDir, runId) {
     return null;
   }
   
-  // @ts-expect-error - readFileSync with encoding returns string
-  const findings = JSON.parse(readFileSync(findingsPath, 'utf-8'));
+  // Parse findings with safe validation - reject if corrupt
+  const findings = safeParseJsonFile(findingsPath);
+  if (!findings) {
+    return {
+      runId,
+      findings: [],
+      summary: { total: 0, error: 'FAIL_DATA' },
+      generatedAt: getTimeProvider().iso()
+    };
+  }
   const traces = [];
   
   if (!Array.isArray(findings.findings)) {
@@ -36,7 +47,7 @@ export function buildDecisionTrace(projectDir, runId) {
       runId,
       findings: [],
       summary: { total: 0 },
-      generatedAt: new Date().toISOString()
+      generatedAt: getTimeProvider().iso()
     };
   }
   
@@ -234,7 +245,7 @@ export function buildDecisionTrace(projectDir, runId) {
       withGuardrails: traces.filter(t => t.guardrails.applied.length > 0).length,
       withCompleteEvidence: traces.filter(t => t.evidence.isComplete).length
     },
-    generatedAt: new Date().toISOString()
+    generatedAt: getTimeProvider().iso()
   };
 }
 
@@ -275,4 +286,7 @@ export function loadDecisionTrace(projectDir, runId) {
     return null;
   }
 }
+
+
+
 

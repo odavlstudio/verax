@@ -7,6 +7,7 @@
  * NO file I/O - all artifacts written by caller
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 import { navigateToPage, discoverPageLinks, isAlreadyOnPage, markPageVisited } from './observers/navigation-observer.js';
 import { discoverInteractions, checkAndSkipInteraction, executeInteraction } from './observers/interaction-observer.js';
 import { checkBudget } from './observers/budget-observer.js';
@@ -105,7 +106,8 @@ export async function runTraversalLoop(params) {
     navigatedPageUrl: null
   };
 
-  while (nextPageUrl && Date.now() - startTime < scanBudget.maxScanDurationMs) {
+  const timeProvider = getTimeProvider();
+  while (nextPageUrl && timeProvider.now() - startTime < scanBudget.maxScanDurationMs) {
     const currentUrl = page.url();
     const context = createObserveContext({ ...baseContext, currentUrl, routeBudget: baseContext.routeBudget });
     
@@ -227,4 +229,7 @@ export async function runTraversalLoop(params) {
 }
 
 // PHASE 21.3: repeatObservedInteraction moved to interaction-observer.js
+
+
+
 

@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
 /**
  * PHASE 18 — Determinism Engine
  * PHASE 21.2 — Determinism Truth Lock: Enforces HARD verdict
@@ -41,7 +42,7 @@ export async function runDeterminismCheck(runFn, options = { runs: 2, config: {}
     runsMeta.push({
       runIndex: i + 1,
       runId: runResult.runId || null,
-      timestamp: new Date().toISOString(),
+      timestamp: getTimeProvider().iso(),
       artifactPaths: runResult.artifactPaths || {},
       artifacts: runResult.artifacts || {},
     });
@@ -219,4 +220,7 @@ function buildSummary(diffs, _runsMeta) {
     stabilityScore,
   };
 }
+
+
+
 

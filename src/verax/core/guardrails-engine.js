@@ -7,8 +7,8 @@
  * All rules are mandatory and cannot be disabled.
  */
 
-import { loadGuardrailsPolicy, getPolicyReport } from './guardrails/policy.loader.js';
 import { GUARDRAILS_RULE } from './guardrails/policy.defaults.js';
+import { applyGuardrails as _applyGuardrails } from './guardrails-engine/apply-guardrails.js';
 
 // Re-export for backward compatibility
 export { GUARDRAILS_RULE };
@@ -24,22 +24,7 @@ export const GUARDRAILS_SEVERITY = {
   WARNING: 'WARNING',                   // Warning only, no status change
 };
 
-// Global policy cache (loaded once per process)
-let cachedPolicy = null;
-
-/**
- * Get guardrails policy (cached)
- * 
- * @param {string|null} policyPath - Custom policy path (optional)
- * @param {string} projectDir - Project directory
- * @returns {Object} Guardrails policy
- */
-function getGuardrailsPolicy(policyPath = null, projectDir = null) {
-  if (!cachedPolicy) {
-    cachedPolicy = loadGuardrailsPolicy(policyPath, projectDir);
-  }
-  return cachedPolicy;
-}
+// Policy cache moved to internal module; behavior unchanged
 
 /**
  * PHASE 21.4: Apply guardrails to a finding using policy
@@ -50,116 +35,13 @@ function getGuardrailsPolicy(policyPath = null, projectDir = null) {
  * @returns {Object} { finding: updatedFinding, guardrails: report }
  */
 export function applyGuardrails(finding, context = {}, options = {}) {
-  const evidencePackage = context.evidencePackage || finding.evidencePackage || {};
-  const signals = context.signals || evidencePackage.signals || {};
-  const _confidenceReasons = context.confidenceReasons || finding.confidenceReasons || [];
-  const _promiseType = context.promiseType || finding.expectation?.type || finding.promise?.type || null;
-  
-  // Load policy
-  const policy = getGuardrailsPolicy(options.policyPath, options.projectDir);
-  const policyReport = getPolicyReport(policy);
-  
-  const appliedRules = [];
-  const contradictions = [];
-  let recommendedStatus = finding.severity || finding.status || 'SUSPECTED';
-  const confidenceAdjustments = [];
-  let confidenceDelta = 0;
-  
-  // Apply rules in deterministic order (by rule id)
-  const sortedRules = [...policy.rules].sort((a, b) => a.id.localeCompare(b.id));
-  
-  for (const rule of sortedRules) {
-    // Check if rule applies to this finding type
-    const appliesToFinding = rule.appliesTo.includes('*') || 
-                             rule.appliesTo.some(cap => finding.type?.includes(cap));
-    
-    if (!appliesToFinding) {
-      continue;
-    }
-    
-    // Evaluate rule
-    const evaluation = evaluateRule(rule, finding, signals, evidencePackage);
-    
-    if (evaluation.applies) {
-      appliedRules.push({
-        code: rule.id,
-        severity: mapActionToSeverity(rule.action),
-        message: evaluation.message,
-        ruleId: rule.id,
-        category: rule.category
-      });
-      
-      if (evaluation.contradiction) {
-        contradictions.push({
-          code: rule.id,
-          message: evaluation.message,
-        });
-      }
-      
-      if (evaluation.recommendedStatus) {
-        recommendedStatus = evaluation.recommendedStatus;
-      }
-      
-      const delta = rule.confidenceDelta || 0;
-      confidenceDelta += delta;
-      
-      if (delta !== 0) {
-        confidenceAdjustments.push({
-          reason: rule.id,
-          delta: delta,
-          message: evaluation.message,
-        });
-      }
-    }
-  }
-  
-  // Apply confidence adjustments
-  let finalConfidence = finding.confidence || 0;
-  if (confidenceDelta !== 0) {
-    finalConfidence = Math.max(0, Math.min(1, finalConfidence + confidenceDelta));
-  }
-  
-  // Build guardrails report with policy metadata
-  const guardrailsReport = {
-    appliedRules,
-    contradictions,
-    recommendedStatus,
-    confidenceAdjustments,
-    confidenceDelta,
-    finalDecision: recommendedStatus,
-    policyReport: {
-      version: policyReport.version,
-      source: policyReport.source,
-      appliedRuleIds: appliedRules.map(r => r.code)
-    }
-  };
-  
-  // Update finding
-  const updatedFinding = {
-    ...finding,
-    severity: recommendedStatus,
-    status: recommendedStatus, // Also update status for backward compatibility
-    confidence: finalConfidence,
-    guardrails: guardrailsReport,
-  };
-  
-  return {
-    finding: updatedFinding,
-    guardrails: guardrailsReport,
-  };
+  return _applyGuardrails(finding, context, options);
 }
 
 /**
  * Map policy action to severity
  */
-function mapActionToSeverity(action) {
-  const mapping = {
-    'BLOCK': GUARDRAILS_SEVERITY.BLOCK_CONFIRMED,
-    'DOWNGRADE': GUARDRAILS_SEVERITY.DOWNGRADE,
-    'INFO': GUARDRAILS_SEVERITY.INFORMATIONAL
-  };
-  return mapping[action] || GUARDRAILS_SEVERITY.WARNING;
-}
+// Mapping moved internal; behavior unchanged
 
 /**
  * Evaluate a guardrails rule
@@ -170,50 +52,12 @@ function mapActionToSeverity(action) {
  * @param {Object} evidencePackage - Evidence package
  * @returns {Object} { applies, message, contradiction, recommendedStatus }
  */
-function evaluateRule(rule, finding, signals, evidencePackage) {
-  const evalType = rule.evaluation.type;
-  const isConfirmed = finding.severity === 'CONFIRMED' || finding.status === 'CONFIRMED';
-  
-  switch (evalType) {
-    case 'network_success_no_ui':
-      return evaluateNetSuccessNoUi(finding, signals, evidencePackage, isConfirmed);
-    
-    case 'analytics_only':
-      return evaluateAnalyticsOnly(finding, signals, evidencePackage, isConfirmed);
-    
-    case 'shallow_routing':
-      return evaluateShallowRouting(finding, signals, evidencePackage, isConfirmed);
-    
-    case 'ui_feedback_present':
-      return evaluateUiFeedbackPresent(finding, signals, evidencePackage, isConfirmed);
-    
-    case 'interaction_blocked':
-      return evaluateInteractionBlocked(finding, signals, evidencePackage, isConfirmed);
-    
-    case 'validation_present':
-      return evaluateValidationPresent(finding, signals, evidencePackage, isConfirmed);
-    
-    case 'contradict_evidence':
-      return evaluateContradictEvidence(finding, signals, evidencePackage, isConfirmed);
-    
-    case 'view_switch_minor_change':
-      return evaluateViewSwitchMinorChange(finding, signals, evidencePackage, isConfirmed);
-    
-    case 'view_switch_analytics_only':
-      return evaluateViewSwitchAnalyticsOnly(finding, signals, evidencePackage, isConfirmed);
-    
-    case 'view_switch_ambiguous':
-      return evaluateViewSwitchAmbiguous(finding, signals, evidencePackage, isConfirmed);
-    
-    default:
-      return { applies: false };
-  }
-}
+// Rule evaluators moved internal; behavior unchanged
 
 /**
  * Rule 1: GUARD_NET_SUCCESS_NO_UI
  */
-function evaluateNetSuccessNoUi(finding, signals, evidencePackage, isConfirmed) {
+function _evaluateNetSuccessNoUi(finding, signals, evidencePackage, isConfirmed) {
   const networkSignals = signals.network || {};
   const uiSignals = signals.uiSignals || {};
   const uiFeedback = signals.uiFeedback || {};
@@ -243,7 +87,7 @@ function evaluateNetSuccessNoUi(finding, signals, evidencePackage, isConfirmed) 
 /**
  * Rule 2: GUARD_ANALYTICS_ONLY
  */
-function evaluateAnalyticsOnly(finding, signals, evidencePackage, isConfirmed) {
+function _evaluateAnalyticsOnly(finding, signals, evidencePackage, isConfirmed) {
   const networkSignals = signals.network || {};
   const networkRequests = networkSignals.topFailedUrls || 
                           networkSignals.observedRequestUrls || 
@@ -279,7 +123,7 @@ function evaluateAnalyticsOnly(finding, signals, evidencePackage, isConfirmed) {
 /**
  * Rule 3: GUARD_SHALLOW_ROUTING
  */
-function evaluateShallowRouting(finding, signals, evidencePackage, isConfirmed) {
+function _evaluateShallowRouting(finding, signals, evidencePackage, isConfirmed) {
   const navigationSignals = signals.navigation || {};
   const beforeUrl = evidencePackage.before?.url || '';
   const afterUrl = evidencePackage.after?.url || '';
@@ -308,7 +152,7 @@ function evaluateShallowRouting(finding, signals, evidencePackage, isConfirmed) 
 /**
  * Rule 4: GUARD_UI_FEEDBACK_PRESENT
  */
-function evaluateUiFeedbackPresent(finding, signals, evidencePackage, isConfirmed) {
+function _evaluateUiFeedbackPresent(finding, signals, evidencePackage, isConfirmed) {
   const uiFeedback = signals.uiFeedback || {};
   const uiSignals = signals.uiSignals || {};
   
@@ -336,7 +180,7 @@ function evaluateUiFeedbackPresent(finding, signals, evidencePackage, isConfirme
 /**
  * Rule 5: GUARD_INTERACTION_BLOCKED
  */
-function evaluateInteractionBlocked(finding, signals, evidencePackage, isConfirmed) {
+function _evaluateInteractionBlocked(finding, signals, evidencePackage, isConfirmed) {
   const interaction = finding.interaction || {};
   const action = evidencePackage.action || {};
   
@@ -360,7 +204,7 @@ function evaluateInteractionBlocked(finding, signals, evidencePackage, isConfirm
 /**
  * Rule 6: GUARD_VALIDATION_PRESENT
  */
-function evaluateValidationPresent(finding, signals, evidencePackage, isConfirmed) {
+function _evaluateValidationPresent(finding, signals, evidencePackage, isConfirmed) {
   const uiSignals = signals.uiSignals || {};
   const uiFeedback = signals.uiFeedback || {};
   
@@ -386,7 +230,7 @@ function evaluateValidationPresent(finding, signals, evidencePackage, isConfirme
 /**
  * Rule 7: GUARD_CONTRADICT_EVIDENCE
  */
-function evaluateContradictEvidence(finding, signals, evidencePackage, isConfirmed) {
+function _evaluateContradictEvidence(finding, signals, evidencePackage, isConfirmed) {
   if (!evidencePackage || !evidencePackage.isComplete) {
     const missingFields = evidencePackage.missingEvidence || [];
     if (isConfirmed && missingFields.length > 0) {
@@ -406,7 +250,7 @@ function evaluateContradictEvidence(finding, signals, evidencePackage, isConfirm
  * Rule: GUARD_VIEW_SWITCH_MINOR_CHANGE
  * If URL unchanged and change is minor (e.g. button text change only) -> cannot be CONFIRMED
  */
-function evaluateViewSwitchMinorChange(finding, signals, evidencePackage, isConfirmed) {
+function _evaluateViewSwitchMinorChange(finding, signals, evidencePackage, isConfirmed) {
   const isViewSwitch = finding.type?.includes('view_switch') || 
                       finding.expectation?.kind === 'VIEW_SWITCH_PROMISE';
   const beforeUrl = evidencePackage.before?.url || '';
@@ -441,7 +285,7 @@ function evaluateViewSwitchMinorChange(finding, signals, evidencePackage, isConf
  * Rule: GUARD_VIEW_SWITCH_ANALYTICS_ONLY
  * If only analytics fired -> ignore
  */
-function evaluateViewSwitchAnalyticsOnly(finding, signals, evidencePackage, isConfirmed) {
+function _evaluateViewSwitchAnalyticsOnly(finding, signals, evidencePackage, isConfirmed) {
   const isViewSwitch = finding.type?.includes('view_switch') || 
                       finding.expectation?.kind === 'VIEW_SWITCH_PROMISE';
   
@@ -481,7 +325,7 @@ function evaluateViewSwitchAnalyticsOnly(finding, signals, evidencePackage, isCo
  * Rule: GUARD_VIEW_SWITCH_AMBIGUOUS
  * If state change promise exists but UI outcome ambiguous (one signal only) -> SUSPECTED
  */
-function evaluateViewSwitchAmbiguous(finding, signals, evidencePackage, isConfirmed) {
+function _evaluateViewSwitchAmbiguous(finding, signals, evidencePackage, isConfirmed) {
   const isViewSwitch = finding.type?.includes('view_switch') || 
                       finding.expectation?.kind === 'VIEW_SWITCH_PROMISE';
   const hasPromise = finding.expectation?.kind === 'VIEW_SWITCH_PROMISE' ||
@@ -503,3 +347,6 @@ function evaluateViewSwitchAmbiguous(finding, signals, evidencePackage, isConfir
   
   return { applies: false };
 }
+
+
+

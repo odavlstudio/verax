@@ -7,6 +7,8 @@
  */
 
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+
 import { dirname } from 'path';
 import { getArtifactPath } from './run-id.js';
 import { computeRunFingerprint } from './determinism/run-fingerprint.js';
@@ -74,7 +76,7 @@ export class PipelineTracker {
     this.currentStage = stageName;
     this.stages[stageName] = {
       name: stageName,
-      startedAt: new Date().toISOString(),
+      startedAt: getTimeProvider().iso(),
       completedAt: null,
       durationMs: null,
       status: 'RUNNING'
@@ -95,10 +97,9 @@ export class PipelineTracker {
       throw new Error(`Cannot complete ${stageName}: current stage is ${this.currentStage}`);
     }
 
-    const completedAt = new Date().toISOString();
-    const startedAt = new Date(this.stages[stageName].startedAt);
-    // @ts-expect-error - Date arithmetic
-    const durationMs = new Date(completedAt) - startedAt;
+    const completedAt = getTimeProvider().iso();
+    const startedAt = Date.parse(this.stages[stageName].startedAt);
+    const durationMs = Date.parse(completedAt) - startedAt;
 
     this.stages[stageName] = {
       ...this.stages[stageName],
@@ -126,10 +127,9 @@ export class PipelineTracker {
       throw new Error(`Cannot fail ${stageName}: current stage is ${this.currentStage}`);
     }
 
-    const completedAt = new Date().toISOString();
-    const startedAt = new Date(this.stages[stageName].startedAt);
-    // @ts-expect-error - Date arithmetic
-    const durationMs = new Date(completedAt) - startedAt;
+    const completedAt = getTimeProvider().iso();
+    const startedAt = Date.parse(this.stages[stageName].startedAt);
+    const durationMs = Date.parse(completedAt) - startedAt;
 
     this.stages[stageName] = {
       ...this.stages[stageName],
@@ -231,7 +231,7 @@ export class PipelineTracker {
         stages: this.stages,
         completedStages: this.completedStages,
         currentStage: this.currentStage,
-        lastUpdated: new Date().toISOString()
+        lastUpdated: getTimeProvider().iso()
       }
     };
 
@@ -240,4 +240,7 @@ export class PipelineTracker {
 }
 
 export { PIPELINE_STAGES, STAGE_ORDER };
+
+
+
 

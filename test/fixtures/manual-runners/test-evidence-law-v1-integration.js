@@ -83,3 +83,5 @@ if (test1Pass && test2Pass && test3Pass) {
   console.log(`  Test 3 (missing both): ${test3Pass ? 'PASS' : 'FAIL'}`);
   process.exit(1);
 }
+
+

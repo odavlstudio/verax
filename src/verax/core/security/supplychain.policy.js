@@ -7,8 +7,10 @@
  * - Postinstall script restrictions
  */
 
-import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
+import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
 
 const DEFAULT_POLICY = JSON.parse(
   readFileSync(new URL('./supplychain.defaults.json', import.meta.url), 'utf-8')
@@ -164,7 +166,9 @@ function checkPostinstallScripts(projectDir) {
   
   try {
     const { readdirSync } = require('fs');
-    const entries = readdirSync(nodeModulesPath, { withFileTypes: true });
+    const entries = readdirSync(nodeModulesPath, { withFileTypes: true })
+      // @ts-ignore - Dirent has name property
+      .sort((a, b) => a.name.localeCompare(b.name, 'en'));
     
     for (const entry of entries) {
       if (entry.isDirectory() && !entry.name.startsWith('.')) {
@@ -300,7 +304,7 @@ export async function evaluateSupplyChainPolicy(projectDir) {
         acc[v.type] = (acc[v.type] || 0) + 1;
         return acc;
       }, {}),
-      evaluatedAt: new Date().toISOString()
+      evaluatedAt: getTimeProvider().iso()
     },
     policy: {
       version: policy.version,
@@ -331,4 +335,7 @@ export function writeSupplyChainReport(projectDir, report) {
   
   return outputPath;
 }
+
+
+
 

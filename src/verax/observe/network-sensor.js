@@ -3,6 +3,8 @@
  * Monitors network requests, responses, failures via Playwright page events
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+
 export class NetworkSensor {
   constructor(options = {}) {
     this.slowThresholdMs = options.slowThresholdMs || 2000;
@@ -17,9 +19,11 @@ export class NetworkSensor {
   startWindow(page) {
     const windowId = this.nextWindowId++;
 
+    const timeProvider = getTimeProvider();
+
     const state = {
       id: windowId,
-      startTime: Date.now(),
+      startTime: timeProvider.now(),
       requests: new Map(), // url -> { startTime, endTime, status, failed, duration }
       failedRequests: [],
       failedByStatus: {}, // status code -> count
@@ -36,7 +40,7 @@ export class NetworkSensor {
       if (!state.requests.has(url)) {
         state.requests.set(url, {
           url: url,
-          startTime: Date.now(),
+          startTime: timeProvider.now(),
           endTime: null,
           status: null,
           failed: false,
@@ -58,7 +62,7 @@ export class NetworkSensor {
 
       if (state.requests.has(url)) {
         const reqData = state.requests.get(url);
-        reqData.endTime = Date.now();
+        reqData.endTime = timeProvider.now();
         reqData.status = status;
         reqData.duration = reqData.endTime - reqData.startTime;
         reqData.completed = true;
@@ -81,14 +85,14 @@ export class NetworkSensor {
 
       if (state.requests.has(url)) {
         const reqData = state.requests.get(url);
-        reqData.endTime = Date.now();
+        reqData.endTime = timeProvider.now();
         reqData.duration = reqData.endTime - reqData.startTime;
         reqData.failed = true;
       } else {
         state.requests.set(url, {
           url: url,
-          startTime: Date.now(),
-          endTime: Date.now(),
+          startTime: timeProvider.now(),
+          endTime: timeProvider.now(),
           status: null,
           failed: true,
           duration: 0,
@@ -126,7 +130,8 @@ export class NetworkSensor {
 
     state.cleanup();
 
-    const endTime = Date.now();
+    const timeProvider = getTimeProvider();
+    const endTime = timeProvider.now();
     const duration = endTime - state.startTime;
 
     // Count failed requests: requests that had 4xx/5xx status or failed completely
@@ -137,7 +142,7 @@ export class NetworkSensor {
 
     // Find slow requests (completed requests that took longer than threshold)
     // Also include incomplete requests that have been pending longer than threshold
-    const now = Date.now();
+    const now = timeProvider.now();
     const slowRequests = Array.from(state.requests.values())
       .filter((r) => {
         if (r.completed && r.duration && r.duration > this.slowThresholdMs) {
@@ -219,3 +224,6 @@ export class NetworkSensor {
     };
   }
 }
+
+
+

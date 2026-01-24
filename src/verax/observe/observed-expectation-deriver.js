@@ -11,7 +11,7 @@
  * - State: only if state sensor shows named store mutation (supported stores only)
  */
 
-import { getUrlPath } from '../detect/evidence-validator.js';
+import { getUrlPath } from '../shared/observable-utilities.js';
 
 /**
  * Derive an OBSERVED expectation from an interaction trace.
@@ -183,4 +183,7 @@ export function isObservedExpectation(expectation) {
   return expectation.expectationStrength === 'OBSERVED' || 
          expectation.proof === 'OBSERVED_EXPECTATION';
 }
+
+
+
 

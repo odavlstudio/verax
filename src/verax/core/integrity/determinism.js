@@ -30,7 +30,7 @@ function normalizeObject(obj, basePath = '') {
   }
   
   const normalized = {};
-  const sortedKeys = Object.keys(obj).sort();
+  const sortedKeys = Object.keys(obj).sort((a, b) => a.localeCompare(b, 'en'));
   
   for (const key of sortedKeys) {
     const value = obj[key];
@@ -140,10 +140,12 @@ function computeSemanticHash(obj) {
   // Use JSON.stringify with replacer that sorts all object keys recursively
   const sortedReplacer = (key, value) => {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      return Object.keys(value).sort().reduce((sorted, key) => {
-        sorted[key] = value[key];
-        return sorted;
-      }, {});
+      return Object.keys(value)
+        .sort((a, b) => a.localeCompare(b, 'en'))
+        .reduce((sorted, key) => {
+          sorted[key] = value[key];
+          return sorted;
+        }, {});
     }
     return value;
   };
@@ -256,8 +258,8 @@ function findDifferences(obj1, obj2, path) {
   }
   
   // Object comparison
-  const keys1 = Object.keys(obj1).sort();
-  const keys2 = Object.keys(obj2).sort();
+  const keys1 = Object.keys(obj1).sort((a, b) => a.localeCompare(b, 'en'));
+  const keys2 = Object.keys(obj2).sort((a, b) => a.localeCompare(b, 'en'));
   
   const allKeys = new Set([...keys1, ...keys2]);
   
@@ -340,3 +342,6 @@ export function normalizeFindingsForComparison(findings) {
       return idA.localeCompare(idB);
     });
 }
+
+
+

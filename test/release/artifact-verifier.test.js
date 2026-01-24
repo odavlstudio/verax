@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, mkdirSync, unlinkSync, rmdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { verifyRun } from '../src/verax/core/artifacts/verifier.js';
-import { ARTIFACT_REGISTRY } from '../src/verax/core/artifacts/registry.js';
-import { FINDING_STATUS } from '../src/verax/core/contracts/types.js';
+import { verifyRun } from '../../src/verax/core/artifacts/verifier.js';
+import { ARTIFACT_REGISTRY } from '../../src/verax/core/artifacts/registry.js';
+import { FINDING_STATUS } from '../../src/verax/core/contracts/types.js';
 
 /**
  * Create a minimal valid run directory structure
@@ -163,6 +163,20 @@ function createValidRunDir(baseDir) {
     contractVersion: 1,
     artifactVersions: {},
     contracts: []
+  }, null, 2));
+
+  // Create coverage.json
+  writeFileSync(join(runDir, ARTIFACT_REGISTRY.coverage.filename), JSON.stringify({
+    contractVersion: 1,
+    artifactVersions: {},
+    coverage: []
+  }, null, 2));
+
+  // Create judgments.json
+  writeFileSync(join(runDir, ARTIFACT_REGISTRY.judgments.filename), JSON.stringify({
+    contractVersion: 1,
+    artifactVersions: {},
+    judgments: []
   }, null, 2));
   
   // Create evidence directory
@@ -421,4 +435,5 @@ test('enforcement summary is computed correctly', () => {
   assert.strictEqual(verdict.enforcementSummary.suspectedFindings, 1, 'Should have 1 suspected');
   assert.strictEqual(verdict.enforcementSummary.enforcementApplied, true, 'Enforcement should be applied');
 });
+
 

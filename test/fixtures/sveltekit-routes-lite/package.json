@@ -1,0 +1,15 @@
+{
+  "name": "sveltekit-routes-lite",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@sveltejs/kit": "^1.0.0",
+    "svelte": "^4.0.0"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0"
+  },
+  "scripts": {
+    "dev": "vite dev"
+  }
+}

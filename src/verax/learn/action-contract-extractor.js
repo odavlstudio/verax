@@ -8,7 +8,7 @@
  * NO HEURISTICS. Only static, deterministic analysis.
  */
 
-import { normalizeTemplateLiteral } from '../shared/dynamic-route-utils.js';import { parse } from '@babel/parser';
+import { normalizeTemplateLiteral } from '../shared/dynamic-route-normalizer.js';import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
 import { readFileSync } from 'fs';
 import { relative, sep } from 'path';
@@ -457,7 +457,7 @@ export async function scanForContracts(rootPath, workspaceRoot) {
   
   function walk(dir) {
     try {
-      const entries = readdirSync(dir);
+      const entries = readdirSync(dir).sort((a, b) => a.localeCompare(b, 'en'));
       
       for (const entry of entries) {
         const fullPath = join(dir, entry);
@@ -516,3 +516,6 @@ export async function scanForContracts(rootPath, workspaceRoot) {
   walk(rootPath);
   return contracts;
 }
+
+
+

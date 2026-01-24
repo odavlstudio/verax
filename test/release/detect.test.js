@@ -3,11 +3,14 @@ import assert from 'node:assert';
 import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
 import { resolve, join } from 'path';
 import { tmpdir } from 'os';
-import { detect } from '../src/verax/detect/index.js';
-import { generateRunId } from '../src/verax/shared/artifact-manager.js';
+import { detect } from '../../src/verax/detect/index.js';
+import { generateRunId } from '../../src/verax/shared/artifact-manager.js';
+import { generateTempDirName } from '../support/test-id-provider.js';
+import { getTimeProvider } from '../../src/cli/util/support/time-provider.js';
+
 
 function createTempDir() {
-  const tempDir = resolve(tmpdir(), `verax-detect-test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+  const tempDir = resolve(tmpdir(), generateTempDirName('detect-test'));
   mkdirSync(tempDir, { recursive: true });
   return tempDir;
 }
@@ -32,7 +35,7 @@ test('detect finds silent failure when expected navigation does not occur', asyn
     
     const manifest = {
       version: 1,
-      learnedAt: new Date().toISOString(),
+      learnedAt: getTimeProvider().iso(),
       projectDir: tempDir,
       projectType: 'nextjs_app_router',
       routes: [
@@ -62,7 +65,7 @@ test('detect finds silent failure when expected navigation does not occur', asyn
     
     const observation = {
       version: 1,
-      observedAt: new Date().toISOString(),
+      observedAt: getTimeProvider().iso(),
       url: 'file:///test.html',
       traces: [
         {
@@ -128,7 +131,7 @@ test('detect does not report failure when navigation occurs', async () => {
     
     const manifest = {
       version: 1,
-      learnedAt: new Date().toISOString(),
+      learnedAt: getTimeProvider().iso(),
       projectDir: tempDir,
       projectType: 'nextjs_app_router',
       routes: [
@@ -147,7 +150,7 @@ test('detect does not report failure when navigation occurs', async () => {
     
     const observation = {
       version: 1,
-      observedAt: new Date().toISOString(),
+      observedAt: getTimeProvider().iso(),
       url: 'file:///test.html',
       traces: [
         {
@@ -194,7 +197,7 @@ test('detect does not report failure when visible change occurs', async () => {
     
     const manifest = {
       version: 1,
-      learnedAt: new Date().toISOString(),
+      learnedAt: getTimeProvider().iso(),
       projectDir: tempDir,
       projectType: 'nextjs_app_router',
       routes: [
@@ -212,7 +215,7 @@ test('detect does not report failure when visible change occurs', async () => {
     
     const observation = {
       version: 1,
-      observedAt: new Date().toISOString(),
+      observedAt: getTimeProvider().iso(),
       url: 'file:///test.html',
       traces: [
         {
@@ -259,7 +262,7 @@ test('detect generates findings.json with correct schema', async () => {
     
     const manifest = {
       version: 1,
-      learnedAt: new Date().toISOString(),
+      learnedAt: getTimeProvider().iso(),
       projectDir: tempDir,
       projectType: 'nextjs_app_router',
       routes: [
@@ -277,7 +280,7 @@ test('detect generates findings.json with correct schema', async () => {
     
     const observation = {
       version: 1,
-      observedAt: new Date().toISOString(),
+      observedAt: getTimeProvider().iso(),
       url: 'file:///test.html',
       traces: [
         {
@@ -305,7 +308,7 @@ test('detect generates findings.json with correct schema', async () => {
     
     const findingsContent = JSON.parse(readFileSync(findings.findingsPath, 'utf-8'));
     assert.strictEqual(findingsContent.version, 1);
-    assert.ok(findingsContent.detectedAt);
+    // PHASE 5: detectedAt removed for determinism
     assert.strictEqual(typeof findingsContent.url, 'string');
     assert.ok(Array.isArray(findingsContent.findings));
     assert.ok(Array.isArray(findingsContent.notes));
@@ -328,4 +331,5 @@ test('detect generates findings.json with correct schema', async () => {
     cleanupTempDir(tempDir);
   }
 });
+
 

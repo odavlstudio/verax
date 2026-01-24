@@ -1,5 +1,5 @@
 /**
- * Phase 2 Integration Test: Contract Enforcement in Artifacts
+ * Contract Enforcement in Artifacts Test
  * 
  * Verifies that:
  * - Findings without evidence are downgraded or dropped
@@ -12,7 +12,7 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 import { writeFileSync as _writeFileSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import { resolve } from 'path';
-import { writeFindings } from '../src/verax/detect/findings-writer.js';
+import { writeFindings } from '../../src/verax/detect/findings-writer.js';
 import { 
   FINDING_TYPE, 
   FINDING_STATUS, 
@@ -20,7 +20,7 @@ import {
   IMPACT, 
   USER_RISK, 
   OWNERSHIP 
-} from '../src/verax/core/contracts/index.js';
+} from '../../src/verax/core/contracts/index.js';
 
 // Temporary test directory
 const testDir = resolve('./artifacts/test-contract-enforcement');
@@ -218,7 +218,12 @@ test('writeFindings: outcome summary uses enforced findings', () => {
   cleanup();
   mkdirSync(testDir, { recursive: true });
 
-  const findings = [createValidFinding(), createValidFinding()];
+  // Create 2 different findings to avoid deduplication
+  const finding1 = createValidFinding();
+  const finding2 = createValidFinding();
+  finding2.interaction = { type: 'button', selector: 'button.submit', label: 'Submit' };
+
+  const findings = [finding1, finding2];
   writeFindings(testDir, 'http://localhost', findings, [], testDir);
 
   const artifactPath = resolve(testDir, 'findings.json');
@@ -272,7 +277,7 @@ test('writeFindings: artifact remains valid JSON format', () => {
 
   // Should have expected root fields
   assert.ok(artifact.version);
-  assert.ok(artifact.detectedAt);
+  // PHASE 5: detectedAt removed for determinism
   assert.ok(artifact.url);
   assert.ok(artifact.findings);
   assert.ok(Array.isArray(artifact.findings));
@@ -347,4 +352,5 @@ test('DEMO: Invalid finding is visibly downgraded to SUSPECTED', () => {
 
   cleanup();
 });
+
 

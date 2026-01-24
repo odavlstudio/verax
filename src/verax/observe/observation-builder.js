@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 /**
  * OBSERVATION BUILDER
  * 
@@ -15,7 +16,7 @@
  */
 export function buildObservation(traces, coverage, warnings, safetyStats) {
   const observation = {
-    timestamp: new Date().toISOString(),
+    timestamp: getTimeProvider().iso(),
     traces: traces,
     coverage: coverage || [],
     warnings: warnings || [],
@@ -167,3 +168,6 @@ export function buildSkippedInteractionsSummary(interactions) {
     element: skip.element
   }));
 }
+
+
+

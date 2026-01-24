@@ -204,3 +204,6 @@ export class StateUISensor {
     return elements.map(e => e[key] ? 'T' : 'F').join('');
   }
 }
+
+
+

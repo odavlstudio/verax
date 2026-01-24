@@ -128,3 +128,6 @@ export function printFindings(findings, expectations = [], limit = 5) {
   console.error('─'.repeat(60) + '\n');
 }
 
+
+
+

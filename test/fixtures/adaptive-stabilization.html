@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Adaptive Stabilization Test</title>
+  <style>
+    #lazy-content {
+      display: none;
+    }
+    #button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Adaptive Stabilization Test</h1>
+  <p>This page has delayed UI updates that simulate flaky applications.</p>
+  
+  <button id="button">Click Me</button>
+  <div id="lazy-content"></div>
+  
+  <script>
+    let clickCount = 0;
+    
+    document.getElementById('button').addEventListener('click', () => {
+      clickCount++;
+      
+      // Immediate change
+      document.getElementById('button').textContent = `Clicked ${clickCount} times`;
+      
+      // First delayed change (1000ms)
+      setTimeout(() => {
+        document.getElementById('lazy-content').innerHTML = `<p>Lazy content loaded after 1s</p>`;
+        document.getElementById('lazy-content').style.display = 'block';
+      }, 1000);
+      
+      // Second delayed change (2500ms) - simulates slow lazy-loading
+      setTimeout(() => {
+        const newDiv = document.createElement('div');
+        newDiv.textContent = 'Additional content loaded after 2.5s';
+        document.getElementById('lazy-content').appendChild(newDiv);
+      }, 2500);
+    });
+    
+    // Track if DOM is stable
+    window.hasDOMChanged = false;
+    const observer = new MutationObserver(() => {
+      window.hasDOMChanged = true;
+      // Reset after each batch of mutations
+      setTimeout(() => {
+        window.hasDOMChanged = false;
+      }, 100);
+    });
+    
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  </script>
+</body>
+</html>

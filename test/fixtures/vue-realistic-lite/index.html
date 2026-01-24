@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Vue Realistic Lite</title>
+  <style>
+    .page { display: none; }
+    .page.active { display: block; }
+    nav a { margin-right: 12px; }
+  </style>
+</head>
+<body>
+  <div id="app" data-vueapp>
+    <nav>
+      <!-- Working router-link: uses anchor -->
+      <a id="ok-link" href="/about">Go About</a>
+      <!-- Broken router-link: prevents navigation -->
+      <a id="broken-link" href="/broken-destination">Broken Link (Click Prevented)</a>
+    </nav>
+    <div class="page active" id="home">
+      <h1>Home</h1>
+    </div>
+    <div class="page" id="ok">
+      <h1>OK Page</h1>
+      <p>Navigated successfully</p>
+    </div>
+    <div class="page" id="broken">
+      <h1>Broken Page</h1>
+      <p>Should not be shown on broken nav</p>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

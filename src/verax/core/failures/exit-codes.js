@@ -1,30 +1,34 @@
 /**
- * Exit Codes Contract v1
+ * Exit Codes Contract — Stage 7
  * 
  * Exit codes with explicit precedence (highest wins):
  * - 64: USAGE ERROR (invalid CLI usage)
- * - 2:  TOOL FAILURE (crash, invariant, runtime error)
- * - 20: FAILURE (any CONFIRMED finding)
- * - 10: WARNING (only SUSPECTED/INFORMATIONAL findings)
- * - 0:  OK (no CONFIRMED findings)
+ * - 50: EVIDENCE VIOLATION (data/contract corruption)
+ * - 40: INFRA FAILURE (crash, invariant, runtime error)
+ * - 30: INCOMPLETE (partial/incomplete analysis)
+ * - 20: FAILURE (confirmed findings)
+ * - 10: NEEDS REVIEW (suspected findings)
+ * - 0:  OK (no actionable findings)
  */
 
 import { FAILURE_SEVERITY as _FAILURE_SEVERITY } from './failure.types.js';
 
 /**
- * Exit Code Constants (Contract v1)
+ * Exit Code Constants (Stage 7)
  */
 export const EXIT_CODE = {
-  OK: 0,                       // No CONFIRMED findings
-  WARNING: 10,                 // Only SUSPECTED/INFORMATIONAL
-  FAILURE: 20,                 // Any CONFIRMED finding
-  TOOL_FAILURE: 2,             // Crash, invariant, runtime error
-  USAGE_ERROR: 64              // Invalid CLI usage
+  OK: 0,
+  NEEDS_REVIEW: 10,
+  FAILURE: 20,
+  INCOMPLETE: 30,
+  INFRA_FAILURE: 40,
+  EVIDENCE_VIOLATION: 50,
+  USAGE_ERROR: 64,
 };
 
 /**
  * Determine exit code with precedence (highest wins)
- * Precedence: 64 > 2 > 20 > 10 > 0
+ * Precedence: 64 > 50 > 40 > 30 > (20/10/0)
  * 
  * @param {Object} ledgerSummary - Failure ledger summary
  * @param {string} _determinismVerdict - Determinism verdict
@@ -39,29 +43,29 @@ export function determineExitCode(ledgerSummary, _determinismVerdict = null, evi
     return EXIT_CODE.USAGE_ERROR;
   }
   
-  // Precedence 2: TOOL FAILURE (2) - Internal corruption or contract violations
+  // Precedence 2: EVIDENCE VIOLATION (50) - Internal corruption or contract violations
   const hasInternalCorruption = ledgerSummary.byCategory?.INTERNAL > 0 ||
                                  ledgerSummary.byCategory?.CONTRACT > 0;
   if (hasInternalCorruption) {
-    return EXIT_CODE.TOOL_FAILURE;
+    return EXIT_CODE.EVIDENCE_VIOLATION;
   }
   
-  // Precedence 2: TOOL FAILURE (2) - BLOCKING failures
+  // Precedence 3: INFRA FAILURE (40) - BLOCKING failures
   if (ledgerSummary.bySeverity?.BLOCKING > 0) {
-    return EXIT_CODE.TOOL_FAILURE;
+    return EXIT_CODE.INFRA_FAILURE;
   }
   
-  // Precedence 2: TOOL FAILURE (2) - DEGRADED failures
+  // Precedence 3: INFRA FAILURE (40) - DEGRADED failures
   if (ledgerSummary.bySeverity?.DEGRADED > 0) {
-    return EXIT_CODE.TOOL_FAILURE;
+    return EXIT_CODE.INFRA_FAILURE;
   }
   
-  // Precedence 2: TOOL FAILURE (2) - Evidence Law violation
+  // Precedence 2: EVIDENCE VIOLATION (50)
   if (evidenceLawViolated) {
-    return EXIT_CODE.TOOL_FAILURE;
+    return EXIT_CODE.EVIDENCE_VIOLATION;
   }
   
-  // Note: Precedence 3-5 (FAILURE/WARNING/OK) handled by run-result.js
+  // Note: Finding-based codes (20/10/0) handled by RunResult
   // This function handles system failures only
   
   // No system failures → delegate to findings-based logic
@@ -76,13 +80,18 @@ export function determineExitCode(ledgerSummary, _determinismVerdict = null, evi
  */
 export function getExitCodeMeaning(exitCode) {
   const meanings = {
-    [EXIT_CODE.OK]: 'OK (no CONFIRMED findings)',
-    [EXIT_CODE.WARNING]: 'WARNING (only SUSPECTED/INFORMATIONAL findings)',
-    [EXIT_CODE.FAILURE]: 'FAILURE (CONFIRMED finding detected)',
-    [EXIT_CODE.TOOL_FAILURE]: 'TOOL FAILURE (crash, invariant, or runtime error)',
+    [EXIT_CODE.OK]: 'OK (no actionable findings)',
+    [EXIT_CODE.NEEDS_REVIEW]: 'NEEDS REVIEW (suspected findings)',
+    [EXIT_CODE.FAILURE]: 'FAILURE (confirmed findings detected)',
+    [EXIT_CODE.INCOMPLETE]: 'INCOMPLETE (analysis did not complete)',
+    [EXIT_CODE.INFRA_FAILURE]: 'INFRA FAILURE (crash, invariant, or runtime error)',
+    [EXIT_CODE.EVIDENCE_VIOLATION]: 'EVIDENCE VIOLATION (data or contract corruption)',
     [EXIT_CODE.USAGE_ERROR]: 'USAGE ERROR (invalid CLI usage)'
   };
   
   return meanings[exitCode] || `Unknown exit code: ${exitCode}`;
 }
+
+
+
 

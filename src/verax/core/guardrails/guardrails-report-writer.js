@@ -4,8 +4,10 @@
  * Writes guardrails.report.json artifact per run.
  */
 
-import { writeFileSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
+import { writeFileSync } from 'fs';
 import { ARTIFACT_REGISTRY } from '../artifacts/registry.js';
 
 /**
@@ -93,7 +95,7 @@ export function writeGuardrailsReport(runDir, findings, truthDecisions = {}) {
   // Build report
   const report = {
     version: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     summary: {
       ...summary,
       topRules: topRulesSorted
@@ -106,4 +108,7 @@ export function writeGuardrailsReport(runDir, findings, truthDecisions = {}) {
   
   return reportPath;
 }
+
+
+
 

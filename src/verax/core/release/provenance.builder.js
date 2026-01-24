@@ -6,9 +6,12 @@
  */
 
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
+// @ts-ignore
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
-import { createHash } from 'crypto';
 import { execSync } from 'child_process';
+import { VERSION } from '../../../version.js';
 
 /**
  * Get git status and commit info
@@ -61,7 +64,7 @@ function getPackageInfo(projectDir) {
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8').toString());
     return {
       name: pkg.name || 'unknown',
-      version: pkg.version || 'unknown'
+      version: VERSION || 'unknown'
     };
   } catch {
     return { name: 'unknown', version: 'unknown' };
@@ -87,7 +90,7 @@ export async function buildProvenance(projectDir) {
   // Build provenance object
   const provenance = {
     version: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     package: pkgInfo,
     git: {
       commit: gitStatus.commit,
@@ -129,3 +132,6 @@ export function writeProvenance(projectDir, provenance) {
 
   return outputPath;
 }
+
+
+

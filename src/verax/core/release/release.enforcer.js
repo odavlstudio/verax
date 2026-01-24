@@ -7,8 +7,7 @@
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 import { checkGAStatus } from '../ga/ga.enforcer.js';
-import { findLatestRunId } from '../../../cli/util/run-resolver.js';
-import { createInternalFailure } from '../failures/failure.factory.js';
+import { findLatestRunId } from '../../../cli/util/support/run-resolver.js';
 import { FAILURE_CODE } from '../failures/failure.types.js';
 import { isBaselineFrozen, enforceBaseline } from '../baseline/baseline.enforcer.js';
 import { FailureLedger } from '../failures/failure.ledger.js';
@@ -154,10 +153,16 @@ export async function enforceReleaseReadiness(projectDir, operation = 'release')
   if (blockers.length > 0) {
     const message = `Cannot ${operation}: RELEASE-BLOCKED. ${blockers.join('; ')}`;
     const error = new Error(message);
+    // @ts-expect-error - Custom error properties for enforcement context
     error.code = FAILURE_CODE.INTERNAL_UNEXPECTED_ERROR;
+    // @ts-expect-error - Custom error property
     error.component = 'release.enforcer';
+    // @ts-expect-error - Custom error property
     error.context = { operation, blockers };
     throw error;
   }
 }
+
+
+
 

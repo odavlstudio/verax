@@ -1,0 +1,358 @@
+/**
+ * STAGE 6.3: Human Summary Engine
+ * 
+ * Generates deterministic, evidence-based human-readable summaries.
+ * Output: verax-summary.md per run
+ * 
+ * Content:
+ * - What was tested (URL, framework, key routes)
+ * - What failed and why (findings summary)
+ * - Coverage truth (evidence counts)
+ * - Recommended next steps
+ * - Product seal status
+ */
+
+import { getTimeProvider } from '../support/time-provider.js';
+
+/**
+ * Generate comprehensive human summary
+ * @param {Object} [context]
+ * @param {Object} [context.meta] - Run metadata
+ * @param {string} [context.meta.url] - URL tested
+ * @param {string} [context.meta.startedAt] - ISO timestamp
+ * @param {string} [context.meta.completedAt] - ISO timestamp
+ * @param {Object} [context.summary] - summary.json data
+ * @param {Object} [context.findings] - findings array
+ * @param {Object} [context.coverage] - coverage data
+ * @param {Object} [context.projectProfile] - Project discovery data
+ * @param {string} [context.displayRunName] - Human-readable run name
+ * @returns {string} Markdown content
+ */
+export function generateHumanSummary(context = {}) {
+  const {
+    meta = {},
+    summary = {},
+    findings = [],
+    coverage = {},
+    projectProfile = {},
+    displayRunName = 'Run',
+  } = context;
+  
+  const lines = [];
+  
+  // Header
+  lines.push('# VERAX Execution Summary');
+  lines.push('');
+  lines.push(`**Run:** ${displayRunName}`);
+  lines.push(`**Time:** ${formatIsoTime(meta.completedAt || getTimeProvider().iso())}`);
+  lines.push('');
+  
+  // Status badge
+  const status = summary.status || 'UNKNOWN';
+  const statusEmoji = getStatusEmoji(status);
+  const seal = summary.productionSeal ? ' 🔒' : '';
+  lines.push(`## Status: ${statusEmoji} ${status}${seal}`);
+  lines.push('');
+  
+  // What was tested
+  lines.push('## What Was Tested');
+  lines.push('');
+  lines.push(`**URL:** ${meta.url || 'unknown'}`);
+  if (projectProfile.framework) {
+    lines.push(`**Framework:** ${projectProfile.framework}`);
+  }
+  if (projectProfile.router) {
+    lines.push(`**Router:** ${projectProfile.router}`);
+  }
+  lines.push('');
+  
+  // Execution metrics
+  if (meta.startedAt && meta.completedAt) {
+    const duration = calculateDuration(meta.startedAt, meta.completedAt);
+    lines.push(`**Duration:** ${duration}`);
+  }
+  lines.push('');
+  
+  // Findings summary
+  lines.push('## Findings Summary');
+  lines.push('');
+  
+  const findingsCount = findingsByOutcome(findings);
+  lines.push(`- **Silent Failures:** ${findingsCount.silentFailures}`);
+  lines.push(`- **Unmet Expectations:** ${findingsCount.unmetExpectations}`);
+  lines.push(`- **Coverage Gaps:** ${findingsCount.coverageGaps}`);
+  lines.push(`- **Other Issues:** ${findingsCount.other}`);
+  lines.push('');
+  
+  if (findingsCount.total === 0) {
+    lines.push('✅ No findings detected. Flow completed as expected.');
+    lines.push('');
+  } else {
+    lines.push('### Top Issues');
+    lines.push('');
+    const topIssues = findings.slice(0, 5).map((finding, idx) => {
+      const emoji = getSeverityEmoji(finding.confidence?.severity || 'MEDIUM');
+      const outcome = finding.outcome || 'UNKNOWN';
+      const title = generateFindingTitle(finding);
+      return `${idx + 1}. ${emoji} **${outcome}**: ${title}`;
+    });
+    lines.push(topIssues.join('\n'));
+    lines.push('');
+  }
+  
+  // Coverage truth
+  lines.push('## Coverage & Evidence');
+  lines.push('');
+  if (coverage.coverageRatio !== undefined) {
+    const ratioVal = Number(coverage.coverageRatio || 0);
+    const ratio = (ratioVal * 100).toFixed(1);
+    const bar = buildCoverageBar(ratioVal);
+    lines.push(`${bar} **${ratio}% Coverage**`);
+    lines.push('');
+  }
+  
+  const digest = summary.digest || {};
+  lines.push(`- **Expectations Tested:** ${digest.expectationsTotal || 0}`);
+  lines.push(`- **Expectations Observed:** ${digest.observed || 0}`);
+  lines.push(`- **Unproven Expectations:** ${digest.unproven || 0}`);
+  lines.push(`- **Silent Failures:** ${digest.silentFailures || 0}`);
+  lines.push('');
+  
+  // Recommended actions
+  lines.push('## Recommended Next Steps');
+  lines.push('');
+  
+  const actions = generateRecommendedActions({
+    status,
+    findings,
+    coverage,
+    digest,
+  });
+  
+  if (actions.length === 0) {
+    lines.push('✅ No action needed. Flow is healthy.');
+  } else {
+    actions.forEach((action, idx) => {
+      lines.push(`${idx + 1}. ${action}`);
+    });
+  }
+  lines.push('');
+  
+  // Product seal explanation
+  if (summary.productionSeal) {
+    lines.push('## Product Grade Seal');
+    lines.push('');
+    lines.push('🔒 This execution meets PRODUCTION_GRADE criteria:');
+    lines.push('  - Coverage ≥ minimum threshold');
+    lines.push('  - No evidence law violations');
+    lines.push('  - Determinism verified');
+    lines.push('');
+  }
+  
+  // Footer
+  lines.push('---');
+  lines.push(`*Generated by VERAX ${getTimeProvider().iso()}*`);
+  
+  return lines.join('\n');
+}
+
+/**
+ * Get emoji for status
+ * @param {string} status
+ * @returns {string}
+ */
+function getStatusEmoji(status) {
+  const emojis = {
+    'COMPLETE': '✅',
+    'INCOMPLETE': '⚠️',
+    'FAILED': '❌',
+    'TIMEOUT': '⏱️',
+    'RUNNING': '⏳',
+  };
+  return emojis[status] || '❓';
+}
+
+/**
+ * Get emoji for severity
+ * @param {string} severity
+ * @returns {string}
+ */
+function getSeverityEmoji(severity) {
+  const emojis = {
+    'CRITICAL': '🔴',
+    'HIGH': '🟠',
+    'MEDIUM': '🟡',
+    'LOW': '🟢',
+    'INFO': 'ℹ️',
+  };
+  return emojis[severity] || '❓';
+}
+
+/**
+ * Group findings by type
+ * @param {Array} findings
+ * @returns {Object}
+ */
+function findingsByOutcome(findings = []) {
+  const counts = {
+    silentFailures: 0,
+    unmetExpectations: 0,
+    coverageGaps: 0,
+    other: 0,
+    total: 0,
+  };
+  
+  for (const finding of findings) {
+    counts.total++;
+    switch (finding.type) {
+      case 'SILENT_FAILURE':
+        counts.silentFailures++;
+        break;
+      case 'UNMET_EXPECTATION':
+        counts.unmetExpectations++;
+        break;
+      case 'COVERAGE_GAP':
+        counts.coverageGaps++;
+        break;
+      default:
+        counts.other++;
+    }
+  }
+  
+  return counts;
+}
+
+/**
+ * Generate human-readable title for finding
+ * @param {Object} finding
+ * @returns {string}
+ */
+function generateFindingTitle(finding) {
+  const type = finding.type || 'Unknown';
+  const summary = finding.humanSummary || finding.summary || '';
+  
+  if (summary) {
+    // Truncate to 80 chars
+    return summary.length > 80 ? `${summary.substring(0, 77)}...` : summary;
+  }
+  
+  return type;
+}
+
+/**
+ * Build coverage bar chart
+ * @param {number} ratio - 0-1
+ * @returns {string} Bar chart
+ */
+function buildCoverageBar(ratio) {
+  const r = Number(ratio || 0);
+  const filled = Math.round(r * 20);
+  const empty = 20 - filled;
+  const bar = '█'.repeat(filled) + '░'.repeat(empty);
+  return `[${bar}]`;
+}
+
+/**
+ * Calculate human-readable duration
+ * @param {string} startedAt - ISO time
+ * @param {string} completedAt - ISO time
+ * @returns {string}
+ */
+function calculateDuration(startedAt, completedAt) {
+  try {
+    const timeProvider = getTimeProvider();
+    const startMs = timeProvider.parse(startedAt || timeProvider.iso());
+    const endMs = timeProvider.parse(completedAt || timeProvider.iso());
+    if (Number.isNaN(startMs) || Number.isNaN(endMs)) return 'unknown';
+    const ms = endMs - startMs;
+    
+    if (ms < 1000) return `${ms}ms`;
+    if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+    const mins = (ms / 60000).toFixed(1);
+    return `${mins}min`;
+  } catch {
+    return 'unknown';
+  }
+}
+
+/**
+ * Format ISO time to human-readable
+ * @param {string} iso
+ * @returns {string}
+ */
+function formatIsoTime(iso) {
+  try {
+    const tp = getTimeProvider();
+    const parsed = tp.parse(iso);
+    if (Number.isNaN(parsed)) return iso || 'unknown';
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZoneName: 'short',
+    });
+    return formatter.format(parsed);
+  } catch {
+    return iso || 'unknown';
+  }
+}
+
+/**
+ * Generate recommended next steps
+ * @param {Object} context
+ * @returns {Array<string>}
+ */
+function generateRecommendedActions(context = {}) {
+  const { status, findings, coverage, digest } = context;
+  const actions = [];
+  
+  if (status === 'INCOMPLETE') {
+    actions.push('Complete the flow execution (was interrupted)');
+  }
+  
+  if (status === 'TIMEOUT') {
+    actions.push('Increase timeout or optimize slow interactions');
+  }
+  
+  if (findings && findings.length > 0) {
+    const silentFailures = findings.filter(f => f.type === 'SILENT_FAILURE');
+    if (silentFailures.length > 0) {
+      actions.push(`Investigate ${silentFailures.length} silent failures (flow continues but expectation unmet)`);
+    }
+    
+    const unmetExpectations = findings.filter(f => f.type === 'UNMET_EXPECTATION');
+    if (unmetExpectations.length > 0) {
+      actions.push(`Review ${unmetExpectations.length} unmet expectations`);
+    }
+  }
+  
+  if (coverage && coverage.coverageRatio !== undefined) {
+    if (coverage.coverageRatio < 0.8) {
+      actions.push('Increase coverage by testing more user flows');
+    }
+  }
+  
+  if (digest && digest.unproven > 0) {
+    actions.push(`Verify ${digest.unproven} unproven expectations with additional assertions`);
+  }
+  
+  if (actions.length === 0 && status === 'COMPLETE') {
+    actions.push('Flow is healthy. Consider running again to verify determinism.');
+  }
+  
+  return actions;
+}
+
+/**
+ * Write human summary to markdown file
+ * @param {string} filePath
+ * @param {Object} context
+ */
+export function writeHumanSummaryMarkdown(filePath, context) {
+  const { atomicWriteText } = require('../support/atomic-write.js');
+  const content = generateHumanSummary(context);
+  atomicWriteText(filePath, content);
+}

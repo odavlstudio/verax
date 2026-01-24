@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 /**
  * EXPECTATION HANDLER
  * 
@@ -94,7 +95,7 @@ export async function loadAndCompareSnapshot(projectDir, silenceTracker) {
  */
 export function buildSnapshot(traces, baseOrigin) {
   const snapshot = {
-    timestamp: new Date().toISOString(),
+    timestamp: getTimeProvider().iso(),
     baseOrigin,
     totalTraces: traces.length,
     verifiedExpectations: traces.filter(t => t.expectationDriven).length,
@@ -124,3 +125,6 @@ export function saveSnapshot(snapshot, projectDir) {
     // Silently fail on snapshot save
   }
 }
+
+
+

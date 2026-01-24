@@ -22,3 +22,4 @@ console.log('decision type:', typeof decision.decision);
 console.log('decision === "PASS":', decision.decision === 'PASS');
 console.log('exitCode:', decision.exitCode);
 console.log('exitCode === 0:', decision.exitCode === 0);
+

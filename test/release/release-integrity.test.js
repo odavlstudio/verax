@@ -1,5 +1,5 @@
 /**
- * PHASE 21.7 — Release Integrity Tests
+ * Release Integrity Tests
  * 
  * Tests for release provenance, SBOM, and reproducibility checks.
  */
@@ -8,15 +8,17 @@ import { describe, test } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { readFileSync, existsSync, mkdirSync, rmSync } from 'fs';
 import { resolve } from 'path';
-import { buildProvenance, writeProvenance } from '../src/verax/core/release/provenance.builder.js';
-import { buildSBOM, writeSBOM } from '../src/verax/core/release/sbom.builder.js';
-import { checkReproducibility, writeReproducibilityReport } from '../src/verax/core/release/reproducibility.check.js';
-import { enforceReleaseReadiness } from '../src/verax/core/release/release.enforcer.js';
+import { buildProvenance, writeProvenance } from '../../src/verax/core/release/provenance.builder.js';
+import { buildSBOM, writeSBOM } from '../../src/verax/core/release/sbom.builder.js';
+import { checkReproducibility, writeReproducibilityReport } from '../../src/verax/core/release/reproducibility.check.js';
+import { enforceReleaseReadiness } from '../../src/verax/core/release/release.enforcer.js';
+import { getTimeProvider } from '../../src/cli/util/support/time-provider.js';
+
 
 const projectRoot = resolve(process.cwd());
 const testDir = resolve(projectRoot, '.test-release-integrity');
 
-describe('Phase 21.7: Release Integrity', () => {
+describe('Release Integrity', () => {
   test.beforeEach(() => {
     // Clean test directory
     if (existsSync(testDir)) {
@@ -161,7 +163,7 @@ describe('Phase 21.7: Release Integrity', () => {
         reproducible: false,
         differences: [{ type: 'test', message: 'Test difference' }],
         current: {},
-        checkedAt: new Date().toISOString()
+        checkedAt: getTimeProvider().iso()
       };
       writeReproducibilityReport(testDir, report);
       
@@ -171,5 +173,6 @@ describe('Phase 21.7: Release Integrity', () => {
     });
   });
 });
+
 
 

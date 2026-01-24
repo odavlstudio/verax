@@ -4,8 +4,11 @@
  * Generates performance.report.json with budgets, actual usage, peaks, and violations.
  */
 
-import { readFileSync, existsSync, writeFileSync, mkdirSync, statSync, readdirSync } from 'fs';
+// @ts-ignore
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
+import { readdirSync, statSync, existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import { getPerfBudget, evaluatePerfBudget } from './perf.contract.js';
 
 /**
@@ -19,7 +22,9 @@ function calculateArtifactsSize(runDir) {
   
   function scanDirectory(dir) {
     try {
-      const entries = readdirSync(dir, { withFileTypes: true });
+      const entries = readdirSync(dir, { withFileTypes: true })
+        // @ts-ignore - Dirent has name property
+        .sort((a, b) => a.name.localeCompare(b.name, 'en'));
       
       for (const entry of entries) {
         const fullPath = resolve(dir, entry.name);
@@ -149,7 +154,7 @@ export function generatePerformanceReport(projectDir, runId, monitorReport, prof
       artifactsSizeMB: actual.artifactsSizeMB.toFixed(2),
       slowPhases: monitorReport.slowPhases || []
     },
-    generatedAt: new Date().toISOString()
+    generatedAt: getTimeProvider().iso()
   };
   
   return report;
@@ -197,4 +202,7 @@ export function loadPerformanceReport(projectDir, runId) {
     return null;
   }
 }
+
+
+
 

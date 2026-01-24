@@ -12,12 +12,15 @@
  * - totalMs: Total scan duration
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+
 const metrics = {};
 let startTime = null;
 
 export function initMetrics() {
-  metrics.start = Date.now();
-  startTime = Date.now();
+  const now = getTimeProvider().now();
+  metrics.start = now;
+  startTime = now;
 }
 
 export function recordMetric(phase, durationMs) {
@@ -28,7 +31,7 @@ export function recordMetric(phase, durationMs) {
 }
 
 export function getMetrics() {
-  const now = Date.now();
+  const now = getTimeProvider().now();
   return {
     parseMs: metrics.parseMs || 0,
     resolveMs: metrics.resolveMs || 0,
@@ -42,3 +45,6 @@ export function clearMetrics() {
   Object.keys(metrics).forEach(k => delete metrics[k]);
   startTime = null;
 }
+
+
+

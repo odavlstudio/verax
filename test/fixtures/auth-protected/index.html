@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Protected Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .protected-content {
+      background: #e8f5e9;
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid #4caf50;
+    }
+    .auth-error {
+      background: #ffebee;
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid #f44336;
+    }
+  </style>
+</head>
+<body>
+  <h1>Auth Protected Page</h1>
+  <div id="content"></div>
+
+  <script>
+    // Check for auth cookie
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
+
+    const authToken = getCookie('auth_token');
+    const contentDiv = document.getElementById('content');
+
+    if (authToken === 'valid_test_token') {
+      contentDiv.innerHTML = `
+        <div class="protected-content">
+          <h2>Welcome, Authenticated User!</h2>
+          <p>You have successfully accessed the protected content.</p>
+          <p>Your session token: ${authToken.substring(0, 10)}...</p>
+          <button id="logout-btn">Logout</button>
+        </div>
+      `;
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        location.reload();
+      });
+    } else {
+      contentDiv.innerHTML = `
+        <div class="auth-error">
+          <h2>Authentication Required</h2>
+          <p>You must be authenticated to view this content.</p>
+          <p>Expected cookie: <code>auth_token=valid_test_token</code></p>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -45,3 +45,4 @@ test('interactive mode is disabled', () => {
   assert.equal(result.status, 64, 'entry without args must exit with usage error');
   assert.match(result.stdout || '', /USAGE:/, 'help text should be printed');
 });
+

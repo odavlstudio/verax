@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
 /**
  * EVIDENCE INTENT LEDGER
  * 
@@ -9,6 +10,8 @@
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 import { EVIDENCE_CAPTURE_STAGE, EVIDENCE_CAPTURE_FAILURE_CODES as _EVIDENCE_CAPTURE_FAILURE_CODES } from './evidence-capture-service.js';
+
+let findingIdentityCounter = 0;
 
 /**
  * Required evidence fields for CONFIRMED findings (stable)
@@ -33,7 +36,8 @@ export const REQUIRED_EVIDENCE_FIELDS = [
  * @returns {Object} Evidence intent entry
  */
 export function buildEvidenceIntentEntry(finding, evidencePackage, captureFailures = []) {
-  const findingIdentity = finding.findingId || finding.id || `finding-${Date.now()}`;
+  const fallbackId = `finding-${(++findingIdentityCounter).toString().padStart(6, '0')}`;
+  const findingIdentity = finding.findingId || finding.id || fallbackId;
   
   // Determine required fields based on finding severity
   const requiredFields = finding.severity === 'CONFIRMED' || finding.status === 'CONFIRMED' 
@@ -100,7 +104,7 @@ export function buildEvidenceIntentEntry(finding, evidencePackage, captureFailur
     captureOutcomes,
     missingFields,
     evidencePackageComplete: evidencePackage.isComplete === true,
-    timestamp: new Date().toISOString()
+    timestamp: getTimeProvider().iso()
   };
 }
 
@@ -132,7 +136,7 @@ export function writeEvidenceIntentLedger(runDir, findings, captureFailuresMap =
   
   const ledger = {
     version: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     totalFindings: entries.length,
     entries
   };
@@ -163,4 +167,7 @@ export function readEvidenceIntentLedger(runDir) {
     return null;
   }
 }
+
+
+
 

@@ -1,0 +1,35 @@
+<!-- Angular Templates Lite - Template Fixture for PHASE 3 Integration Testing -->
+
+<nav>
+  <!-- Static routerLink (literal string) - should be extracted -->
+  <a routerLink="/about">About</a>
+  
+  <!-- Static [routerLink] binding (literal string) - should be extracted -->
+  <a [routerLink]="'/pricing'">Pricing</a>
+  
+  <!-- Static [routerLink] array with all literals - should be extracted and joined to /products/electronics -->
+  <a [routerLink]="['/products', 'electronics']">Electronics</a>
+  
+  <!-- Dynamic routerLink with variable - should be SKIPPED (dynamic) -->
+  <a [routerLink]="dynamicPath">Dynamic</a>
+  
+  <!-- Dynamic routerLink with ternary - should be SKIPPED (dynamic) -->
+  <a [routerLink]="isActive ? '/active' : '/inactive'">Conditional</a>
+  
+  <!-- Param route - should be SKIPPED (params) -->
+  <a routerLink="/user/:id">User Profile</a>
+  
+  <!-- Array with computed segment - should be SKIPPED (computed) -->
+  <a [routerLink]="['/category', categoryId]">Category</a>
+</nav>
+
+<form action="/submit-form" method="post">
+  <!-- Static form action - should be extracted -->
+  <input type="text" name="email">
+  <button type="submit">Submit</button>
+</form>
+
+<!-- Dynamic form action - should be SKIPPED (dynamic) -->
+<form [action]="getFormAction()" method="post">
+  <button type="submit">Dynamic Form</button>
+</form>

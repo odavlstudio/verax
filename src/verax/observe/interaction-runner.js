@@ -1,19 +1,29 @@
-import { resolve } from 'path';
-import { captureScreenshot } from './evidence-capture.js';
+// eslint-disable-next-line no-unused-vars
+import { resolve as _resolve } from 'path';
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 import { isExternalUrl } from './domain-boundary.js';
-import { captureDomSignature } from './dom-signature.js';
-import { NetworkSensor } from './network-sensor.js';
-import { ConsoleSensor } from './console-sensor.js';
-import { UISignalSensor } from './ui-signal-sensor.js';
-import { StateSensor } from './state-sensor.js';
-import { NavigationSensor } from './navigation-sensor.js';
-import { LoadingSensor } from './loading-sensor.js';
-import { FocusSensor } from './focus-sensor.js';
-import { AriaSensor } from './aria-sensor.js';
-import { TimingSensor } from './timing-sensor.js';
-import { HumanBehaviorDriver } from './human-driver.js';
 
-// Import CLICK_TIMEOUT_MS from human-driver (re-export needed)
+// Extracted modules for reduced file complexity
+import { 
+  initializeSensors, 
+  captureBeforeState, 
+  startSensorCollection 
+} from './interaction-runner-sensors.js';
+// eslint-disable-next-line no-unused-vars
+import { 
+  computeDomChangedDuringSettle as _computeDomChangedDuringSettle,
+  captureSettledDom as _captureSettledDom, 
+  captureAfterState, 
+  captureAfterOnly 
+} from './interaction-runner-capture.js';
+import { 
+  captureTimingEvidence,
+  collectSensorEvidence, 
+  deriveHttpStatus, 
+  assembleFinalTrace 
+} from './interaction-runner-evidence.js';
+
+// Import CLICK_TIMEOUT_MS from interaction-driver (re-export needed)
 const CLICK_TIMEOUT_MS = 2000;
 
 // =============================================================================
@@ -57,47 +67,6 @@ function markTimeoutPolicy(trace, phase, silenceTracker = null) {
       impact: 'unknown_behavior'
     });
   }
-}
-
-function computeDomChangedDuringSettle(samples) {
-  if (!samples || samples.length < 3) {
-    return false;
-  }
-  return samples[0] !== samples[1] || samples[1] !== samples[2];
-}
-
-async function captureSettledDom(page, scanBudget) {
-  const samples = [];
-
-  const sampleDom = async () => {
-    const hash = await captureDomSignature(page);
-    samples.push(hash);
-  };
-
-  // Use shorter stabilization for file:// fixtures but preserve async capture (700ms)
-  const isFile = (() => {
-    try { return (page.url() || '').startsWith('file:'); } catch { return false; }
-  })();
-  const midDelay = isFile ? 200 : Math.min(300, scanBudget.stabilizationSampleMidMs);
-  const endDelay = isFile ? 800 : Math.min(900, scanBudget.stabilizationSampleEndMs);
-  const networkDelay = isFile ? 100 : Math.min(400, scanBudget.networkWaitMs);
-
-  await sampleDom();
-  await page.waitForTimeout(midDelay);
-  await sampleDom();
-  await page.waitForTimeout(Math.max(0, endDelay - midDelay));
-  await sampleDom();
-  
-  // NETWORK INTELLIGENCE: Wait a bit longer to ensure slow requests complete
-  await page.waitForTimeout(networkDelay);
-
-  const domChangedDuringSettle = computeDomChangedDuringSettle(samples);
-
-  return {
-    samples,
-    domChangedDuringSettle,
-    afterHash: samples[samples.length - 1]
-  };
 }
 
 export async function runInteraction(page, interaction, timestamp, i, screenshotsDir, baseOrigin, startTime, scanBudget, flowContext = null, silenceTracker = null) {
@@ -174,7 +143,8 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
     }
     
     // PHASE 2: Budget check + before-state capture
-    if (Date.now() - startTime > scanBudget.maxScanDurationMs) {
+    const timeProvider = getTimeProvider();
+    if (timeProvider.now() - startTime > scanBudget.maxScanDurationMs) {
       trace.policy = { timeout: true, reason: 'max_scan_duration_exceeded' };
       trace.sensors = {
         network: sensors.networkSensor.getEmptySummary(),
@@ -202,7 +172,10 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
         blockedUrl: resolvedUrl
       };
       
-      const { settleResult, afterUrl } = await captureAfterState(page, screenshotsDir, timestamp, i, trace, scanBudget);
+      const { settleResult, afterUrl, captureOutcomes: afterCaptureOutcomes } = await captureAfterState(page, screenshotsDir, timestamp, i, trace, scanBudget);
+      if (afterCaptureOutcomes && afterCaptureOutcomes.length > 0) {
+        trace.captureOutcomes = [...(trace.captureOutcomes || []), ...afterCaptureOutcomes];
+      }
       
       // Manual assembly for early return case (cannot use assembleFinalTrace)
       trace.before.url = beforeState.beforeUrl;
@@ -231,6 +204,9 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
       // Start and immediately stop sensors for consistent structure
       const tempSensorState = await startSensorCollection(page, sensors);
       const tempEvidence = await collectSensorEvidence(page, sensors, tempSensorState, uiBefore, afterUrl, scanBudget);
+      if (tempEvidence.captureOutcomes && tempEvidence.captureOutcomes.length > 0) {
+        trace.captureOutcomes = [...(trace.captureOutcomes || []), ...tempEvidence.captureOutcomes];
+      }
       
       trace.sensors = {
         network: tempEvidence.networkSummary,
@@ -298,11 +274,14 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
     }
 
     // PHASE 6: Capture after-state + collect sensor evidence
-    const { settleResult, afterUrl } = await captureAfterState(page, screenshotsDir, timestamp, i, trace, scanBudget);
+    const { settleResult, afterUrl } = await captureAfterState(page, screenshotsDir, timestamp, i, trace, scanBudget, markTimeoutPolicy);
     const afterTitle = typeof page.title === 'function' ? await page.title().catch(() => null) : (page.title || null);
     
     // PERF: Collect all sensor evidence in single phase (reduced awaits)
     const sensorEvidence = await collectSensorEvidence(page, sensors, sensorState, uiBefore, afterUrl, scanBudget);
+    if (sensorEvidence.captureOutcomes && sensorEvidence.captureOutcomes.length > 0) {
+      trace.captureOutcomes = [...(trace.captureOutcomes || []), ...sensorEvidence.captureOutcomes];
+    }
     
     // PHASE 7: Derive HTTP status and assemble final trace
     const httpStatus = deriveHttpStatus(sensorEvidence.networkSummary, sensorEvidence.navigationSummary, afterUrl);
@@ -331,140 +310,6 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
     await handleExecutionError(trace, error, page, screenshotsDir, timestamp, i, sensors, { networkWindowId, consoleWindowId, stateSensorActive }, uiBefore);
     return trace;
   }
-}
-
-async function captureAfterState(page, screenshotsDir, timestamp, interactionIndex, trace, scanBudget) {
-  let settleResult = {
-    samples: [],
-    domChangedDuringSettle: false,
-    afterHash: null
-  };
-
-  try {
-    settleResult = await captureSettledDom(page, scanBudget);
-  } catch (error) {
-    if (error.message === 'timeout' || error.name === 'TimeoutError') {
-      markTimeoutPolicy(trace, 'settle');
-    }
-  }
-
-  const afterUrl = page.url();
-  const afterScreenshot = resolve(screenshotsDir, `after-${timestamp}-${interactionIndex}.png`);
-  await captureScreenshot(page, afterScreenshot);
-
-  return { settleResult, afterUrl };
-}
-
-async function captureAfterOnly(page, screenshotsDir, timestamp, interactionIndex, trace) {
-  const afterUrl = page.url();
-  const afterScreenshot = resolve(screenshotsDir, `after-${timestamp}-${interactionIndex}.png`);
-  try {
-    await captureScreenshot(page, afterScreenshot);
-    const afterDomHash = await captureDomSignature(page);
-    trace.after.url = afterUrl;
-    trace.after.screenshot = `screenshots/after-${timestamp}-${interactionIndex}.png`;
-    if (afterDomHash) {
-      if (!trace.dom) {
-        trace.dom = {};
-      }
-      trace.dom.afterHash = afterDomHash;
-    }
-  } catch (e) {
-    // Ignore screenshot errors on timeout
-  }
-}
-
-// =============================================================================
-// INTERNAL HELPERS - NOT EXPORTED
-// These functions represent separated evidence collection responsibilities.
-// They are ONLY used internally by runInteraction().
-// =============================================================================
-
-/**
- * PHASE 1: Initialize all sensors for evidence collection
- * EVIDENCE: Creates sensor instances with deterministic configuration
- * @returns {Object} Initialized sensor instances
- */
-function initializeSensors(scanBudget) {
-  // EVIDENCE: All sensors initialized with explicit configuration
-  return {
-    networkSensor: new NetworkSensor(),
-    consoleSensor: new ConsoleSensor(),
-    uiSignalSensor: new UISignalSensor(),
-    stateSensor: new StateSensor(),
-    navigationSensor: new NavigationSensor(),
-    loadingSensor: new LoadingSensor({ loadingTimeout: 5000 }),
-    focusSensor: new FocusSensor(),
-    ariaSensor: new AriaSensor(),
-    timingSensor: new TimingSensor({
-      feedbackGapThresholdMs: 1500,
-      freezeLikeThresholdMs: 3000
-    }),
-    humanDriver: new HumanBehaviorDriver({}, scanBudget)
-  };
-}
-
-/**
- * PHASE 2: Capture initial page state before interaction
- * EVIDENCE: URL, screenshot, DOM signature, page title, UI snapshot
- * @returns {Promise<Object>} Before-state evidence
- */
-async function captureBeforeState(page, screenshotsDir, timestamp, i, sensors) {
-  // EVIDENCE: captured because we need baseline for comparison
-  const beforeUrl = page.url();
-  const beforeScreenshot = resolve(screenshotsDir, `before-${timestamp}-${i}.png`);
-  await captureScreenshot(page, beforeScreenshot);
-  const beforeDomHash = await captureDomSignature(page);
-  const beforeTitle = typeof page.title === 'function' ? await page.title().catch(() => null) : (page.title || null);
-  const uiBefore = await sensors.uiSignalSensor.snapshot(page).catch(() => ({}));
-  
-  return {
-    beforeUrl,
-    beforeScreenshot: `screenshots/before-${timestamp}-${i}.png`,
-    beforeDomHash,
-    beforeTitle,
-    uiBefore
-  };
-}
-
-/**
- * PHASE 3: Start all active sensors for evidence collection
- * EVIDENCE: Activates listeners for network, console, state, navigation, loading, focus, ARIA
- * MUTATES: sensor instances (activates listeners)
- * @returns {Promise<Object>} Sensor window IDs and activation state
- */
-async function startSensorCollection(page, sensors) {
-  // A11Y INTELLIGENCE: Capture focus and ARIA state before interaction
-  await sensors.focusSensor.captureBefore(page);
-  await sensors.ariaSensor.captureBefore(page);
-  
-  // PERFORMANCE INTELLIGENCE: Start timing sensor
-  sensors.timingSensor.startTiming();
-  
-  // NAVIGATION INTELLIGENCE v2: Inject tracking script and start navigation sensor
-  await sensors.navigationSensor.injectTrackingScript(page);
-  const navigationWindowId = sensors.navigationSensor.startWindow(page);
-  
-  // STATE INTELLIGENCE: Detect and activate state sensor if supported stores found
-  const stateDetection = await sensors.stateSensor.detect(page);
-  const stateSensorActive = stateDetection.detected;
-  if (stateSensorActive) {
-    await sensors.stateSensor.captureBefore(page);
-  }
-  
-  const networkWindowId = sensors.networkSensor.startWindow(page);
-  const consoleWindowId = sensors.consoleSensor.startWindow(page);
-  
-  // ASYNC INTELLIGENCE: Start loading sensor for async detection
-  const loadingWindowData = sensors.loadingSensor.startWindow(page);
-  
-  return {
-    networkWindowId,
-    consoleWindowId,
-    navigationWindowId,
-    stateSensorActive,
-    loadingWindowData
-  };
 }
 
 /**
@@ -616,213 +461,6 @@ async function executeInteraction(page, interaction, sensors, beforeUrl, scanBud
   }
 
   return { executionResult, navigationResult };
-}
-
-/**
- * PHASE 5: Capture timing evidence after interaction
- * EVIDENCE: Periodic snapshots to detect UI feedback timing
- * MUTATES: timingSensor (adds snapshots)
- */
-async function captureTimingEvidence(page, sensors, uiBefore) {
-  // PERFORMANCE INTELLIGENCE: Capture periodic timing snapshots after interaction
-  // Check for feedback signals at intervals
-  if (sensors.timingSensor && sensors.timingSensor.t0) {
-    // Capture snapshot immediately after interaction
-    await sensors.timingSensor.captureTimingSnapshot(page);
-    
-    // Wait a bit and capture again to catch delayed feedback
-    await page.waitForTimeout(300);
-    await sensors.timingSensor.captureTimingSnapshot(page);
-    
-    // Wait longer for slow feedback
-    await page.waitForTimeout(1200);
-    await sensors.timingSensor.captureTimingSnapshot(page);
-    
-    // Record UI change if detected
-    if (sensors.uiSignalSensor) {
-      const currentUi = await sensors.uiSignalSensor.snapshot(page).catch(() => ({}));
-      const currentDiff = sensors.uiSignalSensor.diff(uiBefore, currentUi);
-      if (currentDiff.changed) {
-        sensors.timingSensor.recordUiChange();
-      }
-    }
-  }
-}
-
-/**
- * PHASE 6: Stop all sensors and collect evidence summaries
- * EVIDENCE: Network, console, navigation, loading, focus, ARIA, state, UI, timing data
- * MUTATES: sensor instances (stops listeners), returns evidence
- * @returns {Promise<Object>} Sensor evidence summaries
- */
-async function collectSensorEvidence(page, sensors, sensorState, uiBefore, _afterUrl, _scanBudget) {
-  const { networkWindowId, consoleWindowId, navigationWindowId, stateSensorActive, loadingWindowData } = sensorState;
-  
-  // EVIDENCE: Stop all sensor windows and collect summaries
-  const networkSummary = sensors.networkSensor.stopWindow(networkWindowId);
-  const consoleSummary = sensors.consoleSensor.stopWindow(consoleWindowId, page);
-  const navigationSummary = await sensors.navigationSensor.stopWindow(navigationWindowId, page);
-  const loadingSummary = await sensors.loadingSensor.stopWindow(loadingWindowData.windowId, loadingWindowData.state);
-  
-  // PERFORMANCE INTELLIGENCE: Analyze timing for feedback gaps
-  if (networkSummary && networkSummary.totalRequests > 0) {
-    sensors.timingSensor.analyzeNetworkSummary(networkSummary);
-  }
-  if (loadingSummary && loadingSummary.hasLoadingIndicators && loadingWindowData.state) {
-    // Record loading start - use the timestamp when loading was detected
-    if (loadingWindowData.state.loadingStartTime) {
-      sensors.timingSensor.recordLoadingStart(loadingWindowData.state.loadingStartTime);
-    } else {
-      // Fallback: estimate based on interaction start
-      sensors.timingSensor.recordLoadingStart();
-    }
-  }
-  
-  const timingAnalysis = sensors.timingSensor.getTimingAnalysis();
-  
-  // Capture UI after state
-  const uiAfter = await sensors.uiSignalSensor.snapshot(page);
-  const uiDiff = sensors.uiSignalSensor.diff(uiBefore, uiAfter);
-  
-  // PERFORMANCE INTELLIGENCE: Record UI change in timing sensor if detected
-  if (sensors.timingSensor && uiDiff.changed) {
-    sensors.timingSensor.recordUiChange();
-  }
-  
-  // A11Y INTELLIGENCE: Capture focus and ARIA state after interaction
-  await sensors.focusSensor.captureAfter(page);
-  await sensors.ariaSensor.captureAfter(page);
-  const focusDiff = sensors.focusSensor.getFocusDiff();
-  const ariaDiff = sensors.ariaSensor.getAriaDiff();
-  
-  // STATE INTELLIGENCE: Capture after state and compute diff
-  let stateDiff = { changed: [], available: false };
-  let storeType = null;
-  if (stateSensorActive) {
-    await sensors.stateSensor.captureAfter(page);
-    stateDiff = sensors.stateSensor.getDiff();
-    storeType = sensors.stateSensor.activeType;
-    sensors.stateSensor.cleanup();
-  }
-  
-  return {
-    networkSummary,
-    consoleSummary,
-    navigationSummary,
-    loadingSummary,
-    timingAnalysis,
-    uiAfter,
-    uiDiff,
-    focusDiff,
-    ariaDiff,
-    stateDiff,
-    storeType
-  };
-}
-
-/**
- * PHASE 7: Analyze HTTP status from network evidence
- * EVIDENCE: Derives HTTP status from network sensor data
- * @returns {number|null} HTTP status code if determinable
- */
-function deriveHttpStatus(networkSummary, navigationSummary, afterUrl) {
-  // EVIDENCE: captured because HTTP status indicates success/failure
-  if (!networkSummary) {
-    return null;
-  }
-  
-  // If navigation completed and we have network activity, check for errors
-  if (networkSummary.topFailedUrls && networkSummary.topFailedUrls.length > 0) {
-    // Check if the failed URL matches our destination
-    const failedMatch = networkSummary.topFailedUrls.find(failed => {
-      try {
-        const failedUrl = new URL(failed.url);
-        const pageUrl = new URL(afterUrl);
-        return failedUrl.pathname === pageUrl.pathname && failedUrl.origin === pageUrl.origin;
-      } catch {
-        return false;
-      }
-    });
-    
-    if (failedMatch) {
-      // Navigation target failed with HTTP error
-      return failedMatch.status || 500;
-    } else if (networkSummary.totalRequests > 0 && networkSummary.failedRequests === 0) {
-      // No failures, navigation likely succeeded with 200
-      return 200;
-    }
-  } else if (networkSummary.totalRequests > 0 && networkSummary.failedRequests === 0) {
-    // No failed requests, navigation likely succeeded with 200
-    return 200;
-  } else if (navigationSummary && navigationSummary.urlChanged && !navigationSummary.blockedNavigations) {
-    // Navigation completed successfully - assume HTTP 200
-    // This is safe because Playwright's waitForNavigation only resolves on successful navigation
-    return 200;
-  }
-  
-  return null;
-}
-
-/**
- * PHASE 8: Assemble final trace object from all collected evidence
- * EVIDENCE: Combines all sensor evidence into trace structure
- * MUTATES: trace object (sets all properties)
- */
-function assembleFinalTrace(trace, beforeState, settleResult, afterUrl, afterTitle, sensorEvidence, executionResult, httpStatus) {
-  // EVIDENCE: Populate trace with before-state evidence
-  trace.before.url = beforeState.beforeUrl;
-  trace.before.screenshot = beforeState.beforeScreenshot;
-  if (beforeState.beforeDomHash) {
-    trace.dom = { beforeHash: beforeState.beforeDomHash };
-  }
-  if (!trace.page) {
-    trace.page = {};
-  }
-  trace.page.beforeTitle = beforeState.beforeTitle;
-  
-  // EVIDENCE: Populate trace with after-state evidence
-  trace.after.url = afterUrl;
-  trace.after.screenshot = `screenshots/after-${settleResult.timestamp}-${settleResult.index}.png`;
-  if (!trace.dom) {
-    trace.dom = {};
-  }
-  if (settleResult.afterHash) {
-    trace.dom.afterHash = settleResult.afterHash;
-  }
-  trace.dom.settle = {
-    samples: settleResult.samples,
-    domChangedDuringSettle: settleResult.domChangedDuringSettle
-  };
-  trace.page.afterTitle = afterTitle;
-  
-  // EVIDENCE: Set HTTP status if determined
-  if (httpStatus) {
-    trace.page.httpStatus = httpStatus;
-  }
-  
-  // EVIDENCE: Populate trace with execution result metadata
-  Object.assign(trace, executionResult);
-  
-  // EVIDENCE: Populate trace with sensor evidence
-  trace.sensors = {
-    network: sensorEvidence.networkSummary,
-    console: sensorEvidence.consoleSummary,
-    navigation: sensorEvidence.navigationSummary,
-    loading: sensorEvidence.loadingSummary,
-    focus: sensorEvidence.focusDiff,
-    aria: sensorEvidence.ariaDiff,
-    timing: sensorEvidence.timingAnalysis,
-    uiSignals: {
-      before: beforeState.uiBefore,
-      after: sensorEvidence.uiAfter,
-      diff: sensorEvidence.uiDiff
-    },
-    state: {
-      available: sensorEvidence.stateDiff.available,
-      changed: sensorEvidence.stateDiff.changed,
-      storeType: sensorEvidence.storeType
-    }
-  };
 }
 
 /**
@@ -1042,3 +680,6 @@ SACRED SECTIONS (Not Extracted):
 END STAGE D4 VERIFICATION
 ================================================================================
 */
+
+
+

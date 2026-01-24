@@ -12,6 +12,7 @@ import { createHash } from 'crypto';
 import { resolve } from 'path';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { getRunArtifactDir } from './run-id.js';
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 
 /**
  * Compute deterministic hash/signature for a route
@@ -108,8 +109,10 @@ export function buildSnapshot(manifest, observedInteractions = []) {
     });
   }
   
+  const timeProvider = getTimeProvider();
+
   return {
-    timestamp: Date.now(),
+    timestamp: timeProvider.now(),
     routes: routeSignatures,
     expectations: expectationSignatures,
     interactions: interactionSignaturesByUrl,
@@ -244,3 +247,6 @@ function normalizePath(path) {
   if (!path) return '/';
   return path.replace(/\/$/, '') || '/';
 }
+
+
+

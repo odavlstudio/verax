@@ -1,0 +1,26 @@
+{
+  "projectName": "static-site-test",
+  "projectType": "simple-html",
+  "projectDir": "C:\\Users\\sabou\\verax\\test\\fixtures\\static-site",
+  "staticExpectations": [
+    {
+      "type": "navigation",
+      "fromPath": "/",
+      "targetPath": "/about.html",
+      "evidence": {
+        "selectorHint": "a#about-link"
+      },
+      "proof": "PROVEN_EXPECTATION"
+    },
+    {
+      "type": "navigation",
+      "fromPath": "/",
+      "targetPath": "/pricing.html",
+      "evidence": {
+        "selectorHint": "a#pricing-link"
+      },
+      "proof": "PROVEN_EXPECTATION"
+    }
+  ]
+}
+

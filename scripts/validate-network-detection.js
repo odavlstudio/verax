@@ -5,7 +5,7 @@
  * Runs the extractor on the test fixture and verifies handler calls are detected
  */
 
-import { extractExpectations } from '../src/cli/util/expectation-extractor.js';
+import { extractExpectations } from '../src/cli/util/observation/expectation-extractor.js';
 import { resolve } from 'path';
 
 const testProjectPath = resolve(process.cwd(), 'test-projects', 'network-validation');
@@ -110,3 +110,5 @@ try {
   console.error('❌ VALIDATION ERROR:', error);
   process.exit(1);
 }
+
+

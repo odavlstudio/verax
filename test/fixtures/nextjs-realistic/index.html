@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next.js SPA Simulation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    nav { margin-bottom: 20px; }
+    a, button { margin-right: 10px; padding: 8px 16px; cursor: pointer; }
+    button { background: #0070f3; color: white; border: none; border-radius: 4px; }
+    #content { margin-top: 20px; min-height: 200px; padding: 10px; border: 1px solid #ccc; }
+    .page { display: none; }
+    .page.active { display: block; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" data-link>Home</a>
+    <a href="/about" data-link>About</a>
+    <a href="/services" data-link>Services</a>
+    <a href="/broken" data-link>Broken Link</a>
+    <button id="nav-btn">Dashboard (Router.push)</button>
+  </nav>
+
+  <div id="content">
+    <div class="page active" id="home">
+      <h1>Home Page</h1>
+      <p>Welcome to the Next.js SPA simulation.</p>
+    </div>
+    <div class="page" id="about">
+      <h1>About Page</h1>
+      <p>Learn more about us.</p>
+    </div>
+    <div class="page" id="services">
+      <h1>Services Page</h1>
+      <p>Our services include...</p>
+    </div>
+    <div class="page" id="dashboard">
+      <h1>Dashboard</h1>
+      <p>Dashboard content loaded via router.push()</p>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Simulate Next.js SPA routing behavior
+     * This mimics how Next.js handles client-side navigation
+     */
+    
+    const pages = {
+      '/': 'home',
+      '/about': 'about',
+      '/services': 'services',
+      '/dashboard': 'dashboard'
+    };
+    
+    function navigateToPage(path) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      
+      if (pages[path]) {
+        // Show target page
+        document.getElementById(pages[path]).classList.add('active');
+        
+        // Simulate History API (what Next.js does)
+        window.history.pushState({ path }, '', path);
+        
+        // Update title (what Next.js does)
+        document.title = path.split('/')[1] || 'home';
+      }
+    }
+    
+    // Handle Link clicks
+    document.querySelectorAll('a[data-link]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const href = link.getAttribute('href');
+        
+        // Broken navigation test: prevent navigation to /broken
+        if (href === '/broken') {
+          console.error('Navigation to /broken was blocked');
+          return;  // Don't navigate
+        }
+        
+        navigateToPage(href);
+      });
+    });
+    
+    // Handle router.push() via button
+    document.getElementById('nav-btn').addEventListener('click', () => {
+      navigateToPage('/dashboard');
+    });
+    
+    // Handle back button
+    window.addEventListener('popstate', (e) => {
+      const path = e.state?.path || '/';
+      if (pages[path]) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pages[path]).classList.add('active');
+      }
+    });
+  </script>
+</body>
+</html>

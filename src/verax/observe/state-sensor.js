@@ -9,6 +9,8 @@
  * - Non-destructive
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+
 const MAX_DIFF_KEYS = 10;
 
 /**
@@ -114,7 +116,7 @@ class ReduxSensor {
           snapshots: [],
           store: null,
           unsubscribe: null,
-          captureSnapshot() {
+          captureSnapshot(timestamp) {
             let state = null;
             if (window.__REDUX_STORE__) {
               state = window.__REDUX_STORE__.getState();
@@ -132,7 +134,7 @@ class ReduxSensor {
                   snapshot[key] = '[REDACTED]'; // Never store values, only keys
                 }
               }
-              this.snapshots.push({ timestamp: Date.now(), state: snapshot });
+              this.snapshots.push({ timestamp: timestamp, state: snapshot });
             }
           },
           getSnapshots() {
@@ -245,7 +247,7 @@ class ZustandSensor {
         window.__VERAX_STATE_SENSOR__ = {
           type: 'zustand',
           snapshots: [],
-          captureSnapshot() {
+          captureSnapshot(timestamp) {
             // Try to find and capture Zustand store state
             if (window.__ZUSTAND_STORE__) {
               const state = window.__ZUSTAND_STORE__.getState();
@@ -256,7 +258,7 @@ class ZustandSensor {
                     snapshot[key] = '[REDACTED]'; // Never store values, only keys
                   }
                 }
-                this.snapshots.push({ timestamp: Date.now(), state: snapshot });
+                this.snapshots.push({ timestamp: timestamp, state: snapshot });
               }
             }
           },
@@ -279,10 +281,13 @@ class ZustandSensor {
   async captureBefore(page) {
     if (!this.active) return;
     
+    const timeProvider = getTimeProvider();
+    const timestamp = timeProvider.now();
+    
     try {
-      await page.evaluate(() => {
-        window.__VERAX_STATE_SENSOR__?.captureSnapshot();
-      });
+      await page.evaluate((ts) => {
+        window.__VERAX_STATE_SENSOR__?.captureSnapshot(ts);
+      }, timestamp);
       
       this.beforeState = await page.evaluate(() => {
         const snapshots = window.__VERAX_STATE_SENSOR__?.getSnapshots() || [];
@@ -296,10 +301,13 @@ class ZustandSensor {
   async captureAfter(page) {
     if (!this.active) return;
     
+    const timeProvider = getTimeProvider();
+    const timestamp = timeProvider.now();
+    
     try {
-      await page.evaluate(() => {
-        window.__VERAX_STATE_SENSOR__?.captureSnapshot();
-      });
+      await page.evaluate((ts) => {
+        window.__VERAX_STATE_SENSOR__?.captureSnapshot(ts);
+      }, timestamp);
       
       this.afterState = await page.evaluate(() => {
         const snapshots = window.__VERAX_STATE_SENSOR__?.getSnapshots() || [];
@@ -391,3 +399,6 @@ export class StateSensor {
     this.activeType = null;
   }
 }
+
+
+

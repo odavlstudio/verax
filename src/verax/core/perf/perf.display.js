@@ -63,3 +63,6 @@ export function displayPerformanceInInspect(projectDir, runId) {
   console.log('\n' + formatPerformanceMetrics(report));
 }
 
+
+
+

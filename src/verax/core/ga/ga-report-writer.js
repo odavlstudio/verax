@@ -4,8 +4,11 @@
  * Writes ga.report.json artifact with GA readiness evaluation results.
  */
 
-import { writeFileSync, mkdirSync, existsSync } from 'fs';
+// @ts-ignore
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
 
 /**
  * Write GA report
@@ -25,7 +28,7 @@ export function writeGAReport(projectDir, runId, gaResult) {
   
   const report = {
     contractVersion: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     runId,
     gaReady: gaResult.pass,
     blockers: gaResult.blockers || [],
@@ -40,4 +43,7 @@ export function writeGAReport(projectDir, runId, gaResult) {
   
   return reportPath;
 }
+
+
+
 

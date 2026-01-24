@@ -15,7 +15,7 @@
  * @returns {Promise<ReadlineInterface>}
  */
 async function createReadlineInterface(input = process.stdin, output = process.stdout) {
-  // @ts-expect-error - readline/promises is available in Node 18+
+  // @ts-expect-error - Dynamic import with .default access
   const readline = await import('readline/promises');
   return readline.default.createInterface({
     input,
@@ -107,4 +107,7 @@ export async function runWizard(options = {}) {
     rl.close();
   }
 }
+
+
+
 

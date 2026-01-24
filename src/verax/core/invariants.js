@@ -354,3 +354,6 @@ export function validateFindingStructure(finding) {
     errors
   };
 }
+
+
+

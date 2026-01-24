@@ -67,6 +67,53 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
         run: node scripts/verify-release.js
 
+      - name: Check for unwanted artifacts (non-blocking)
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          echo "🔍 Checking for unwanted artifacts..."
+          FOUND_ISSUES=0
+          
+          if ls *.tgz 1> /dev/null 2>&1; then
+            echo "⚠️  WARNING: Found .tgz files in root:"
+            ls -lh *.tgz
+            echo "These should be auto-removed by postpack hook."
+            FOUND_ISSUES=1
+          fi
+          
+          if [ -d "tmp" ]; then
+            echo "⚠️  WARNING: Found tmp/ directory:"
+            du -sh tmp
+            echo "This should not exist (deleted in STAGE 1 cleanup)."
+            FOUND_ISSUES=1
+          fi
+          
+          if [ -d "artifacts" ]; then
+            echo "⚠️  WARNING: Found artifacts/ directory:"
+            du -sh artifacts
+            echo "This should not exist (deleted in STAGE 1 cleanup)."
+            FOUND_ISSUES=1
+          fi
+          
+          if [ -d ".verax" ]; then
+            echo "ℹ️  Found .verax/ directory (expected for runtime outputs):"
+            du -sh .verax
+            echo "Run 'npm run clean' locally to remove."
+          fi
+          
+          if [ $FOUND_ISSUES -eq 0 ]; then
+            echo "✅ No unwanted artifacts found."
+          else
+            echo ""
+            echo "📋 ARTIFACT PREVENTION REMINDER:"
+            echo "   - .tgz files: auto-removed by postpack hook"
+            echo "   - tmp/: should never be created (use .verax/ or OS temp)"
+            echo "   - artifacts/: deleted in cleanup (use .verax/runs/)"
+            echo "   - See CONTRIBUTING.md for artifact policy"
+            exit 0  # Non-blocking warning
+          fi
+
   # Optional: Self-scan VERAX on Ubuntu (demonstrates tool usage)
   verax-self-scan:
     runs-on: ubuntu-latest

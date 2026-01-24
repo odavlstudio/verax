@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { computeConfidence } from '../src/verax/detect/confidence-engine.js';
+import { computeConfidence } from '../../src/verax/detect/confidence-engine.legacy.js';
 
 // ============================================================================
 // PRODUCTION-GRADE CONFIDENCE ENGINE TESTS
@@ -486,4 +486,5 @@ test('TYPE-SPECIFIC SCORING: missing_state_action awards boost for PROVEN expect
   assert.ok(result.factors.boosts.some(b => b.toLowerCase().includes('proven') || b.toLowerCase().includes('cross-file') || b.toLowerCase().includes('state')),
     'Should boost for state mutation promise');
 });
+
 

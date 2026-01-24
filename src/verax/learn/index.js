@@ -3,11 +3,11 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { detectProjectType } from './project-detector.js';
 import { extractRoutes } from './route-extractor.js';
 import { writeManifest } from './manifest-writer.js';
+import { resolveProjectBase } from './scan-roots.js';
 
 /**
  * @typedef {Object} LearnResult
  * @property {number} version
- * @property {string} learnedAt
  * @property {string} projectDir
  * @property {string} projectType
  * @property {Array} routes
@@ -24,22 +24,28 @@ import { writeManifest } from './manifest-writer.js';
 
 /**
  * @param {string} projectDir
+ * @param {Object} [scanOptions] - Optional scan configuration overrides
+ * @param {string[]} [scanOptions.learnPaths] - User-specified paths to scan
+ * @param {boolean} [scanOptions.allowEmptyLearn] - Allow learning with zero scan roots
+ * @param {boolean} [scanOptions.verbose] - Enable verbose logging
+ * @param {string} [scanOptions.projectSubdir] - Project subdirectory for monorepo support
  * @returns {Promise<LearnResult>}
  */
-export async function learn(projectDir) {
+export async function learn(projectDir, scanOptions = {}) {
   const absoluteProjectDir = resolve(projectDir);
+  const baseDir = resolveProjectBase(absoluteProjectDir, scanOptions.projectSubdir);
   
-  if (!existsSync(absoluteProjectDir)) {
-    throw new Error(`Project directory does not exist: ${absoluteProjectDir}`);
+  if (!existsSync(baseDir)) {
+    throw new Error(`Project directory does not exist: ${baseDir}`);
   }
   
-  const projectType = await detectProjectType(absoluteProjectDir);
-  const routes = await extractRoutes(absoluteProjectDir, projectType);
+  const projectType = await detectProjectType(baseDir);
+  const routes = await extractRoutes(baseDir, projectType, scanOptions);
   
-    const manifest = await writeManifest(absoluteProjectDir, projectType, routes);
+    const manifest = await writeManifest(baseDir, projectType, routes, scanOptions);
   
     // Write manifest to disk and return path
-    const veraxDir = resolve(absoluteProjectDir, '.verax');
+    const veraxDir = resolve(baseDir, '.verax');
     mkdirSync(veraxDir, { recursive: true });
   
     const manifestPath = resolve(veraxDir, 'project.json');
@@ -50,3 +56,6 @@ export async function learn(projectDir) {
       manifestPath
     };
 }
+
+
+

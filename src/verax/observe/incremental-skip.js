@@ -44,3 +44,6 @@ export function buildIncrementalPhantomTrace({ interaction, currentUrl }) {
     resultType: 'INCREMENTAL_SKIP'
   };
 }
+
+
+

@@ -1,11 +1,53 @@
 import { readFileSync, existsSync } from 'fs';
 import { dirname, basename } from 'path';
 import { expectsNavigation } from './expectation-model.js';
-import { hasMeaningfulUrlChange, hasVisibleChange, hasDomChange } from './comparison.js';
+import { hasMeaningfulUrlChange, hasVisibleChange, hasDomChange, getUrlPath } from '../shared/observable-utilities.js';
 import { writeFindings } from './findings-writer.js';
-import { getUrlPath } from './evidence-validator.js';
 import { classifySkipReason, collectSkipReasons } from './skip-classifier.js';
 import { detectInteractiveFindings } from './interactive-findings.js';
+import { enforceGateOutcomesForFindings } from '../core/gates/enforce-gate-outcome.js';
+
+/**
+ * Pure helper: Normalize CSS selector by removing brackets and parentheses.
+ * Used for fuzzy selector matching when exact match fails.
+ * @param {string} selector - CSS selector
+ * @returns {string} Normalized selector
+ */
+function normalizeSelector(selector) {
+  return selector.replace(/[[\]()]/g, '');
+}
+
+/**
+ * Pure helper: Check if two selectors match (exact or fuzzy).
+ * @param {string} selector1 - First selector
+ * @param {string} selector2 - Second selector
+ * @returns {boolean} True if selectors match
+ */
+function selectorsMatch(selector1, selector2) {
+  if (selector1 === selector2) return true;
+  if (selector1.includes(selector2) || selector2.includes(selector1)) return true;
+  
+  const normalized1 = normalizeSelector(selector1);
+  const normalized2 = normalizeSelector(selector2);
+  return normalized1 === normalized2;
+}
+
+/**
+ * Pure helper: Check if expectation type matches interaction type.
+ * @param {string} expectationType - Expectation type ('navigation', 'spa_navigation', 'form_submission')
+ * @param {string} interactionType - Interaction type ('link', 'button', 'form')
+ * @returns {boolean} True if types are compatible
+ */
+function expectationMatchesInteractionType(expectationType, interactionType) {
+  if ((expectationType === 'navigation' || expectationType === 'spa_navigation') && 
+      (interactionType === 'link' || interactionType === 'button')) {
+    return true;
+  }
+  if (expectationType === 'form_submission' && interactionType === 'form') {
+    return true;
+  }
+  return false;
+}
 
 /**
  * @param {string} manifestPath
@@ -93,29 +135,17 @@ export async function detect(manifestPath, tracesPath, validation = null, _expec
             const interactionSelector = interaction.selector || '';
             
             if (selectorHint && interactionSelector) {
-              const normalizedSelectorHint = selectorHint.replace(/[[\]()]/g, '');
-              const normalizedInteractionSelector = interactionSelector.replace(/[[\]()]/g, '');
-              
-              if (selectorHint === interactionSelector || 
-                  selectorHint.includes(interactionSelector) || 
-                  interactionSelector.includes(normalizedSelectorHint) ||
-                  normalizedSelectorHint === normalizedInteractionSelector) {
-                if ((expectation.type === 'navigation' || expectation.type === 'spa_navigation') && (interaction.type === 'link' || interaction.type === 'button')) {
-                  matchingExpectations.push(expectation);
-                } else if (expectation.type === 'form_submission' && interaction.type === 'form') {
+              if (selectorsMatch(selectorHint, interactionSelector)) {
+                if (expectationMatchesInteractionType(expectation.type, interaction.type)) {
                   matchingExpectations.push(expectation);
                 }
               } else {
-                if ((expectation.type === 'navigation' || expectation.type === 'spa_navigation') && (interaction.type === 'link' || interaction.type === 'button')) {
-                  selectorMismatch = true;
-                } else if (expectation.type === 'form_submission' && interaction.type === 'form') {
+                if (expectationMatchesInteractionType(expectation.type, interaction.type)) {
                   selectorMismatch = true;
                 }
               }
             } else if (!selectorHint && !interactionSelector) {
-              if ((expectation.type === 'navigation' || expectation.type === 'spa_navigation') && (interaction.type === 'link' || interaction.type === 'button')) {
-                matchingExpectations.push(expectation);
-              } else if (expectation.type === 'form_submission' && interaction.type === 'form') {
+              if (expectationMatchesInteractionType(expectation.type, interaction.type)) {
                 matchingExpectations.push(expectation);
               }
             }
@@ -334,6 +364,9 @@ export async function detect(manifestPath, tracesPath, validation = null, _expec
 
   const findingsResult = writeFindings(projectDir, observation.url, findings, [], runDir);
   
+  // Optional gate enforcement (only if VERAX_ENFORCE_GATES=1)
+  enforceGateOutcomesForFindings(findings);
+  
   const skipSummary = collectSkipReasons(skips);
   
   const detectTruth = {
@@ -348,3 +381,6 @@ export async function detect(manifestPath, tracesPath, validation = null, _expec
     detectTruth: detectTruth
   };
 }
+
+
+

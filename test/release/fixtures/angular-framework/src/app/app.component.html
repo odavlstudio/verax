@@ -1,0 +1,12 @@
+<div class="container">
+  <nav>
+    <a [routerLink]="'/about'">About</a>
+    <a routerLink="/contact">Contact</a>
+    <button (click)="navigateToDashboard()">Dashboard</button>
+  </nav>
+  
+  <form action="/submit-form">
+    <input [(ngModel)]="name" type="text" placeholder="Name" />
+    <button type="submit">Submit</button>
+  </form>
+</div>

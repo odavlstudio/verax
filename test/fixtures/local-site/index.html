@@ -4,21 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Site - Local</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .section { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        [aria-live] { border: 2px solid green; padding: 10px; margin: 10px 0; }
+        .feedback-message { display: none; }
+        .feedback-message.visible { display: block; color: green; }
+    </style>
 </head>
 <body>
-    <h1>Test Website</h1>
-    <nav>
-        <a href="/about.html" id="working-link">About Us</a>
-        <a href="/contact.html" id="working-link-2">Contact</a>
-    </nav>
-    <main>
-        <button id="broken-button" onclick="return false;">Go to Home</button>
-        <button id="working-button" onclick="window.location.href='#section1'">Go to Section</button>
-        <form id="broken-form" onsubmit="return false;">
-            <input type="text" name="email" placeholder="Email">
-            <button type="submit">Subscribe</button>
+    <h1>Test Website - Local Fixture</h1>
+    
+    <div class="section">
+        <h2>Dead Button (No Visible Change)</h2>
+        <button id="dead-button" data-test="dead-button">Click Me (Does Nothing)</button>
+        <p>This button has no click handler - it produces no visible change or feedback.</p>
+    </div>
+
+    <div class="section">
+        <h2>Working Link (Navigation)</h2>
+        <a href="/about.html" id="working-link">Go to About Page</a>
+        <p>This link navigates to another page.</p>
+    </div>
+
+    <div class="section">
+        <h2>Form with Prevented Submit (No Feedback)</h2>
+        <form id="no-feedback-form" data-test="no-feedback-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name">
+            <button type="submit">Submit</button>
         </form>
-    </main>
+        <p>Clicking submit prevents default but shows no feedback or error message.</p>
+    </div>
+
+    <div class="section">
+        <h2>Working Feedback Element (aria-live)</h2>
+        <button id="feedback-button" data-test="feedback-button">Show Feedback</button>
+        <div id="feedback-region" role="status" aria-live="polite" aria-atomic="true">
+            <!-- Feedback will be inserted here -->
+        </div>
+        <p>Clicking this button updates the aria-live region with feedback.</p>
+    </div>
+
+    <script>
+        // Form with prevented submit but no feedback
+        document.getElementById('no-feedback-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Intentionally do nothing - no feedback, no redirect
+        });
+
+        // Working button that updates aria-live region
+        document.getElementById('feedback-button').addEventListener('click', function() {
+            const region = document.getElementById('feedback-region');
+            const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+            region.textContent = 'Feedback received at ' + timestamp;
+        });
+    </script>
 </body>
 </html>
 

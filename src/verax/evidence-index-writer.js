@@ -1,5 +1,6 @@
 import { resolve, dirname } from 'path';
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync } from 'fs';
+import { atomicWriteJsonSync } from '../cli/util/atomic-write.js';
 
 function resolveScreenshotPath(screenshotsDir, relativePath) {
   if (!relativePath || !screenshotsDir) return null;
@@ -56,6 +57,9 @@ export function writeEvidenceIndex(projectDir, findings, verdict, tracesPath, sc
     tracesPath,
     items
   };
-  writeFileSync(evidenceIndexPath, JSON.stringify(payload, null, 2) + '\n');
+  atomicWriteJsonSync(evidenceIndexPath, payload);
   return { evidenceIndexPath, items };
 }
+
+
+

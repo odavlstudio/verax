@@ -4,6 +4,12 @@
  * Deterministically detects unresolved loading states
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+import { createCounterId } from './stable-id.js';
+
+// Deterministic counter-based ID generator for loading windows
+const generateLoadingId = createCounterId('loading');
+
 export class LoadingSensor {
   constructor(options = {}) {
     this.loadingTimeout = options.loadingTimeout || 5000; // 5s deterministic timeout
@@ -13,7 +19,8 @@ export class LoadingSensor {
    * Start monitoring loading state and return a window ID
    */
   startWindow(page) {
-    const windowId = `loading_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const timeProvider = getTimeProvider();
+    const windowId = generateLoadingId();
 
     const state = {
       id: windowId,
@@ -65,12 +72,12 @@ export class LoadingSensor {
         if (hasLoading && !state.isCurrentlyLoading) {
           // Loading started
           state.isCurrentlyLoading = true;
-          state.loadingStartTime = Date.now();
+          state.loadingStartTime = timeProvider.now();
           state.loadingIndicators = indicators;
         } else if (!hasLoading && state.isCurrentlyLoading) {
           // Loading resolved
           state.isCurrentlyLoading = false;
-          state.resolveTime = Date.now();
+          state.resolveTime = timeProvider.now();
           state.maxLoadingDuration = state.resolveTime - state.loadingStartTime;
         } else if (hasLoading && state.isCurrentlyLoading) {
           // Still loading, update indicators
@@ -124,8 +131,9 @@ export class LoadingSensor {
     }
 
     // Determine if loading is unresolved (exceeded timeout)
+    const timeProvider = getTimeProvider();
     const isStillLoading = state.isCurrentlyLoading === true;
-    const now = Date.now();
+    const now = timeProvider.now();
     const loadingDuration = state.loadingStartTime ? (now - state.loadingStartTime) : 0;
     const exceededTimeout = state.loadingStartTime && (now - state.loadingStartTime) > this.loadingTimeout;
     const unresolved = isStillLoading && exceededTimeout;
@@ -143,3 +151,6 @@ export class LoadingSensor {
     };
   }
 }
+
+
+

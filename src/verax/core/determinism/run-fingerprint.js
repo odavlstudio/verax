@@ -50,7 +50,10 @@ export function computeRunFingerprint(params) {
   };
   
   // Generate stable hash
-  const configString = JSON.stringify(fingerprintInput, Object.keys(fingerprintInput).sort());
+  const configString = JSON.stringify(
+    fingerprintInput,
+    Object.keys(fingerprintInput).sort((a, b) => a.localeCompare(b, 'en'))
+  );
   const hash = createHash('sha256').update(configString).digest('hex');
   
   // @ts-expect-error - digest returns string
@@ -120,4 +123,7 @@ function normalizeUrl(url) {
     return url;
   }
 }
+
+
+
 

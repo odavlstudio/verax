@@ -5,7 +5,7 @@
  * No warnings, no soft limits - budget exceeded = ANALYSIS_INCOMPLETE.
  */
 
-import { SKIP_REASON } from '../../../cli/util/types.js';
+import { SKIP_REASON } from '../../../cli/util/support/types.js';
 
 /**
  * Check if budget is exceeded and enforce hard limit
@@ -136,3 +136,6 @@ export async function withBudgetEnforcement(operation, budgetGuard, phase, onChe
     throw error;
   }
 }
+
+
+

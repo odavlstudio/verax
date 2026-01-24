@@ -21,3 +21,6 @@ export async function captureDomSignature(page) {
   }
 }
 
+
+
+

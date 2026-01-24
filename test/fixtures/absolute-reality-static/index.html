@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><title>BROKEN - Static</title></head>
+<body>
+<h1>Home</h1>
+<a href="/about.html" id="broken-about-link">Go to About (BROKEN - file doesn't exist)</a>
+<a href="/contact.html" id="broken-contact-link">Go to Contact (BROKEN - file doesn't exist)</a>
+<button onclick="fetch('/api/broken-endpoint')" id="broken-fetch-button">Fetch (BROKEN - endpoint missing)</button>
+<form action="/submit-broken" method="POST" id="broken-form">
+  <input type="text" name="input1" />
+  <button type="submit">Submit (BROKEN - action missing)</button>
+</form>
+</body>
+</html>

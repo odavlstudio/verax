@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 /**
  * EVIDENCE INDEX MODULE
  * 
@@ -98,7 +99,7 @@ export async function writeEvidenceIndex(projectDir, evidenceIndex, tracesPath, 
   // Build evidence index with full paths
   const index = {
     version: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     tracesPath: tracesPath,
     findingsPath: findingsPath,
     evidence: evidenceIndex.map(entry => ({
@@ -125,3 +126,6 @@ export async function writeEvidenceIndex(projectDir, evidenceIndex, tracesPath, 
   
   return evidenceIndexPath;
 }
+
+
+

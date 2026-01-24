@@ -1,14 +1,36 @@
 /**
- * PHASE 12 — Route Intelligence & Deep Route Detection
+ * PHASE 12 — STATIC ROUTE INTELLIGENCE
  * 
- * Unified route model and intelligence layer that:
- * - Defines route taxonomy (static, dynamic, ambiguous)
- * - Correlates navigation promises with routes
- * - Handles dynamic routes honestly
- * - Provides evidence for route-related findings
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * RESPONSIBILITY: DECLARATIVE & STATIC ROUTE ANALYSIS
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * 
+ * This module handles STATIC and DECLARATIVE routing patterns:
+ * - File-system routes (Next.js pages/app router)
+ * - JSX-declared routes (React Router <Route> components)
+ * - Config-based routes (Vue Router configuration)
+ * - Basic route taxonomy and correlation
+ * 
+ * EXPLICITLY HANDLES:
+ * ✓ Route model construction from static declarations
+ * ✓ Basic navigation promise correlation (exact path matching)
+ * ✓ Route evaluation for static paths
+ * ✓ Evidence building for declarative routes
+ * 
+ * EXPLICITLY DOES NOT HANDLE:
+ * ✗ Runtime/JS-driven navigation (programmatic routing)
+ * ✗ Dynamic route parameter resolution at runtime
+ * ✗ Auth-gated or SSR-only route verification
+ * ✗ Complex pattern matching for dynamic segments
+ * 
+ * FOR RUNTIME-DRIVEN ROUTES: See dynamic-route-intelligence.js
+ * FOR DYNAMIC PARAMETERS: See shared/dynamic-route-normalizer.js
+ * 
+ * ═══════════════════════════════════════════════════════════════════════════════
  */
 
-import { normalizeDynamicRoute as _normalizeDynamicRoute, isDynamicPath, normalizeNavigationTarget } from '../shared/dynamic-route-utils.js';
+import { normalizeDynamicRoute as _normalizeDynamicRoute, isDynamicPath, normalizeNavigationTarget } from '../shared/dynamic-route-normalizer.js';
+import { extractParameters, matchDynamicPattern, extractPathFromUrl } from './route-intelligence/pattern-utils.js';
 
 /**
  * Route Taxonomy
@@ -53,6 +75,11 @@ export const ROUTE_SOURCE = {
 
 /**
  * Build unified route model from extracted routes
+ * 
+ * RESPONSIBILITY: Construct route models from STATIC/DECLARATIVE sources only
+ * (file-system, JSX components, config files)
+ * 
+ * For runtime-driven routes, see dynamic-route-intelligence.js
  * 
  * @param {Array} extractedRoutes - Routes from route extractors
  * @returns {Array<RouteModel>} Unified route models
@@ -115,28 +142,12 @@ export function buildRouteModels(extractedRoutes) {
 }
 
 /**
- * Extract parameter names from dynamic route path
- */
-function extractParameters(path) {
-  const parameters = [];
-  
-  // React/Vue Router :param
-  const reactMatches = path.matchAll(/:(\w+)/g);
-  for (const match of reactMatches) {
-    parameters.push(match[1]);
-  }
-  
-  // Next.js [param]
-  const nextMatches = path.matchAll(/\[(\w+)\]/g);
-  for (const match of nextMatches) {
-    parameters.push(match[1]);
-  }
-  
-  return parameters;
-}
-
-/**
  * PHASE 12: Correlate navigation promise with route
+ * 
+ * RESPONSIBILITY: Basic navigation-to-route correlation (exact/pattern matching)
+ * Does NOT handle runtime signal verification or auth-gated routes
+ * 
+ * For runtime verification with trace data, see dynamic-route-intelligence.js
  * 
  * @param {string} navigationTarget - Navigation target from promise
  * @param {Array<RouteModel>} routeModels - Available route models
@@ -189,37 +200,12 @@ export function correlateNavigationWithRoute(navigationTarget, routeModels) {
 }
 
 /**
- * Match a target path against a dynamic route pattern
- */
-function matchDynamicPattern(target, pattern) {
-  // Convert pattern to regex
-  // React Router: /users/:id -> /users/(\w+)
-  // Next.js: /users/[id] -> /users/(\w+)
-  
-  let regexPattern = pattern;
-  
-  // Replace :param with (\w+)
-  regexPattern = regexPattern.replace(/:(\w+)/g, '(\\w+)');
-  
-  // Replace [param] with (\w+)
-  regexPattern = regexPattern.replace(/\[(\w+)\]/g, '(\\w+)');
-  
-  // Escape other special characters
-  regexPattern = regexPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  
-  // Restore the capture groups
-  regexPattern = regexPattern.replace(/\\\(\\\\w\+\\\)/g, '(\\w+)');
-  
-  const regex = new RegExp(`^${regexPattern}$`);
-  const match = target.match(regex);
-  
-  return match ? { matched: true, groups: match.slice(1) } : null;
-}
-
-/**
  * PHASE 12: Evaluate route navigation outcome
+ *  * RESPONSIBILITY: Basic navigation evaluation for static routes
+ * Does NOT handle auth gates, SSR-only routes, or complex runtime patterns
  * 
- * @param {Object} correlation - Route correlation result
+ * For dynamic route verdict determination, see dynamic-route-intelligence.js
+ *  * @param {Object} correlation - Route correlation result
  * @param {Object} trace - Interaction trace
  * @param {string} beforeUrl - URL before interaction
  * @param {string} afterUrl - URL after interaction
@@ -326,22 +312,6 @@ export function evaluateRouteNavigation(correlation, trace, beforeUrl, afterUrl)
 }
 
 /**
- * Extract path from URL
- */
-function extractPathFromUrl(url) {
-  if (!url || typeof url !== 'string') return '';
-  
-  try {
-    const urlObj = new URL(url);
-    return urlObj.pathname;
-  } catch {
-    // Relative URL
-    const pathMatch = url.match(/^([^?#]+)/);
-    return pathMatch ? pathMatch[1] : url;
-  }
-}
-
-/**
  * PHASE 12: Build evidence for route-related finding
  * 
  * @param {Object} correlation - Route correlation
@@ -417,4 +387,7 @@ export function isRouteChangeFalsePositive(trace, _correlation) {
   
   return false;
 }
+
+
+
 

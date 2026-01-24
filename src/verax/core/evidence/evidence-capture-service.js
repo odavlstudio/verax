@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
 /**
  * EVIDENCE CAPTURE RELIABILITY LAYER
  * 
@@ -5,8 +6,8 @@
  * Ensures evidence capture is resilient and failures are never silent.
  */
 
-import { captureScreenshot } from '../../observe/evidence-capture.js';
-import { captureDomSignature } from '../../observe/dom-signature.js';
+import { captureScreenshot } from '../../shared/evidence-capture-bridge.js';
+import { captureDomSignature } from '../../shared/evidence-capture-bridge.js';
 
 /**
  * Evidence capture failure reason codes (stable)
@@ -43,7 +44,7 @@ export class EvidenceCaptureFailure {
     this.reason = reason;
     this.stackSummary = stackSummary || this._extractStackSummary(new Error().stack);
     this.attemptCount = attemptCount;
-    this.timestamp = new Date().toISOString();
+    this.timestamp = getTimeProvider().iso();
   }
 
   _extractStackSummary(stack) {
@@ -120,6 +121,16 @@ export async function captureScreenshotWithRetry(page, filepath, options = {}) {
 export async function captureDomSignatureSafe(page) {
   try {
     const domSignature = await captureDomSignature(page);
+    // Treat null/undefined as a capture failure (no silent degradation)
+    if (domSignature === null || domSignature === undefined) {
+      const failure = new EvidenceCaptureFailure(
+        EVIDENCE_CAPTURE_STAGE.DOM_SIGNATURE,
+        EVIDENCE_CAPTURE_FAILURE_CODES.DOM_SIGNATURE_FAILED,
+        'DOM signature capture returned empty result'
+      );
+      return { success: false, domSignature: null, failure };
+    }
+
     // @ts-expect-error - digest returns string
     return { success: true, domSignature, failure: null };
   } catch (error) {
@@ -305,4 +316,7 @@ export async function captureEvidenceComprehensive(params) {
   
   return { evidence, failures };
 }
+
+
+
 

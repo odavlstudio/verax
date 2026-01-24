@@ -1,5 +1,7 @@
+import { getTimeProvider } from '../cli/util/support/time-provider.js';
 import { resolve } from 'path';
-import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'fs';
+import { mkdirSync, readFileSync, existsSync } from 'fs';
+import { atomicWriteJsonSync } from '../cli/util/atomic-write.js';
 import { computeExpectationsSummary } from './shared/artifact-manager.js';
 import { createImpactSummary } from './core/silence-impact.js';
 import { computeDecisionSnapshot } from './core/decision-snapshot.js';
@@ -23,13 +25,13 @@ export function writeScanSummary(projectDir, url, projectType, learnTruth, obser
     }
   }
   
-  // PHASE 4: Compute silence impact summary
+  // Compute silence impact summary from detected silences
   let silenceImpactSummary = null;
   if (detectTruth?.silences?.entries) {
     silenceImpactSummary = createImpactSummary(detectTruth.silences.entries);
   }
   
-  // PHASE 6: Compute determinism summary from decisions.json
+  // Compute determinism summary from decisions.json if available
   let determinismSummary = null;
   if (runDirOpt && observeTruth?.runId) {
     const decisionsPath = resolve(runDirOpt, 'decisions.json');
@@ -53,7 +55,7 @@ export function writeScanSummary(projectDir, url, projectType, learnTruth, obser
     }
   }
   
-  // PHASE 7: Compute decision snapshot (answers 6 mandatory questions)
+  // Compute decision snapshot from findings and detection truth
   let decisionSnapshot = null;
   if (findingsArray && detectTruth && observeTruth) {
     const silences = detectTruth.silences;
@@ -62,13 +64,13 @@ export function writeScanSummary(projectDir, url, projectType, learnTruth, obser
   
   const summary = {
     version: 1,
-    scannedAt: new Date().toISOString(),
+    scannedAt: getTimeProvider().iso(),
     url: url,
     projectType: projectType,
     expectationsSummary: expectationsSummary,
-    // PHASE 7: Decision snapshot first (most important for human decision-making)
+    // Decision snapshot first (most important for human decision-making)
     decisionSnapshot: decisionSnapshot,
-    // PHASE 7: Misinterpretation guards (explicit warnings)
+    // Interpretation guards (explicit warnings for misreading summary)
     interpretationGuards: {
       zeroFindings: 'Zero findings does NOT mean no problems. Check unverified count and confidence level.',
       deterministicRun: 'Deterministic run does NOT mean correct site. Only means scan was reproducible.',
@@ -79,7 +81,7 @@ export function writeScanSummary(projectDir, url, projectType, learnTruth, obser
       observe: observeTruth,
       detect: detectTruth
     },
-    // PHASE 4: Add silence lifecycle and impact summary
+    // Silence lifecycle and impact summary
     silenceLifecycle: detectTruth?.silences ? {
       total: detectTruth.silences.total || 0,
       byType: detectTruth.silences.summary?.byType || {},
@@ -88,7 +90,7 @@ export function writeScanSummary(projectDir, url, projectType, learnTruth, obser
       withPromiseAssociation: detectTruth.silences.summary?.withPromiseAssociation || 0,
       impactSummary: silenceImpactSummary
     } : null,
-    // PHASE 6: Add determinism summary
+    // Determinism summary
     determinism: determinismSummary,
     paths: {
       manifest: manifestPath,
@@ -98,11 +100,14 @@ export function writeScanSummary(projectDir, url, projectType, learnTruth, obser
   };
   
   const summaryPath = resolve(scanDir, 'scan-summary.json');
-  writeFileSync(summaryPath, JSON.stringify(summary, null, 2) + '\n');
+  atomicWriteJsonSync(summaryPath, summary);
   
   return {
     ...summary,
     summaryPath: summaryPath
   };
 }
+
+
+
 

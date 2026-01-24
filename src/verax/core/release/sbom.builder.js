@@ -5,10 +5,13 @@
  * Missing SBOM = BLOCKING.
  */
 
-import { readFileSync, existsSync, writeFileSync, mkdirSync, readdirSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
 import { createHash } from 'crypto';
 import { execSync } from 'child_process';
+import { existsSync, readdirSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
+import { VERSION } from '../../../version.js';
 
 /**
  * Get package.json dependencies
@@ -59,6 +62,9 @@ function traverseDepsHelper(deps, packages, parent = null) {
 /**
  * Get transitive dependencies from node_modules
  * 
+ * SAFETY: execSync with hardcoded command (no user input interpolation).
+ * Timeout prevents hangs on large dependency trees.
+ * 
  * @param {string} projectDir - Project directory
  * @returns {Array} Array of package info
  */
@@ -87,7 +93,9 @@ function getTransitiveDependencies(projectDir) {
   } catch {
     // Fallback: scan node_modules directory
     try {
-      const entries = readdirSync(nodeModulesPath, { withFileTypes: true });
+      const entries = readdirSync(nodeModulesPath, { withFileTypes: true })
+        // @ts-ignore - Dirent has name property
+        .sort((a, b) => a.name.localeCompare(b.name));
       
       for (const entry of entries) {
         if (entry.isDirectory() && !entry.name.startsWith('.')) {
@@ -98,7 +106,7 @@ function getTransitiveDependencies(projectDir) {
               const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
               packages.push({
                 name: pkg.name || entry.name,
-                version: pkg.version || 'unknown',
+                version: VERSION || 'unknown',
                 parent: null
               });
             } catch {
@@ -191,8 +199,8 @@ export async function buildSBOM(projectDir) {
   components.push({
     type: 'application',
     name: pkg.name || 'unknown',
-    version: pkg.version || 'unknown',
-    purl: `pkg:npm/${pkg.name}@${pkg.version}`,
+    version: VERSION || 'unknown',
+    purl: `pkg:npm/${pkg.name}@${VERSION}`,
     licenses: pkg.license ? [{ license: { id: pkg.license } }] : []
   });
   
@@ -253,7 +261,7 @@ export async function buildSBOM(projectDir) {
     specVersion: '1.4',
     version: 1,
     metadata: {
-      timestamp: new Date().toISOString(),
+      timestamp: getTimeProvider().iso(),
       tools: [{
         vendor: 'VERAX',
         name: 'SBOM Builder',
@@ -262,7 +270,7 @@ export async function buildSBOM(projectDir) {
       component: {
         type: 'application',
         name: pkg.name || 'unknown',
-        version: pkg.version || 'unknown'
+        version: VERSION || 'unknown'
       }
     },
     components: components
@@ -289,4 +297,7 @@ export function writeSBOM(projectDir, sbom) {
   
   return outputPath;
 }
+
+
+
 

@@ -10,6 +10,8 @@ import { runInteraction } from '../src/verax/observe/interaction-runner.js';
 import { resolve } from 'path';
 import { mkdtempSync } from 'fs';
 import { tmpdir } from 'os';
+import { getTimeProvider } from '../src/cli/util/support/time-provider.js';
+
 
 const testPagePath = resolve(process.cwd(), 'test-projects', 'ui-feedback-validation', 'index.html');
 const screenshotsDir = mkdtempSync(resolve(tmpdir(), 'verax-ui-feedback-validation-'));
@@ -33,11 +35,11 @@ async function testInteraction(page, selector, label, type = 'button') {
   const trace = await runInteraction(
     page,
     interaction,
-    Date.now(),
+    getTimeProvider().now(),
     0,
     screenshotsDir,
     `file://${testPagePath}`,
-    Date.now(),
+    getTimeProvider().now(),
     {
       maxScanDurationMs: 60000,
       navigationTimeoutMs: 5000,
@@ -183,3 +185,5 @@ async function main() {
 }
 
 main();
+
+

@@ -4,6 +4,7 @@ import { readFileSync } from 'fs';
 import { glob } from 'glob';
 import { resolve } from 'path';
 import { ExpectationProof } from '../shared/expectation-validation.js';
+import { resolveScanConfig, rootsToGlobPatterns } from './scan-roots.js';
 
 const MAX_FILES_TO_SCAN = 200;
 
@@ -166,8 +167,10 @@ function detectStateStores(projectDir) {
  * Scans project for state action expectations.
  * Returns { expectations: [], storesDetected: { redux: bool, zustand: bool } }
  */
-export async function extractStateExpectationsFromAST(projectDir) {
-  const storesDetected = detectStateStores(projectDir);
+export async function extractStateExpectationsFromAST(projectDir, projectType = 'unknown', scanOptions = {}) {
+  const scanConfig = resolveScanConfig(projectDir, projectType, scanOptions);
+  const baseDir = scanConfig.cwd;
+  const storesDetected = detectStateStores(baseDir);
   const expectations = [];
   
   // Only scan if supported stores are detected
@@ -176,17 +179,31 @@ export async function extractStateExpectationsFromAST(projectDir) {
   }
   
   try {
-    const files = await glob('**/*.{js,jsx,ts,tsx}', {
-      cwd: projectDir,
-      absolute: false,
-      ignore: ['node_modules/**', 'dist/**', 'build/**', '.next/**', 'out/**']
-    });
+    if (scanConfig.roots.length === 0) {
+      return { expectations: [], storesDetected };
+    }
+    
+    // Generate glob patterns from scan roots
+    const globPatterns = rootsToGlobPatterns(scanConfig.roots, '*.{js,jsx,ts,tsx}');
+    
+    // Collect files from all patterns
+    let files = [];
+    for (const pattern of globPatterns) {
+      const matchedFiles = await glob(pattern, {
+        cwd: baseDir,
+        absolute: false,
+        ignore: scanConfig.excludes
+      });
+      matchedFiles.sort((a, b) => a.localeCompare(b, 'en'));
+      files = files.concat(matchedFiles);
+    }
+    files = Array.from(new Set(files)).sort((a, b) => a.localeCompare(b, 'en'));
     
     const filesToScan = files.slice(0, MAX_FILES_TO_SCAN);
     
     for (const file of filesToScan) {
       try {
-        const filePath = resolve(projectDir, file);
+        const filePath = resolve(baseDir, file);
         const content = readFileSync(filePath, 'utf-8');
         const fileExpectations = extractStateExpectations(file, content);
         expectations.push(...fileExpectations);
@@ -211,3 +228,6 @@ export async function extractStateExpectationsFromAST(projectDir) {
   
   return { expectations: unique, storesDetected };
 }
+
+
+

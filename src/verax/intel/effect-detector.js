@@ -11,7 +11,7 @@
 
 import ts from 'typescript';
 import { getFunctionBody, getStringLiteral, findNodes, getNodeLocation } from './ts-program.js';
-import { normalizeTemplateLiteral } from '../shared/dynamic-route-utils.js';
+import { normalizeTemplateLiteral } from '../shared/dynamic-route-normalizer.js';
 
 /**
  * Detect effects in handler function.
@@ -366,3 +366,6 @@ function getFirstStringArg(call) {
   
   return null;
 }
+
+
+

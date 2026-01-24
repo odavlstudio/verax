@@ -1,5 +1,5 @@
 /**
- * PHASE 6A: Semantic Determinism Tests
+ * Semantic Determinism Tests
  * 
  * Verifies semantic comparison with field normalization.
  */
@@ -13,11 +13,12 @@ import {
   compareRunsSemantically,
   loadAndCompareRuns,
   normalizeFindingsForComparison,
-} from '../src/verax/core/integrity/determinism.js';
+} from '../../src/verax/core/integrity/determinism.js';
+import { generateTempDirName } from '../support/test-id-provider.js';
 
-const testDir = join(tmpdir(), `verax-determinism-test-${Date.now()}`);
+const testDir = join(tmpdir(), generateTempDirName('semantic-determinism-test'));
 
-describe('Phase 6A: Semantic Determinism', () => {
+describe('Semantic Determinism', () => {
   test.beforeEach(() => {
     if (rmSync(testDir, { recursive: true, force: true })) {
       // Cleanup
@@ -282,4 +283,5 @@ describe('Phase 6A: Semantic Determinism', () => {
     assert.ok(result.differences.some(d => d.type === 'length-mismatch'));
   });
 });
+
 

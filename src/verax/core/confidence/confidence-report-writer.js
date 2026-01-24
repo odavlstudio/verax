@@ -1,3 +1,5 @@
+// @ts-expect-error - TypeScript module resolution issue with time-provider path
+import { getTimeProvider } from '../../../../cli/util/support/time-provider.js';
 /**
  * PHASE 24 — Confidence Report Writer
  * 
@@ -99,7 +101,7 @@ export function writeConfidenceReport(runDir, findings, confidenceData = {}) {
   // Build report
   const report = {
     version: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     summary,
     perFinding
   };
@@ -109,4 +111,7 @@ export function writeConfidenceReport(runDir, findings, confidenceData = {}) {
   
   return reportPath;
 }
+
+
+
 

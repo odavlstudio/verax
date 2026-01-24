@@ -1,0 +1,15 @@
+{
+  "cookies": [
+    {
+      "name": "auth_token",
+      "value": "valid_test_token",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}

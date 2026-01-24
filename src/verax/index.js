@@ -9,8 +9,9 @@ import SilenceTracker from './core/silence-model.js';
 import { generateRunId, getRunArtifactDir, getArtifactPath } from './core/run-id.js';
 import { createRunManifest, updateRunManifestHashes } from './core/run-manifest.js';
 import { computeArtifactHashes } from './core/run-id.js';
+import { atomicWriteJsonSync } from '../cli/util/atomic-write.js';
 
-export async function scan(projectDir, url, manifestPath = null, scanBudgetOverride = null, safetyFlags = {}) {
+export async function scan(projectDir, url, manifestPath = null, scanBudgetOverride = null, safetyFlags = {}, scanOptions = {}) {
   // VISION ENFORCEMENT: Zero-configuration mode (config files ignored unless explicit --use-config flag)
   // VERAX adapts to the project, never requires project to adapt to VERAX
   
@@ -27,7 +28,7 @@ export async function scan(projectDir, url, manifestPath = null, scanBudgetOverr
     }
   }
   
-  const learnedManifest = await learn(projectDir);
+  const learnedManifest = await learn(projectDir, scanOptions);
   
   // Merge: prefer loaded manifest for routes, but use learned for project type and truth
   let manifest;
@@ -105,9 +106,8 @@ export async function scan(projectDir, url, manifestPath = null, scanBudgetOverr
 
   // Write a copy of the manifest into canonical run directory for replay integrity
   try {
-    const { writeFileSync } = await import('fs');
     const manifestCopyPath = getArtifactPath(projectDir, runId, 'manifest.json');
-    writeFileSync(manifestCopyPath, JSON.stringify(manifest, null, 2));
+    atomicWriteJsonSync(manifestCopyPath, manifest);
   } catch {
     // Ignore write errors
   }
@@ -187,3 +187,6 @@ export async function scan(projectDir, url, manifestPath = null, scanBudgetOverr
 export { learn } from './learn/index.js';
 export { observe } from './observe/index.js';
 export { detect } from './detect/index.js';
+
+
+

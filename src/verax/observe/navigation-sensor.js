@@ -10,6 +10,8 @@
  * Provides runtime evidence for navigation failure detection.
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+
 export class NavigationSensor {
   constructor() {
     this.windows = new Map();
@@ -24,6 +26,7 @@ export class NavigationSensor {
    */
   startWindow(page) {
     const windowId = this.nextWindowId++;
+    const timeProvider = getTimeProvider();
     
     const state = {
       windowId,
@@ -34,7 +37,7 @@ export class NavigationSensor {
       historyChanges: [],
       routerEvents: [],
       blockedNavigations: [],
-      started: Date.now()
+      started: timeProvider.now()
     };
     
     this.windows.set(windowId, state);
@@ -70,6 +73,8 @@ export class NavigationSensor {
    * @param {Object} state - Window state
    */
   _attachListeners(page, state) {
+    const timeProvider = getTimeProvider();
+    
     // Listen for history API calls
     page.on('console', (msg) => {
       const text = msg.text();
@@ -82,19 +87,19 @@ export class NavigationSensor {
             state.historyChanges.push({
               method: data.method,
               url: data.url,
-              timestamp: Date.now()
+              timestamp: timeProvider.now()
             });
           } else if (data.type === 'router') {
             state.routerEvents.push({
               event: data.event,
               url: data.url,
-              timestamp: Date.now()
+              timestamp: timeProvider.now()
             });
           } else if (data.type === 'blocked') {
             state.blockedNavigations.push({
               reason: data.reason,
               url: data.url,
-              timestamp: Date.now()
+              timestamp: timeProvider.now()
             });
           }
         } catch (e) {
@@ -127,7 +132,8 @@ export class NavigationSensor {
       state.afterHistoryLength = state.beforeHistoryLength;
     }
     
-    const duration = Date.now() - state.started;
+    const timeProvider = getTimeProvider();
+    const duration = timeProvider.now() - state.started;
     
     // Compute deltas
     const urlChanged = state.beforeUrl !== state.afterUrl;
@@ -253,3 +259,6 @@ export class NavigationSensor {
     }
   }
 }
+
+
+

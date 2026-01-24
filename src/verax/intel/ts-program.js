@@ -80,7 +80,7 @@ function collectSourceFiles(projectRoot, includeJs) {
   
   function walk(dir) {
     try {
-      const entries = readdirSync(dir);
+      const entries = readdirSync(dir).sort((a, b) => a.localeCompare(b, 'en'));
       
       for (const entry of entries) {
         const fullPath = resolve(dir, entry);
@@ -255,3 +255,6 @@ export function parseFile(filePath, isJsx = false) {
     return null;
   }
 }
+
+
+

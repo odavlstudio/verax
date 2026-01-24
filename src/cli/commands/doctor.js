@@ -1,13 +1,18 @@
-/**
- * VERAX Doctor (Phase 8.1)
- * Environment diagnostics for enterprise hardening.
- * Never throws on check failures; only invalid usage should bubble out.
- */
+/*
+Command: verax doctor
+Purpose: Diagnose local environment for VERAX prerequisites (Node.js, Playwright, browsers).
+Required: none
+Optional: --json
+Outputs: Exactly one RESULT/REASON/ACTION block (JSON or text) summarizing checks.
+Exit Codes: 0 SUCCESS | 40 INFRA_FAILURE | 64 USAGE_ERROR
+Forbidden: throwing on check failures; multiple RESULT blocks; unsupported flags.
+*/
 
 import { existsSync } from 'fs';
 import { platform } from 'os';
 import { createRequire } from 'module';
-import { UsageError } from '../util/errors.js';
+import { UsageError } from '../util/support/errors.js';
+import { buildOutcome as _buildOutcome, EXIT_CODES as _EXIT_CODES } from '../config/cli-contract.js';
 
 export async function doctorCommand(options = {}) {
   const { json = false, extraFlags = [] } = options;
@@ -187,10 +192,14 @@ export async function doctorCommand(options = {}) {
   }
 
   const ok = checks.every((c) => c.status === 'pass');
+  const failingChecks = checks.filter((c) => c.status === 'fail').map((c) => c.name);
+  const exitCode = ok ? 0 : (failingChecks.includes('Headless smoke test') ? 66 : 65);
 
   if (json) {
     const report = {
       ok,
+      ready: ok,
+      exitCode,
       platform: platformName,
       nodeVersion,
       playwrightVersion,
@@ -209,12 +218,13 @@ export async function doctorCommand(options = {}) {
   });
   console.log(`
 Overall: ${ok ? 'OK' : 'Issues found'} (${checks.filter(c => c.status === 'fail').length} failing checks)`);
+  console.log(`Ready: ${ok ? 'yes' : 'no'} (exit code ${exitCode})`);
   if (recommendations.length > 0) {
     console.log('\nRecommended actions:');
     recommendations.forEach((r) => console.log(`- ${r}`));
   }
 
-  return { ok, checks, recommendations };
+  return { ok, ready: ok, exitCode, checks, recommendations };
 }
 
 function detectCIHints() {
@@ -224,3 +234,6 @@ function detectCIHints() {
   if (process.env.GITLAB_CI) return 'GITLAB_CI';
   return '';
 }
+
+
+

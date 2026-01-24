@@ -20,3 +20,5 @@ export function handleDispatchGood() {
 export function handleDispatchBad() {
   mockStore.dispatch({ type: 'UNKNOWN' });
 }
+
+

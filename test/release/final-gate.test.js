@@ -16,6 +16,8 @@ import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync, readdirSync, mkdirSync, rmSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
+import { getTimeProvider } from '../../src/cli/util/support/time-provider.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -90,17 +92,28 @@ describe('Final Gate: VERAX Installability & CLI', () => {
     const packResult = await runCommand('npm', ['pack'], projectRoot, 30000);
     assert.strictEqual(packResult.code, 0, `npm pack should succeed: ${packResult.stderr}`);
     
+    // Constitutional guarantee: postpack hook removes tarball immediately
+    // Verify pack succeeded by checking stdout contains tarball name
+    assert.ok(packResult.stdout.includes('.tgz'), 'npm pack stdout should confirm tarball generation');
+    
+    // Verify constitutional cleanup: no tarball remains in project root
     const tarballs = readdirSync(projectRoot).filter(f => f.endsWith('.tgz'));
-    assert.ok(tarballs.length > 0, 'npm pack should create a .tgz file');
+    assert.strictEqual(tarballs.length, 0, 'postpack hook should remove tarball (constitutional guarantee)');
   });
 
   test('tarball extracts and package structure is valid', async () => {
-    tempDir = join(tmpdir(), `verax-final-gate-${Date.now()}`);
+    tempDir = join(tmpdir(), `verax-final-gate-${getTimeProvider().now()}`);
     mkdirSync(tempDir, { recursive: true });
+
+    // Generate tarball with postpack cleanup temporarily disabled for validation
+    process.env.VERAX_SKIP_POSTPACK_CLEANUP = '1';
+    const packResult = await runCommand('npm', ['pack'], projectRoot, 30000);
+    delete process.env.VERAX_SKIP_POSTPACK_CLEANUP;
+    assert.strictEqual(packResult.code, 0, `npm pack should succeed: ${packResult.stderr}`);
 
     // Find the tarball
     const tarballs = readdirSync(projectRoot).filter(f => f.endsWith('.tgz'));
-    assert.ok(tarballs.length > 0, 'tarball should exist');
+    assert.ok(tarballs.length > 0, 'tarball should exist (postpack cleanup skipped for test)');
     const tarballName = tarballs[0];
     const tarballPath = join(projectRoot, tarballName);
 
@@ -116,6 +129,9 @@ describe('Final Gate: VERAX Installability & CLI', () => {
     const extractedPkg = JSON.parse(readFileSync(join(extractedRoot, 'package.json'), 'utf8'));
     assert.ok(extractedPkg.bin && extractedPkg.bin.verax, 'bin.verax should be defined in package.json');
     assert.ok(existsSync(join(extractedRoot, 'bin', 'verax.js')), 'bin/verax.js should exist');
+
+    // Constitutional cleanup: manually remove test tarball
+    rmSync(tarballPath, { force: true });
   });
 
   test('installed CLI has correct surface', async () => {
@@ -157,4 +173,5 @@ describe('Final Gate: VERAX Installability & CLI', () => {
     }
   });
 });
+
 

@@ -5,3 +5,5 @@ fetch('https://external.api.com/v1/users');
 const config = {
   baseUrl: 'https://api.internal.com'
 };
+
+

@@ -1,5 +1,5 @@
 /**
- * PHASE 15 — Confidence System Tests
+ *  Confidence System Tests
  * 
  * Tests for unified confidence system including:
  * - Determinism
@@ -15,7 +15,7 @@ import {
   computeConfidenceForFinding,
   CONFIDENCE_LEVEL,
   CONFIDENCE_REASON,
-} from '../src/verax/core/confidence-engine.js';
+} from '../../src/verax/core/confidence-engine.js';
 
 test('Confidence System - determinism', () => {
   const params = {
@@ -368,4 +368,5 @@ test('Confidence System - reason code stability', () => {
     assert.ok(Object.values(CONFIDENCE_REASON).includes(reason), `Reason "${reason}" should be a stable code`);
   }
 });
+
 

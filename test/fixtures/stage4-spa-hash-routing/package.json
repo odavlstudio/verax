@@ -1,0 +1,6 @@
+{
+  "name": "stage4-spa-hash-routing",
+  "version": "1.0.0",
+  "description": "Test fixture for SPA with hash routing - should not falsely trigger navigation budget",
+  "private": true
+}

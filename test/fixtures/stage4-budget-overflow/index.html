@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budget Overflow Test</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    button { margin: 5px; padding: 8px 12px; background: #007bff; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Many Buttons - Budget Overflow Test</h1>
+  <p>This page has many interactive elements to test interaction budget limits.</p>
+  
+  <div id="buttons"></div>
+  
+  <div id="feedback" style="margin-top: 20px; color: #2e7d32; display: none;">
+    Action completed!
+  </div>
+  
+  <script>
+    // Create 30 buttons
+    const container = document.getElementById('buttons');
+    const feedback = document.getElementById('feedback');
+    
+    for (let i = 1; i <= 30; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = `Action ${i}`;
+      btn.onclick = () => {
+        console.log(`Action ${i} clicked`);
+        feedback.style.display = 'block';
+        setTimeout(() => { feedback.style.display = 'none'; }, 2000);
+      };
+      container.appendChild(btn);
+    }
+  </script>
+</body>
+</html>

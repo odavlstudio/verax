@@ -1,4 +1,5 @@
-import { writeFileSync, mkdirSync } from 'fs';
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+import { atomicWriteJsonSync, atomicMkdirSync } from '../../cli/util/atomic-write.js';
 import { getArtifactPath, getRunArtifactDir } from '../core/run-id.js';
 
 /**
@@ -40,11 +41,12 @@ export function writeTraces(projectDir, url, traces, coverage = null, warnings =
   }
   const observeDir = getRunArtifactDir(projectDir, runId);
   const tracesPath = getArtifactPath(projectDir, runId, 'traces.json');
-  mkdirSync(observeDir, { recursive: true });
+  // @ts-ignore - atomicMkdirSync supports recursive option
+  atomicMkdirSync(observeDir, { recursive: true });
   
   const observation = {
     version: 1,
-    observedAt: new Date().toISOString(),
+    observedAt: getTimeProvider().iso(),
     url: url,
     traces: traces
   };
@@ -60,7 +62,7 @@ export function writeTraces(projectDir, url, traces, coverage = null, warnings =
     observation.warnings = warnings;
   }
   
-  writeFileSync(tracesPath, JSON.stringify(observation, null, 2) + '\n');
+  atomicWriteJsonSync(tracesPath, observation);
   
   let externalNavigationBlockedCount = 0;
   let timeoutsCount = 0;
@@ -131,4 +133,7 @@ export function writeTraces(projectDir, url, traces, coverage = null, warnings =
     observeTruth: observeTruth
   };
 }
+
+
+
 

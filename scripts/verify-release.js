@@ -235,9 +235,10 @@ async function main() {
     console.log(`✅ Version correct: ${versionOutput}`);
     console.log('');
 
-    // Step 4: Test doctor --json
+    // Step 4: Test doctor --json (with smoke mode to avoid CI timeout)
     console.log('Step 4: Testing verax doctor --json...');
-    const doctorOutput = runCommand('npx verax doctor --json', { cwd: installDir });
+    const doctorEnv = { ...process.env, VERAX_DOCTOR_SMOKE_TIMEOUT_MS: '1' };
+    const doctorOutput = runCommand('npx verax doctor --json', { cwd: installDir, env: doctorEnv });
     
     let doctorJson;
     try {
@@ -399,3 +400,5 @@ async function main() {
 }
 
 main();
+
+

@@ -90,7 +90,7 @@ export async function confirmExternalUrl(hostname, options = {}) {
   
   if (!rl) {
     // Use readline if not injected
-    // @ts-expect-error - readline/promises is available in Node 18+
+    // @ts-expect-error - Dynamic import with .default access
     const readline = await import('readline/promises');
     const rlInterface = readline.default.createInterface({
       input: process.stdin,
@@ -109,4 +109,7 @@ export async function confirmExternalUrl(hostname, options = {}) {
     return (answer.trim().toLowerCase() || 'n').startsWith('y');
   }
 }
+
+
+
 

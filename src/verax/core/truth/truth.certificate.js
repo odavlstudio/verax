@@ -5,8 +5,10 @@
  * This is the document presented to management/audit/enterprise.
  */
 
-import { readFileSync, existsSync, writeFileSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { loadBaselineSnapshot } from '../baseline/baseline.snapshot.js';
 
 /**
@@ -123,7 +125,7 @@ export async function generateTruthCertificate(projectDir, runId) {
   const certificate = {
     version: 1,
     runId,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     url: summary?.url || null,
     
     // Evidence Law
@@ -249,4 +251,7 @@ export function loadTruthCertificate(projectDir, runId) {
     return null;
   }
 }
+
+
+
 

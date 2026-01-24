@@ -6,9 +6,9 @@
  * @typedef {import('playwright').Page} Page
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 import { isProvenExpectation } from '../shared/expectation-prover.js';
-import { getUrlPath } from '../detect/evidence-validator.js';
-import { hasMeaningfulUrlChange, hasVisibleChange, hasDomChange } from '../detect/comparison.js';
+import { getUrlPath, hasMeaningfulUrlChange, hasVisibleChange, hasDomChange } from '../shared/observable-utilities.js';
 import { runInteraction } from './interaction-runner.js';
 import { captureScreenshot } from './evidence-capture.js';
 import { getBaseOrigin } from './domain-boundary.js';
@@ -103,8 +103,8 @@ async function executeExpectation(page, expectation, baseUrl, screenshotsDir, ti
     }
 
     // Step 2: Find target element
-    const selectorHint = expectation.evidence?.selectorHint || expectation.selectorHint || '';
-    const targetPath = expectation.targetPath || expectation.expectedTarget || '';
+    const selectorHint = expectation.evidence?.selectorHint || expectation.selectorHint || expectation.selector || '';
+    const targetPath = expectation.targetPath || expectation.expectedTarget || expectation.promise?.value || '';
     const interactionType = determineInteractionType(expectation.type);
     
     let element = null;
@@ -113,10 +113,15 @@ async function executeExpectation(page, expectation, baseUrl, screenshotsDir, ti
     if (selectorHint) {
       // Try to find element by selector
       try {
-        // Try exact selector first
-        let locator = page.locator(selectorHint).first();
-        let count = await locator.count();
+        let locator = await buildLocator(page, selectorHint);
+        let count = locator ? await locator.count() : 0;
         
+        if (count === 0 && selectorHint.includes(':contains')) {
+          // For text-based selectors, try partial match if exact fails
+          locator = await buildLocator(page, selectorHint, { exact: false });
+          count = locator ? await locator.count() : 0;
+        }
+
         if (count === 0) {
           // Try without the tag prefix (e.g., if selectorHint is "a#id", try "#id")
           const idMatch = selectorHint.match(/#[\w-]+$/);
@@ -134,7 +139,7 @@ async function executeExpectation(page, expectation, baseUrl, screenshotsDir, ti
               };
             }
           }
-        } else {
+        } else if (locator) {
           element = locator;
           interaction = {
             type: interactionType,
@@ -276,6 +281,31 @@ async function executeExpectation(page, expectation, baseUrl, screenshotsDir, ti
     };
     return result;
   }
+}
+
+/**
+ * Build a resilient locator for common selector patterns.
+ */
+async function buildLocator(page, selectorHint, options = {}) {
+  if (!selectorHint) return null;
+  const exact = options.exact !== false;
+
+  const containsMatch = selectorHint.match(/:contains\((?:"|'|)(.+?)(?:"|'|)\)/);
+  const baseTagMatch = selectorHint.match(/^([a-zA-Z0-9_-]+)/);
+  const baseTag = (baseTagMatch?.[1] || '').toLowerCase();
+
+  if (containsMatch) {
+    const text = containsMatch[1];
+    if (baseTag === 'button') {
+      return page.getByRole('button', { name: text, exact });
+    }
+    if (baseTag === 'a' || baseTag === 'link') {
+      return page.getByRole('link', { name: text, exact });
+    }
+    return page.getByText(text, { exact });
+  }
+
+  return page.locator(selectorHint).first();
 }
 
 /**
@@ -437,13 +467,14 @@ export async function executeProvenExpectations(page, manifest, baseUrl, screens
   const results = [];
   const coverageGaps = [];
   
-  const timestamp = Date.now();
+  const timeProvider = getTimeProvider();
+  const timestamp = timeProvider.now();
   
   for (let i = 0; i < provenExpectations.length; i++) {
     const expectation = provenExpectations[i];
     
     // Check budget before each expectation
-    if (Date.now() - startTime > scanBudget.maxScanDurationMs) {
+    if (timeProvider.now() - startTime > scanBudget.maxScanDurationMs) {
       // Mark remaining expectations as coverage gaps
       for (let j = i; j < provenExpectations.length; j++) {
         coverageGaps.push({
@@ -510,4 +541,7 @@ export async function executeProvenExpectations(page, manifest, baseUrl, screens
     totalProvenExpectations: provenExpectations.length
   };
 }
+
+
+
 

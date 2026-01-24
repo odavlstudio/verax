@@ -7,6 +7,8 @@
  * - NO side effects outside its scope
  */
 
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 /**
  * Setup network interception firewall
  * 
@@ -16,6 +18,7 @@
 export async function setupNetworkInterception(context) {
   const { page, baseOrigin, safetyFlags, silenceTracker, blockedNetworkWrites, blockedCrossOrigin } = context;
   const { allowWrites = false, allowCrossOrigin = false } = safetyFlags;
+  const timeProvider = getTimeProvider();
 
   await page.route('**/*', (route) => {
     const request = route.request();
@@ -33,7 +36,7 @@ export async function setupNetworkInterception(context) {
             origin: reqOrigin,
             method,
             resourceType,
-            timestamp: Date.now()
+            timestamp: timeProvider.now()
           });
           
           silenceTracker.record({
@@ -61,7 +64,7 @@ export async function setupNetworkInterception(context) {
         method,
         resourceType,
         isGraphQLMutation,
-        timestamp: Date.now()
+        timestamp: timeProvider.now()
       });
       
       silenceTracker.record({
@@ -79,4 +82,7 @@ export async function setupNetworkInterception(context) {
     route.continue();
   });
 }
+
+
+
 

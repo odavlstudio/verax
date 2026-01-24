@@ -5,8 +5,10 @@
  * Clear, direct, no marketing.
  */
 
-import { readFileSync, existsSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
+import { existsSync, readFileSync } from 'fs';
 
 /**
  * Load artifact JSON
@@ -177,7 +179,7 @@ export async function generateHumanSummary(projectDir, runId) {
           : 'GA not evaluated'
       }
     },
-    generatedAt: new Date().toISOString()
+    generatedAt: getTimeProvider().iso()
   };
 }
 
@@ -359,4 +361,7 @@ export async function formatFindingsReport(projectDir, runId) {
   
   return lines.join('\n');
 }
+
+
+
 

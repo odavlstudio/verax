@@ -137,7 +137,10 @@ export function extractFlows(manifest) {
   }
   
   // For each source, create flows of 2-5 sequential expectations
-  for (const [source, expectations] of bySource.entries()) {
+  // DETERMINISM: Sort source keys alphabetically for stable output
+  const sortedSources = Array.from(bySource.entries()).sort((a, b) => a[0].localeCompare(b[0], 'en'));
+  
+  for (const [source, expectations] of sortedSources) {
     if (expectations.length < 2) continue; // Need at least 2 for a flow
     
     // Take sequences of 2-5 expectations as potential flows
@@ -171,3 +174,6 @@ export function extractFlows(manifest) {
   
   return flows;
 }
+
+
+

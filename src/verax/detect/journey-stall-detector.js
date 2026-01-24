@@ -17,6 +17,8 @@
  * 4) Emit finding type: "journey-stall-silent-failure"
  */
 
+import { stableHashId } from '../shared/hash-id.js';
+
 /**
  * Journey Stall Detector
  * 
@@ -462,7 +464,7 @@ export class JourneyStallDetector {
     const _firstTrace = sequence[0].trace;
     const lastTrace = sequence[sequence.length - 1].trace;
 
-    const id = `journey-stall-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const id = stableHashId('journey-stall', { sequence_length: sequence.length, stall_count: stallPoints.length });
 
     return {
       id,
@@ -556,3 +558,6 @@ export class JourneyStallDetector {
 }
 
 export default JourneyStallDetector;
+
+
+

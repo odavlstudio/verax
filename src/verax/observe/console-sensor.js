@@ -3,6 +3,8 @@
  * Captures console errors, warnings, page errors, unhandled rejections
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+
 export class ConsoleSensor {
   constructor(options = {}) {
     this.maxErrorsToKeep = options.maxErrorsToKeep || 10;
@@ -16,9 +18,11 @@ export class ConsoleSensor {
   startWindow(page) {
     const windowId = this.nextWindowId++;
 
+    const timeProvider = getTimeProvider();
+
     const state = {
       id: windowId,
-      startTime: Date.now(),
+      startTime: timeProvider.now(),
       consoleErrors: [],
       consoleWarnings: [],
       pageErrors: [],
@@ -148,3 +152,6 @@ export class ConsoleSensor {
     };
   }
 }
+
+
+

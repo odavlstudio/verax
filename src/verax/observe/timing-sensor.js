@@ -4,6 +4,8 @@
  * Detects delayed or missing feedback after interactions
  */
 
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+
 export class TimingSensor {
   constructor(options = {}) {
     this.feedbackGapThresholdMs = options.feedbackGapThresholdMs || 1500;
@@ -26,7 +28,8 @@ export class TimingSensor {
    * Start timing from interaction initiation
    */
   startTiming() {
-    this.t0 = Date.now();
+    const timeProvider = getTimeProvider();
+    this.t0 = timeProvider.now();
     return this.t0;
   }
 
@@ -35,11 +38,12 @@ export class TimingSensor {
    * Call periodically or at key moments to track timing
    */
   async captureTimingSnapshot(page) {
+    const timeProvider = getTimeProvider();
     if (!this.t0) {
-      this.t0 = Date.now();
+      this.t0 = timeProvider.now();
     }
 
-    const now = Date.now();
+    const now = timeProvider.now();
     const elapsedMs = now - this.t0;
 
     // Capture current state
@@ -140,7 +144,8 @@ export class TimingSensor {
    */
   recordLoadingStart(timestamp = null) {
     if (!this.tLoadingStart) {
-      this.tLoadingStart = timestamp || Date.now();
+      const timeProvider = getTimeProvider();
+      this.tLoadingStart = timestamp || timeProvider.now();
       // Loading indicates work started even if network not detected yet
       if (!this.networkActivityDetected) {
         this.networkActivityDetected = true;
@@ -153,7 +158,8 @@ export class TimingSensor {
    */
   recordUiChange(timestamp = null) {
     if (!this.tUiFirst) {
-      this.tUiFirst = timestamp || Date.now();
+      const timeProvider = getTimeProvider();
+      this.tUiFirst = timestamp || timeProvider.now();
     }
   }
 
@@ -162,7 +168,8 @@ export class TimingSensor {
    */
   recordButtonDisabled(timestamp = null) {
     if (!this.tFeedback) {
-      const now = timestamp || Date.now();
+      const timeProvider = getTimeProvider();
+      const now = timestamp || timeProvider.now();
       // Check if this is earlier than other feedback signals
       const signals = [this.tLoadingStart, this.tAriaFirst, this.tUiFirst].filter(t => t !== null);
       if (signals.length === 0 || now < Math.min(...signals)) {
@@ -179,7 +186,8 @@ export class TimingSensor {
       return null;
     }
 
-    const now = Date.now();
+    const timeProvider = getTimeProvider();
+    const now = timeProvider.now();
 
     // Determine when work started (network or loading indicator)
     const workStartTime = this.tNetworkFirst || this.tLoadingStart;
@@ -226,3 +234,6 @@ export class TimingSensor {
     };
   }
 }
+
+
+

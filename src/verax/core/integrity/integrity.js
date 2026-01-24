@@ -6,9 +6,12 @@
  */
 
 import { createHash } from 'crypto';
+// @ts-ignore
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { readFileSync, statSync as _statSync, readdirSync } from 'fs';
 import { join, basename as _basename } from 'path';
-import { atomicWriteJson } from '../../../cli/util/atomic-write.js';
+import { atomicWriteJson } from '../../../cli/util/support/atomic-write.js';
 
 /**
  * Compute SHA256 hash of file contents
@@ -38,7 +41,7 @@ export function computeFileIntegrity(filePath) {
 export function generateIntegrityManifest(runDir, artifactNames) {
   const manifest = {
     version: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt: getTimeProvider().iso(),
     runDir,
     artifacts: {},
   };
@@ -200,9 +203,12 @@ export function verifyAllArtifacts(runDir, manifest) {
  */
 export function discoverArtifacts(runDir) {
   try {
-    const files = readdirSync(runDir);
+    const files = readdirSync(runDir).sort((a, b) => a.localeCompare(b));
     return files.filter(f => f.endsWith('.json') && f !== 'integrity.manifest.json');
   } catch (error) {
     return [];
   }
 }
+
+
+

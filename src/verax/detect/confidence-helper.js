@@ -4,7 +4,7 @@
  * Helper function to add unified confidence to findings
  */
 
-import { computeConfidenceForFinding } from '../core/confidence-engine.js';
+import { computeConfidenceForFinding } from '../core/confidence/index.js';
 
 /**
  * PHASE 15: Add unified confidence to a finding
@@ -31,4 +31,7 @@ export function addUnifiedConfidence(finding, params) {
     confidenceReasons: unifiedConfidence.reasons, // PHASE 15: Stable reason codes
   };
 }
+
+
+
 

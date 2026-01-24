@@ -14,8 +14,7 @@ import {
   ROUTE_VERDICT,
 } from '../core/dynamic-route-intelligence.js';
 import { buildRouteModels } from '../core/route-intelligence.js';
-import { computeConfidence } from './confidence-engine.js';
-import { computeConfidenceForFinding } from '../core/confidence-engine.js';
+import { computeConfidence, computeConfidenceForFinding } from '../core/confidence/index.js';
 import { buildAndEnforceEvidencePackage } from '../core/evidence-builder.js';
 import { applyGuardrails } from '../core/guardrails-engine.js';
 
@@ -142,6 +141,10 @@ export function detectDynamicRouteFindings(traces, manifest, _findings) {
           expectation,
           sensors: trace.sensors || {},
           comparisons: {},
+          attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
           evidence,
           options: {}
         });
@@ -153,6 +156,11 @@ export function detectDynamicRouteFindings(traces, manifest, _findings) {
           sensors: trace.sensors || {},
           comparisons: {},
           attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
         });
         
         // Determine severity based on evidence and verdict
@@ -335,4 +343,7 @@ function extractPathFromUrl(url) {
     return pathMatch ? pathMatch[1] : url;
   }
 }
+
+
+
 

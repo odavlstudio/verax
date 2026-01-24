@@ -13,8 +13,8 @@ import { createTSProgram } from './ts-program.js';
 import { extractRoutes } from './route-extractor.js';
 import { extractHandlerMappings, extractSelectorHint, extractNavElements } from './handler-mapper.js';
 import { detectEffects } from './effect-detector.js';
-import { extractVueNavigationPromises } from './vue-navigation-extractor.js';
-import { normalizeDynamicRoute, normalizeTemplateLiteral } from '../shared/dynamic-route-utils.js';
+import { extractVueNavigationPromises } from '../vue-extractors/vue/vue-navigation-extractor.js';
+import { normalizeDynamicRoute, normalizeTemplateLiteral } from '../shared/dynamic-route-normalizer.js';
 
 /**
  * Run code intelligence analysis.
@@ -279,3 +279,6 @@ function _determineExpectationType(effect) {
       return 'unknown';
   }
 }
+
+
+

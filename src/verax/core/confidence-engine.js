@@ -1,11 +1,23 @@
 /**
- * PHASE 21.4 — Confidence Engine (Policy-Driven with Truth Locks)
+ * ⚠️ DEPRECATED RE-EXPORT FACADE
  * 
- * Central confidence engine that computes confidence scores using policies.
- * Truth locks are enforced and cannot be configured away.
+ * This file exists ONLY for backward compatibility.
+ * ALL code should import from the canonical entry point:
+ *   src/verax/core/confidence/index.js
+ * 
+ * This facade will be removed in a future version.
+ * 
+ * ARCHITECTURAL NOTE:
+ * Confidence scoring is centralized in core/confidence/index.js.
+ * This eliminates the dual-system problem documented in STAGE 2 Issue #14.
+ * 
+ * Resolution of STAGE 2 Issue #14:
+ * - Canonical entry: core/confidence/index.js
+ * - Legacy implementation: detect/confidence/ (internal use only)
+ * - This file: deprecated facade (still contains old implementation for compatibility)
  */
 
-import { computeConfidence as computeConfidenceLegacy } from '../detect/confidence-engine.js';
+import { computeConfidence as computeConfidenceLegacy } from '../shared/legacy-confidence-bridge.js';
 import { loadConfidencePolicy, getPolicyReport } from './confidence/confidence.loader.js';
 
 // Re-export constants for backward compatibility
@@ -622,4 +634,7 @@ function extractReasonsFromLegacy(legacyResult, params) {
   
   return [...new Set(reasons)];
 }
+
+
+
 

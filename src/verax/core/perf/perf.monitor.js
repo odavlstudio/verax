@@ -5,14 +5,15 @@
  * Records timestamped samples and peak values.
  */
 
-import { performance } from 'perf_hooks';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
 
 /**
  * Performance Monitor
  */
 export class PerformanceMonitor {
   constructor() {
-    this.startTime = performance.now();
+    this.timeProvider = getTimeProvider();
+    this.startTime = this.timeProvider.now();
     this.startMemory = process.memoryUsage();
     this.samples = [];
     this.peakMemoryRSS = this.startMemory.rss;
@@ -30,7 +31,7 @@ export class PerformanceMonitor {
     
     // Event loop monitoring
     this.eventLoopMonitor = null;
-    this.lastEventLoopCheck = performance.now();
+    this.lastEventLoopCheck = this.timeProvider.now();
     this.eventLoopDelays = [];
     
     this.startEventLoopMonitoring();
@@ -43,7 +44,7 @@ export class PerformanceMonitor {
     const checkInterval = 100; // Check every 100ms
     
     this.eventLoopMonitor = setInterval(() => {
-      const now = performance.now();
+      const now = this.timeProvider.now();
       const delay = now - this.lastEventLoopCheck - checkInterval;
       
       if (delay > 0) {
@@ -61,7 +62,7 @@ export class PerformanceMonitor {
    * Record a sample
    */
   sample(phase = null) {
-    const now = performance.now();
+    const now = this.timeProvider.now();
     const memory = process.memoryUsage();
     
     // Update peaks
@@ -110,7 +111,7 @@ export class PerformanceMonitor {
    * Start a phase
    */
   startPhase(phaseName) {
-    this.phaseStartTimes[phaseName] = performance.now();
+    this.phaseStartTimes[phaseName] = this.timeProvider.now();
   }
   
   /**
@@ -118,7 +119,7 @@ export class PerformanceMonitor {
    */
   endPhase(phaseName) {
     if (this.phaseStartTimes[phaseName]) {
-      const duration = performance.now() - this.phaseStartTimes[phaseName];
+      const duration = this.timeProvider.now() - this.phaseStartTimes[phaseName];
       this.phaseDurations[phaseName] = (this.phaseDurations[phaseName] || 0) + duration;
       delete this.phaseStartTimes[phaseName];
     }
@@ -144,7 +145,7 @@ export class PerformanceMonitor {
    * Get current metrics
    */
   getCurrentMetrics() {
-    const now = performance.now();
+    const now = this.timeProvider.now();
     const memory = process.memoryUsage();
     const avgEventLoopDelay = this.eventLoopDelays.length > 0
       ? this.eventLoopDelays.reduce((a, b) => a + b, 0) / this.eventLoopDelays.length
@@ -206,4 +207,7 @@ export class PerformanceMonitor {
 export function createPerformanceMonitor() {
   return new PerformanceMonitor();
 }
+
+
+
 

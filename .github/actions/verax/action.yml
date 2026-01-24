@@ -1,0 +1,141 @@
+name: 'VERAX CI Scanner'
+description: 'Run VERAX silent failure detection with configurable profiles and budgets'
+author: 'odavlstudio'
+
+inputs:
+  url:
+    description: 'Target URL to analyze'
+    required: true
+  profile:
+    description: 'Scan profile: fast, standard, or thorough'
+    required: false
+    default: 'standard'
+  max_total_ms:
+    description: 'Global time budget in milliseconds (optional)'
+    required: false
+    default: ''
+  exit_on_first_actionable:
+    description: 'Stop execution after first actionable finding'
+    required: false
+    default: 'false'
+  fail_on_incomplete:
+    description: 'Treat INCOMPLETE runs (exit 66) as failure'
+    required: false
+    default: 'true'
+  upload_artifacts:
+    description: 'Upload VERAX artifacts (.verax/runs/latest)'
+    required: false
+    default: 'true'
+  project_root:
+    description: 'Project root directory'
+    required: false
+    default: '.'
+
+outputs:
+  exit_code:
+    description: 'VERAX exit code (0=clean, 1=findings, 66=incomplete, 64=usage error, 65=data error)'
+    value: ${{ steps.run_verax.outputs.exit_code }}
+  run_id:
+    description: 'VERAX run ID'
+    value: ${{ steps.run_verax.outputs.run_id }}
+  findings_count:
+    description: 'Number of actionable findings detected'
+    value: ${{ steps.run_verax.outputs.findings_count }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run VERAX
+      id: run_verax
+      shell: bash
+      working-directory: ${{ inputs.project_root }}
+      run: |
+        set +e  # Don't exit on error, we need to capture exit code
+        
+        # Build VERAX command
+        CMD="node ./src/cli/entry.js run --url ${{ inputs.url }} --profile ${{ inputs.profile }}"
+        
+        # Add optional flags
+        if [ -n "${{ inputs.max_total_ms }}" ]; then
+          CMD="$CMD --max-total-ms ${{ inputs.max_total_ms }}"
+        fi
+        
+        if [ "${{ inputs.exit_on_first_actionable }}" == "true" ]; then
+          CMD="$CMD --exit-on-first-actionable"
+        fi
+        
+        # Execute VERAX
+        echo "Executing: $CMD"
+        eval $CMD
+        VERAX_EXIT_CODE=$?
+        
+        echo "exit_code=$VERAX_EXIT_CODE" >> $GITHUB_OUTPUT
+        
+        # Read run metadata if available
+        if [ -f .verax/runs/latest.txt ]; then
+          RUN_ID=$(cat .verax/runs/latest.txt)
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+          
+          # Try to read findings count from summary
+          SUMMARY_FILE=".verax/runs/$RUN_ID/summary.json"
+          if [ -f "$SUMMARY_FILE" ]; then
+            FINDINGS_COUNT=$(node -e "const fs=require('fs'); const s=JSON.parse(fs.readFileSync('$SUMMARY_FILE','utf8')); console.log((s.findingsCounts?.HIGH||0)+(s.findingsCounts?.MEDIUM||0)+(s.findingsCounts?.LOW||0));")
+            echo "findings_count=$FINDINGS_COUNT" >> $GITHUB_OUTPUT
+          else
+            echo "findings_count=0" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "run_id=unknown" >> $GITHUB_OUTPUT
+          echo "findings_count=0" >> $GITHUB_OUTPUT
+        fi
+        
+        # Handle exit codes
+        case $VERAX_EXIT_CODE in
+          0)
+            echo "✅ VERAX analysis complete: No actionable findings"
+            ;;
+          1)
+            echo "⚠️ VERAX analysis complete: Actionable findings detected"
+            exit 1
+            ;;
+          66)
+            if [ "${{ inputs.fail_on_incomplete }}" == "true" ]; then
+              echo "❌ VERAX analysis incomplete (timeout/budget exceeded)"
+              exit 66
+            else
+              echo "⚠️ VERAX analysis incomplete (timeout/budget exceeded) - treating as warning"
+              exit 0
+            fi
+            ;;
+          64 | 65)
+            echo "❌ VERAX error (exit $VERAX_EXIT_CODE)"
+            exit $VERAX_EXIT_CODE
+            ;;
+          *)
+            echo "❌ VERAX unexpected exit code: $VERAX_EXIT_CODE"
+            exit $VERAX_EXIT_CODE
+            ;;
+        esac
+    
+    - name: Pack Artifacts
+      if: inputs.upload_artifacts == 'true' && always()
+      id: pack_artifacts
+      shell: bash
+      working-directory: ${{ inputs.project_root }}
+      run: |
+        if [ -f .verax/runs/latest.txt ]; then
+          RUN_ID=$(cat .verax/runs/latest.txt)
+          echo "Packing artifacts for run: $RUN_ID"
+          node ./src/cli/util/ci/artifact-pack.js .verax/runs/$RUN_ID .verax/artifact-bundle
+        else
+          echo "No run artifacts found to pack"
+        fi
+    
+    - name: Upload VERAX Artifacts
+      if: inputs.upload_artifacts == 'true' && always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: verax-analysis
+        path: ${{ inputs.project_root }}/.verax/artifact-bundle/
+        retention-days: 30
+        if-no-files-found: ignore

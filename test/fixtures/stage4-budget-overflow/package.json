@@ -1,0 +1,6 @@
+{
+  "name": "stage4-budget-overflow",
+  "version": "1.0.0",
+  "description": "Test fixture with many expectations to test interaction budget overflow",
+  "private": true
+}

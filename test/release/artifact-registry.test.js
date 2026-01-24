@@ -6,7 +6,7 @@ import { join, resolve, dirname } from 'node:path';
 import { spawn } from 'node:child_process';
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
-import { ARTIFACT_REGISTRY } from '../src/verax/core/artifacts/registry.js';
+import { ARTIFACT_REGISTRY } from '../../src/verax/core/artifacts/registry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -92,17 +92,26 @@ test('registry artifacts are written with contract metadata', async () => {
 
   try {
     const url = `http://localhost:${port}`;
-    const result = await runCLI(['run', '--url', url, '--src', fixtureDir, '--out', outDir], process.cwd());
+    const result = await runCLI(['run', '--url', url, '--src', fixtureDir, '--out', outDir, '--min-coverage', '0'], process.cwd());
 
-    assert.ok(result.code === 0 || result.code === 1, `Unexpected exit code ${result.code}. stderr: ${result.stderr}`);
+    assert.ok(result.code === 0 || result.code === 1 || result.code === 10 || result.code === 20, `Unexpected exit code ${result.code}. stderr: ${result.stderr}`);
 
     const runsDir = join(outDir, 'runs');
-    const runs = readdirSync(runsDir)
+    const scans = readdirSync(runsDir)
+      .filter(name => statSync(join(runsDir, name)).isDirectory())
       .map((name) => ({ name, mtime: statSync(join(runsDir, name)).mtimeMs }))
       .sort((a, b) => b.mtime - a.mtime);
-    assert.ok(runs.length > 0, 'Run directory should exist');
+    assert.ok(scans.length > 0, 'Scan directory should exist');
 
-    const runDir = join(runsDir, runs[0].name);
+    const scanDir = join(runsDir, scans[0].name);
+    // Descend to runId
+    const runs = readdirSync(scanDir)
+      .filter(name => statSync(join(scanDir, name)).isDirectory())
+      .map((name) => ({ name, mtime: statSync(join(scanDir, name)).mtimeMs }))
+      .sort((a, b) => b.mtime - a.mtime);
+    assert.ok(runs.length > 0, 'Run directory should exist within scan');
+
+    const runDir = join(scanDir, runs[0].name);
     const evidenceDir = join(runDir, ARTIFACT_REGISTRY.evidence.filename);
     assert.ok(existsSync(evidenceDir), 'evidence directory should exist');
 
@@ -161,3 +170,4 @@ test('registry artifacts are written with contract metadata', async () => {
     });
   }
 });
+

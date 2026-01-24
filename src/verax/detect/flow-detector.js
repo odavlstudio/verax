@@ -13,18 +13,18 @@
  * - Suppresses per-step findings when flow finding is emitted
  */
 
-import { getUrlPath } from './evidence-validator.js';
 import {
+  getUrlPath,
   hasMeaningfulUrlChange,
   hasVisibleChange,
   hasDomChange
-} from './comparison.js';
+} from '../shared/observable-utilities.js';
 import {
   expectsNavigation,
   matchExpectation
 } from './expectation-model.js';
 import { isProvenExpectation } from '../shared/expectation-prover.js';
-import { computeConfidence } from './confidence-engine.js';
+import { computeConfidence } from '../core/confidence/index.js';
 import { enrichFindingWithExplanations } from './finding-detector.js';
 
 /**
@@ -62,7 +62,12 @@ export function detectFlowSilentFailures(traces, manifest, findings, coverageGap
         hasDomChange: comparisons.hasDomChange || false,
         hasVisibleChange: comparisons.hasVisibleChange || false
       },
-      attemptMeta: {}
+      attemptMeta: {},
+      evidenceIntent: null,
+      guardrailsOutcome: null,
+      truthStatus: 'SUSPECTED',
+      evidence: {},
+      options: {}
     });
 
     return confidence;
@@ -364,3 +369,6 @@ export function detectFlowSilentFailures(traces, manifest, findings, coverageGap
 
   return flowFindings;
 }
+
+
+

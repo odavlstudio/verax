@@ -213,3 +213,6 @@ function deriveHandlerRef(name, importMap, filePath, workspaceRoot) {
   const localPath = relative(workspaceRoot, filePath).split(sep).join('/');
   return `${localPath}#${name}`;
 }
+
+
+

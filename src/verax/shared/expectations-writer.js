@@ -4,7 +4,7 @@
  * Writes expectations.json artifact with full explainability.
  */
 
-import { writeFileSync } from 'fs';
+import { atomicWriteJsonSync } from '../../cli/util/atomic-write.js';
 
 /**
  * Write expectations.json artifact
@@ -53,8 +53,11 @@ export function writeExpectations(paths, expectations) {
   };
   
   const expectationsPath = paths.expectations || paths.summary.replace('summary.json', 'expectations.json');
-  writeFileSync(expectationsPath, JSON.stringify(data, null, 2) + '\n');
+  atomicWriteJsonSync(expectationsPath, data);
   
   return expectationsPath;
 }
+
+
+
 

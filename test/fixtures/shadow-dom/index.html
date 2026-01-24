@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Shadow DOM Fixture</title>
+</head>
+<body>
+  <h1>Shadow DOM Fixture</h1>
+  <my-box></my-box>
+
+  <script>
+    class MyBox extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: 'open' });
+        const container = document.createElement('div');
+        container.innerHTML = `
+          <style>
+            a, button { display:inline-block; padding:8px; margin:4px; }
+          </style>
+          <a id="ok-link" href="/ok">Go OK</a>
+          <button id="noop-button">Do Nothing</button>
+        `;
+        root.appendChild(container);
+        // Attach a no-op click handler to the button
+        const btn = container.querySelector('#noop-button');
+        btn?.addEventListener('click', (e) => {
+          // Intentionally do nothing; ensures non-navigable control exists in shadow
+          e.stopPropagation();
+        });
+      }
+    }
+    customElements.define('my-box', MyBox);
+  </script>
+</body>
+</html>

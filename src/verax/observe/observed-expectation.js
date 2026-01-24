@@ -10,8 +10,9 @@
  * - Never writes to source manifests; data lives in runtime traces
  */
 
-import { getUrlPath } from '../detect/evidence-validator.js';
+import { getUrlPath } from '../shared/observable-utilities.js';
 import { isExternalUrl } from './domain-boundary.js';
+import { stableHashId } from './stable-id.js';
 
 function normalizePath(path) {
   if (!path) return '';
@@ -78,7 +79,13 @@ function buildNavigationExpectation(interaction, trace, baseOrigin) {
   }
 
   return {
-    id: `obs-nav-${Date.now()}-${(interaction.selector || 'nav').replace(/[^a-zA-Z0-9]/g, '').slice(-8)}`,
+    id: stableHashId('obs-nav', {
+      type: 'navigation',
+      targetPath,
+      selector: interaction.selector,
+      source,
+      sourcePage: beforeUrl
+    }),
     type: 'navigation',
     expectationStrength: 'OBSERVED',
     expectedTargetPath: targetPath,
@@ -108,7 +115,12 @@ function buildNetworkExpectation(interaction, trace) {
   if (!observedUrl || hasTemplateToken(observedUrl)) return null;
 
   return {
-    id: `obs-net-${Date.now()}-${(interaction.selector || 'net').replace(/[^a-zA-Z0-9]/g, '').slice(-8)}`,
+    id: stableHashId('obs-net', {
+      type: 'network_action',
+      url: observedUrl,
+      selector: interaction.selector,
+      sourcePage: beforeUrl
+    }),
     type: 'network_action',
     expectationStrength: 'OBSERVED',
     expectedRequestUrl: observedUrl,
@@ -135,7 +147,11 @@ function buildValidationExpectation(interaction, trace) {
   if (!validationDetected) return null;
 
   return {
-    id: `obs-val-${Date.now()}-${(interaction.selector || 'val').replace(/[^a-zA-Z0-9]/g, '').slice(-8)}`,
+    id: stableHashId('obs-val', {
+      type: 'validation_block',
+      selector: interaction.selector,
+      sourcePage: beforeUrl
+    }),
     type: 'validation_block',
     expectationStrength: 'OBSERVED',
     evidence: {
@@ -161,7 +177,13 @@ function buildStateExpectation(interaction, trace) {
   if (!hasChange) return null;
 
   return {
-    id: `obs-state-${Date.now()}-${(interaction.selector || 'state').replace(/[^a-zA-Z0-9]/g, '').slice(-8)}`,
+    id: stableHashId('obs-state', {
+      type: 'state_action',
+      stateKey: state.changed[0],
+      selector: interaction.selector,
+      sourcePage: beforeUrl,
+      storeType: state.storeType
+    }),
     type: 'state_action',
     expectationStrength: 'OBSERVED',
     expectedStateKey: state.changed[0],
@@ -303,3 +325,6 @@ export function shouldAttemptRepeatObservedExpectation(expectation, trace) {
   // Only repeat non-navigation expectations (navigation would change page state)
   return expectation.type === 'network_action' || expectation.type === 'validation_block' || expectation.type === 'state_action';
 }
+
+
+

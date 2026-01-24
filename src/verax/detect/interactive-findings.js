@@ -3,7 +3,7 @@
 // Plus accessibility detections: focus, ARIA, keyboard trap, feedback gap, freeze
 
 import { hasMeaningfulUrlChange, hasDomChange } from './comparison.js';
-import { computeConfidence } from './confidence-engine.js';
+import { computeConfidence } from '../core/confidence/index.js';
 import { enrichFindingWithExplanations } from './finding-detector.js';
 
 /**
@@ -146,7 +146,12 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
             hasDomChange: domChanged,
             hasVisibleChange: false
           },
-          attemptMeta: {}
+          attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
         });
 
         enrichFindingWithExplanations(finding, trace);
@@ -199,7 +204,12 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
           expectation: { expectationStrength: 'OBSERVED' },
           sensors: { network, console: sensors.console || {}, uiSignals: uiSignals },
           comparisons: { hasUrlChange: false, hasDomChange: false, hasVisibleChange: false },
-          attemptMeta: {}
+          attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
         });
 
         enrichFindingWithExplanations(partialFinding, trace);
@@ -234,7 +244,12 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
           expectation: { expectationStrength: 'OBSERVED' },
           sensors: { network, console: sensors.console || {}, uiSignals: uiSignals },
           comparisons: { hasUrlChange: false, hasDomChange: false, hasVisibleChange: false },
-          attemptMeta: {}
+          attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
         });
 
         enrichFindingWithExplanations(loadingStuckFinding, trace);
@@ -272,7 +287,12 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
           expectation: { expectationStrength: 'OBSERVED' },
           sensors: { network, console: sensors.console || {}, uiSignals: uiSignals, state: stateData },
           comparisons: { hasUrlChange: false, hasDomChange: false, hasVisibleChange: false },
-          attemptMeta: {}
+          attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
         });
 
         enrichFindingWithExplanations(asyncStateFinding, trace);
@@ -315,7 +335,12 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
           expectation: { expectationStrength: 'OBSERVED' },
           sensors: { network: sensors.network || {}, console: sensors.console || {} },
           comparisons: { hasUrlChange: false, hasDomChange: false, hasVisibleChange: false },
-          attemptMeta: {}
+          attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
         });
 
         enrichFindingWithExplanations(focusLossFinding, trace);
@@ -356,8 +381,13 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
             expectation: { expectationStrength: 'OBSERVED' },
             sensors: { network: sensors.network || {}, console: sensors.console || {} },
             comparisons: { hasUrlChange: false, hasDomChange: false, hasVisibleChange: false },
-            attemptMeta: {}
-          });
+            attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
+        });
 
           enrichFindingWithExplanations(modalFocusFinding, trace);
 
@@ -400,7 +430,12 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
           expectation: { expectationStrength: 'OBSERVED' },
           sensors: { network, console: sensors.console || {} },
           comparisons: { hasUrlChange: false, hasDomChange: false, hasVisibleChange: false },
-          attemptMeta: {}
+          attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
         });
 
         enrichFindingWithExplanations(missingAnnouncementFinding, trace);
@@ -444,8 +479,13 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
               expectation: { expectationStrength: 'OBSERVED' },
               sensors: { network: sensors.network || {}, console: sensors.console || {} },
               comparisons: { hasUrlChange: false, hasDomChange: false, hasVisibleChange: false },
-              attemptMeta: {}
-            });
+              attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
+        });
 
             enrichFindingWithExplanations(keyboardTrapFinding, trace);
 
@@ -486,8 +526,13 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
               expectation: { expectationStrength: 'OBSERVED' },
               sensors: { network: sensors.network || {}, console: sensors.console || {} },
               comparisons: { hasUrlChange: false, hasDomChange: false, hasVisibleChange: false },
-              attemptMeta: {}
-            });
+              attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
+        });
 
             enrichFindingWithExplanations(keyboardTrapFinding, trace);
 
@@ -552,8 +597,13 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
             expectation: { expectationStrength: 'OBSERVED' },
             sensors: { network, console: sensors.console || {} },
             comparisons: { hasUrlChange: false, hasDomChange: false, hasVisibleChange: false },
-            attemptMeta: {}
-          });
+            attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
+        });
 
           enrichFindingWithExplanations(feedbackGapFinding, trace);
 
@@ -595,7 +645,12 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
           expectation: { expectationStrength: 'OBSERVED' },
           sensors: { network, console: sensors.console || {} },
           comparisons: { hasUrlChange: false, hasDomChange: false, hasVisibleChange: false },
-          attemptMeta: {}
+          attemptMeta: {},
+          evidenceIntent: null,
+          guardrailsOutcome: null,
+          truthStatus: 'SUSPECTED',
+          evidence: {},
+          options: {}
         });
 
         enrichFindingWithExplanations(freezeLikeFinding, trace);
@@ -610,3 +665,6 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
   
   return interactiveFindings;
 }
+
+
+

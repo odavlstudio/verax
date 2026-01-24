@@ -1,12 +1,85 @@
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 import { resolve } from 'path';
-import { mkdirSync, writeFileSync } from 'fs';
+import { atomicWriteJsonSync, atomicMkdirSync } from '../../cli/util/atomic-write.js';
 import { CANONICAL_OUTCOMES } from '../core/canonical-outcomes.js';
 import { ARTIFACT_REGISTRY } from '../core/artifacts/registry.js';
+import { enforceFinalInvariantsWithReport } from '../detect/invariants-enforcer.js';
+import { canonicalizeFinding } from './finding-contract.js';
+import { deduplicateFindings } from './deduplication.js';
 
-const DEFAULT_CLOCK = () => new Date().toISOString();
+const DEFAULT_CLOCK = () => getTimeProvider().iso();
+
+/**
+ * Deterministic sorting key for findings.
+ * Primary: sourceRef (file:line:col if present)
+ * Then: type, status, severity, promise.kind/value, id
+ */
+function getDeterministicSortKey(finding) {
+  const parts = [];
+  
+  // Primary: sourceRef if present
+  if (finding.interaction?.sourceRef) {
+    parts.push(finding.interaction.sourceRef);
+  } else if (finding.source?.file) {
+    const line = finding.source.line || 0;
+    const col = finding.source.col || 0;
+    parts.push(`${finding.source.file}:${line}:${col}`);
+  } else {
+    parts.push('~'); // Sort findings without source last
+  }
+  
+  // Then: type, status, severity
+  parts.push(finding.type || '');
+  parts.push(finding.status || '');
+  parts.push(finding.severity || '');
+  
+  // Promise kind and value
+  parts.push(finding.promise?.kind || finding.promise?.type || '');
+  parts.push(finding.promise?.value || finding.promise?.expected || '');
+  
+  // Finally: id
+  parts.push(finding.id || '');
+  
+  return parts.join('|');
+}
+
+/**
+ * Sort findings deterministically.
+ */
+function sortFindingsDeterministically(findings) {
+  return [...findings].sort((a, b) => {
+    const keyA = getDeterministicSortKey(a);
+    const keyB = getDeterministicSortKey(b);
+    return keyA.localeCompare(keyB);
+  });
+}
+
+/**
+ * Sort evidence references within a finding deterministically.
+ */
+function sortEvidenceReferences(finding) {
+  if (!finding.evidence || typeof finding.evidence !== 'object') {
+    return finding;
+  }
+  
+  const sortedEvidence = { ...finding.evidence };
+  
+  // Sort array fields alphabetically
+  for (const key of Object.keys(sortedEvidence)) {
+    if (Array.isArray(sortedEvidence[key])) {
+      sortedEvidence[key] = [...sortedEvidence[key]].sort((a, b) => {
+        if (typeof a === 'string' && typeof b === 'string') return a.localeCompare(b);
+        if (typeof a === 'number' && typeof b === 'number') return a - b;
+        return String(a).localeCompare(String(b));
+      });
+    }
+  }
+  
+  return { ...finding, evidence: sortedEvidence };
+}
 
 // Pure: builds deterministic report object from provided data and timestamp
-export function buildFindingsReport({ url, findings = [], coverageGaps = [], detectedAt }) {
+export function buildFindingsReport({ url, findings = [], coverageGaps = [], detectedAt: _detectedAt }) {
   const outcomeSummary = {};
   Object.values(CANONICAL_OUTCOMES).forEach(outcome => {
     outcomeSummary[outcome] = 0;
@@ -14,48 +87,25 @@ export function buildFindingsReport({ url, findings = [], coverageGaps = [], det
 
   const promiseSummary = {};
 
-  // Contract enforcement: separate findings into valid, downgradable, and droppable
-  const downgrades = [];
-  const droppedFindingIds = [];
-  const enforcedFindings = [];
+  // Normalize to canonical contract before enforcement
+  const canonicalFindings = (findings || [])
+    .map(canonicalizeFinding)
+    .filter(Boolean);
 
-  for (const finding of findings) {
-    // Check for critical missing fields (drop these)
-    const hasCriticalNarrativeFields = 
-      finding.what_happened &&
-      finding.what_was_expected &&
-      finding.what_was_observed &&
-      finding.why_it_matters;
-
-    const hasRequiredType = finding.type;
-
-    if (!hasRequiredType || !hasCriticalNarrativeFields) {
-      droppedFindingIds.push(finding.id || 'unknown');
-      continue;
-    }
-
-    // Check for Evidence Law violation (downgrade)
-    if (finding.status === 'CONFIRMED' && (!finding.evidence || Object.keys(finding.evidence).length === 0)) {
-      const downgradedFinding = {
-        ...finding,
-        status: 'SUSPECTED',
-        reason: (finding.reason || '') + ' (Evidence Law enforced - no evidence exists for CONFIRMED status)'
-      };
-      downgrades.push({
-        id: finding.id || 'unknown',
-        originalStatus: 'CONFIRMED',
-        downgradeToStatus: 'SUSPECTED',
-        reason: 'Evidence Law enforced - no evidence exists for CONFIRMED status'
-      });
-      enforcedFindings.push(downgradedFinding);
-    } else {
-      // Valid finding
-      enforcedFindings.push(finding);
-    }
-  }
-
+  // Contract enforcement: enforce invariants and collect metadata
+  const { findings: enforcedFindings, enforcement } = enforceFinalInvariantsWithReport(canonicalFindings);
+  
+  // PHASE 6: Deduplicate findings to prevent flooding
+  const { findings: deduplicatedFindings, deduplicatedCount } = deduplicateFindings(enforcedFindings);
+  
+  // Sort evidence references within each finding
+  const findingsWithSortedEvidence = deduplicatedFindings.map(sortEvidenceReferences);
+  
+  // Sort findings deterministically
+  const sortedFindings = sortFindingsDeterministically(findingsWithSortedEvidence);
+  
   // Build outcome and promise summary from enforced findings
-  for (const finding of enforcedFindings) {
+  for (const finding of sortedFindings) {
     const outcome = finding.outcome || CANONICAL_OUTCOMES.SILENT_FAILURE;
     outcomeSummary[outcome] = (outcomeSummary[outcome] || 0) + 1;
 
@@ -66,32 +116,33 @@ export function buildFindingsReport({ url, findings = [], coverageGaps = [], det
   return {
     version: 1,
     contractVersion: ARTIFACT_REGISTRY.findings.contractVersion,
-    detectedAt: detectedAt,
     url,
     outcomeSummary,  // PHASE 2
     promiseSummary,  // PHASE 3
-    findings: enforcedFindings,
+    findings: sortedFindings,
     coverageGaps,
     notes: [],
     enforcement: {
-      evidenceLawEnforced: true,
-      contractVersion: 1,
-      timestamp: detectedAt,
-      droppedCount: droppedFindingIds.length,
-      downgradedCount: downgrades.length,
-      downgrades: downgrades
+      evidenceLawEnforced: enforcement.evidenceLawEnforced,
+      contractVersion: enforcement.contractVersion,
+      droppedCount: enforcement.droppedCount,
+      downgradedCount: enforcement.downgradedCount,
+      deduplicatedCount,  // PHASE 6
+      downgrades: enforcement.downgrades || [],
+      dropped: enforcement.dropped || []
     }
   };
 }
 
-// Side-effectful: persists a fully built report to disk
+// Side-effectful: persists a fully built report to disk using atomic writes (Week 3)
 export function persistFindingsReport(runDir, report) {
   if (!runDir) {
     throw new Error('runDirOpt is required');
   }
-  mkdirSync(runDir, { recursive: true });
+  // @ts-ignore - atomicMkdirSync supports recursive option
+  atomicMkdirSync(runDir, { recursive: true });
   const findingsPath = resolve(runDir, 'findings.json');
-  writeFileSync(findingsPath, JSON.stringify(report, null, 2) + '\n');
+  atomicWriteJsonSync(findingsPath, report);
   return { ...report, findingsPath };
 }
 
@@ -113,4 +164,7 @@ export function writeFindings(projectDir, url, findings, coverageGaps = [], runD
   const report = buildFindingsReport({ url, findings: findings || [], coverageGaps: coverageGaps || [], detectedAt });
   return persistFindingsReport(runDirOpt, report);
 }
+
+
+
 

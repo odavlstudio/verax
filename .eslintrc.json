@@ -35,14 +35,40 @@
     "no-prototype-builtins": "warn",
     "no-const-assign": "error",
     "use-isnan": "error",
-    "valid-typeof": "error"
+    "valid-typeof": "error",
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "CallExpression[callee.object.name='Date'][callee.property.name='now']",
+        "message": "CONSTITUTIONAL VIOLATION: Use getTimeProvider().now() instead of Date.now() (CORE #3: Determinism)"
+      },
+      {
+        "selector": "NewExpression[callee.name='Date']",
+        "message": "CONSTITUTIONAL VIOLATION: Use getTimeProvider().iso() or getTimeProvider().date() instead of new Date() (CORE #3: Determinism)"
+      },
+      {
+        "selector": "CallExpression[callee.object.name='Math'][callee.property.name='random']",
+        "message": "CONSTITUTIONAL VIOLATION: Math.random() forbidden in production runtime (CORE #3: Determinism)"
+      },
+      {
+        "selector": "CallExpression[callee.object.name='performance'][callee.property.name='now']",
+        "message": "CONSTITUTIONAL VIOLATION: Use getTimeProvider().now() instead of performance.now() (CORE #3: Determinism)"
+      }
+    ]
   },  "overrides": [
+    {
+      "files": ["src/cli/util/support/time-provider.js", "test/support/test-id-provider.js"],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    },
     {
       "files": ["test/**/*.js"],
       "globals": {
         "test": "readonly",
         "describe": "readonly",
         "it": "readonly",
+        "expect": "readonly",
         "beforeEach": "readonly",
         "afterEach": "readonly",
         "beforeAll": "readonly",
@@ -62,6 +88,7 @@
     "artifacts/",
     "test/fixtures/",
     "test/tmp/",
+    "tmp/",
     "demos/",
     "test-projects/",
     "verax-website/",

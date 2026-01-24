@@ -16,6 +16,8 @@
  *    - Longer chains + late break = higher confidence
  */
 
+import { stableHashId } from '../shared/hash-id.js';
+
 /**
  * Expectation Chain Detector
  * 
@@ -158,9 +160,7 @@ export class ExpectationChainDetector {
     // 2. Breaking happened (not all steps fulfilled)
     if (brokenStepIndex > 0 && fulfilledSteps > 0) {
       return {
-        id: `expectation-chain-break-${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2, 9)}`,
+        id: stableHashId('expectation-chain-break', { chain_length: chain.length, broken_step: brokenStepIndex, fulfilled: fulfilledSteps }),
         type: 'expectation-chain-break',
         severity: this._computeSeverity(chain.length, fulfilledSteps, brokenStepIndex),
         evidence: {
@@ -415,3 +415,6 @@ export class ExpectationChainDetector {
 }
 
 export default ExpectationChainDetector;
+
+
+

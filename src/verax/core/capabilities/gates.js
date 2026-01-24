@@ -322,7 +322,9 @@ function buildFixtureIndex(projectRoot) {
   }
   
   try {
-    const entries = readdirSync(fixturesDir, { withFileTypes: true });
+    const entries = readdirSync(fixturesDir, { withFileTypes: true })
+      // @ts-ignore - Dirent has name property
+      .sort((a, b) => a.name.localeCompare(b.name, 'en'));
     for (const entry of entries) {
       if (entry.isDirectory()) {
         const fixturePath = join(fixturesDir, entry.name);
@@ -376,7 +378,9 @@ function buildDocsIndex(projectRoot) {
   }
   
   try {
-    const entries = readdirSync(docsDir, { withFileTypes: true });
+    const entries = readdirSync(docsDir, { withFileTypes: true })
+      // @ts-ignore - Dirent has name property
+      .sort((a, b) => a.name.localeCompare(b.name, 'en'));
     for (const entry of entries) {
       if (entry.isFile() && entry.name.endsWith('.md')) {
         const docPath = join(docsDir, entry.name);
@@ -421,7 +425,9 @@ function buildGuardrailsIndex(projectRoot) {
   }
   
   try {
-    const entries = readdirSync(testDir, { withFileTypes: true });
+    const entries = readdirSync(testDir, { withFileTypes: true })
+      // @ts-ignore - Dirent has name property
+      .sort((a, b) => a.name.localeCompare(b.name, 'en'));
     for (const entry of entries) {
       if (entry.isFile() && entry.name.includes('guardrail')) {
         const testPath = join(testDir, entry.name);
@@ -462,7 +468,9 @@ function buildDeterminismTestsIndex(projectRoot) {
   }
   
   try {
-    const entries = readdirSync(testDir, { withFileTypes: true });
+    const entries = readdirSync(testDir, { withFileTypes: true })
+      // @ts-ignore - Dirent has name property
+      .sort((a, b) => a.name.localeCompare(b.name, 'en'));
     for (const entry of entries) {
       if (entry.isFile() && entry.name.includes('determinism')) {
         const testPath = join(testDir, entry.name);
@@ -502,4 +510,7 @@ function buildDeterminismTestsIndex(projectRoot) {
   
   return index;
 }
+
+
+
 

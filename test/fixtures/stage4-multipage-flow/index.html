@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - Multi-Page Flow</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    a { display: block; margin: 10px 0; color: blue; text-decoration: underline; cursor: pointer; }
+    .button-nav { background: #007bff; color: white; padding: 8px 16px; border: none; cursor: pointer; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Home Page</h1>
+  <p>This is the home page. Click a link to navigate.</p>
+  
+  <!-- Static link navigation: will be extracted -->
+  <a href="/checkout.html">Go to Checkout</a>
+  
+  <!-- Button with onClick navigation: will be extracted -->
+  <button class="button-nav" onclick="window.location.href='/payment.html'">Start Payment</button>
+</body>
+</html>

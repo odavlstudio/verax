@@ -11,6 +11,7 @@ import ts from 'typescript';
 import { resolve, relative, dirname, sep, join } from 'path';
 import { existsSync, statSync } from 'fs';
 import { glob } from 'glob';
+import { resolveScanConfig, rootsToGlobPatterns } from './scan-roots.js';
 
 const MAX_DEPTH = 3;
 const SUPPORTED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'];
@@ -20,16 +21,37 @@ const SUPPORTED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'];
  *
  * @param {string} rootDir - Directory containing the source (fixture/project)
  * @param {string} workspaceRoot - Workspace root for relative paths
+ * @param {string} projectType - Detected project type for scan root detection
+ * @param {Object} [scanOptions] - Optional scan configuration overrides
  * @returns {Promise<Array<Object>>} - PROVEN contracts (both NETWORK_ACTION and STATE_ACTION)
  */
-export async function resolveActionContracts(rootDir, workspaceRoot) {
-  const files = await glob('**/*.{ts,tsx,js,jsx}', {
-    cwd: rootDir,
-    absolute: true,
-    ignore: ['node_modules/**', 'dist/**', 'build/**']
-  });
+export async function resolveActionContracts(rootDir, workspaceRoot, projectType = 'unknown', scanOptions = {}) {
+  // Resolve scan roots using framework-aware detection
+  const scanConfig = resolveScanConfig(rootDir, projectType, scanOptions);
+  const baseDir = scanConfig.cwd;
+  
+  if (scanConfig.roots.length === 0) {
+    return [];
+  }
+  
+  // Generate glob patterns from scan roots
+  const globPatterns = rootsToGlobPatterns(scanConfig.roots, '*.{ts,tsx,js,jsx}');
+  
+  // Collect files from all patterns
+  let files = [];
+  for (const pattern of globPatterns) {
+    const matchedFiles = await glob(pattern, {
+      cwd: baseDir,
+      absolute: true,
+      ignore: scanConfig.excludes
+    });
+    matchedFiles.sort((a, b) => a.localeCompare(b, 'en'));
+    files = files.concat(matchedFiles);
+  }
 
-  const normalizedRoot = resolve(rootDir);
+  files = Array.from(new Set(files)).sort((a, b) => a.localeCompare(b, 'en'));
+
+  const normalizedRoot = resolve(baseDir);
 
   const program = ts.createProgram(files, {
     allowJs: true,
@@ -114,7 +136,7 @@ export async function resolveActionContracts(rootDir, workspaceRoot) {
     if (!sourcePath.toLowerCase().startsWith(normalizedRoot.toLowerCase())) continue;
     if (sourceFile.isDeclarationFile) continue;
 
-    const importMap = buildImportMap(sourceFile, rootDir, workspaceRoot);
+    const importMap = buildImportMap(sourceFile, baseDir, workspaceRoot);
     const visit = createVisitFunction(importMap, sourceFile);
     visit(sourceFile);
   }
@@ -395,3 +417,6 @@ function normalizePath(filePath, workspaceRoot) {
   const rel = relative(workspaceRoot, filePath);
   return rel.split(sep).join('/');
 }
+
+
+

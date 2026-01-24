@@ -306,3 +306,6 @@ export function enrichFindingWithSignals(finding, trace = {}, manifest = {}) {
     signals
   };
 }
+
+
+

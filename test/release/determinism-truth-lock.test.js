@@ -1,5 +1,5 @@
 /**
- * PHASE 21.2 — Determinism Truth Lock Tests
+ *  Determinism Truth Lock Tests
  * 
  * Tests that PROVE honesty about determinism:
  * - Same run twice with NO adaptive behavior → DETERMINISTIC
@@ -13,10 +13,12 @@ import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, resolve as _resolve } from 'path';
-import { DecisionRecorder, DECISION_IDS, recordAdaptiveStabilization, recordRetryAttempt } from '../src/verax/core/determinism-model.js';
-import { computeDeterminismVerdict, DETERMINISM_VERDICT, DETERMINISM_REASON } from '../src/verax/core/determinism/contract.js';
-import { writeDeterminismReport } from '../src/verax/core/determinism/report-writer.js';
+import { DecisionRecorder, DECISION_IDS, recordAdaptiveStabilization, recordRetryAttempt } from '../../src/verax/core/determinism-model.js';
+import { computeDeterminismVerdict, DETERMINISM_VERDICT, DETERMINISM_REASON } from '../../src/verax/core/determinism/contract.js';
+import { writeDeterminismReport } from '../../src/verax/core/determinism/report-writer.js';
 import { tmpdir } from 'os';
+import { getTimeProvider } from '../../src/cli/util/support/time-provider.js';
+
 
 test('Determinism Truth Lock - No adaptive events → DETERMINISTIC', () => {
   const recorder = new DecisionRecorder('test-run-1');
@@ -25,7 +27,7 @@ test('Determinism Truth Lock - No adaptive events → DETERMINISTIC', () => {
   recorder.record({
     decision_id: DECISION_IDS.BUDGET_PROFILE_SELECTED,
     category: 'BUDGET',
-    timestamp: Date.now(),
+    timestamp: getTimeProvider().now(),
     inputs: { profile: 'FAST' },
     chosen_value: 'FAST',
     reason: 'Budget profile selected'
@@ -72,7 +74,7 @@ test('Determinism Truth Lock - Truncation occurred → NON_DETERMINISTIC', () =>
   recorder.record({
     decision_id: DECISION_IDS.TRUNCATION_BUDGET_EXCEEDED,
     category: 'TRUNCATION',
-    timestamp: Date.now(),
+    timestamp: getTimeProvider().now(),
     inputs: { budget: 60000 },
     chosen_value: true,
     reason: 'Budget exceeded'
@@ -158,7 +160,7 @@ test('Determinism Truth Lock - Adaptive stabilization enabled but NOT extended �
 });
 
 test('Determinism Truth Lock - Write determinism report with HARD verdict', () => {
-  const runDir = join(tmpdir(), `verax-test-${Date.now()}`);
+  const runDir = join(tmpdir(), `verax-test-${getTimeProvider().now()}`);
   mkdirSync(runDir, { recursive: true });
   
   const recorder = new DecisionRecorder('test-run-8');
@@ -178,7 +180,7 @@ test('Determinism Truth Lock - Write determinism report with HARD verdict', () =
 });
 
 test('Determinism Truth Lock - Report from file (decisions.json)', async () => {
-  const runDir = join(tmpdir(), `verax-test-${Date.now()}`);
+  const runDir = join(tmpdir(), `verax-test-${getTimeProvider().now()}`);
   mkdirSync(runDir, { recursive: true });
   
   const recorder = new DecisionRecorder('test-run-9');
@@ -189,7 +191,7 @@ test('Determinism Truth Lock - Report from file (decisions.json)', async () => {
   writeFileSync(decisionsPath, JSON.stringify(recorder.export(), null, 2));
   
   // Write determinism report from file
-  const { writeDeterminismReportFromFile } = await import('../src/verax/core/determinism/report-writer.js');
+  const { writeDeterminismReportFromFile } = await import('../../src/verax/core/determinism/report-writer.js');
   const reportPath = writeDeterminismReportFromFile(runDir);
   
   assert.ok(reportPath, 'Report path should be returned');
@@ -208,4 +210,5 @@ test('Determinism Truth Lock - No DecisionRecorder → NON_DETERMINISTIC', () =>
   assert.ok(verdict.reasons.includes(DETERMINISM_REASON.ENVIRONMENT_VARIANCE), 'Should include ENVIRONMENT_VARIANCE reason');
   assert.ok(verdict.message.includes('cannot verify'), 'Message should indicate cannot verify determinism');
 });
+
 

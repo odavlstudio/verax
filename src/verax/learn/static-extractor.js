@@ -2,6 +2,7 @@ import { glob } from 'glob';
 import { resolve, dirname, relative } from 'path';
 import { readFileSync, existsSync } from 'fs';
 import { parse } from 'node-html-parser';
+import { resolveScanConfig, rootsToGlobPatterns } from './scan-roots.js';
 
 const MAX_HTML_FILES = 200;
 
@@ -49,15 +50,33 @@ function resolveLinkPath(href, fromFile, projectDir) {
   }
 }
 
-export async function extractStaticRoutes(projectDir) {
+export async function extractStaticRoutes(projectDir, projectType = 'unknown', scanOptions = {}) {
   const routes = [];
   const routeSet = new Set();
   
-  const htmlFiles = await glob('**/*.html', {
-    cwd: projectDir,
-    absolute: false,
-    ignore: ['node_modules/**']
-  });
+  // Resolve scan roots using framework-aware detection
+  const scanConfig = resolveScanConfig(projectDir, projectType, scanOptions);
+  const baseDir = scanConfig.cwd;
+  
+  if (scanConfig.roots.length === 0) {
+    return routes;
+  }
+  
+  // Generate glob patterns from scan roots
+  const globPatterns = rootsToGlobPatterns(scanConfig.roots, '*.html');
+  
+  // Collect files from all patterns
+  let htmlFiles = [];
+  for (const pattern of globPatterns) {
+    const matchedFiles = await glob(pattern, {
+      cwd: baseDir,
+      absolute: false,
+      ignore: scanConfig.excludes
+    });
+    matchedFiles.sort((a, b) => a.localeCompare(b, 'en'));
+    htmlFiles = htmlFiles.concat(matchedFiles);
+  }
+  htmlFiles = Array.from(new Set(htmlFiles)).sort((a, b) => a.localeCompare(b, 'en'));
   
   for (const file of htmlFiles.slice(0, MAX_HTML_FILES)) {
     const routePath = htmlFileToRoute(file);
@@ -258,19 +277,33 @@ function extractNetworkExpectations(root, fromPath, file, _projectDir) {
   return expectations;
 }
 
-export async function extractStaticExpectations(projectDir, routes) {
+export async function extractStaticExpectations(projectDir, routes, scanOptions = {}) {
   const expectations = [];
   const routeMap = new Map(routes.map(r => [r.path, r]));
   
-  const htmlFiles = await glob('**/*.html', {
-    cwd: projectDir,
-    absolute: false,
-    ignore: ['node_modules/**']
-  });
+  // Use scan-roots for constrained HTML file discovery
+  const scanConfig = resolveScanConfig(projectDir, 'static', scanOptions);
+  const baseDir = scanConfig.cwd;
+  if (scanConfig.roots.length === 0) {
+    return expectations;
+  }
+  
+  const globPatterns = rootsToGlobPatterns(scanConfig.roots, '*.html');
+  let htmlFiles = [];
+  for (const pattern of globPatterns) {
+    const matchedFiles = await glob(pattern, {
+      cwd: baseDir,
+      absolute: false,
+      ignore: scanConfig.excludes
+    });
+    matchedFiles.sort((a, b) => a.localeCompare(b, 'en'));
+    htmlFiles = htmlFiles.concat(matchedFiles);
+  }
+  htmlFiles = Array.from(new Set(htmlFiles)).sort((a, b) => a.localeCompare(b, 'en'));
   
   for (const file of htmlFiles.slice(0, MAX_HTML_FILES)) {
     const fromPath = htmlFileToRoute(file);
-    const filePath = resolve(projectDir, file);
+    const filePath = resolve(baseDir, file);
     
     if (!existsSync(filePath)) continue;
     
@@ -284,7 +317,7 @@ export async function extractStaticExpectations(projectDir, routes) {
         const href = link.getAttribute('href');
         if (!href) continue;
         
-        const targetPath = resolveLinkPath(href, file, projectDir);
+        const targetPath = resolveLinkPath(href, file, baseDir);
         if (!targetPath) continue;
         
         // Extract expectation even if target route doesn't exist yet
@@ -304,13 +337,13 @@ export async function extractStaticExpectations(projectDir, routes) {
         });
       }
       
-      const buttonExpectations = extractButtonNavigationExpectations(root, fromPath, file, routeMap, projectDir);
+      const buttonExpectations = extractButtonNavigationExpectations(root, fromPath, file, routeMap, baseDir);
       expectations.push(...buttonExpectations);
       
-      const formExpectations = extractFormSubmissionExpectations(root, fromPath, file, routeMap, projectDir);
+      const formExpectations = extractFormSubmissionExpectations(root, fromPath, file, routeMap, baseDir);
       expectations.push(...formExpectations);
       
-      const networkExpectations = extractNetworkExpectations(root, fromPath, file, projectDir);
+      const networkExpectations = extractNetworkExpectations(root, fromPath, file, baseDir);
       expectations.push(...networkExpectations);
       
       // NAVIGATION INTELLIGENCE v2: Extract navigation expectations from inline scripts
@@ -329,4 +362,7 @@ export async function extractStaticExpectations(projectDir, routes) {
   
   return expectations;
 }
+
+
+
 

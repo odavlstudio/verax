@@ -5,7 +5,10 @@
  * Implements .INCOMPLETE marker for run safety.
  */
 
+// @ts-ignore
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
 import { writeFileSync, readFileSync, unlinkSync, existsSync } from 'fs';
+
 import { join } from 'path';
 
 /**
@@ -20,7 +23,7 @@ export function createPoisonMarker(runDir, runId) {
     const markerPath = join(runDir, '.INCOMPLETE');
     const marker = {
       runId,
-      createdAt: new Date().toISOString(),
+      createdAt: getTimeProvider().iso(),
       pid: process.pid,
       reason: 'Run in progress',
     };
@@ -106,3 +109,6 @@ export function enforcePoisonCheck(runDir) {
     );
   }
 }
+
+
+

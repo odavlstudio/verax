@@ -8,6 +8,7 @@
 import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { createHash } from 'crypto';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
 import { VERAX_PRODUCT_DEFINITION } from '../product-definition.js';
 
 /**
@@ -85,7 +86,7 @@ export function buildBaselineSnapshot(projectDir) {
   
   // Confidence defaults
   const confidenceEngine = hashFile(resolve(coreDir, 'confidence-engine.js'));
-  const confidenceDefaults = hashFile(resolve(coreDir, 'confidence-engine-refactor.js'));
+  const confidenceDefaults = hashFile(resolve(coreDir, 'confidence-engine.deprecated.js'));
   
   // Guardrails defaults
   const guardrailsDefaults = hashFile(resolve(coreDir, 'guardrails', 'defaults.json'));
@@ -119,7 +120,7 @@ export function buildBaselineSnapshot(projectDir) {
   
   const snapshot = {
     version: 1,
-    timestamp: new Date().toISOString(),
+    timestamp: getTimeProvider().iso(),
     veraxVersion: getVeraxVersion(),
     gitCommit: getGitCommit(),
     gitDirty: isGitDirty(),
@@ -230,4 +231,7 @@ export function loadBaselineSnapshot(projectDir) {
     return null;
   }
 }
+
+
+
 

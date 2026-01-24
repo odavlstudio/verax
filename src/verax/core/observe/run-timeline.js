@@ -4,8 +4,10 @@
  * Builds chronological timeline of all events in a run.
  */
 
-import { readFileSync, existsSync, writeFileSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
+import { existsSync, writeFileSync, readFileSync } from 'fs';
 
 /**
  * Load artifact JSON
@@ -16,8 +18,8 @@ function loadArtifact(runDir, filename) {
     return null;
   }
   try {
-  // @ts-expect-error - readFileSync with encoding returns string
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const content = /** @type {string} */ (readFileSync(path, 'utf-8'));
+    return JSON.parse(content);
   } catch {
     return null;
   }
@@ -30,7 +32,7 @@ function loadArtifact(runDir, filename) {
  * @param {string} runId - Run ID
  * @returns {Object} Timeline object
  */
-export function buildRunTimeline(projectDir, runId) {
+export function buildRunTimeline(projectDir, runId, timeProvider = getTimeProvider()) {
   const runDir = resolve(projectDir, '.verax', 'runs', runId);
   
   if (!existsSync(runDir)) {
@@ -75,7 +77,7 @@ export function buildRunTimeline(projectDir, runId) {
       }
     });
     timeline.push({
-      timestamp: startedAt ? new Date(Date.parse(startedAt) + summary.metrics.learnMs).toISOString() : null,
+      timestamp: startedAt ? timeProvider.addMs(startedAt, summary.metrics.learnMs) : null,
       phase: 'LEARN',
       event: 'phase_completed',
       data: {
@@ -84,10 +86,10 @@ export function buildRunTimeline(projectDir, runId) {
       }
     });
   }
-  
+
   // OBSERVE phase
   if (summary?.metrics?.observeMs) {
-    const observeStart = startedAt ? new Date(Date.parse(startedAt) + (summary.metrics.learnMs || 0)).toISOString() : null;
+    const observeStart = startedAt ? timeProvider.addMs(startedAt, summary.metrics.learnMs || 0) : null;
     timeline.push({
       timestamp: observeStart,
       phase: 'OBSERVE',
@@ -97,7 +99,7 @@ export function buildRunTimeline(projectDir, runId) {
       }
     });
     timeline.push({
-      timestamp: observeStart ? new Date(Date.parse(observeStart) + summary.metrics.observeMs).toISOString() : null,
+      timestamp: observeStart ? timeProvider.addMs(observeStart, summary.metrics.observeMs) : null,
       phase: 'OBSERVE',
       event: 'phase_completed',
       data: {
@@ -107,10 +109,10 @@ export function buildRunTimeline(projectDir, runId) {
       }
     });
   }
-  
+
   // DETECT phase
   if (summary?.metrics?.detectMs) {
-    const detectStart = startedAt ? new Date(Date.parse(startedAt) + (summary.metrics.learnMs || 0) + (summary.metrics.observeMs || 0)).toISOString() : null;
+    const detectStart = startedAt ? timeProvider.addMs(startedAt, (summary.metrics.learnMs || 0) + (summary.metrics.observeMs || 0)) : null;
     timeline.push({
       timestamp: detectStart,
       phase: 'DETECT',
@@ -120,7 +122,7 @@ export function buildRunTimeline(projectDir, runId) {
       }
     });
     timeline.push({
-      timestamp: detectStart ? new Date(Date.parse(detectStart) + summary.metrics.detectMs).toISOString() : null,
+      timestamp: detectStart ? timeProvider.addMs(detectStart, summary.metrics.detectMs) : null,
       phase: 'DETECT',
       event: 'phase_completed',
       data: {
@@ -221,7 +223,7 @@ export function buildRunTimeline(projectDir, runId) {
   if (failureLedger?.failures) {
     for (const failure of failureLedger.failures) {
       timeline.push({
-        timestamp: failure.timestamp || (startedAt ? new Date(Date.parse(startedAt) + (failure.relativeTime || 0)).toISOString() : null),
+        timestamp: failure.timestamp || (startedAt ? timeProvider.addMs(startedAt, failure.relativeTime || 0) : null),
         phase: failure.phase || 'UNKNOWN',
         event: 'failure_recorded',
         severity: failure.severity || 'WARNING',
@@ -243,7 +245,7 @@ export function buildRunTimeline(projectDir, runId) {
       event: 'run_completed',
       data: {
         status: summary?.status || runStatus?.status || 'UNKNOWN',
-        totalDurationMs: startedAt && completedAt ? Date.parse(completedAt) - Date.parse(startedAt) : null
+        totalDurationMs: startedAt && completedAt ? timeProvider.parse(completedAt) - timeProvider.parse(startedAt) : null
       }
     });
   }
@@ -253,7 +255,9 @@ export function buildRunTimeline(projectDir, runId) {
     if (!a.timestamp && !b.timestamp) return 0;
     if (!a.timestamp) return 1;
     if (!b.timestamp) return -1;
-    return Date.parse(a.timestamp) - Date.parse(b.timestamp);
+    const timeA = timeProvider.parse(a.timestamp);
+    const timeB = timeProvider.parse(b.timestamp);
+    return timeA - timeB;
   });
   
   return {
@@ -274,7 +278,7 @@ export function buildRunTimeline(projectDir, runId) {
       blockingViolations: timeline.filter(e => e.severity === 'BLOCKING').length,
       degradedWarnings: timeline.filter(e => e.severity === 'DEGRADED').length
     },
-    generatedAt: new Date().toISOString()
+    generatedAt: getTimeProvider().iso()
   };
 }
 
@@ -309,10 +313,13 @@ export function loadRunTimeline(projectDir, runId) {
   }
   
   try {
-  // @ts-expect-error - readFileSync with encoding returns string
-    return JSON.parse(readFileSync(timelinePath, 'utf-8'));
+    const content = /** @type {string} */ (readFileSync(timelinePath, 'utf-8'));
+    return JSON.parse(content);
   } catch {
     return null;
   }
 }
+
+
+
 

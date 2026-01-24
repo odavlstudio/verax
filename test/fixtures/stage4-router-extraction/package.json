@@ -1,0 +1,6 @@
+{
+  "name": "stage4-router-extraction",
+  "version": "1.0.0",
+  "description": "Test fixture for router link extraction (static only, dynamic skipped)",
+  "private": true
+}

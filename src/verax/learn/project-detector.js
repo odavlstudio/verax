@@ -1,6 +1,7 @@
 import { glob } from 'glob';
 import { resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
+import { HARD_EXCLUSIONS } from './scan-roots.js';
 
 async function hasReactDependency(projectDir) {
   try {
@@ -80,17 +81,18 @@ async function hasVueRouter(projectDir) {
 export async function detectProjectType(projectDir) {
   const appDir = resolve(projectDir, 'app');
   const pagesDir = resolve(projectDir, 'pages');
-  
   try {
     if (existsSync(appDir)) {
-      const appFiles = await glob('**/page.{js,jsx,ts,tsx}', { cwd: appDir, absolute: false });
+      const appFiles = await glob('**/page.{js,jsx,ts,tsx}', { cwd: appDir, absolute: false, ignore: HARD_EXCLUSIONS });
+      appFiles.sort((a, b) => a.localeCompare(b, 'en'));
       if (appFiles.length > 0) {
         return 'nextjs_app_router';
       }
     }
     
     if (existsSync(pagesDir)) {
-      const pagesFiles = await glob('**/*.{js,jsx,ts,tsx}', { cwd: pagesDir, absolute: false });
+      const pagesFiles = await glob('**/*.{js,jsx,ts,tsx}', { cwd: pagesDir, absolute: false, ignore: HARD_EXCLUSIONS });
+      pagesFiles.sort((a, b) => a.localeCompare(b, 'en'));
       if (pagesFiles.length > 0) {
         return 'nextjs_pages_router';
       }
@@ -114,7 +116,8 @@ export async function detectProjectType(projectDir) {
       return 'react_spa';
     }
     
-    const htmlFiles = await glob('**/*.html', { cwd: projectDir, absolute: false, ignore: ['node_modules/**'] });
+    const htmlFiles = await glob('**/*.html', { cwd: projectDir, absolute: false, ignore: HARD_EXCLUSIONS });
+    htmlFiles.sort((a, b) => a.localeCompare(b, 'en'));
     if (htmlFiles.length > 0) {
       return 'static';
     }
@@ -128,5 +131,8 @@ export async function detectProjectType(projectDir) {
 export async function hasReactRouterDom(projectDir) {
   return await hasReactRouter(projectDir);
 }
+
+
+
 
 

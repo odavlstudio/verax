@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 /**
  * Detection Engine: Core of VERAX
  * Compares learn.json and observe.json to produce evidence-backed findings
@@ -37,7 +38,7 @@ class DetectionEngine {
     return {
       findings,
       stats,
-      detectedAt: new Date().toISOString(),
+      detectedAt: getTimeProvider().iso(),
       version: '1.0.0'
     };
   }
@@ -291,3 +292,6 @@ class DetectionEngine {
 }
 
 module.exports = DetectionEngine;
+
+
+

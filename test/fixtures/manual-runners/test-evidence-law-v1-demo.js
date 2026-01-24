@@ -70,3 +70,5 @@ console.log('Evidence Law v1 downgrades CONFIRMED to SUSPECTED because:');
 console.log('  - Missing context anchor (no beforeUrl/beforeScreenshot/before)');
 console.log('  - Cannot prove the initial state before interaction occurred');
 console.log('\nThis enforces: "No context = No confirmed claim"');
+
+

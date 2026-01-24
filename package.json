@@ -1,6 +1,6 @@
 {
   "name": "@veraxhq/verax",
-  "version": "0.4.0",
+  "version": "0.5.1",
   "description": "Public Flow Sanity Guard — Trust-Locked, Deterministic, CI-Safe.",
   "keywords": [
     "public-flows",
@@ -33,10 +33,15 @@
   ],
   "scripts": {
     "test": "node test/infrastructure/test-runner-wrapper.js",
+    "test:integration": "cross-env VERAX_TEST_INTEGRATION=1 node test/infrastructure/test-runner-wrapper.js",
+    "test:all": "npm test && npm run test:integration",
     "test:pack": "node test/infrastructure/test-pack.js",
     "verify-release": "node scripts/verify-release.js",
+    "prepublishOnly": "node scripts/prepublish-check.js",
     "lint": "eslint . --max-warnings 0",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "node -e \"const fs = require('fs'); const path = require('path'); const dirs = ['.verax', 'tmp'].map(d => path.join(__dirname, d)); dirs.forEach(dir => { if (fs.existsSync(dir)) { fs.rmSync(dir, { recursive: true, force: true }); console.log('Cleaned:', dir); } });\"",
+    "postpack": "node -e \"if (process.env.VERAX_SKIP_POSTPACK_CLEANUP !== '1') { const fs = require('fs'); const glob = require('glob'); glob.sync('*.tgz').forEach(f => { fs.unlinkSync(f); console.log('Auto-removed pack artifact:', f); }); } else { console.log('Postpack cleanup skipped (test mode)'); }\""
   },
   "dependencies": {
     "@babel/parser": "^7.28.5",
@@ -56,12 +61,13 @@
   "devDependencies": {
     "@reduxjs/toolkit": "^2.11.2",
     "@types/node": "^18.0.0",
-    "@veraxhq/verax": "file:veraxhq-verax-0.3.0.tgz",
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
     "next": "^16.1.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-redux": "^9.2.0",
-    "react-router-dom": "^7.12.0"
+    "react-router-dom": "^7.12.0",
+    "yaml": "^2.8.2"
   }
 }

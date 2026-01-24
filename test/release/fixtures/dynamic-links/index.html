@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Links Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .link-section {
+      margin: 30px 0;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    a, .link-like {
+      display: block;
+      padding: 10px;
+      margin: 10px 0;
+      text-decoration: none;
+      color: #0066cc;
+      cursor: pointer;
+    }
+    a:hover, .link-like:hover {
+      background: #f0f0f0;
+    }
+    #status {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e8f4f8;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Runtime Navigation Discovery Test</h1>
+  
+  <div class="link-section">
+    <h2>Static Links (Present in HTML)</h2>
+    <a href="/static-page" id="static-link">Static Page Link</a>
+    <a href="/about" class="nav-link">About Page</a>
+  </div>
+  
+  <div class="link-section">
+    <h2>Dynamic Links (Created by JavaScript)</h2>
+    <div id="dynamic-links-container">
+      <!-- Links will be added here by JS -->
+    </div>
+  </div>
+  
+  <div class="link-section">
+    <h2>Edge Cases (Should be Excluded)</h2>
+    <a href="#" id="hash-link">Hash Link (No Navigation)</a>
+    <a href="#section" id="anchor-link">Anchor Link (Same Page)</a>
+    <a href="javascript:void(0)" id="js-link">JavaScript Protocol</a>
+    <a href="mailto:test@example.com" id="mailto-link">Mailto Link</a>
+    <a href="tel:+1234567890" id="tel-link">Tel Link</a>
+  </div>
+  
+  <div class="link-section">
+    <h2>Broken Navigation (Click Does Nothing)</h2>
+    <div id="broken-links-container">
+      <!-- Broken link will be added here -->
+    </div>
+  </div>
+  
+  <div class="link-section">
+    <h2>Role="link" Elements</h2>
+    <div role="link" id="role-link-with-href" href="/role-navigation">
+      Role Link with href attribute
+    </div>
+    <div role="link" id="role-link-with-child">
+      <a href="/role-child-navigation">Role Link containing anchor</a>
+    </div>
+  </div>
+  
+  <div id="status">
+    <strong>Status:</strong> <span id="status-text">Page loaded, JavaScript running...</span>
+  </div>
+  
+  <script>
+    // Simulate SPA-style dynamic link creation
+    document.addEventListener('DOMContentLoaded', function() {
+      // 1. Create working dynamic links
+      const dynamicContainer = document.getElementById('dynamic-links-container');
+      
+      // User profile link (dynamic data)
+      const profileLink = document.createElement('a');
+      profileLink.href = '/user/123';
+      profileLink.textContent = 'User Profile (Dynamic - ID: 123)';
+      profileLink.id = 'dynamic-profile';
+      dynamicContainer.appendChild(profileLink);
+      
+      // Settings link (dynamic)
+      const settingsLink = document.createElement('a');
+      settingsLink.href = '/settings';
+      settingsLink.textContent = 'Settings (Dynamic)';
+      settingsLink.id = 'dynamic-settings';
+      settingsLink.className = 'dynamic-nav';
+      dynamicContainer.appendChild(settingsLink);
+      
+      // Dashboard link with query params
+      const dashboardLink = document.createElement('a');
+      dashboardLink.href = '/dashboard?tab=overview';
+      dashboardLink.textContent = 'Dashboard (Dynamic with params)';
+      dashboardLink.id = 'dynamic-dashboard';
+      dynamicContainer.appendChild(dashboardLink);
+      
+      // 2. Create broken link (click handler prevents default)
+      const brokenContainer = document.getElementById('broken-links-container');
+      const brokenLink = document.createElement('a');
+      brokenLink.href = '/broken-destination';
+      brokenLink.textContent = 'Broken Link (Click Prevented)';
+      brokenLink.id = 'broken-link';
+      brokenLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Do nothing - simulate broken navigation promise
+        console.log('[BROKEN] Navigation prevented');
+      });
+      brokenContainer.appendChild(brokenLink);
+      
+      // 3. Add click handlers to working links (simulate SPA behavior)
+      function handleNavigation(e, destination) {
+        // Let the link navigate naturally for test purposes
+        // In real SPA, would prevent default and use history.pushState
+        console.log('[NAV] Navigating to:', destination);
+      }
+      
+      profileLink.addEventListener('click', (e) => handleNavigation(e, '/user/123'));
+      settingsLink.addEventListener('click', (e) => handleNavigation(e, '/settings'));
+      dashboardLink.addEventListener('click', (e) => handleNavigation(e, '/dashboard'));
+      
+      // Update status
+      document.getElementById('status-text').textContent = 'Ready! Dynamic links created.';
+    });
+  </script>
+</body>
+</html>

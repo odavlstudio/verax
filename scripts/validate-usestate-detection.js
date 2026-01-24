@@ -5,7 +5,7 @@
  * Runs the extractor on the test fixture and verifies state-driven UI promises are detected
  */
 
-import { extractExpectations } from '../src/cli/util/expectation-extractor.js';
+import { extractExpectations } from '../src/cli/util/observation/expectation-extractor.js';
 import { resolve } from 'path';
 
 const testProjectPath = resolve(process.cwd(), 'test-projects', 'usestate-validation');
@@ -94,3 +94,5 @@ try {
   console.error('❌ VALIDATION ERROR:', error);
   process.exit(1);
 }
+
+

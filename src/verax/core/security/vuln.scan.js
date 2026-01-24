@@ -5,12 +5,17 @@
  * HIGH/CRITICAL = BLOCKING, MEDIUM = WARNING (configurable).
  */
 
-import { readFileSync as _readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
 import { resolve } from 'path';
 import { execSync } from 'child_process';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 
 /**
  * Check if OSV scanner is available
+ * 
+ * SAFETY: execSync with hardcoded command (no user input interpolation).
+ * Explicit timeout prevents hangs. stdio pipes prevent output spill.
  * 
  * @returns {boolean} Whether osv-scanner is available
  */
@@ -28,6 +33,9 @@ function checkOSVAvailable() {
 
 /**
  * Run npm audit
+ * 
+ * SAFETY: execSync with hardcoded command (no user input interpolation).
+ * Timeout prevents hangs on large dependency trees.
  * 
  * @param {string} projectDir - Project directory
  * @returns {Object|null} Audit results or null
@@ -153,7 +161,7 @@ export async function scanVulnerabilities(projectDir, options = { blockMedium: f
           high: 0,
           medium: 0,
           low: 0,
-          scannedAt: new Date().toISOString()
+          scannedAt: getTimeProvider().iso()
         }
       };
     }
@@ -170,7 +178,7 @@ export async function scanVulnerabilities(projectDir, options = { blockMedium: f
         high: 0,
         medium: 0,
         low: 0,
-        scannedAt: new Date().toISOString()
+        scannedAt: getTimeProvider().iso()
       }
     };
   }
@@ -234,7 +242,7 @@ export async function scanVulnerabilities(projectDir, options = { blockMedium: f
       low: low.length,
       blocking,
       warnings: blockMedium ? 0 : medium.length,
-      scannedAt: new Date().toISOString()
+      scannedAt: getTimeProvider().iso()
     },
     metadata: {
       auditVersion: auditResults?.auditReportVersion || null,
@@ -262,4 +270,7 @@ export function writeVulnReport(projectDir, report) {
   
   return outputPath;
 }
+
+
+
 

@@ -1,3 +1,5 @@
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+
 /**
  * DETERMINISM MODEL — PHASE 6
  * 
@@ -89,7 +91,7 @@ export class DecisionRecorder {
     
     // Add timestamp if not provided
     if (!decision.timestamp) {
-      decision.timestamp = Date.now();
+      decision.timestamp = getTimeProvider().now();
     }
     
     this.decisions.push(decision);
@@ -180,11 +182,11 @@ export class DecisionRecorder {
   export() {
     return {
       runId: this.runId,
-      recordedAt: new Date().toISOString(),
+      recordedAt: getTimeProvider().iso(),
       total: this.decisions.length,
       decisions: this.decisions.map(d => ({
         ...d,
-        timestamp: new Date(d.timestamp).toISOString() // Convert to ISO string for readability
+        timestamp: getTimeProvider().iso() // Convert to ISO string for readability
       })),
       summary: this.getSummary()
     };
@@ -202,7 +204,7 @@ export class DecisionRecorder {
       exported.decisions.forEach(d => {
         recorder.record({
           ...d,
-          timestamp: new Date(d.timestamp).getTime() // Convert ISO string back to ms
+          timestamp: Date.parse(d.timestamp) // Convert ISO string back to ms deterministically
         });
       });
     }
@@ -222,7 +224,7 @@ export class DecisionRecorder {
  * @param {Object} budget
  */
 export function recordBudgetProfile(recorder, profileName, budget) {
-  const now = Date.now();
+  const now = getTimeProvider().now();
   recorder.recordBatch([
     {
       decision_id: DECISION_IDS.BUDGET_PROFILE_SELECTED,
@@ -265,7 +267,7 @@ export function recordBudgetProfile(recorder, profileName, budget) {
  * @param {Object} budget
  */
 export function recordTimeoutConfig(recorder, budget) {
-  const now = Date.now();
+  const now = getTimeProvider().now();
   recorder.recordBatch([
     {
       decision_id: DECISION_IDS.TIMEOUT_NAVIGATION,
@@ -311,7 +313,7 @@ export function recordTimeoutConfig(recorder, budget) {
  * @param {string} reason
  */
 export function recordAdaptiveStabilization(recorder, enabled, wasExtended = false, extensionMs = 0, reason = '') {
-  const now = Date.now();
+  const now = getTimeProvider().now();
   recorder.record({
     decision_id: DECISION_IDS.ADAPTIVE_STABILIZATION_ENABLED,
     category: 'ADAPTIVE_STABILIZATION',
@@ -346,7 +348,7 @@ export function recordRetryAttempt(recorder, operationType, attemptNumber, delay
     DECISION_IDS.RETRY_NAVIGATION_ATTEMPTED : 
     DECISION_IDS.RETRY_INTERACTION_ATTEMPTED;
   
-  const now = Date.now();
+  const now = getTimeProvider().now();
   recorder.recordBatch([
     {
       decision_id: decisionId,
@@ -393,7 +395,7 @@ export function recordTruncation(recorder, truncationType, limitOrOptions, actua
   recorder.record({
     decision_id: decisionIdMap[truncationType] || DECISION_IDS.TRUNCATION_BUDGET_EXCEEDED,
     category: 'TRUNCATION',
-    timestamp: Date.now(),
+    timestamp: getTimeProvider().now(),
     inputs: { limit, actual: actualValue },
     chosen_value: actualValue,
     reason: `Budget exceeded: ${truncationType} capped at ${limit} (attempted ${actualValue})`
@@ -407,7 +409,7 @@ export function recordTruncation(recorder, truncationType, limitOrOptions, actua
  */
 export function recordEnvironment(recorder, environment) {
   const { browserType = 'unknown', viewport = { width: 1280, height: 720 } } = environment;
-  const now = Date.now();
+  const now = getTimeProvider().now();
   
   recorder.recordBatch([
     {
@@ -430,3 +432,6 @@ export function recordEnvironment(recorder, environment) {
 }
 
 export default DecisionRecorder;
+
+
+

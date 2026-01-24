@@ -1,0 +1,8 @@
+{
+  "name": "vue-test-project",
+  "version": "1.0.0",
+  "dependencies": {
+    "vue": "^3.3.0",
+    "vue-router": "^4.2.0"
+  }
+}

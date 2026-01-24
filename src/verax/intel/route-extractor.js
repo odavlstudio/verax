@@ -15,8 +15,8 @@ import ts from 'typescript';
 import { resolve, relative, basename, extname } from 'path';
 import { existsSync, readdirSync, statSync } from 'fs';
 import { parseFile, findNodes, getNodeLocation } from './ts-program.js';
-import { extractVueRoutes } from './vue-router-extractor.js';
-import { normalizeDynamicRoute } from '../shared/dynamic-route-utils.js';
+import { extractVueRoutes } from '../vue-extractors/vue/vue-router-extractor.js';
+import { normalizeDynamicRoute } from '../shared/dynamic-route-normalizer.js';
 
 const INTERNAL_PATH_PATTERNS = [
   /^\/admin/,
@@ -83,7 +83,7 @@ function extractNextPagesRoutes(projectRoot) {
   if (!existsSync(pagesDir)) return routes;
   
   function walk(dir, urlPath = '') {
-    const entries = readdirSync(dir);
+    const entries = readdirSync(dir).sort((a, b) => a.localeCompare(b, 'en'));
     
     for (const entry of entries) {
       const fullPath = resolve(dir, entry);
@@ -153,7 +153,7 @@ function extractNextAppRoutes(projectRoot) {
   if (!existsSync(appDir)) return routes;
   
   function walk(dir, urlPath = '') {
-    const entries = readdirSync(dir);
+    const entries = readdirSync(dir).sort((a, b) => a.localeCompare(b, 'en'));
     
     for (const entry of entries) {
       const fullPath = resolve(dir, entry);
@@ -278,3 +278,6 @@ function extractReactRouterRoutes(projectRoot, program) {
   
   return routes;
 }
+
+
+

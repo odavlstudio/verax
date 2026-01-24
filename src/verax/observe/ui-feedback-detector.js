@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 /**
  * Gap 5.1: Runtime UI Feedback Detection
  * 
@@ -69,7 +70,7 @@ export class UIFeedbackDetector {
       signals,
       overallUiFeedbackScore: overallScore,
       _metadata: {
-        capturedAt: new Date().toISOString(),
+        capturedAt: getTimeProvider().iso(),
         interactionTarget: this.interactionTarget
       }
     };
@@ -80,10 +81,13 @@ export class UIFeedbackDetector {
    * @private
    */
   async _captureState(page, targetSelector = null) {
+    const timeProvider = getTimeProvider();
+    const timestamp = timeProvider.now();
+    
     try {
-      const state = await page.evaluate((selector) => {
+      const state = await page.evaluate(({ selector, timestamp }) => {
         const result = {
-          timestamp: Date.now(),
+          timestamp: timestamp,
           url: window.location.href,
           
           // DOM Structure
@@ -298,13 +302,14 @@ export class UIFeedbackDetector {
         }
 
         return result;
-      }, targetSelector);
+      }, { selector: targetSelector, timestamp });
 
       return state;
     } catch (error) {
+      const timeProvider = getTimeProvider();
       // Return minimal state on error
       return {
-        timestamp: Date.now(),
+        timestamp: timeProvider.now(),
         url: '',
         viewport: { elementCount: 0, textContent: '', visibleText: '' },
         targetContainer: null,
@@ -740,3 +745,6 @@ export class UIFeedbackDetector {
     this.interactionTarget = null;
   }
 }
+
+
+

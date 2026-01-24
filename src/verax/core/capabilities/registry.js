@@ -473,3 +473,6 @@ export function isValidCapability(id) {
   return id in CAPABILITY_REGISTRY;
 }
 
+
+
+

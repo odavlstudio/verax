@@ -75,10 +75,10 @@ test('CLI EXIT CODE CONTRACT', async (t) => {
       assert.strictEqual(result.exitCode, 64, `run without --url must exit with 64 (UsageError), got ${result.exitCode}`);
     });
 
-    await t.test('Exit code 65: inspect non-existent path', () => {
+    await t.test('Exit code 50: inspect non-existent path', () => {
       const fakeRunPath = resolve(process.cwd(), 'artifacts', 'fake-run-that-does-not-exist-ever');
       const result = runVeraxSync(['inspect', fakeRunPath], process.cwd());
-      assert.strictEqual(result.exitCode, 65, `inspect non-existent path must exit with 65 (DataError), got ${result.exitCode}`);
+      assert.strictEqual(result.exitCode, 50, `inspect non-existent path must exit with 50 (DataError/EVIDENCE_VIOLATION), got ${result.exitCode}`);
     });
 
   } finally {
@@ -97,3 +97,4 @@ test('CLI EXIT CODE CONTRACT', async (t) => {
     }
   }
 });
+

@@ -1,5 +1,5 @@
 /**
- * PHASE 18 — Determinism Mode Tests
+ *  Determinism Mode Tests
  * 
  * Tests for determinism checking and comparison
  */
@@ -9,18 +9,18 @@ import { strict as assert } from 'node:assert';
 import {
   runDeterminismCheck,
   DETERMINISM_VERDICT,
-} from '../src/verax/core/determinism/engine.js';
+} from '../../src/verax/core/determinism/engine.js';
 import {
   normalizeArtifact,
-} from '../src/verax/core/determinism/normalize.js';
+} from '../../src/verax/core/determinism/normalize.js';
 import {
   computeFindingIdentity,
-} from '../src/verax/core/determinism/finding-identity.js';
+} from '../../src/verax/core/determinism/finding-identity.js';
 import {
   diffArtifacts,
   DIFF_REASON,
   DIFF_CATEGORY,
-} from '../src/verax/core/determinism/diff.js';
+} from '../../src/verax/core/determinism/diff.js';
 
 test('Determinism - deterministic fixture run results should be DETERMINISTIC', async () => {
   // Mock run function that returns identical artifacts
@@ -352,4 +352,5 @@ test('Determinism - missing evidence dir should be normalized or flagged appropr
                            d.reasonCode === DIFF_REASON.EVIDENCE_MISSING), 
             'Should flag evidence difference');
 });
+
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>React Sanity Fixture - Phase 6</title>
+</head>
+<body>
+  <div id="root" data-react-root></div>
+  
+  <script>
+    // Minimal React-like pattern simulation
+    // Goal: Ensure VERAX doesn't crash on React-detected pages
+    
+    const root = document.getElementById('root');
+    
+    // Simulate state change without visible UI update (silent failure pattern)
+    let counter = 0;
+    
+    function renderUI() {
+      root.innerHTML = `
+        <div>
+          <h1>React Fixture</h1>
+          <button id="increment-btn" data-testid="increment">Increment</button>
+          <p>Counter: ${counter}</p>
+        </div>
+      `;
+    }
+    
+    function handleClick() {
+      counter++;
+      // Silent failure: state updates but UI doesn't re-render
+      console.log('Counter updated:', counter);
+      // renderUI(); // Intentionally omitted to create silent failure
+    }
+    
+    renderUI();
+    
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'increment-btn') {
+        handleClick();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delayed Outcome Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .success {
+      background: #e8f5e9;
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid #4caf50;
+      display: none;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>Delayed Outcome Test</h1>
+  <p>Click the button to trigger a delayed acknowledgment (4 seconds)</p>
+  
+  <button id="submit-btn">Submit Request</button>
+  
+  <div class="spinner" id="spinner"></div>
+  
+  <div class="success" id="success-message" role="status" aria-live="polite">
+    <h2>Success!</h2>
+    <p>Your request was processed successfully.</p>
+    <p>This message appeared after a 4-second delay to test outcome watcher.</p>
+  </div>
+
+  <script>
+    const submitBtn = document.getElementById('submit-btn');
+    const spinner = document.getElementById('spinner');
+    const successMessage = document.getElementById('success-message');
+
+    submitBtn.addEventListener('click', () => {
+      // Disable button
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
+      
+      // Show spinner
+      spinner.style.display = 'block';
+      
+      // Simulate delayed processing (4 seconds)
+      setTimeout(() => {
+        spinner.style.display = 'none';
+        successMessage.style.display = 'block';
+        submitBtn.style.display = 'none';
+      }, 4000);
+    });
+  </script>
+</body>
+</html>

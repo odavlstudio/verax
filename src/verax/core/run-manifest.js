@@ -5,7 +5,10 @@
  * Written FIRST, referenced by all later stages.
  */
 
-import { writeFileSync, mkdirSync, readFileSync } from 'fs';
+import { mkdirSync, readFileSync } from 'fs';
+import { atomicWriteJsonSync } from '../../cli/util/atomic-write.js';
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+
 import { getRunArtifactDir, getVeraxVersion } from './run-id.js';
 
 /**
@@ -62,7 +65,7 @@ export function createRunManifest(projectDir, runId, params) {
     manifestPath,
     command: argv.join(' '),
     argv,
-    startTime: new Date().toISOString(),
+    startTime: getTimeProvider().iso(),
     artifactHashes: {} // Will be populated after artifacts are written
   };
   
@@ -72,7 +75,7 @@ export function createRunManifest(projectDir, runId, params) {
   
   // Write run manifest
   const runManifestPath = `${runDir}/run-manifest.json`;
-  writeFileSync(runManifestPath, JSON.stringify(runManifest, null, 2));
+  atomicWriteJsonSync(runManifestPath, runManifest);
   
   return runManifest;
 }
@@ -92,9 +95,12 @@ export function updateRunManifestHashes(projectDir, runId, hashes) {
   // @ts-expect-error - readFileSync with encoding returns string
     const runManifest = JSON.parse(readFileSync(runManifestPath, 'utf-8'));
     runManifest.artifactHashes = hashes;
-    runManifest.endTime = new Date().toISOString();
-    writeFileSync(runManifestPath, JSON.stringify(runManifest, null, 2));
+    runManifest.endTime = getTimeProvider().iso();
+    atomicWriteJsonSync(runManifestPath, runManifest);
   } catch (error) {
     // Run manifest not found or invalid - continue without update
   }
 }
+
+
+

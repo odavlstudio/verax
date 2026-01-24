@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Determinism Test Fixture</title>
+</head>
+<body>
+  <h1>Determinism Test</h1>
+  <button id="btn1" onclick="handleClick()">Click Me</button>
+  <div id="output"></div>
+  
+  <script>
+    function handleClick() {
+      // Deliberately create a silent failure: network request without feedback
+      fetch('/api/save', { method: 'POST', body: JSON.stringify({ data: 'test' }) })
+        .then(r => r.json())
+        .then(data => {
+          // No UI feedback - silent success
+        });
+    }
+  </script>
+</body>
+</html>

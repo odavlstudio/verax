@@ -1,0 +1,5715 @@
+
+> @veraxhq/verax@0.5.1 test
+> node test/infrastructure/test-runner-wrapper.js
+
+[TEST ENV] VERAX_TEST_TIME set to: 2026-01-01T00:00:00.000Z
+TAP version 13
+# Subtest: Artifact Filtering Compliance Pipeline
+    # Subtest: redaction applied before disk write
+    ok 1 - redaction applied before disk write
+      ---
+      duration_ms: 1.2603
+      type: 'test'
+      ...
+    # Subtest: temp file cleanup prevents raw artifact exposure
+    ok 2 - temp file cleanup prevents raw artifact exposure
+      ---
+      duration_ms: 0.3815
+      type: 'test'
+      ...
+    # Subtest: no raw artifacts in tmp directories
+    ok 3 - no raw artifacts in tmp directories
+      ---
+      duration_ms: 6.2062
+      type: 'test'
+      ...
+    # Subtest: redaction field in artifact schema
+    ok 4 - redaction field in artifact schema
+      ---
+      duration_ms: 0.4073
+      type: 'test'
+      ...
+    # Subtest: graceful degradation if redaction fails
+    ok 5 - graceful degradation if redaction fails
+      ---
+      duration_ms: 0.3257
+      type: 'test'
+      ...
+    # Subtest: deterministic redaction across runs
+    ok 6 - deterministic redaction across runs
+      ---
+      duration_ms: 0.3987
+      type: 'test'
+      ...
+    # Subtest: environment variable configuration controls pipeline
+    ok 7 - environment variable configuration controls pipeline
+      ---
+      duration_ms: 0.3143
+      type: 'test'
+      ...
+    # Subtest: release build includes redaction pipeline
+    ok 8 - release build includes redaction pipeline
+      ---
+      duration_ms: 0.4032
+      type: 'test'
+      ...
+    1..8
+ok 1 - Artifact Filtering Compliance Pipeline
+  ---
+  duration_ms: 11.9538
+  type: 'test'
+  ...
+# Subtest:  Cryptographic Integrity
+    # Subtest: should compute file integrity (SHA256)
+    ok 1 - should compute file integrity (SHA256)
+      ---
+      duration_ms: 5.2262
+      type: 'test'
+      ...
+    # Subtest: should return error for non-existent file
+    ok 2 - should return error for non-existent file
+      ---
+      duration_ms: 1.9851
+      type: 'test'
+      ...
+    # Subtest: should generate integrity manifest for artifacts
+    ok 3 - should generate integrity manifest for artifacts
+      ---
+      duration_ms: 3.8994
+      type: 'test'
+      ...
+    # Subtest: should write integrity manifest atomically
+    ok 4 - should write integrity manifest atomically
+      ---
+      duration_ms: 4.0662
+      type: 'test'
+      ...
+    # Subtest: should verify artifact integrity against manifest
+    ok 5 - should verify artifact integrity against manifest
+      ---
+      duration_ms: 2.8515
+      type: 'test'
+      ...
+    # Subtest: should detect hash mismatch (tampering)
+    ok 6 - should detect hash mismatch (tampering)
+      ---
+      duration_ms: 2.9057
+      type: 'test'
+      ...
+    # Subtest: should detect size mismatch
+    ok 7 - should detect size mismatch
+      ---
+      duration_ms: 1.6935
+      type: 'test'
+      ...
+    # Subtest: should load integrity manifest
+    ok 8 - should load integrity manifest
+      ---
+      duration_ms: 1.5469
+      type: 'test'
+      ...
+    # Subtest: should verify all artifacts in manifest
+    ok 9 - should verify all artifacts in manifest
+      ---
+      duration_ms: 4.4106
+      type: 'test'
+      ...
+    # Subtest: should report all failed verifications
+    ok 10 - should report all failed verifications
+      ---
+      duration_ms: 3.1914
+      type: 'test'
+      ...
+    # Subtest: should discover JSON artifacts
+    ok 11 - should discover JSON artifacts
+      ---
+      duration_ms: 13.7865
+      type: 'test'
+      ...
+    # Subtest: should handle empty directory
+    ok 12 - should handle empty directory
+      ---
+      duration_ms: 1.1576
+      type: 'test'
+      ...
+    1..12
+ok 2 -  Cryptographic Integrity
+  ---
+  duration_ms: 48.5174
+  type: 'suite'
+  ...
+# Subtest: registry artifacts are written with contract metadata
+ok 3 - registry artifacts are written with contract metadata
+  ---
+  duration_ms: 1268.2075
+  type: 'test'
+  ...
+# Subtest:  Transactional Artifacts
+    # Subtest: should create staging directory
+    ok 1 - should create staging directory
+      ---
+      duration_ms: 5.005
+      type: 'test'
+      ...
+    # Subtest: should clean up existing staging on create
+    ok 2 - should clean up existing staging on create
+      ---
+      duration_ms: 2.8441
+      type: 'test'
+      ...
+    # Subtest: should commit staging directory atomically
+    ok 3 - should commit staging directory atomically
+      ---
+      duration_ms: 7.2882
+      type: 'test'
+      ...
+    # Subtest: should fail commit if staging does not exist
+    ok 4 - should fail commit if staging does not exist
+      ---
+      duration_ms: 1.8094
+      type: 'test'
+      ...
+    # Subtest: should rollback staging directory
+    ok 5 - should rollback staging directory
+      ---
+      duration_ms: 2.7049
+      type: 'test'
+      ...
+    # Subtest: should handle rollback when staging does not exist
+    ok 6 - should handle rollback when staging does not exist
+      ---
+      duration_ms: 0.9753
+      type: 'test'
+      ...
+    # Subtest: should get staging path
+    ok 7 - should get staging path
+      ---
+      duration_ms: 0.9938
+      type: 'test'
+      ...
+    # Subtest: should get final path
+    ok 8 - should get final path
+      ---
+      duration_ms: 1.4098
+      type: 'test'
+      ...
+    # Subtest: should check if staging directory exists
+    ok 9 - should check if staging directory exists
+      ---
+      duration_ms: 3.4513
+      type: 'test'
+      ...
+    # Subtest: should list files in staging
+    ok 10 - should list files in staging
+      ---
+      duration_ms: 13.4046
+      type: 'test'
+      ...
+    # Subtest: should return empty list when staging does not exist
+    ok 11 - should return empty list when staging does not exist
+      ---
+      duration_ms: 1.1676
+      type: 'test'
+      ...
+    # Subtest: transactional workflow: write-commit
+    ok 12 - transactional workflow: write-commit
+      ---
+      duration_ms: 3.6781
+      type: 'test'
+      ...
+    # Subtest: transactional workflow: write-rollback
+    ok 13 - transactional workflow: write-rollback
+      ---
+      duration_ms: 2.3926
+      type: 'test'
+      ...
+    # Subtest: should replace existing artifacts directory on commit
+    ok 14 - should replace existing artifacts directory on commit
+      ---
+      duration_ms: 3.8922
+      type: 'test'
+      ...
+    1..14
+ok 4 -  Transactional Artifacts
+  ---
+  duration_ms: 54.2714
+  type: 'suite'
+  ...
+# Subtest: Artifact Validation Integrity & Pipeline Integration
+    # Subtest: verifies redaction integration in evidence-capture.js
+    ok 1 - verifies redaction integration in evidence-capture.js
+      ---
+      duration_ms: 1.4879
+      type: 'test'
+      ...
+    # Subtest: verifies redaction integration in observe-writer.js
+    ok 2 - verifies redaction integration in observe-writer.js
+      ---
+      duration_ms: 0.3964
+      type: 'test'
+      ...
+    # Subtest: no .temp screenshot artifacts exist
+    ok 3 - no .temp screenshot artifacts exist
+      ---
+      duration_ms: 5.7142
+      type: 'test'
+      ...
+    # Subtest: redaction-config exports correct patterns
+    ok 4 - redaction-config exports correct patterns
+      ---
+      duration_ms: 0.3731
+      type: 'test'
+      ...
+    # Subtest: dom-redactor exports all required functions
+    ok 5 - dom-redactor exports all required functions
+      ---
+      duration_ms: 0.4501
+      type: 'test'
+      ...
+    # Subtest: screenshot-redactor exports geometry utilities
+    ok 6 - screenshot-redactor exports geometry utilities
+      ---
+      duration_ms: 0.4484
+      type: 'test'
+      ...
+    # Subtest: environment variable config defaults are secure
+    ok 7 - environment variable config defaults are secure
+      ---
+      duration_ms: 0.1663
+      type: 'test'
+      ...
+    # Subtest: no raw sensitive patterns in test fixtures
+    ok 8 - no raw sensitive patterns in test fixtures
+      ---
+      duration_ms: 1.4245
+      type: 'test'
+      ...
+    # Subtest: observe.json contract includes redaction field
+    ok 9 - observe.json contract includes redaction field
+      ---
+      duration_ms: 0.7409
+      type: 'test'
+      ...
+    # Subtest: no bypass mechanism for redaction
+    ok 10 - no bypass mechanism for redaction
+      ---
+      duration_ms: 0.5311
+      type: 'test'
+      ...
+    1..10
+ok 5 - Artifact Validation Integrity & Pipeline Integration
+  ---
+  duration_ms: 14.8904
+  type: 'test'
+  ...
+# Subtest: fully valid run ÔåÆ VALID
+ok 6 - fully valid run ÔåÆ VALID
+  ---
+  duration_ms: 17.6151
+  type: 'test'
+  ...
+# Subtest: missing artifact ÔåÆ INVALID
+ok 7 - missing artifact ÔåÆ INVALID
+  ---
+  duration_ms: 15.7705
+  type: 'test'
+  ...
+# Subtest: artifact without contractVersion ÔåÆ INVALID
+ok 8 - artifact without contractVersion ÔåÆ INVALID
+  ---
+  duration_ms: 12.8803
+  type: 'test'
+  ...
+# Subtest: findings with invalid CONFIRMED entry ÔåÆ INVALID
+ok 9 - findings with invalid CONFIRMED entry ÔåÆ INVALID
+  ---
+  duration_ms: 11.9592
+  type: 'test'
+  ...
+# Subtest: registry mismatch ÔåÆ INVALID
+ok 10 - registry mismatch ÔåÆ INVALID
+  ---
+  duration_ms: 14.8102
+  type: 'test'
+  ...
+# Subtest: only minor mismatch ÔåÆ VALID_WITH_WARNINGS
+ok 11 - only minor mismatch ÔåÆ VALID_WITH_WARNINGS
+  ---
+  duration_ms: 19.6649
+  type: 'test'
+  ...
+# Subtest: invalid JSON ÔåÆ INVALID
+ok 12 - invalid JSON ÔåÆ INVALID
+  ---
+  duration_ms: 13.9307
+  type: 'test'
+  ...
+# Subtest: missing required fields in findings ÔåÆ INVALID
+ok 13 - missing required fields in findings ÔåÆ INVALID
+  ---
+  duration_ms: 15.0617
+  type: 'test'
+  ...
+# Subtest: evidence directory missing ÔåÆ WARNING (non-blocking)
+ok 14 - evidence directory missing ÔåÆ WARNING (non-blocking)
+  ---
+  duration_ms: 11.0275
+  type: 'test'
+  ...
+# Subtest: enforcement summary is computed correctly
+ok 15 - enforcement summary is computed correctly
+  ---
+  duration_ms: 14.4778
+  type: 'test'
+  ...
+# Subtest: Budget: loadBudgets returns default values
+ok 16 - Budget: loadBudgets returns default values
+  ---
+  duration_ms: 2.2624
+  type: 'test'
+  ...
+# Subtest: Budget: checkExpectationsBudget passes when under limit
+ok 17 - Budget: checkExpectationsBudget passes when under limit
+  ---
+  duration_ms: 0.2492
+  type: 'test'
+  ...
+# Subtest: Budget: checkExpectationsBudget fails when over limit
+ok 18 - Budget: checkExpectationsBudget fails when over limit
+  ---
+  duration_ms: 0.3684
+  type: 'test'
+  ...
+# Subtest: Budget: checkExpectationsBudget passes exactly at limit
+ok 19 - Budget: checkExpectationsBudget passes exactly at limit
+  ---
+  duration_ms: 0.3779
+  type: 'test'
+  ...
+# Subtest: Budget: checkExpectationsBudget fails at limit + 1
+ok 20 - Budget: checkExpectationsBudget fails at limit + 1
+  ---
+  duration_ms: 0.2523
+  type: 'test'
+  ...
+# Subtest: Budget: checkInteractionsBudget passes when under limit
+ok 21 - Budget: checkInteractionsBudget passes when under limit
+  ---
+  duration_ms: 0.237
+  type: 'test'
+  ...
+# Subtest: Budget: checkInteractionsBudget fails when over limit
+ok 22 - Budget: checkInteractionsBudget fails when over limit
+  ---
+  duration_ms: 0.3449
+  type: 'test'
+  ...
+# Subtest: Budget: checkRuntimeBudget passes when under limit
+ok 23 - Budget: checkRuntimeBudget passes when under limit
+  ---
+  duration_ms: 0.2782
+  type: 'test'
+  ...
+# Subtest: Budget: checkRuntimeBudget fails when over limit
+ok 24 - Budget: checkRuntimeBudget fails when over limit
+  ---
+  duration_ms: 0.6015
+  type: 'test'
+  ...
+# Subtest: Budget: checkEvidenceFilesBudget passes when under limit
+ok 25 - Budget: checkEvidenceFilesBudget passes when under limit
+  ---
+  duration_ms: 0.4255
+  type: 'test'
+  ...
+# Subtest: Budget: checkEvidenceFilesBudget fails when over limit
+ok 26 - Budget: checkEvidenceFilesBudget fails when over limit
+  ---
+  duration_ms: 0.2064
+  type: 'test'
+  ...
+# Subtest: Budget: custom budget configuration via parameter
+ok 27 - Budget: custom budget configuration via parameter
+  ---
+  duration_ms: 0.1105
+  type: 'test'
+  ...
+# Subtest: Budget: env var VERAX_MAX_EXPECTATIONS overrides default
+ok 28 - Budget: env var VERAX_MAX_EXPECTATIONS overrides default
+  ---
+  duration_ms: 0.1571
+  type: 'test'
+  ...
+# Subtest: Budget: invalid env var falls back to default
+ok 29 - Budget: invalid env var falls back to default
+  ---
+  duration_ms: 0.1404
+  type: 'test'
+  ...
+# Subtest: Budget: negative env var falls back to default
+ok 30 - Budget: negative env var falls back to default
+  ---
+  duration_ms: 0.137
+  type: 'test'
+  ...
+# Subtest: [ci-action] action.yml is valid YAML
+ok 31 - [ci-action] action.yml is valid YAML
+  ---
+  duration_ms: 19.7423
+  type: 'test'
+  ...
+# Subtest: [ci-action] action.yml command construction includes all flags
+ok 32 - [ci-action] action.yml command construction includes all flags
+  ---
+  duration_ms: 4.4446
+  type: 'test'
+  ...
+# Subtest: [ci-action] findLatestRun prefers latest.txt over directory scan
+ok 33 - [ci-action] findLatestRun prefers latest.txt over directory scan
+  ---
+  duration_ms: 8.1569
+  type: 'test'
+  ...
+# Subtest: [ci-action] listFilesRecursive produces sorted deterministic output
+ok 34 - [ci-action] listFilesRecursive produces sorted deterministic output
+  ---
+  duration_ms: 23.0547
+  type: 'test'
+  ...
+# Subtest: [ci-action] createManifest includes run metadata and sorted files
+ok 35 - [ci-action] createManifest includes run metadata and sorted files
+  ---
+  duration_ms: 4.6547
+  type: 'test'
+  ...
+# Subtest: [ci-action] packArtifacts creates bundle with manifest
+ok 36 - [ci-action] packArtifacts creates bundle with manifest
+  ---
+  duration_ms: 14.727
+  type: 'test'
+  ...
+# Subtest: [ci-action] packArtifacts determinism: file order stable across runs
+ok 37 - [ci-action] packArtifacts determinism: file order stable across runs
+  ---
+  duration_ms: 20.9063
+  type: 'test'
+  ...
+# Subtest: Stage 6C: CI stability & flake immunity
+    # Subtest: transient error retried once then succeeds ÔåÆ COMPLETE with retries recorded
+    ok 1 - transient error retried once then succeeds ÔåÆ COMPLETE with retries recorded
+      ---
+      duration_ms: 5.86
+      type: 'test'
+      ...
+    # Subtest: transient error retried once then fails ÔåÆ INCOMPLETE and exit 30 contract holds
+    ok 2 - transient error retried once then fails ÔåÆ INCOMPLETE and exit 30 contract holds
+      ---
+      duration_ms: 1.7563
+      type: 'test'
+      ...
+    # Subtest: sensor failure forces INCOMPLETE
+    ok 3 - sensor failure forces INCOMPLETE
+      ---
+      duration_ms: 5.2512
+      type: 'test'
+      ...
+    # Subtest: no false green: incomplete with no findings still mapped to 30
+    ok 4 - no false green: incomplete with no findings still mapped to 30
+      ---
+      duration_ms: 1.9024
+      type: 'test'
+      ...
+    # Subtest: determinism: identical failure pattern yields stable summary fields
+    ok 5 - determinism: identical failure pattern yields stable summary fields
+      ---
+      duration_ms: 3.0494
+      type: 'test'
+      ...
+    1..5
+ok 38 - Stage 6C: CI stability & flake immunity
+  ---
+  duration_ms: 20.0746
+  type: 'suite'
+  ...
+# Subtest: [cleanup] loadRuns returns empty array for non-existent directory
+ok 39 - [cleanup] loadRuns returns empty array for non-existent directory
+  ---
+  duration_ms: 2.6984
+  type: 'test'
+  ...
+# Subtest: [cleanup] loadRuns returns sorted runs (oldest first)
+ok 40 - [cleanup] loadRuns returns sorted runs (oldest first)
+  ---
+  duration_ms: 32.0179
+  type: 'test'
+  ...
+# Subtest: [cleanup] loadRuns extracts metadata correctly
+ok 41 - [cleanup] loadRuns extracts metadata correctly
+  ---
+  duration_ms: 4.5532
+  type: 'test'
+  ...
+# Subtest: [cleanup] classifyRun protects INCOMPLETE runs
+ok 42 - [cleanup] classifyRun protects INCOMPLETE runs
+  ---
+  duration_ms: 0.2117
+  type: 'test'
+  ...
+# Subtest: [cleanup] classifyRun protects CONFIRMED findings by default
+ok 43 - [cleanup] classifyRun protects CONFIRMED findings by default
+  ---
+  duration_ms: 1.048
+  type: 'test'
+  ...
+# Subtest: [cleanup] classifyRun allows deletion of CONFIRMED findings with explicit flag
+ok 44 - [cleanup] classifyRun allows deletion of CONFIRMED findings with explicit flag
+  ---
+  duration_ms: 0.227
+  type: 'test'
+  ...
+# Subtest: [cleanup] buildCleanupPlan respects keepLast retention
+ok 45 - [cleanup] buildCleanupPlan respects keepLast retention
+  ---
+  duration_ms: 17.0889
+  type: 'test'
+  ...
+# Subtest: [cleanup] buildCleanupPlan respects olderThanDays filter
+ok 46 - [cleanup] buildCleanupPlan respects olderThanDays filter
+  ---
+  duration_ms: 8.6405
+  type: 'test'
+  ...
+# Subtest: [cleanup] buildCleanupPlan protects INCOMPLETE runs
+ok 47 - [cleanup] buildCleanupPlan protects INCOMPLETE runs
+  ---
+  duration_ms: 12.9948
+  type: 'test'
+  ...
+# Subtest: [cleanup] buildCleanupPlan protects CONFIRMED findings by default
+ok 48 - [cleanup] buildCleanupPlan protects CONFIRMED findings by default
+  ---
+  duration_ms: 8.9047
+  type: 'test'
+  ...
+# Subtest: [cleanup] buildCleanupPlan allows deletion of CONFIRMED findings with flag
+ok 49 - [cleanup] buildCleanupPlan allows deletion of CONFIRMED findings with flag
+  ---
+  duration_ms: 7.7362
+  type: 'test'
+  ...
+# Subtest: [cleanup] executeCleanup in dry-run mode does not delete files
+ok 50 - [cleanup] executeCleanup in dry-run mode does not delete files
+  ---
+  duration_ms: 10.0228
+  type: 'test'
+  ...
+# Subtest: [cleanup] executeCleanup actually deletes files when dryRun=false
+ok 51 - [cleanup] executeCleanup actually deletes files when dryRun=false
+  ---
+  duration_ms: 8.2516
+  type: 'test'
+  ...
+# Subtest: [cleanup] summarizeCleanup produces deterministic output
+ok 52 - [cleanup] summarizeCleanup produces deterministic output
+  ---
+  duration_ms: 9.5722
+  type: 'test'
+  ...
+# Subtest: [cleanup] determinism: multiple runs produce identical plans
+ok 53 - [cleanup] determinism: multiple runs produce identical plans
+  ---
+  duration_ms: 14.4753
+  type: 'test'
+  ...
+# Subtest: CLI console formatters
+    # Subtest: run summary lines for CLEAN stay concise and deterministic
+    ok 1 - run summary lines for CLEAN stay concise and deterministic
+      ---
+      duration_ms: 2.2537
+      type: 'test'
+      ...
+    # Subtest: run summary lines for FINDINGS list top findings in order
+    ok 2 - run summary lines for FINDINGS list top findings in order
+      ---
+      duration_ms: 0.4214
+      type: 'test'
+      ...
+    # Subtest: inspect lines reuse decision snapshot deterministically
+    ok 3 - inspect lines reuse decision snapshot deterministically
+      ---
+      duration_ms: 1.4962
+      type: 'test'
+      ...
+    1..3
+ok 54 - CLI console formatters
+  ---
+  duration_ms: 5.9105
+  type: 'suite'
+  ...
+# Subtest: CLI Exit Code Integration (v0.4.2)
+    # Subtest: Exit code 0: Clean run with no findings
+    not ok 1 - Exit code 0: Clean run with no findings
+      ---
+      duration_ms: 1282.3516
+      type: 'test'
+      location: 'C:\\Users\\sabou\\verax\\test\\release\\cli-exit-code-integration.test.js:101:13'
+      failureType: 'testCodeFailure'
+      error: 'Output should report 0 silent failures'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (file:///C:/Users/sabou/verax/test/release/cli-exit-code-integration.test.js:118:14)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Test.start (node:internal/test_runner/test:944:17)
+        TestContext.test (node:internal/test_runner/test:373:20)
+        TestContext.<anonymous> (file:///C:/Users/sabou/verax/test/release/cli-exit-code-integration.test.js:101:13)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: Exit code 1: Run with silent failures detected
+    ok 2 - Exit code 1: Run with silent failures detected # SKIP Fixture produces 0 interactions; exit code logic verified in exit-codes-verification.test.js
+      ---
+      duration_ms: 0.2846
+      type: 'test'
+      ...
+    # Subtest: Exit code 64: Usage error (missing --url)
+    ok 3 - Exit code 64: Usage error (missing --url)
+      ---
+      duration_ms: 262.5026
+      type: 'test'
+      ...
+    # Subtest: Exit code 50: Invalid input (non-existent directory)
+    ok 4 - Exit code 50: Invalid input (non-existent directory)
+      ---
+      duration_ms: 1157.5498
+      type: 'test'
+      ...
+    1..4
+not ok 55 - CLI Exit Code Integration (v0.4.2)
+  ---
+  duration_ms: 2752.5523
+  type: 'test'
+  location: 'C:\\Users\\sabou\\verax\\test\\release\\cli-exit-code-integration.test.js:85:1'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: CLI EXIT CODE CONTRACT
+    # Subtest: Exit code 0: --help flag
+    ok 1 - Exit code 0: --help flag
+      ---
+      duration_ms: 134.3006
+      type: 'test'
+      ...
+    # Subtest: Exit code 0: --version flag
+    ok 2 - Exit code 0: --version flag
+      ---
+      duration_ms: 147.9959
+      type: 'test'
+      ...
+    # Subtest: Exit code 64: run without required --url
+    ok 3 - Exit code 64: run without required --url
+      ---
+      duration_ms: 160.4054
+      type: 'test'
+      ...
+    # Subtest: Exit code 50: inspect non-existent path
+    ok 4 - Exit code 50: inspect non-existent path
+      ---
+      duration_ms: 176.2504
+      type: 'test'
+      ...
+    1..4
+ok 56 - CLI EXIT CODE CONTRACT
+  ---
+  duration_ms: 681.3689
+  type: 'test'
+  ...
+# Subtest: CLI run command
+    # Subtest: run command executes successfully with valid URL
+    ok 1 - run command executes successfully with valid URL
+      ---
+      duration_ms: 3.0599
+      type: 'test'
+      ...
+    # Subtest: run command with --json outputs valid JSON
+    not ok 2 - run command with --json outputs valid JSON
+      ---
+      duration_ms: 1.3721
+      type: 'test'
+      location: 'C:\\Users\\sabou\\verax\\test\\release\\cli-scan.test.js:214:3'
+      failureType: 'testCodeFailure'
+      error: |-
+        Failed to parse JSON output: JSON output should have type or runId. Output: {"type":"project:detected","timestamp":"2026-01-01T00:00:00.000Z","framework":"static-html","router":null,"sourceRoot":"C:\\Users\\sabou\\verax\\test\\release\\fixtures\\static-site","packageManager":"unknown"}
+        {"type":"phase:started","timestamp":"2026-01-01T00:00:00.000Z","phase":"Detect Project","message":"Detecting project structure..."}
+        {"type":"phase:started","timestamp":"2026-01-01T00:00:00.000Z","phase":"Resolve URL","message":"Using URL: http://localhost:52135"}
+        {"type":"phase:started","timestamp":"2026-01-01T00:00:00.000Z","phase":"Initialize Run","message":"Initializing run artifacts..."}
+        {"type":"phase:started","timestamp":"2026-01-01T00:00:00.000Z","phase":"Learn","message":"Analyzing project structure..."}
+        
+                                                            
+{"type":"phase:completed","timestamp":"2026-01-01T00:00:00.000Z","phase":"Learn","message":"Project analysis complete"}
+        {"type":"phase:started","timestamp":"2026-01-01T00:00:00.000Z","phase":"Observe","message":"Launching browser and observing expectations..."}
+        
+                                                            
+{"type":"phase:completed","timestamp":"2026-01-01T00:00:00.000Z","phase":"Observe","message":"Browser observation complete"}
+        {"type":"phase:started","timestamp":"2026-01-01T00:00:00.000Z","phase":"Detect","message":"Analyzing findings and detecting silent failures..."}
+        
+                                                            
+{"type":"phase:completed","timestamp":"2026-01-01T00:00:00.000Z","phase":"Detect","message":"Silent failure detection complete"}
+        {"type":"phase:started","timestamp":"2026-01-01T00:00:00.000Z","phase":"Finalize Artifacts","message":"Writing run results..."}
+        
+                                                            
+{"type":"phase:completed","timestamp":"2026-01-01T00:00:00.000Z","phase":"Finalize Artifacts","message":"Run artifacts written"}
+        {"type":"run:complete","timestamp":"2026-01-01T00:00:00.000Z","runId":"2026-01-01T00-00-00-000Z_86addf72","url":"http://localhost:52135","command":"run","findingsCounts":{"HIGH":0,"MEDIUM":0,"LOW":0,"UNKNOWN":0},"metrics":{"learnMs":0,"observeMs":0,"detectMs":0,"totalMs":0},"digest":{"expectationsTotal":4,"attempted":0,"observed":0,"silentFailures":0,"coverageGaps":0,"unproven":0,"informational":0}}
+        {"command":"run","exitCode":0,"result":"SUCCESS","reason":"Run complete with zero actionable findings","action":"Proceed. Summary: C:\\Users\\sabou\\AppData\\Local\\Temp\\verax-cli-test-uu0bTC\\runs\\scan-localhost-standard-veraxhqverax\\2026-01-01T00-00-00-000Z_86addf72\\summary.json"}
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      operator: 'fail'
+      stack: |-
+        TestContext.<anonymous> (file:///C:/Users/sabou/verax/test/release/cli-scan.test.js:233:14)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: run command fails with missing URL
+    not ok 3 - run command fails with missing URL
+      ---
+      duration_ms: 196.9914
+      type: 'test'
+      location: 'C:\\Users\\sabou\\verax\\test\\release\\cli-scan.test.js:237:3'
+      failureType: 'testCodeFailure'
+      error: 'Should show error message about missing URL'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (file:///C:/Users/sabou/verax/test/release/cli-scan.test.js:242:12)
+        process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..3
+not ok 57 - CLI run command
+  ---
+  duration_ms: 1653.8193
+  type: 'suite'
+  location: 'C:\\Users\\sabou\\verax\\test\\release\\cli-scan.test.js:106:1'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Artifact path consistency
+    # Subtest: artifacts always go to .verax/runs/<runId>/
+    ok 1 - artifacts always go to .verax/runs/<runId>/
+      ---
+      duration_ms: 28.2467
+      type: 'test'
+      ...
+    1..1
+ok 58 - Artifact path consistency
+  ---
+  duration_ms: 28.4827
+  type: 'suite'
+  ...
+# Subtest: MANDATORY OUTPUT FORMAT: confidence has score, level, explain, factors
+ok 59 - MANDATORY OUTPUT FORMAT: confidence has score, level, explain, factors
+  ---
+  duration_ms: 3.4613
+  type: 'test'
+  ...
+# Subtest: HARD RULE: HIGH level requires PROVEN expectation AND all sensors
+ok 60 - HARD RULE: HIGH level requires PROVEN expectation AND all sensors
+  ---
+  duration_ms: 1.028
+  type: 'test'
+  ...
+# Subtest: DETERMINISM: Same inputs produce identical outputs across runs
+ok 61 - DETERMINISM: Same inputs produce identical outputs across runs
+  ---
+  duration_ms: 1.5595
+  type: 'test'
+  ...
+# Subtest: PENALTY: Missing sensors incurs -15 penalty
+ok 62 - PENALTY: Missing sensors incurs -15 penalty
+  ---
+  duration_ms: 0.8902
+  type: 'test'
+  ...
+# Subtest: PENALTY: Not PROVEN expectation incurs -10 penalty
+ok 63 - PENALTY: Not PROVEN expectation incurs -10 penalty
+  ---
+  duration_ms: 0.5342
+  type: 'test'
+  ...
+# Subtest: EVIDENCE SIGNALS: urlChanged extracted correctly
+ok 64 - EVIDENCE SIGNALS: urlChanged extracted correctly
+  ---
+  duration_ms: 0.3896
+  type: 'test'
+  ...
+# Subtest: EVIDENCE SIGNALS: domChanged extracted correctly
+ok 65 - EVIDENCE SIGNALS: domChanged extracted correctly
+  ---
+  duration_ms: 0.2667
+  type: 'test'
+  ...
+# Subtest: EVIDENCE SIGNALS: networkFailed extracted correctly
+ok 66 - EVIDENCE SIGNALS: networkFailed extracted correctly
+  ---
+  duration_ms: 0.2514
+  type: 'test'
+  ...
+# Subtest: EVIDENCE SIGNALS: consoleErrors extracted correctly
+ok 67 - EVIDENCE SIGNALS: consoleErrors extracted correctly
+  ---
+  duration_ms: 0.6035
+  type: 'test'
+  ...
+# Subtest: BOOSTS: network_silent_failure adds boost for network failure
+ok 68 - BOOSTS: network_silent_failure adds boost for network failure
+  ---
+  duration_ms: 0.7185
+  type: 'test'
+  ...
+# Subtest: BOOSTS: no_effect_silent_failure adds boosts for URL/DOM not changed
+ok 69 - BOOSTS: no_effect_silent_failure adds boosts for URL/DOM not changed
+  ---
+  duration_ms: 0.4262
+  type: 'test'
+  ...
+# Subtest: SCORE CLAMPING: Score never exceeds 100
+ok 70 - SCORE CLAMPING: Score never exceeds 100
+  ---
+  duration_ms: 0.2857
+  type: 'test'
+  ...
+# Subtest: SCORE CLAMPING: Score never goes below 0
+ok 71 - SCORE CLAMPING: Score never goes below 0
+  ---
+  duration_ms: 0.2159
+  type: 'test'
+  ...
+# Subtest: LEVEL MAPPING: score < 55 => LOW
+ok 72 - LEVEL MAPPING: score < 55 => LOW
+  ---
+  duration_ms: 0.1979
+  type: 'test'
+  ...
+# Subtest: LEVEL MAPPING: 55 <= score < 80 => MEDIUM
+ok 73 - LEVEL MAPPING: 55 <= score < 80 => MEDIUM
+  ---
+  duration_ms: 0.1691
+  type: 'test'
+  ...
+# Subtest: LEVEL MAPPING: score >= 80 with PROVEN + allSensors => HIGH
+ok 74 - LEVEL MAPPING: score >= 80 with PROVEN + allSensors => HIGH
+  ---
+  duration_ms: 0.2027
+  type: 'test'
+  ...
+# Subtest: EXPLAIN ARRAY: ordered by importance (penalties first, then boosts)
+ok 75 - EXPLAIN ARRAY: ordered by importance (penalties first, then boosts)
+  ---
+  duration_ms: 0.1974
+  type: 'test'
+  ...
+# Subtest: EXPECTATION STRENGTH: proof=PROVEN_EXPECTATION => "PROVEN"
+ok 76 - EXPECTATION STRENGTH: proof=PROVEN_EXPECTATION => "PROVEN"
+  ---
+  duration_ms: 0.1491
+  type: 'test'
+  ...
+# Subtest: EXPECTATION STRENGTH: sourceRef present => "PROVEN"
+ok 77 - EXPECTATION STRENGTH: sourceRef present => "PROVEN"
+  ---
+  duration_ms: 0.1831
+  type: 'test'
+  ...
+# Subtest: EXPECTATION STRENGTH: no metadata => "UNKNOWN"
+ok 78 - EXPECTATION STRENGTH: no metadata => "UNKNOWN"
+  ---
+  duration_ms: 0.1509
+  type: 'test'
+  ...
+# Subtest: NO PLACEHOLDERS: All fields are concrete values, not TODOs
+ok 79 - NO PLACEHOLDERS: All fields are concrete values, not TODOs
+  ---
+  duration_ms: 1.0208
+  type: 'test'
+  ...
+# Subtest: TYPE-SPECIFIC SCORING: validation_silent_failure awards boost for console errors
+ok 80 - TYPE-SPECIFIC SCORING: validation_silent_failure awards boost for console errors
+  ---
+  duration_ms: 0.3541
+  type: 'test'
+  ...
+# Subtest: TYPE-SPECIFIC SCORING: missing_feedback_failure awards boost for slow requests
+ok 81 - TYPE-SPECIFIC SCORING: missing_feedback_failure awards boost for slow requests
+  ---
+  duration_ms: 0.301
+  type: 'test'
+  ...
+# Subtest: TYPE-SPECIFIC SCORING: missing_network_action awards boost for PROVEN expectation
+ok 82 - TYPE-SPECIFIC SCORING: missing_network_action awards boost for PROVEN expectation
+  ---
+  duration_ms: 0.3226
+  type: 'test'
+  ...
+# Subtest: TYPE-SPECIFIC SCORING: missing_state_action awards boost for PROVEN expectation
+ok 83 - TYPE-SPECIFIC SCORING: missing_state_action awards boost for PROVEN expectation
+  ---
+  duration_ms: 0.3109
+  type: 'test'
+  ...
+# Subtest: Confidence System - determinism
+ok 84 - Confidence System - determinism
+  ---
+  duration_ms: 4.6488
+  type: 'test'
+  ...
+# Subtest: Confidence System - sensitivity to promise strength
+ok 85 - Confidence System - sensitivity to promise strength
+  ---
+  duration_ms: 0.4296
+  type: 'test'
+  ...
+# Subtest: Confidence System - sensitivity to observation strength
+ok 86 - Confidence System - sensitivity to observation strength
+  ---
+  duration_ms: 0.3354
+  type: 'test'
+  ...
+# Subtest: Confidence System - guardrails and contradictions
+ok 87 - Confidence System - guardrails and contradictions
+  ---
+  duration_ms: 0.3116
+  type: 'test'
+  ...
+# Subtest: Confidence System - evidence completeness
+ok 88 - Confidence System - evidence completeness
+  ---
+  duration_ms: 0.6912
+  type: 'test'
+  ...
+# Subtest: Confidence System - level determination
+ok 89 - Confidence System - level determination
+  ---
+  duration_ms: 0.3406
+  type: 'test'
+  ...
+# Subtest: Confidence System - computeConfidenceForFinding wrapper
+ok 90 - Confidence System - computeConfidenceForFinding wrapper
+  ---
+  duration_ms: 2.1524
+  type: 'test'
+  ...
+# Subtest: Confidence System - reason code stability
+ok 91 - Confidence System - reason code stability
+  ---
+  duration_ms: 0.4004
+  type: 'test'
+  ...
+# Subtest: Config Defaults - Legacy Equivalence
+    # Subtest: should export TIMEOUTS with ci, default, and test modes
+    ok 1 - should export TIMEOUTS with ci, default, and test modes
+      ---
+      duration_ms: 2.3489
+      type: 'test'
+      ...
+    # Subtest: should match legacy CI mode timeouts exactly
+    ok 2 - should match legacy CI mode timeouts exactly
+      ---
+      duration_ms: 0.3208
+      type: 'test'
+      ...
+    # Subtest: should match legacy default mode timeouts exactly
+    ok 3 - should match legacy default mode timeouts exactly
+      ---
+      duration_ms: 0.2099
+      type: 'test'
+      ...
+    # Subtest: should match legacy test mode timeouts exactly
+    ok 4 - should match legacy test mode timeouts exactly
+      ---
+      duration_ms: 0.1693
+      type: 'test'
+      ...
+    # Subtest: should match legacy LIMITS exactly
+    ok 5 - should match legacy LIMITS exactly
+      ---
+      duration_ms: 0.1744
+      type: 'test'
+      ...
+    # Subtest: should match legacy minPhaseTimeouts exactly
+    ok 6 - should match legacy minPhaseTimeouts exactly
+      ---
+      duration_ms: 0.1931
+      type: 'test'
+      ...
+    # Subtest: should match legacy FRAMEWORK_MULTIPLIERS exactly
+    ok 7 - should match legacy FRAMEWORK_MULTIPLIERS exactly
+      ---
+      duration_ms: 0.2688
+      type: 'test'
+      ...
+    # Subtest: should match legacy SKIP_PATTERNS exactly (order preserved)
+    ok 8 - should match legacy SKIP_PATTERNS exactly (order preserved)
+      ---
+      duration_ms: 1.2266
+      type: 'test'
+      ...
+    # Subtest: should match legacy SCAN_EXTENSIONS exactly
+    ok 9 - should match legacy SCAN_EXTENSIONS exactly
+      ---
+      duration_ms: 0.4033
+      type: 'test'
+      ...
+    1..9
+ok 92 - Config Defaults - Legacy Equivalence
+  ---
+  duration_ms: 7.7464
+  type: 'suite'
+  ...
+# Subtest: Config Loader - Environment Overrides
+    # Subtest: should load default configuration when no env vars set
+    ok 1 - should load default configuration when no env vars set
+      ---
+      duration_ms: 2.1631
+      type: 'test'
+      ...
+    # Subtest: should apply VERAX_TEST_MODE=1 override
+    ok 2 - should apply VERAX_TEST_MODE=1 override
+      ---
+      duration_ms: 0.3309
+      type: 'test'
+      ...
+    # Subtest: should not enable testMode for non-"1" values
+    ok 3 - should not enable testMode for non-"1" values
+      ---
+      duration_ms: 0.3066
+      type: 'test'
+      ...
+    # Subtest: should apply VERAX_MAX_RETRIES override
+    ok 4 - should apply VERAX_MAX_RETRIES override
+      ---
+      duration_ms: 0.4212
+      type: 'test'
+      ...
+    # Subtest: should apply VERAX_MAX_NAVIGATION_DEPTH override
+    ok 5 - should apply VERAX_MAX_NAVIGATION_DEPTH override
+      ---
+      duration_ms: 0.7853
+      type: 'test'
+      ...
+    # Subtest: should apply VERAX_MAX_INTERACTIONS override
+    ok 6 - should apply VERAX_MAX_INTERACTIONS override
+      ---
+      duration_ms: 0.4587
+      type: 'test'
+      ...
+    # Subtest: should enforce minimum value of 0 for maxRetries
+    ok 7 - should enforce minimum value of 0 for maxRetries
+      ---
+      duration_ms: 0.4732
+      type: 'test'
+      ...
+    # Subtest: should enforce minimum value of 1 for maxNavigationDepth
+    ok 8 - should enforce minimum value of 1 for maxNavigationDepth
+      ---
+      duration_ms: 0.4143
+      type: 'test'
+      ...
+    # Subtest: should enforce minimum value of 1 for maxInteractions
+    ok 9 - should enforce minimum value of 1 for maxInteractions
+      ---
+      duration_ms: 0.5214
+      type: 'test'
+      ...
+    # Subtest: should return frozen config object
+    ok 10 - should return frozen config object
+      ---
+      duration_ms: 0.8346
+      type: 'test'
+      ...
+    # Subtest: should return frozen arrays
+    ok 11 - should return frozen arrays
+      ---
+      duration_ms: 0.3322
+      type: 'test'
+      ...
+    # Subtest: should maintain singleton behavior via getConfig()
+    ok 12 - should maintain singleton behavior via getConfig()
+      ---
+      duration_ms: 1.4342
+      type: 'test'
+      ...
+    # Subtest: should reset singleton via resetConfig()
+    ok 13 - should reset singleton via resetConfig()
+      ---
+      duration_ms: 0.3183
+      type: 'test'
+      ...
+    # Subtest: should preserve skipPatterns order from defaults
+    ok 14 - should preserve skipPatterns order from defaults
+      ---
+      duration_ms: 1.2242
+      type: 'test'
+      ...
+    # Subtest: should include all timeout modes
+    ok 15 - should include all timeout modes
+      ---
+      duration_ms: 0.2564
+      type: 'test'
+      ...
+    1..15
+ok 93 - Config Loader - Environment Overrides
+  ---
+  duration_ms: 12.8239
+  type: 'suite'
+  ...
+# ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+# EVIDENCE LAW DEMONSTRATION
+# ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+# Input Finding:
+#   Status: CONFIRMED (CONFIRMED)
+#   Evidence: {} (EMPTY - INVALID)
+# Expected Result:
+#   Status should be downgraded to: SUSPECTED
+#   Reason: Evidence Law enforced - no evidence exists for CONFIRMED status
+# Actual Result:
+#   Status: SUSPECTED
+#   Evidence: {}
+#   Enforcement Note: Evidence Law v2: CONFIRMED requires strong evidence category (navigation, meaningful_dom, feedback, or network). Found only: none
+# Ô£ô Evidence Law enforced: CONFIRMED findings without evidence are downgraded to SUSPECTED
+# ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+# Subtest: writeFindings: valid finding is written to artifact
+ok 94 - writeFindings: valid finding is written to artifact
+  ---
+  duration_ms: 9.5233
+  type: 'test'
+  ...
+# Subtest: writeFindings: artifact includes contractVersion field
+ok 95 - writeFindings: artifact includes contractVersion field
+  ---
+  duration_ms: 3.6632
+  type: 'test'
+  ...
+# Subtest: writeFindings: artifact includes enforcement metadata
+ok 96 - writeFindings: artifact includes enforcement metadata
+  ---
+  duration_ms: 21.0187
+  type: 'test'
+  ...
+# Subtest: writeFindings: finding without evidence is downgraded in artifact
+ok 97 - writeFindings: finding without evidence is downgraded in artifact
+  ---
+  duration_ms: 4.1169
+  type: 'test'
+  ...
+# Subtest: writeFindings: critically invalid finding is dropped from artifact
+ok 98 - writeFindings: critically invalid finding is dropped from artifact
+  ---
+  duration_ms: 4.1791
+  type: 'test'
+  ...
+# Subtest: writeFindings: mixed valid, downgraded, and dropped findings are handled correctly
+ok 99 - writeFindings: mixed valid, downgraded, and dropped findings are handled correctly
+  ---
+  duration_ms: 3.931
+  type: 'test'
+  ...
+# Subtest: writeFindings: outcome summary uses enforced findings
+ok 100 - writeFindings: outcome summary uses enforced findings
+  ---
+  duration_ms: 4.7097
+  type: 'test'
+  ...
+# Subtest: writeFindings: downgrade includes detailed reason
+ok 101 - writeFindings: downgrade includes detailed reason
+  ---
+  duration_ms: 5.904
+  type: 'test'
+  ...
+# Subtest: writeFindings: artifact remains valid JSON format
+ok 102 - writeFindings: artifact remains valid JSON format
+  ---
+  duration_ms: 4.719
+  type: 'test'
+  ...
+# Subtest: writeFindings: backward compatible with version field
+ok 103 - writeFindings: backward compatible with version field
+  ---
+  duration_ms: 7.5455
+  type: 'test'
+  ...
+# Subtest: DEMO: Invalid finding is visibly downgraded to SUSPECTED
+ok 104 - DEMO: Invalid finding is visibly downgraded to SUSPECTED
+  ---
+  duration_ms: 8.0071
+  type: 'test'
+  ...
+# Subtest: Decision Snapshot Artifact
+    # Subtest: writes clean snapshot with defaults
+    ok 1 - writes clean snapshot with defaults
+      ---
+      duration_ms: 7.0976
+      type: 'test'
+      ...
+    # Subtest: orders top findings deterministically
+    ok 2 - orders top findings deterministically
+      ---
+      duration_ms: 1.8801
+      type: 'test'
+      ...
+    # Subtest: is deterministic for identical inputs
+    ok 3 - is deterministic for identical inputs
+      ---
+      duration_ms: 0.4405
+      type: 'test'
+      ...
+    1..3
+ok 105 - Decision Snapshot Artifact
+  ---
+  duration_ms: 11.1699
+  type: 'suite'
+  ...
+# Subtest: Deduplication: getDeduplicationKey generates stable keys
+ok 106 - Deduplication: getDeduplicationKey generates stable keys
+  ---
+  duration_ms: 2.3743
+  type: 'test'
+  ...
+# Subtest: Deduplication: identical keys for identical findings
+ok 107 - Deduplication: identical keys for identical findings
+  ---
+  duration_ms: 0.3939
+  type: 'test'
+  ...
+# Subtest: Deduplication: different keys for different types
+ok 108 - Deduplication: different keys for different types
+  ---
+  duration_ms: 0.4249
+  type: 'test'
+  ...
+# Subtest: Deduplication: no deduplication for single finding
+ok 109 - Deduplication: no deduplication for single finding
+  ---
+  duration_ms: 0.6078
+  type: 'test'
+  ...
+# Subtest: Deduplication: merges duplicate findings
+ok 110 - Deduplication: merges duplicate findings
+  ---
+  duration_ms: 29.5562
+  type: 'test'
+  ...
+# Subtest: Deduplication: keeps highest confidence when severity equal
+ok 111 - Deduplication: keeps highest confidence when severity equal
+  ---
+  duration_ms: 0.4499
+  type: 'test'
+  ...
+# Subtest: Deduplication: preserves distinct findings
+ok 112 - Deduplication: preserves distinct findings
+  ---
+  duration_ms: 0.3753
+  type: 'test'
+  ...
+# Subtest: Deduplication: handles empty array
+ok 113 - Deduplication: handles empty array
+  ---
+  duration_ms: 0.2346
+  type: 'test'
+  ...
+# Subtest: Deduplication: handles null input
+ok 114 - Deduplication: handles null input
+  ---
+  duration_ms: 0.4978
+  type: 'test'
+  ...
+# Subtest: Deduplication: merges multiple findings (3+)
+ok 115 - Deduplication: merges multiple findings (3+)
+  ---
+  duration_ms: 0.8549
+  type: 'test'
+  ...
+# Subtest: Deduplication: deterministic evidence merge
+ok 116 - Deduplication: deterministic evidence merge
+  ---
+  duration_ms: 1.586
+  type: 'test'
+  ...
+# Subtest: detect finds silent failure when expected navigation does not occur
+ok 117 - detect finds silent failure when expected navigation does not occur
+  ---
+  duration_ms: 54.5371
+  type: 'test'
+  ...
+# Subtest: detect does not report failure when navigation occurs
+ok 118 - detect does not report failure when navigation occurs
+  ---
+  duration_ms: 24.1176
+  type: 'test'
+  ...
+# Subtest: detect does not report failure when visible change occurs
+ok 119 - detect does not report failure when visible change occurs
+  ---
+  duration_ms: 11.6497
+  type: 'test'
+  ...
+# Subtest: detect generates findings.json with correct schema
+ok 120 - detect generates findings.json with correct schema
+  ---
+  duration_ms: 9.8051
+  type: 'test'
+  ...
+# Subtest: Detector Registry - Contracts
+    # Subtest: Registry Composition
+        # Subtest: should contain exactly 11 detectors (3 Angular + 3 Svelte + 2 Vue state/nav + 1 React + 1 Next.js + 1 Vue observable)
+        ok 1 - should contain exactly 11 detectors (3 Angular + 3 Svelte + 2 Vue state/nav + 1 React + 1 Next.js + 1 Vue observable)
+          ---
+          duration_ms: 1.6242
+          type: 'test'
+          ...
+        # Subtest: should maintain deterministic registration order
+        ok 2 - should maintain deterministic registration order
+          ---
+          duration_ms: 1.3327
+          type: 'test'
+          ...
+        # Subtest: should have all Angular detectors in correct order
+        ok 3 - should have all Angular detectors in correct order
+          ---
+          duration_ms: 0.2831
+          type: 'test'
+          ...
+        # Subtest: should have all Svelte detectors in correct order
+        ok 4 - should have all Svelte detectors in correct order
+          ---
+          duration_ms: 0.3376
+          type: 'test'
+          ...
+        # Subtest: should have all Vue detectors
+        ok 5 - should have all Vue detectors
+          ---
+          duration_ms: 0.3335
+          type: 'test'
+          ...
+        # Subtest: should have React observable detector
+        ok 6 - should have React observable detector
+          ---
+          duration_ms: 0.1612
+          type: 'test'
+          ...
+        # Subtest: should have Next.js observable detector
+        ok 7 - should have Next.js observable detector
+          ---
+          duration_ms: 0.3836
+          type: 'test'
+          ...
+        1..7
+    ok 1 - Registry Composition
+      ---
+      duration_ms: 7.1311
+      type: 'suite'
+      ...
+    # Subtest: Metadata Completeness
+        # Subtest: should have required metadata for each detector
+        ok 1 - should have required metadata for each detector
+          ---
+          duration_ms: 0.5021
+          type: 'test'
+          ...
+        # Subtest: should have detector object with required BaseDetector interface
+        ok 2 - should have detector object with required BaseDetector interface
+          ---
+          duration_ms: 0.4555
+          type: 'test'
+          ...
+        # Subtest: should have valid framework names
+        ok 3 - should have valid framework names
+          ---
+          duration_ms: 0.6213
+          type: 'test'
+          ...
+        # Subtest: should have valid detector types
+        ok 4 - should have valid detector types
+          ---
+          duration_ms: 0.2284
+          type: 'test'
+          ...
+        1..4
+    ok 2 - Metadata Completeness
+      ---
+      duration_ms: 2.3589
+      type: 'suite'
+      ...
+    # Subtest: Utility Functions
+        # Subtest: getAllDetectors should return all detectors in order
+        ok 1 - getAllDetectors should return all detectors in order
+          ---
+          duration_ms: 0.4967
+          type: 'test'
+          ...
+        # Subtest: getAllDetectors should return a copy, not reference
+        ok 2 - getAllDetectors should return a copy, not reference
+          ---
+          duration_ms: 0.1414
+          type: 'test'
+          ...
+        # Subtest: getDetectorsByFramework should filter by framework
+        ok 3 - getDetectorsByFramework should filter by framework
+          ---
+          duration_ms: 0.2288
+          type: 'test'
+          ...
+        # Subtest: getDetectorsByFramework should return empty array for unknown framework
+        ok 4 - getDetectorsByFramework should return empty array for unknown framework
+          ---
+          duration_ms: 0.1301
+          type: 'test'
+          ...
+        # Subtest: getDetectorsByType should filter by type
+        ok 5 - getDetectorsByType should filter by type
+          ---
+          duration_ms: 0.2005
+          type: 'test'
+          ...
+        # Subtest: getDetectorsByType should return all state detectors
+        ok 6 - getDetectorsByType should return all state detectors
+          ---
+          duration_ms: 0.1071
+          type: 'test'
+          ...
+        # Subtest: getDetectorsByType should return all network detectors
+        ok 7 - getDetectorsByType should return all network detectors
+          ---
+          duration_ms: 0.0925
+          type: 'test'
+          ...
+        # Subtest: getDetectorsByType should return all navigation detectors
+        ok 8 - getDetectorsByType should return all navigation detectors
+          ---
+          duration_ms: 0.0989
+          type: 'test'
+          ...
+        # Subtest: getDetectorByName should find detector by exact name
+        ok 9 - getDetectorByName should find detector by exact name
+          ---
+          duration_ms: 0.1386
+          type: 'test'
+          ...
+        # Subtest: getDetectorByName should return null for unknown detector
+        ok 10 - getDetectorByName should return null for unknown detector
+          ---
+          duration_ms: 0.1304
+          type: 'test'
+          ...
+        # Subtest: getDetectorByName should find all registered detectors
+        ok 11 - getDetectorByName should find all registered detectors
+          ---
+          duration_ms: 0.2012
+          type: 'test'
+          ...
+        1..11
+    ok 3 - Utility Functions
+      ---
+      duration_ms: 2.4015
+      type: 'suite'
+      ...
+    # Subtest: Detector Instance Validation
+        # Subtest: should instantiate AngularStateDetector correctly
+        ok 1 - should instantiate AngularStateDetector correctly
+          ---
+          duration_ms: 0.3084
+          type: 'test'
+          ...
+        # Subtest: should instantiate SvelteStateDetector correctly
+        ok 2 - should instantiate SvelteStateDetector correctly
+          ---
+          duration_ms: 0.1679
+          type: 'test'
+          ...
+        # Subtest: should instantiate VueStateDetector correctly
+        ok 3 - should instantiate VueStateDetector correctly
+          ---
+          duration_ms: 0.1508
+          type: 'test'
+          ...
+        # Subtest: should instantiate ReactObservableDetector correctly
+        ok 4 - should instantiate ReactObservableDetector correctly
+          ---
+          duration_ms: 0.1439
+          type: 'test'
+          ...
+        # Subtest: should instantiate NextJsObservableDetector correctly
+        ok 5 - should instantiate NextJsObservableDetector correctly
+          ---
+          duration_ms: 0.1259
+          type: 'test'
+          ...
+        # Subtest: should instantiate VueObservableDetector correctly
+        ok 6 - should instantiate VueObservableDetector correctly
+          ---
+          duration_ms: 0.1169
+          type: 'test'
+          ...
+        1..6
+    ok 4 - Detector Instance Validation
+      ---
+      duration_ms: 1.4865
+      type: 'suite'
+      ...
+    # Subtest: Backward Compatibility
+        # Subtest: detectors exported from individual modules are callable
+        ok 1 - detectors exported from individual modules are callable
+          ---
+          duration_ms: 0.3129
+          type: 'test'
+          ...
+        # Subtest: static methods on observable detectors remain available
+        ok 2 - static methods on observable detectors remain available
+          ---
+          duration_ms: 0.1413
+          type: 'test'
+          ...
+        # Subtest: should produce identical output for legacy static vs instance method
+        ok 3 - should produce identical output for legacy static vs instance method
+          ---
+          duration_ms: 0.1464
+          type: 'test'
+          ...
+        1..3
+    ok 5 - Backward Compatibility
+      ---
+      duration_ms: 0.778
+      type: 'suite'
+      ...
+    # Subtest: Registry Integrity
+        # Subtest: should have no duplicate detector names
+        ok 1 - should have no duplicate detector names
+          ---
+          duration_ms: 0.2134
+          type: 'test'
+          ...
+        # Subtest: should have no duplicate detector instances
+        ok 2 - should have no duplicate detector instances
+          ---
+          duration_ms: 0.1228
+          type: 'test'
+          ...
+        # Subtest: should have consistent framework and type combinations
+        ok 3 - should have consistent framework and type combinations
+          ---
+          duration_ms: 0.2238
+          type: 'test'
+          ...
+        1..3
+    ok 6 - Registry Integrity
+      ---
+      duration_ms: 0.7336
+      type: 'suite'
+      ...
+    1..6
+ok 121 - Detector Registry - Contracts
+  ---
+  duration_ms: 16.5159
+  type: 'suite'
+  ...
+# Subtest: Determinism & Reproducibility Contract
+    # Subtest: Core Determinism Model
+        # Subtest: should initialize with deterministic state by default
+        ok 1 - should initialize with deterministic state by default
+          ---
+          duration_ms: 6.9557
+          type: 'test'
+          ...
+        # Subtest: should export determinism object in toAnalysisObject()
+        ok 2 - should export determinism object in toAnalysisObject()
+          ---
+          duration_ms: 0.6849
+          type: 'test'
+          ...
+        # Subtest: should record determinism factors without duplicates
+        ok 3 - should record determinism factors without duplicates
+          ---
+          duration_ms: 0.5652
+          type: 'test'
+          ...
+        # Subtest: should classify TIMEOUT_RISK as NON_DETERMINISTIC
+        ok 4 - should classify TIMEOUT_RISK as NON_DETERMINISTIC
+          ---
+          duration_ms: 0.5887
+          type: 'test'
+          ...
+        # Subtest: should classify ASYNC_DOM as CONTROLLED_NON_DETERMINISTIC
+        ok 5 - should classify ASYNC_DOM as CONTROLLED_NON_DETERMINISTIC
+          ---
+          duration_ms: 0.7046
+          type: 'test'
+          ...
+        # Subtest: should prioritize NON_DETERMINISTIC over CONTROLLED
+        ok 6 - should prioritize NON_DETERMINISTIC over CONTROLLED
+          ---
+          duration_ms: 0.3374
+          type: 'test'
+          ...
+        1..6
+    ok 1 - Core Determinism Model
+      ---
+      duration_ms: 11.3875
+      type: 'suite'
+      ...
+    # Subtest: Determinism Factor Recording
+        # Subtest: should record TIMEOUT_RISK when recordTimeout() is called
+        ok 1 - should record TIMEOUT_RISK when recordTimeout() is called
+          ---
+          duration_ms: 0.6161
+          type: 'test'
+          ...
+        # Subtest: should classify all non-deterministic factors correctly
+        ok 2 - should classify all non-deterministic factors correctly
+          ---
+          duration_ms: 0.5769
+          type: 'test'
+          ...
+        # Subtest: should classify all controlled factors correctly
+        ok 3 - should classify all controlled factors correctly
+          ---
+          duration_ms: 0.5831
+          type: 'test'
+          ...
+        1..3
+    ok 2 - Determinism Factor Recording
+      ---
+      duration_ms: 2.2617
+      type: 'suite'
+      ...
+    # Subtest: Run Comparison
+        # Subtest: should mark comparison as not comparable when no previous runs exist
+        ok 1 - should mark comparison as not comparable when no previous runs exist
+          ---
+          duration_ms: 13.486
+          type: 'test'
+          ...
+        # Subtest: should compare with most recent previous run
+        ok 2 - should compare with most recent previous run
+          ---
+          duration_ms: 34.5703
+          type: 'test'
+          ...
+        # Subtest: should detect when findings differ between runs
+        ok 3 - should detect when findings differ between runs
+          ---
+          duration_ms: 12.6435
+          type: 'test'
+          ...
+        # Subtest: should detect when counts differ between runs
+        ok 4 - should detect when counts differ between runs
+          ---
+          duration_ms: 21.2435
+          type: 'test'
+          ...
+        # Subtest: should update reproducible flag for CONTROLLED_NON_DETERMINISTIC with matching runs
+        ok 5 - should update reproducible flag for CONTROLLED_NON_DETERMINISTIC with matching runs
+          ---
+          duration_ms: 7.8087
+          type: 'test'
+          ...
+        # Subtest: should update reproducible flag for CONTROLLED_NON_DETERMINISTIC with differing runs
+        ok 6 - should update reproducible flag for CONTROLLED_NON_DETERMINISTIC with differing runs
+          ---
+          duration_ms: 8.0847
+          type: 'test'
+          ...
+        1..6
+    ok 3 - Run Comparison
+      ---
+      duration_ms: 98.3388
+      type: 'suite'
+      ...
+    # Subtest: Console Output Visibility
+        # Subtest: should include determinism information in console summary
+        ok 1 - should include determinism information in console summary
+          ---
+          duration_ms: 0.9133
+          type: 'test'
+          ...
+        # Subtest: should show warning for NON_DETERMINISTIC runs
+        ok 2 - should show warning for NON_DETERMINISTIC runs
+          ---
+          duration_ms: 0.2792
+          type: 'test'
+          ...
+        # Subtest: should not show warning for DETERMINISTIC runs
+        ok 3 - should not show warning for DETERMINISTIC runs
+          ---
+          duration_ms: 0.2272
+          type: 'test'
+          ...
+        # Subtest: should show NONE when no factors detected
+        ok 4 - should show NONE when no factors detected
+          ---
+          duration_ms: 0.2298
+          type: 'test'
+          ...
+        1..4
+    ok 4 - Console Output Visibility
+      ---
+      duration_ms: 1.9127
+      type: 'suite'
+      ...
+    # Subtest: Stable Ordering
+        # Subtest: should ensure expectations are sorted deterministically
+        ok 1 - should ensure expectations are sorted deterministically
+          ---
+          duration_ms: 0.2997
+          type: 'test'
+          ...
+        # Subtest: should ensure skipReasons are output in stable order
+        ok 2 - should ensure skipReasons are output in stable order
+          ---
+          duration_ms: 0.4473
+          type: 'test'
+          ...
+        1..2
+    ok 5 - Stable Ordering
+      ---
+      duration_ms: 0.8883
+      type: 'suite'
+      ...
+    # Subtest: Integration
+        # Subtest: should maintain determinism through full analysis lifecycle
+        ok 1 - should maintain determinism through full analysis lifecycle
+          ---
+          duration_ms: 0.3587
+          type: 'test'
+          ...
+        # Subtest: should maintain determinism data through JSON serialization
+        ok 2 - should maintain determinism data through JSON serialization
+          ---
+          duration_ms: 0.3221
+          type: 'test'
+          ...
+        1..2
+    ok 6 - Integration
+      ---
+      duration_ms: 0.8232
+      type: 'suite'
+      ...
+    1..6
+ok 122 - Determinism & Reproducibility Contract
+  ---
+  duration_ms: 116.9107
+  type: 'suite'
+  ...
+# Subtest: Determinism: findings.json is byte-identical across runs (after normalization)
+ok 123 - Determinism: findings.json is byte-identical across runs (after normalization)
+  ---
+  duration_ms: 1.619
+  type: 'test'
+  ...
+# Subtest: Determinism: summary.json is byte-identical across runs (after normalization)
+ok 124 - Determinism: summary.json is byte-identical across runs (after normalization)
+  ---
+  duration_ms: 0.2878
+  type: 'test'
+  ...
+# Subtest: Determinism: finding ordering is stable (sourceRef-based sort)
+ok 125 - Determinism: finding ordering is stable (sourceRef-based sort)
+  ---
+  duration_ms: 10.713
+  type: 'test'
+  ...
+# Subtest: Determinism - deterministic fixture run results should be DETERMINISTIC
+ok 126 - Determinism - deterministic fixture run results should be DETERMINISTIC
+  ---
+  duration_ms: 6.7155
+  type: 'test'
+  ...
+# Subtest: Determinism - simulate nondeterminism: reorder findings
+ok 127 - Determinism - simulate nondeterminism: reorder findings
+  ---
+  duration_ms: 20.0299
+  type: 'test'
+  ...
+# Subtest: Determinism - simulate nondeterminism: random timestamp fields
+ok 128 - Determinism - simulate nondeterminism: random timestamp fields
+  ---
+  duration_ms: 1.4851
+  type: 'test'
+  ...
+# Subtest: Determinism - ensure normalization removes volatile diffs
+ok 129 - Determinism - ensure normalization removes volatile diffs
+  ---
+  duration_ms: 0.649
+  type: 'test'
+  ...
+# Subtest: Determinism - ensure stable finding identity works
+ok 130 - Determinism - ensure stable finding identity works
+  ---
+  duration_ms: 0.5588
+  type: 'test'
+  ...
+# Subtest: Determinism - ensure diff report includes stable reason codes
+ok 131 - Determinism - ensure diff report includes stable reason codes
+  ---
+  duration_ms: 0.5297
+  type: 'test'
+  ...
+# Subtest: Determinism - deterministic output for the determinism checker itself
+ok 132 - Determinism - deterministic output for the determinism checker itself
+  ---
+  duration_ms: 0.9285
+  type: 'test'
+  ...
+# Subtest: Determinism - forced nondeterminism injection: NON_DETERMINISTIC with correct diff categories
+ok 133 - Determinism - forced nondeterminism injection: NON_DETERMINISTIC with correct diff categories
+  ---
+  duration_ms: 1.1938
+  type: 'test'
+  ...
+# Subtest: Determinism - missing evidence dir should be normalized or flagged appropriately
+ok 134 - Determinism - missing evidence dir should be normalized or flagged appropriately
+  ---
+  duration_ms: 0.8626
+  type: 'test'
+  ...
+# Subtest: determinism: evidence JSON is byte-identical with fixed VERAX_TEST_TIME
+ok 135 - determinism: evidence JSON is byte-identical with fixed VERAX_TEST_TIME # SKIP Covered by determinism-byte-lock.contract; skip to stay within harness budget
+  ---
+  duration_ms: 1.0612
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - No adaptive events ÔåÆ DETERMINISTIC
+ok 136 - Determinism Truth Lock - No adaptive events ÔåÆ DETERMINISTIC
+  ---
+  duration_ms: 2.288
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Adaptive stabilization extension ÔåÆ NON_DETERMINISTIC
+ok 137 - Determinism Truth Lock - Adaptive stabilization extension ÔåÆ NON_DETERMINISTIC
+  ---
+  duration_ms: 0.4344
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Retry triggered ÔåÆ NON_DETERMINISTIC
+ok 138 - Determinism Truth Lock - Retry triggered ÔåÆ NON_DETERMINISTIC
+  ---
+  duration_ms: 0.5539
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Truncation occurred ÔåÆ NON_DETERMINISTIC
+ok 139 - Determinism Truth Lock - Truncation occurred ÔåÆ NON_DETERMINISTIC
+  ---
+  duration_ms: 0.2652
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Multiple adaptive events ÔåÆ NON_DETERMINISTIC
+ok 140 - Determinism Truth Lock - Multiple adaptive events ÔåÆ NON_DETERMINISTIC
+  ---
+  duration_ms: 0.3661
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - HARD RULE: adaptiveEvents.length > 0 ÔåÆ MUST be NON_DETERMINISTIC
+ok 141 - Determinism Truth Lock - HARD RULE: adaptiveEvents.length > 0 ÔåÆ MUST be NON_DETERMINISTIC
+  ---
+  duration_ms: 0.2966
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Adaptive stabilization enabled but NOT extended ÔåÆ Still DETERMINISTIC
+ok 142 - Determinism Truth Lock - Adaptive stabilization enabled but NOT extended ÔåÆ Still DETERMINISTIC
+  ---
+  duration_ms: 0.2105
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Write determinism report with HARD verdict
+ok 143 - Determinism Truth Lock - Write determinism report with HARD verdict
+  ---
+  duration_ms: 1.994
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - Report from file (decisions.json)
+ok 144 - Determinism Truth Lock - Report from file (decisions.json)
+  ---
+  duration_ms: 4.9898
+  type: 'test'
+  ...
+# Subtest: Determinism Truth Lock - No DecisionRecorder ÔåÆ NON_DETERMINISTIC
+ok 145 - Determinism Truth Lock - No DecisionRecorder ÔåÆ NON_DETERMINISTIC
+  ---
+  duration_ms: 0.7396
+  type: 'test'
+  ...
+# Subtest: determinism: first learn produces consistent expectation IDs
+ok 146 - determinism: first learn produces consistent expectation IDs
+  ---
+  duration_ms: 3.1567
+  type: 'test'
+  ...
+# Subtest: determinism: expectations are deterministically ordered
+ok 147 - determinism: expectations are deterministically ordered
+  ---
+  duration_ms: 0.6113
+  type: 'test'
+  ...
+# Subtest: determinism: extracting twice produces identical ID sequence
+ok 148 - determinism: extracting twice produces identical ID sequence
+  ---
+  duration_ms: 1.7368
+  type: 'test'
+  ...
+# Subtest: determinism: same expectation source produces same ID
+ok 149 - determinism: same expectation source produces same ID
+  ---
+  duration_ms: 1.5387
+  type: 'test'
+  ...
+# Subtest: determinism: different sources produce different IDs
+ok 150 - determinism: different sources produce different IDs
+  ---
+  duration_ms: 0.8587
+  type: 'test'
+  ...
+# Subtest: determinism: finding IDs are deterministic from expectation IDs
+ok 151 - determinism: finding IDs are deterministic from expectation IDs
+  ---
+  duration_ms: 0.3156
+  type: 'test'
+  ...
+# Subtest: determinism: expectations maintain order after multiple extractions
+ok 152 - determinism: expectations maintain order after multiple extractions
+  ---
+  duration_ms: 8.3194
+  type: 'test'
+  ...
+# Subtest: determinism: file path normalization handles backslashes
+ok 153 - determinism: file path normalization handles backslashes
+  ---
+  duration_ms: 0.5188
+  type: 'test'
+  ...
+# Subtest: Doctor Command Termination
+    # Subtest: doctor --json exits within 5 seconds with fast smoke test
+    ok 1 - doctor --json exits within 5 seconds with fast smoke test
+      ---
+      duration_ms: 189.1305
+      type: 'test'
+      ...
+    # Subtest: doctor (human mode) exits within 5 seconds with fast smoke test
+    ok 2 - doctor (human mode) exits within 5 seconds with fast smoke test
+      ---
+      duration_ms: 156.0456
+      type: 'test'
+      ...
+    1..2
+ok 154 - Doctor Command Termination
+  ---
+  duration_ms: 346.966
+  type: 'suite'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 1 - Evidence must exist with meaningful signals
+ok 155 - Enterprise Hygiene: Invariant 1 - Evidence must exist with meaningful signals
+  ---
+  duration_ms: 2.7195
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 1 - Evidence with truthy signals passes
+ok 156 - Enterprise Hygiene: Invariant 1 - Evidence with truthy signals passes
+  ---
+  duration_ms: 0.6767
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 2 - Promise must exist and be non-empty
+ok 157 - Enterprise Hygiene: Invariant 2 - Promise must exist and be non-empty
+  ---
+  duration_ms: 0.5084
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 3 - Confidence must be number in [0,1]
+ok 158 - Enterprise Hygiene: Invariant 3 - Confidence must be number in [0,1]
+  ---
+  duration_ms: 0.4345
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 4 - Impact must be known value
+ok 159 - Enterprise Hygiene: Invariant 4 - Impact must be known value
+  ---
+  duration_ms: 0.2993
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 5 - Internal error flags never produce findings
+ok 160 - Enterprise Hygiene: Invariant 5 - Internal error flags never produce findings
+  ---
+  duration_ms: 0.4509
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 7 - Finding ID must be non-empty string
+ok 161 - Enterprise Hygiene: Invariant 7 - Finding ID must be non-empty string
+  ---
+  duration_ms: 0.2747
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Valid finding passes all invariants
+ok 162 - Enterprise Hygiene: Valid finding passes all invariants
+  ---
+  duration_ms: 1.3168
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Deduplication removes duplicate findings (stable order)
+ok 163 - Enterprise Hygiene: Deduplication removes duplicate findings (stable order)
+  ---
+  duration_ms: 0.6249
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Same findings produce identical report JSON across runs
+ok 164 - Enterprise Hygiene: Same findings produce identical report JSON across runs
+  ---
+  duration_ms: 23.402
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Findings are sorted deterministically (by id)
+ok 165 - Enterprise Hygiene: Findings are sorted deterministically (by id)
+  ---
+  duration_ms: 1.2492
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Production report excludes enforcement metadata (Trust Lock)
+ok 166 - Enterprise Hygiene: Production report excludes enforcement metadata (Trust Lock)
+  ---
+  duration_ms: 0.3848
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invalid findings are silently dropped (no console output)
+ok 167 - Enterprise Hygiene: Invalid findings are silently dropped (no console output)
+  ---
+  duration_ms: 0.8832
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: All findings pass through enforce pipeline
+ok 168 - Enterprise Hygiene: All findings pass through enforce pipeline
+  ---
+  duration_ms: 0.2129
+  type: 'test'
+  ...
+# Subtest:  Hard Evidence Budget: checkHardBudget()
+    # Subtest: Below hard limit (OK status)
+        # Subtest: should return ok when usage is 0 bytes
+        ok 1 - should return ok when usage is 0 bytes
+          ---
+          duration_ms: 1.1503
+          type: 'test'
+          ...
+        # Subtest: should return ok when usage is 50% of limit
+        ok 2 - should return ok when usage is 50% of limit
+          ---
+          duration_ms: 0.2429
+          type: 'test'
+          ...
+        # Subtest: should return ok when usage is exactly at limit
+        ok 3 - should return ok when usage is exactly at limit
+          ---
+          duration_ms: 0.211
+          type: 'test'
+          ...
+        # Subtest: should return ok when usage is 99.9% of limit
+        ok 4 - should return ok when usage is 99.9% of limit
+          ---
+          duration_ms: 0.2112
+          type: 'test'
+          ...
+        1..4
+    ok 1 - Below hard limit (OK status)
+      ---
+      duration_ms: 3.2595
+      type: 'suite'
+      ...
+    # Subtest: Above hard limit (HARD-STOP status)
+        # Subtest: should return hard-stop when usage exceeds limit by 1 byte
+        ok 1 - should return hard-stop when usage exceeds limit by 1 byte
+          ---
+          duration_ms: 0.2691
+          type: 'test'
+          ...
+        # Subtest: should return hard-stop when usage is 120% of limit
+        ok 2 - should return hard-stop when usage is 120% of limit
+          ---
+          duration_ms: 0.3006
+          type: 'test'
+          ...
+        # Subtest: should return hard-stop when usage is 200% of limit
+        ok 3 - should return hard-stop when usage is 200% of limit
+          ---
+          duration_ms: 0.2181
+          type: 'test'
+          ...
+        1..3
+    ok 2 - Above hard limit (HARD-STOP status)
+      ---
+      duration_ms: 1.3676
+      type: 'suite'
+      ...
+    # Subtest: Custom hard limit configuration
+        # Subtest: should use custom maxBytes for hard limit
+        ok 1 - should use custom maxBytes for hard limit
+          ---
+          duration_ms: 0.2518
+          type: 'test'
+          ...
+        # Subtest: should enforce custom maxBytes hard limit
+        ok 2 - should enforce custom maxBytes hard limit
+          ---
+          duration_ms: 0.3128
+          type: 'test'
+          ...
+        1..2
+    ok 3 - Custom hard limit configuration
+      ---
+      duration_ms: 2.8532
+      type: 'suite'
+      ...
+    # Subtest: Edge cases and error handling
+        # Subtest: should handle null evidenceStats gracefully
+        ok 1 - should handle null evidenceStats gracefully
+          ---
+          duration_ms: 0.3552
+          type: 'test'
+          ...
+        # Subtest: should handle undefined evidenceStats gracefully
+        ok 2 - should handle undefined evidenceStats gracefully
+          ---
+          duration_ms: 0.1752
+          type: 'test'
+          ...
+        # Subtest: should handle missing totalBytes gracefully
+        ok 3 - should handle missing totalBytes gracefully
+          ---
+          duration_ms: 0.144
+          type: 'test'
+          ...
+        # Subtest: should never throw on any input
+        ok 4 - should never throw on any input
+          ---
+          duration_ms: 0.4947
+          type: 'test'
+          ...
+        1..4
+    ok 4 - Edge cases and error handling
+      ---
+      duration_ms: 1.4121
+      type: 'suite'
+      ...
+    # Subtest: Return value structure
+        # Subtest: should return all required fields when below limit
+        ok 1 - should return all required fields when below limit
+          ---
+          duration_ms: 0.326
+          type: 'test'
+          ...
+        # Subtest: should return all required fields when above limit
+        ok 2 - should return all required fields when above limit
+          ---
+          duration_ms: 0.2141
+          type: 'test'
+          ...
+        1..2
+    ok 5 - Return value structure
+      ---
+      duration_ms: 0.6754
+      type: 'suite'
+      ...
+    1..5
+ok 169 -  Hard Evidence Budget: checkHardBudget()
+  ---
+  duration_ms: 10.6823
+  type: 'suite'
+  ...
+# Subtest:  OOM Prevention Contract
+    # Subtest: NEVER throws when hard limit exceeded
+    ok 1 - NEVER throws when hard limit exceeded
+      ---
+      duration_ms: 0.1948
+      type: 'test'
+      ...
+    # Subtest: NEVER crashes on any input
+    ok 2 - NEVER crashes on any input
+      ---
+      duration_ms: 0.2277
+      type: 'test'
+      ...
+    # Subtest: Returns deterministic result for same input
+    ok 3 - Returns deterministic result for same input
+      ---
+      duration_ms: 1.257
+      type: 'test'
+      ...
+    # Subtest: Does not modify input evidenceStats
+    ok 4 - Does not modify input evidenceStats
+      ---
+      duration_ms: 0.2164
+      type: 'test'
+      ...
+    1..4
+ok 170 -  OOM Prevention Contract
+  ---
+  duration_ms: 2.1228
+  type: 'suite'
+  ...
+# Subtest:  Boundary Conditions
+    # Subtest: Treats exactly at limit (50MB) as OK, not exceeded
+    ok 1 - Treats exactly at limit (50MB) as OK, not exceeded
+      ---
+      duration_ms: 0.1652
+      type: 'test'
+      ...
+    # Subtest: Treats limit + 1 byte as exceeded
+    ok 2 - Treats limit + 1 byte as exceeded
+      ---
+      duration_ms: 0.1379
+      type: 'test'
+      ...
+    # Subtest: Handles zero maxBytes without division error
+    ok 3 - Handles zero maxBytes without division error
+      ---
+      duration_ms: 0.1146
+      type: 'test'
+      ...
+    # Subtest: Handles negative totalBytes gracefully
+    ok 4 - Handles negative totalBytes gracefully
+      ---
+      duration_ms: 0.1237
+      type: 'test'
+      ...
+    1..4
+ok 171 -  Boundary Conditions
+  ---
+  duration_ms: 0.7045
+  type: 'suite'
+  ...
+# Subtest:  Integration Scenarios
+    # Subtest: Simulates gradual evidence accumulation staying under limit
+    ok 1 - Simulates gradual evidence accumulation staying under limit
+      ---
+      duration_ms: 0.2062
+      type: 'test'
+      ...
+    # Subtest: Simulates gradual evidence accumulation crossing limit
+    ok 2 - Simulates gradual evidence accumulation crossing limit
+      ---
+      duration_ms: 0.1392
+      type: 'test'
+      ...
+    # Subtest: Simulates detecting OOM risk early with large evidence
+    ok 3 - Simulates detecting OOM risk early with large evidence
+      ---
+      duration_ms: 0.1081
+      type: 'test'
+      ...
+    1..3
+ok 172 -  Integration Scenarios
+  ---
+  duration_ms: 0.5841
+  type: 'suite'
+  ...
+# Subtest:  Determinism Guarantees
+    # Subtest: Always returns same result for same evidence size
+    ok 1 - Always returns same result for same evidence size
+      ---
+      duration_ms: 0.756
+      type: 'test'
+      ...
+    # Subtest: Threshold check is consistent and reproducible
+    ok 2 - Threshold check is consistent and reproducible
+      ---
+      duration_ms: 0.1653
+      type: 'test'
+      ...
+    1..2
+ok 173 -  Determinism Guarantees
+  ---
+  duration_ms: 1.076
+  type: 'suite'
+  ...
+# WARNING: Evidence size reached 95% of configured budget (47.5MB / 50.0MB)
+# Subtest:  Evidence Budget: checkBudget()
+    # Subtest: Below threshold (OK status)
+        # Subtest: should return ok when usage is 0%
+        ok 1 - should return ok when usage is 0%
+          ---
+          duration_ms: 1.4742
+          type: 'test'
+          ...
+        # Subtest: should return ok when usage is 50%
+        ok 2 - should return ok when usage is 50%
+          ---
+          duration_ms: 0.3667
+          type: 'test'
+          ...
+        # Subtest: should return ok when usage is 79% (just below threshold)
+        ok 3 - should return ok when usage is 79% (just below threshold)
+          ---
+          duration_ms: 0.3928
+          type: 'test'
+          ...
+        1..3
+    ok 1 - Below threshold (OK status)
+      ---
+      duration_ms: 3.9082
+      type: 'suite'
+      ...
+    # Subtest: Above threshold (WARNING status)
+        # Subtest: should return warning when usage is exactly 80%
+        ok 1 - should return warning when usage is exactly 80%
+          ---
+          duration_ms: 0.3967
+          type: 'test'
+          ...
+        # Subtest: should return warning when usage is 90%
+        ok 2 - should return warning when usage is 90%
+          ---
+          duration_ms: 0.2902
+          type: 'test'
+          ...
+        # Subtest: should return warning when usage exceeds 100%
+        ok 3 - should return warning when usage exceeds 100%
+          ---
+          duration_ms: 0.4313
+          type: 'test'
+          ...
+        1..3
+    ok 2 - Above threshold (WARNING status)
+      ---
+      duration_ms: 1.8059
+      type: 'suite'
+      ...
+    # Subtest: Custom budget configuration
+        # Subtest: should use custom maxBytes
+        ok 1 - should use custom maxBytes
+          ---
+          duration_ms: 0.5514
+          type: 'test'
+          ...
+        # Subtest: should use custom warningThreshold
+        ok 2 - should use custom warningThreshold
+          ---
+          duration_ms: 0.2797
+          type: 'test'
+          ...
+        # Subtest: should combine custom maxBytes and warningThreshold
+        ok 3 - should combine custom maxBytes and warningThreshold
+          ---
+          duration_ms: 0.5256
+          type: 'test'
+          ...
+        1..3
+    ok 3 - Custom budget configuration
+      ---
+      duration_ms: 4.4003
+      type: 'suite'
+      ...
+    # Subtest: Edge cases and error handling
+        # Subtest: should handle null evidenceStats gracefully
+        ok 1 - should handle null evidenceStats gracefully
+          ---
+          duration_ms: 0.4585
+          type: 'test'
+          ...
+        # Subtest: should handle undefined evidenceStats gracefully
+        ok 2 - should handle undefined evidenceStats gracefully
+          ---
+          duration_ms: 0.2158
+          type: 'test'
+          ...
+        # Subtest: should handle missing totalBytes gracefully
+        ok 3 - should handle missing totalBytes gracefully
+          ---
+          duration_ms: 0.2023
+          type: 'test'
+          ...
+        # Subtest: should handle zero maxBytes without division error
+        ok 4 - should handle zero maxBytes without division error
+          ---
+          duration_ms: 0.2096
+          type: 'test'
+          ...
+        # Subtest: should never throw on invalid input
+        ok 5 - should never throw on invalid input
+          ---
+          duration_ms: 0.4976
+          type: 'test'
+          ...
+        1..5
+    ok 4 - Edge cases and error handling
+      ---
+      duration_ms: 2.0587
+      type: 'suite'
+      ...
+    # Subtest: Return value structure
+        # Subtest: should return all required fields
+        ok 1 - should return all required fields
+          ---
+          duration_ms: 0.2744
+          type: 'test'
+          ...
+        # Subtest: should return numeric percentUsed
+        ok 2 - should return numeric percentUsed
+          ---
+          duration_ms: 0.1932
+          type: 'test'
+          ...
+        1..2
+    ok 5 - Return value structure
+      ---
+      duration_ms: 0.6662
+      type: 'suite'
+      ...
+    1..5
+ok 174 -  Evidence Budget: checkBudget()
+  ---
+  duration_ms: 14.9325
+  type: 'suite'
+  ...
+# Subtest:  Evidence Budget: formatBytes()
+    # Subtest: should format 0 bytes
+    ok 1 - should format 0 bytes
+      ---
+      duration_ms: 0.3608
+      type: 'test'
+      ...
+    # Subtest: should format bytes (< 1KB)
+    ok 2 - should format bytes (< 1KB)
+      ---
+      duration_ms: 0.1768
+      type: 'test'
+      ...
+    # Subtest: should format kilobytes
+    ok 3 - should format kilobytes
+      ---
+      duration_ms: 0.1938
+      type: 'test'
+      ...
+    # Subtest: should format megabytes
+    ok 4 - should format megabytes
+      ---
+      duration_ms: 0.1829
+      type: 'test'
+      ...
+    # Subtest: should format gigabytes
+    ok 5 - should format gigabytes
+      ---
+      duration_ms: 0.1604
+      type: 'test'
+      ...
+    # Subtest: should never throw on invalid input
+    ok 6 - should never throw on invalid input
+      ---
+      duration_ms: 0.307
+      type: 'test'
+      ...
+    1..6
+ok 175 -  Evidence Budget: formatBytes()
+  ---
+  duration_ms: 1.7575
+  type: 'suite'
+  ...
+# Subtest:  Evidence Budget: emitBudgetWarning()
+    # Subtest: should NOT emit warning when level is ok
+    ok 1 - should NOT emit warning when level is ok
+      ---
+      duration_ms: 0.6909
+      type: 'test'
+      ...
+    # Subtest: should emit warning when level is warning
+    ok 2 - should emit warning when level is warning
+      ---
+      duration_ms: 0.3753
+      type: 'test'
+      ...
+    # Subtest: should emit warning with correct percentage (rounded)
+    ok 3 - should emit warning with correct percentage (rounded)
+      ---
+      duration_ms: 0.275
+      type: 'test'
+      ...
+    # Subtest: should never throw on invalid input
+    ok 4 - should never throw on invalid input
+      ---
+      duration_ms: 0.4542
+      type: 'test'
+      ...
+    1..4
+ok 176 -  Evidence Budget: emitBudgetWarning()
+  ---
+  duration_ms: 4.0645
+  type: 'suite'
+  ...
+# Subtest:  Contract Guarantees
+    # Subtest: NEVER throws on any input to checkBudget
+    ok 1 - NEVER throws on any input to checkBudget
+      ---
+      duration_ms: 0.4618
+      type: 'test'
+      ...
+    # Subtest: NEVER throws on any input to formatBytes
+    ok 2 - NEVER throws on any input to formatBytes
+      ---
+      duration_ms: 0.2995
+      type: 'test'
+      ...
+    # Subtest: NEVER throws on any input to emitBudgetWarning
+    ok 3 - NEVER throws on any input to emitBudgetWarning
+      ---
+      duration_ms: 0.3813
+      type: 'test'
+      ...
+    # Subtest: checkBudget ALWAYS returns safe defaults on error
+    ok 4 - checkBudget ALWAYS returns safe defaults on error
+      ---
+      duration_ms: 0.173
+      type: 'test'
+      ...
+    # Subtest: Evidence budget is read-only instrumentation (no side effects)
+    ok 5 - Evidence budget is read-only instrumentation (no side effects)
+      ---
+      duration_ms: 1.682
+      type: 'test'
+      ...
+    # Subtest: Warning emission is non-fatal (never blocks execution)
+    ok 6 - Warning emission is non-fatal (never blocks execution)
+      ---
+      duration_ms: 1.1342
+      type: 'test'
+      ...
+    1..6
+ok 177 -  Contract Guarantees
+  ---
+  duration_ms: 4.5111
+  type: 'suite'
+  ...
+# Subtest:  Integration Scenarios
+    # Subtest: should handle typical small run (10MB evidence)
+    ok 1 - should handle typical small run (10MB evidence)
+      ---
+      duration_ms: 0.594
+      type: 'test'
+      ...
+    # Subtest: should handle large run approaching budget (45MB evidence)
+    ok 2 - should handle large run approaching budget (45MB evidence)
+      ---
+      duration_ms: 0.322
+      type: 'test'
+      ...
+    # Subtest: should handle extreme run exceeding budget (100MB evidence)
+    ok 3 - should handle extreme run exceeding budget (100MB evidence)
+      ---
+      duration_ms: 0.4017
+      type: 'test'
+      ...
+    1..3
+ok 178 -  Integration Scenarios
+  ---
+  duration_ms: 2.6236
+  type: 'suite'
+  ...
+# ÔÜá UNPROVEN /demo
+# SUMMARY findings=1 observed=0 silent-failure=0 coverage-gap=0 unproven=1
+# Subtest: Detection: screenshots alone do not yield CONFIRMED silent failure
+ok 179 - Detection: screenshots alone do not yield CONFIRMED silent failure
+  ---
+  duration_ms: 4.2438
+  type: 'test'
+  ...
+# Subtest: Run exits 30 when observation is forced incomplete
+ok 180 - Run exits 30 when observation is forced incomplete
+  ---
+  duration_ms: 1533.6669
+  type: 'test'
+  ...
+# Subtest: CLI integration: no substantive signals downgrades silent failure
+ok 181 - CLI integration: no substantive signals downgrades silent failure
+  ---
+  duration_ms: 1012.6751
+  type: 'test'
+  ...
+# Subtest: evidence-manifest: static guard ensures path sort is present
+ok 182 - evidence-manifest: static guard ensures path sort is present
+  ---
+  duration_ms: 1.6392
+  type: 'test'
+  ...
+# Subtest: evidence-manifest: runtime output is sorted by path
+ok 183 - evidence-manifest: runtime output is sorted by path
+  ---
+  duration_ms: 24.3732
+  type: 'test'
+  ...
+# Subtest: evidence-manifest: paths always use forward slashes (no backslashes)
+ok 184 - evidence-manifest: paths always use forward slashes (no backslashes)
+  ---
+  duration_ms: 37.0773
+  type: 'test'
+  ...
+# Subtest: evidence-manifest: JSON output is stable (no platform-specific separators)
+ok 185 - evidence-manifest: JSON output is stable (no platform-specific separators)
+  ---
+  duration_ms: 5.833
+  type: 'test'
+  ...
+# Subtest: evidence-manifest: deterministic across multiple builds (path normalization)
+ok 186 - evidence-manifest: deterministic across multiple builds (path normalization)
+  ---
+  duration_ms: 4.6904
+  type: 'test'
+  ...
+# Subtest: Evidence Deduplication: Should deduplicate identical network events
+ok 187 - Evidence Deduplication: Should deduplicate identical network events
+  ---
+  duration_ms: 2.0548
+  type: 'test'
+  ...
+# Subtest: Evidence Deduplication: Should deduplicate identical console errors
+ok 188 - Evidence Deduplication: Should deduplicate identical console errors
+  ---
+  duration_ms: 0.4409
+  type: 'test'
+  ...
+# Subtest: Evidence Deduplication: Should handle null/empty input gracefully
+ok 189 - Evidence Deduplication: Should handle null/empty input gracefully
+  ---
+  duration_ms: 1.4187
+  type: 'test'
+  ...
+# Subtest: Evidence Deduplication: Should NOT double-count network events in evidence
+ok 190 - Evidence Deduplication: Should NOT double-count network events in evidence
+  ---
+  duration_ms: 0.7144
+  type: 'test'
+  ...
+# Subtest: Evidence Deduplication: Should detect over-counted evidence
+ok 191 - Evidence Deduplication: Should detect over-counted evidence
+  ---
+  duration_ms: 0.4178
+  type: 'test'
+  ...
+# Subtest: Evidence Deduplication: Should generate evidence quality report
+ok 192 - Evidence Deduplication: Should generate evidence quality report
+  ---
+  duration_ms: 0.5754
+  type: 'test'
+  ...
+# Subtest: Evidence Attribution: Should classify evidence sources correctly
+ok 193 - Evidence Attribution: Should classify evidence sources correctly
+  ---
+  duration_ms: 0.4176
+  type: 'test'
+  ...
+# Subtest: Evidence Attribution: Should identify confidence-supporting evidence
+ok 194 - Evidence Attribution: Should identify confidence-supporting evidence
+  ---
+  duration_ms: 0.4457
+  type: 'test'
+  ...
+# Subtest: Evidence Attribution: Should trace evidence attribution
+ok 195 - Evidence Attribution: Should trace evidence attribution
+  ---
+  duration_ms: 0.8376
+  type: 'test'
+  ...
+# Subtest: Evidence Attribution: Should generate comprehensive attribution report
+ok 196 - Evidence Attribution: Should generate comprehensive attribution report
+  ---
+  duration_ms: 0.8259
+  type: 'test'
+  ...
+# Subtest: Evidence Attribution: Should validate evidence attribution
+ok 197 - Evidence Attribution: Should validate evidence attribution
+  ---
+  duration_ms: 0.413
+  type: 'test'
+  ...
+# Subtest: Evidence Validation: Should validate evidence substantiveness
+ok 198 - Evidence Validation: Should validate evidence substantiveness
+  ---
+  duration_ms: 0.3434
+  type: 'test'
+  ...
+# Subtest: Evidence Validation: Should detect evidence contradictions
+ok 199 - Evidence Validation: Should detect evidence contradictions
+  ---
+  duration_ms: 0.3337
+  type: 'test'
+  ...
+# Subtest: Evidence Validation: Should validate signal-evidence consistency
+ok 200 - Evidence Validation: Should validate signal-evidence consistency
+  ---
+  duration_ms: 0.4043
+  type: 'test'
+  ...
+# Subtest: Evidence Validation: Should validate complete evidence integrity
+ok 201 - Evidence Validation: Should validate complete evidence integrity
+  ---
+  duration_ms: 0.3609
+  type: 'test'
+  ...
+# Subtest: Evidence Validation: Should check evidence completeness
+ok 202 - Evidence Validation: Should check evidence completeness
+  ---
+  duration_ms: 0.293
+  type: 'test'
+  ...
+# Subtest: Evidence Validation: Should NOT block incomplete evidence (graceful)
+ok 203 - Evidence Validation: Should NOT block incomplete evidence (graceful)
+  ---
+  duration_ms: 0.1573
+  type: 'test'
+  ...
+# Subtest: Evidence Validation: Should validate batch of findings
+ok 204 - Evidence Validation: Should validate batch of findings
+  ---
+  duration_ms: 0.4712
+  type: 'test'
+  ...
+# Subtest: Evidence Validation: Should flag findings for review
+ok 205 - Evidence Validation: Should flag findings for review
+  ---
+  duration_ms: 0.3945
+  type: 'test'
+  ...
+# Subtest: No Semantic Changes: Should NOT change finding status
+ok 206 - No Semantic Changes: Should NOT change finding status
+  ---
+  duration_ms: 0.1791
+  type: 'test'
+  ...
+# Subtest: No Semantic Changes: Should NOT change confidence values
+ok 207 - No Semantic Changes: Should NOT change confidence values
+  ---
+  duration_ms: 0.1726
+  type: 'test'
+  ...
+# Subtest: No Semantic Changes: Should NOT create or delete findings
+ok 208 - No Semantic Changes: Should NOT create or delete findings
+  ---
+  duration_ms: 0.2443
+  type: 'test'
+  ...
+# Subtest: Determinism: Should produce deterministic deduplication
+ok 209 - Determinism: Should produce deterministic deduplication
+  ---
+  duration_ms: 0.2835
+  type: 'test'
+  ...
+# Subtest: Determinism: Should produce deterministic attribution
+ok 210 - Determinism: Should produce deterministic attribution
+  ---
+  duration_ms: 0.4656
+  type: 'test'
+  ...
+# Subtest: Determinism: Should produce deterministic validation
+ok 211 - Determinism: Should produce deterministic validation
+  ---
+  duration_ms: 0.2812
+  type: 'test'
+  ...
+# Subtest: Graceful Handling: Should handle null evidence gracefully
+ok 212 - Graceful Handling: Should handle null evidence gracefully
+  ---
+  duration_ms: 0.1876
+  type: 'test'
+  ...
+# Subtest: Graceful Handling: Should handle missing signals gracefully
+ok 213 - Graceful Handling: Should handle missing signals gracefully
+  ---
+  duration_ms: 0.1102
+  type: 'test'
+  ...
+# Subtest: Graceful Handling: Should handle empty findings array
+ok 214 - Graceful Handling: Should handle empty findings array
+  ---
+  duration_ms: 0.107
+  type: 'test'
+  ...
+# Subtest: EvidenceSizeTracker ( Evidence size accounting)
+    # Subtest: record() - String handling
+        # Subtest: should count UTF-8 byte length for ASCII strings
+        ok 1 - should count UTF-8 byte length for ASCII strings
+          ---
+          duration_ms: 1.5092
+          type: 'test'
+          ...
+        # Subtest: should count UTF-8 byte length for multi-byte characters
+        ok 2 - should count UTF-8 byte length for multi-byte characters
+          ---
+          duration_ms: 0.3811
+          type: 'test'
+          ...
+        # Subtest: should handle empty strings
+        ok 3 - should handle empty strings
+          ---
+          duration_ms: 0.324
+          type: 'test'
+          ...
+        # Subtest: should accumulate multiple strings
+        ok 4 - should accumulate multiple strings
+          ---
+          duration_ms: 1.4351
+          type: 'test'
+          ...
+        1..4
+    ok 1 - record() - String handling
+      ---
+      duration_ms: 5.1867
+      type: 'suite'
+      ...
+    # Subtest: record() - Buffer handling
+        # Subtest: should count buffer length
+        ok 1 - should count buffer length
+          ---
+          duration_ms: 0.5687
+          type: 'test'
+          ...
+        # Subtest: should handle empty buffers
+        ok 2 - should handle empty buffers
+          ---
+          duration_ms: 0.3391
+          type: 'test'
+          ...
+        # Subtest: should accumulate multiple buffers
+        ok 3 - should accumulate multiple buffers
+          ---
+          duration_ms: 0.2666
+          type: 'test'
+          ...
+        1..3
+    ok 2 - record() - Buffer handling
+      ---
+      duration_ms: 1.7985
+      type: 'suite'
+      ...
+    # Subtest: record() - Object handling
+        # Subtest: should serialize and count object byte length
+        ok 1 - should serialize and count object byte length
+          ---
+          duration_ms: 0.3261
+          type: 'test'
+          ...
+        # Subtest: should handle nested objects
+        ok 2 - should handle nested objects
+          ---
+          duration_ms: 0.4032
+          type: 'test'
+          ...
+        # Subtest: should handle arrays
+        ok 3 - should handle arrays
+          ---
+          duration_ms: 0.3165
+          type: 'test'
+          ...
+        # Subtest: should handle objects with multi-byte characters
+        ok 4 - should handle objects with multi-byte characters
+          ---
+          duration_ms: 0.2259
+          type: 'test'
+          ...
+        1..4
+    ok 3 - record() - Object handling
+      ---
+      duration_ms: 1.6239
+      type: 'suite'
+      ...
+    # Subtest: record() - Type normalization
+        # Subtest: should normalize "screenshots" type
+        ok 1 - should normalize "screenshots" type
+          ---
+          duration_ms: 0.3367
+          type: 'test'
+          ...
+        # Subtest: should normalize "network" type
+        ok 2 - should normalize "network" type
+          ---
+          duration_ms: 0.1953
+          type: 'test'
+          ...
+        # Subtest: should normalize "console" type
+        ok 3 - should normalize "console" type
+          ---
+          duration_ms: 0.1867
+          type: 'test'
+          ...
+        # Subtest: should normalize "dom" type
+        ok 4 - should normalize "dom" type
+          ---
+          duration_ms: 0.1734
+          type: 'test'
+          ...
+        # Subtest: should normalize "json" type
+        ok 5 - should normalize "json" type
+          ---
+          duration_ms: 0.1665
+          type: 'test'
+          ...
+        # Subtest: should map screenshot alias to screenshots
+        ok 6 - should map screenshot alias to screenshots
+          ---
+          duration_ms: 0.1805
+          type: 'test'
+          ...
+        # Subtest: should map request alias to network
+        ok 7 - should map request alias to network
+          ---
+          duration_ms: 0.2963
+          type: 'test'
+          ...
+        # Subtest: should map html alias to dom
+        ok 8 - should map html alias to dom
+          ---
+          duration_ms: 0.2071
+          type: 'test'
+          ...
+        # Subtest: should map unknown type to "other"
+        ok 9 - should map unknown type to "other"
+          ---
+          duration_ms: 0.2387
+          type: 'test'
+          ...
+        # Subtest: should be case-insensitive for type names
+        ok 10 - should be case-insensitive for type names
+          ---
+          duration_ms: 1.3675
+          type: 'test'
+          ...
+        1..10
+    ok 4 - record() - Type normalization
+      ---
+      duration_ms: 3.7826
+      type: 'suite'
+      ...
+    # Subtest: record() - Null/undefined handling
+        # Subtest: should handle null values
+        ok 1 - should handle null values
+          ---
+          duration_ms: 0.2444
+          type: 'test'
+          ...
+        # Subtest: should handle undefined values
+        ok 2 - should handle undefined values
+          ---
+          duration_ms: 1.3169
+          type: 'test'
+          ...
+        # Subtest: should handle null type name
+        ok 3 - should handle null type name
+          ---
+          duration_ms: 0.4378
+          type: 'test'
+          ...
+        1..3
+    ok 5 - record() - Null/undefined handling
+      ---
+      duration_ms: 2.203
+      type: 'suite'
+      ...
+    # Subtest: record() - Error handling (never throws)
+        # Subtest: should not throw on circular reference
+        ok 1 - should not throw on circular reference
+          ---
+          duration_ms: 0.4992
+          type: 'test'
+          ...
+        # Subtest: should not throw on invalid JSON
+        ok 2 - should not throw on invalid JSON
+          ---
+          duration_ms: 0.3476
+          type: 'test'
+          ...
+        # Subtest: should not throw on any value type
+        ok 3 - should not throw on any value type
+          ---
+          duration_ms: 0.2327
+          type: 'test'
+          ...
+        # Subtest: should return 0 on error
+        ok 4 - should return 0 on error
+          ---
+          duration_ms: 0.2098
+          type: 'test'
+          ...
+        1..4
+    ok 6 - record() - Error handling (never throws)
+      ---
+      duration_ms: 1.5213
+      type: 'suite'
+      ...
+    # Subtest: Aggregation across multiple types
+        # Subtest: should aggregate across all types
+        ok 1 - should aggregate across all types
+          ---
+          duration_ms: 0.3789
+          type: 'test'
+          ...
+        # Subtest: should separate stats by type
+        ok 2 - should separate stats by type
+          ---
+          duration_ms: 0.2295
+          type: 'test'
+          ...
+        1..2
+    ok 7 - Aggregation across multiple types
+      ---
+      duration_ms: 0.7424
+      type: 'suite'
+      ...
+    # Subtest: getStats()
+        # Subtest: should return object with totalBytes and byType
+        ok 1 - should return object with totalBytes and byType
+          ---
+          duration_ms: 0.3939
+          type: 'test'
+          ...
+        # Subtest: should return a copy of byType
+        ok 2 - should return a copy of byType
+          ---
+          duration_ms: 0.3209
+          type: 'test'
+          ...
+        # Subtest: should initialize all type counters to zero
+        ok 3 - should initialize all type counters to zero
+          ---
+          duration_ms: 0.2082
+          type: 'test'
+          ...
+        # Subtest: should accurately reflect accumulated totals
+        ok 4 - should accurately reflect accumulated totals
+          ---
+          duration_ms: 0.2149
+          type: 'test'
+          ...
+        1..4
+    ok 8 - getStats()
+      ---
+      duration_ms: 1.3444
+      type: 'suite'
+      ...
+    # Subtest: Idempotency and safety
+        # Subtest: should be safe to call record() many times
+        ok 1 - should be safe to call record() many times
+          ---
+          duration_ms: 1.3495
+          type: 'test'
+          ...
+        # Subtest: should accumulate correctly over many calls
+        ok 2 - should accumulate correctly over many calls
+          ---
+          duration_ms: 0.2313
+          type: 'test'
+          ...
+        1..2
+    ok 9 - Idempotency and safety
+      ---
+      duration_ms: 1.7211
+      type: 'suite'
+      ...
+    # Subtest: Integration scenarios
+        # Subtest: should track evidence from observation-like workflow
+        ok 1 - should track evidence from observation-like workflow
+          ---
+          duration_ms: 0.3222
+          type: 'test'
+          ...
+        # Subtest: should never block or affect existing outputs
+        ok 2 - should never block or affect existing outputs
+          ---
+          duration_ms: 1.1601
+          type: 'test'
+          ...
+        1..2
+    ok 10 - Integration scenarios
+      ---
+      duration_ms: 1.6543
+      type: 'suite'
+      ...
+    # Subtest:  Contract guarantees
+        # Subtest: should NEVER throw on any input
+        ok 1 - should NEVER throw on any input
+          ---
+          duration_ms: 0.6059
+          type: 'test'
+          ...
+        # Subtest: should be read-only instrumentation only (no side effects)
+        ok 2 - should be read-only instrumentation only (no side effects)
+          ---
+          duration_ms: 0.2288
+          type: 'test'
+          ...
+        # Subtest: should provide getStats() without side effects
+        ok 3 - should provide getStats() without side effects
+          ---
+          duration_ms: 0.2305
+          type: 'test'
+          ...
+        1..3
+    ok 11 -  Contract guarantees
+      ---
+      duration_ms: 1.2563
+      type: 'suite'
+      ...
+    1..11
+ok 215 - EvidenceSizeTracker ( Evidence size accounting)
+  ---
+  duration_ms: 24.7377
+  type: 'suite'
+  ...
+# Subtest:  Evidence Stream Writer: JSONL Format
+    # Subtest: JSONL Creation and Writing
+        # Subtest: should create JSONL file with EVIDENCE directory
+        ok 1 - should create JSONL file with EVIDENCE directory
+          ---
+          duration_ms: 6.2029
+          type: 'test'
+          ...
+        # Subtest: should write single event as one JSON line
+        ok 2 - should write single event as one JSON line
+          ---
+          duration_ms: 20.8481
+          type: 'test'
+          ...
+        # Subtest: should write multiple events as multiple lines
+        ok 3 - should write multiple events as multiple lines
+          ---
+          duration_ms: 6.9972
+          type: 'test'
+          ...
+        # Subtest: should preserve event ordering in JSONL
+        ok 4 - should preserve event ordering in JSONL
+          ---
+          duration_ms: 37.0815
+          type: 'test'
+          ...
+        1..4
+    ok 1 - JSONL Creation and Writing
+      ---
+      duration_ms: 72.517
+      type: 'suite'
+      ...
+    # Subtest: Deterministic Serialization
+        # Subtest: should serialize object with deterministic key ordering
+        ok 1 - should serialize object with deterministic key ordering
+          ---
+          duration_ms: 3.1996
+          type: 'test'
+          ...
+        # Subtest: should handle nested objects with deterministic key ordering
+        ok 2 - should handle nested objects with deterministic key ordering
+          ---
+          duration_ms: 57.5793
+          type: 'test'
+          ...
+        # Subtest: should produce identical output for same event across multiple runs
+        ok 3 - should produce identical output for same event across multiple runs
+          ---
+          duration_ms: 9.152
+          type: 'test'
+          ...
+        # Subtest: should handle arrays deterministically
+        ok 4 - should handle arrays deterministically
+          ---
+          duration_ms: 3.2748
+          type: 'test'
+          ...
+        1..4
+    ok 2 - Deterministic Serialization
+      ---
+      duration_ms: 110.9859
+      type: 'suite'
+      ...
+    # Subtest: Counting and State Tracking
+        # Subtest: should track event count correctly
+        ok 1 - should track event count correctly
+          ---
+          duration_ms: 3.7062
+          type: 'test'
+          ...
+        # Subtest: should report path consistently
+        ok 2 - should report path consistently
+          ---
+          duration_ms: 7.8973
+          type: 'test'
+          ...
+        # Subtest: should report failures gracefully
+        ok 3 - should report failures gracefully
+          ---
+          duration_ms: 2.5401
+          type: 'test'
+          ...
+        1..3
+    ok 3 - Counting and State Tracking
+      ---
+      duration_ms: 14.45
+      type: 'suite'
+      ...
+    # Subtest: Error Handling and Fail-Safe Behavior
+        # Subtest: should never throw on normal append
+        ok 1 - should never throw on normal append
+          ---
+          duration_ms: 4.1639
+          type: 'test'
+          ...
+        # Subtest: should handle circular reference gracefully
+        ok 2 - should handle circular reference gracefully
+          ---
+          duration_ms: 22.3845
+          type: 'test'
+          ...
+        # Subtest: should continue appending after single error
+        ok 3 - should continue appending after single error
+          ---
+          duration_ms: 3.8626
+          type: 'test'
+          ...
+        # Subtest: should handle getCount() after close
+        ok 4 - should handle getCount() after close
+          ---
+          duration_ms: 4.7409
+          type: 'test'
+          ...
+        1..4
+    ok 4 - Error Handling and Fail-Safe Behavior
+      ---
+      duration_ms: 36.5155
+      type: 'suite'
+      ...
+    # Subtest: Multiple Streams
+        # Subtest: should support multiple independent streams
+        ok 1 - should support multiple independent streams
+          ---
+          duration_ms: 8.5955
+          type: 'test'
+          ...
+        1..1
+    ok 5 - Multiple Streams
+      ---
+      duration_ms: 8.8167
+      type: 'suite'
+      ...
+    # Subtest: Large Event Streaming
+        # Subtest: should handle 1000 events deterministically
+        ok 1 - should handle 1000 events deterministically
+          ---
+          duration_ms: 362.2056
+          type: 'test'
+          ...
+        # Subtest: should maintain determinism with 1000 events across runs
+        ok 2 - should maintain determinism with 1000 events across runs
+          ---
+          duration_ms: 87.7899
+          type: 'test'
+          ...
+        1..2
+    ok 6 - Large Event Streaming
+      ---
+      duration_ms: 450.2244
+      type: 'suite'
+      ...
+    1..6
+ok 216 -  Evidence Stream Writer: JSONL Format
+  ---
+  duration_ms: 694.7974
+  type: 'suite'
+  ...
+# Subtest:  Failsafe Stream Writer
+    # Subtest: should never throw even with invalid directory
+    ok 1 - should never throw even with invalid directory
+      ---
+      duration_ms: 1.9608
+      type: 'test'
+      ...
+    # Subtest: should gracefully degrade to in-memory counting on write failure
+    ok 2 - should gracefully degrade to in-memory counting on write failure
+      ---
+      duration_ms: 3.2579
+      type: 'test'
+      ...
+    1..2
+ok 217 -  Failsafe Stream Writer
+  ---
+  duration_ms: 5.4081
+  type: 'suite'
+  ...
+# Subtest: Exit 0: COMPLETE with zero findings
+ok 218 - Exit 0: COMPLETE with zero findings
+  ---
+  duration_ms: 1.5403
+  type: 'test'
+  ...
+# Subtest: Exit 20: CONFIRMED findings present in balanced/strict modes
+ok 219 - Exit 20: CONFIRMED findings present in balanced/strict modes
+  ---
+  duration_ms: 0.2399
+  type: 'test'
+  ...
+# Subtest: Exit 64: Usage error (missing --url)
+ok 220 - Exit 64: Usage error (missing --url)
+  ---
+  duration_ms: 365.9149
+  type: 'test'
+  ...
+# Subtest: Exit 50: Data error (non-existent directory)
+ok 221 - Exit 50: Data error (non-existent directory)
+  ---
+  duration_ms: 336.9087
+  type: 'test'
+  ...
+# Subtest: Exit 30: INCOMPLETE run (observation timeout)
+ok 222 - Exit 30: INCOMPLETE run (observation timeout)
+  ---
+  duration_ms: 0.2301
+  type: 'test'
+  ...
+# Subtest: Exit 2: Internal crash (not timeout)
+ok 223 - Exit 2: Internal crash (not timeout)
+  ---
+  duration_ms: 0.2139
+  type: 'test'
+  ...
+# Subtest: Exit code precedence: INCOMPLETE (30) overrides findings (10/20)
+ok 224 - Exit code precedence: INCOMPLETE (30) overrides findings (10/20)
+  ---
+  duration_ms: 0.2032
+  type: 'test'
+  ...
+# Subtest: Exit code precedence: Infra failure (40) overrides all
+ok 225 - Exit code precedence: Infra failure (40) overrides all
+  ---
+  duration_ms: 0.2067
+  type: 'test'
+  ...
+# Subtest:  Formal Exit Code Verification
+    # Subtest: Exit Code 0: COMPLETE + No Findings
+        # Subtest: empty analysis with no expectations
+        ok 1 - empty analysis with no expectations
+          ---
+          duration_ms: 1.3263
+          type: 'test'
+          ...
+        # Subtest: complete analysis with expectations but no findings
+        ok 2 - complete analysis with expectations but no findings
+          ---
+          duration_ms: 0.2754
+          type: 'test'
+          ...
+        # Subtest: all expectations analyzed, zero findings
+        ok 3 - all expectations analyzed, zero findings
+          ---
+          duration_ms: 2.0341
+          type: 'test'
+          ...
+        1..3
+    ok 1 - Exit Code 0: COMPLETE + No Findings
+      ---
+      duration_ms: 4.8224
+      type: 'suite'
+      ...
+    # Subtest: Exit Code 10: NEEDS_REVIEW (suspected findings)
+        # Subtest: complete analysis with suspected findings
+        ok 1 - complete analysis with suspected findings
+          ---
+          duration_ms: 0.4365
+          type: 'test'
+          ...
+        # Subtest: single suspected finding
+        ok 2 - single suspected finding
+          ---
+          duration_ms: 0.2163
+          type: 'test'
+          ...
+        1..2
+    ok 2 - Exit Code 10: NEEDS_REVIEW (suspected findings)
+      ---
+      duration_ms: 0.8682
+      type: 'suite'
+      ...
+    # Subtest: Exit Code 20: FAILURE_CONFIRMED
+        # Subtest: complete analysis with confirmed findings
+        ok 1 - complete analysis with confirmed findings
+          ---
+          duration_ms: 0.2545
+          type: 'test'
+          ...
+        # Subtest: single confirmed finding detected
+        ok 2 - single confirmed finding detected
+          ---
+          duration_ms: 0.419
+          type: 'test'
+          ...
+        1..2
+    ok 3 - Exit Code 20: FAILURE_CONFIRMED
+      ---
+      duration_ms: 1.1021
+      type: 'suite'
+      ...
+    # Subtest: Exit Code 40: FAILED State
+        # Subtest: analysis failed with error
+        ok 1 - analysis failed with error
+          ---
+          duration_ms: 0.2046
+          type: 'test'
+          ...
+        # Subtest: failed state overrides findings
+        ok 2 - failed state overrides findings
+          ---
+          duration_ms: 0.3077
+          type: 'test'
+          ...
+        1..2
+    ok 4 - Exit Code 40: FAILED State
+      ---
+      duration_ms: 0.8355
+      type: 'suite'
+      ...
+    # Subtest: Exit Code 30: INCOMPLETE State
+        # Subtest: no expectations extracted
+        ok 1 - no expectations extracted
+          ---
+          duration_ms: 0.6681
+          type: 'test'
+          ...
+        # Subtest: budget exceeded
+        ok 2 - budget exceeded
+          ---
+          duration_ms: 0.2545
+          type: 'test'
+          ...
+        # Subtest: observe timeout
+        ok 3 - observe timeout
+          ---
+          duration_ms: 0.1685
+          type: 'test'
+          ...
+        # Subtest: detect timeout
+        ok 4 - detect timeout
+          ---
+          duration_ms: 0.1384
+          type: 'test'
+          ...
+        # Subtest: total timeout
+        ok 5 - total timeout
+          ---
+          duration_ms: 0.1266
+          type: 'test'
+          ...
+        # Subtest: incomplete with findings still returns 30
+        ok 6 - incomplete with findings still returns 30
+          ---
+          duration_ms: 0.1451
+          type: 'test'
+          ...
+        # Subtest: incomplete overrides complete
+        ok 7 - incomplete overrides complete
+          ---
+          duration_ms: 0.1307
+          type: 'test'
+          ...
+        1..7
+    ok 5 - Exit Code 30: INCOMPLETE State
+      ---
+      duration_ms: 1.9245
+      type: 'suite'
+      ...
+    # Subtest: State Precedence Rules
+        # Subtest: FAILED takes precedence over INCOMPLETE
+        ok 1 - FAILED takes precedence over INCOMPLETE
+          ---
+          duration_ms: 0.1718
+          type: 'test'
+          ...
+        # Subtest: FAILED takes precedence over findings
+        ok 2 - FAILED takes precedence over findings
+          ---
+          duration_ms: 0.1096
+          type: 'test'
+          ...
+        # Subtest: INCOMPLETE takes precedence over findings
+        ok 3 - INCOMPLETE takes precedence over findings
+          ---
+          duration_ms: 0.2129
+          type: 'test'
+          ...
+        1..3
+    ok 6 - State Precedence Rules
+      ---
+      duration_ms: 0.6339
+      type: 'suite'
+      ...
+    # Subtest: Edge Cases
+        # Subtest: zero expectations discovered, complete
+        ok 1 - zero expectations discovered, complete
+          ---
+          duration_ms: 0.1977
+          type: 'test'
+          ...
+        # Subtest: partial skip but still complete
+        ok 2 - partial skip but still complete
+          ---
+          duration_ms: 0.1209
+          type: 'test'
+          ...
+        # Subtest: all expectations skipped = incomplete
+        ok 3 - all expectations skipped = incomplete
+          ---
+          duration_ms: 0.1536
+          type: 'test'
+          ...
+        1..3
+    ok 7 - Edge Cases
+      ---
+      duration_ms: 0.6047
+      type: 'suite'
+      ...
+    # Subtest: Integrity Violation Cases
+        # Subtest: poisoned run = FAILED = exit 40
+        ok 1 - poisoned run = FAILED = exit 40
+          ---
+          duration_ms: 0.1623
+          type: 'test'
+          ...
+        # Subtest: integrity hash mismatch = evidence violation = exit 50
+        ok 2 - integrity hash mismatch = evidence violation = exit 50
+          ---
+          duration_ms: 0.1171
+          type: 'test'
+          ...
+        # Subtest: artifact write failure = FAILED = exit 40
+        ok 3 - artifact write failure = FAILED = exit 40
+          ---
+          duration_ms: 0.1222
+          type: 'test'
+          ...
+        1..3
+    ok 8 - Integrity Violation Cases
+      ---
+      duration_ms: 0.5291
+      type: 'suite'
+      ...
+    # Subtest: Property-Based: All Valid States
+        # Subtest: exhaustive state-findings matrix
+        ok 1 - exhaustive state-findings matrix
+          ---
+          duration_ms: 8.7334
+          type: 'test'
+          ...
+        1..1
+    ok 9 - Property-Based: All Valid States
+      ---
+      duration_ms: 8.8572
+      type: 'suite'
+      ...
+    # Subtest: Determinism Impact on Exit Code
+        # Subtest: determinism level does not affect exit code
+        ok 1 - determinism level does not affect exit code
+          ---
+          duration_ms: 0.2919
+          type: 'test'
+          ...
+        # Subtest: reproducible flag does not affect exit code
+        ok 2 - reproducible flag does not affect exit code
+          ---
+          duration_ms: 0.1557
+          type: 'test'
+          ...
+        1..2
+    ok 10 - Determinism Impact on Exit Code
+      ---
+      duration_ms: 0.601
+      type: 'suite'
+      ...
+    1..10
+ok 226 -  Formal Exit Code Verification
+  ---
+  duration_ms: 22.5124
+  type: 'suite'
+  ...
+# Subtest: Final Gate: VERAX Installability & CLI
+    # Subtest: npm pack creates valid tarball
+    ok 1 - npm pack creates valid tarball
+      ---
+      duration_ms: 2838.4153
+      type: 'test'
+      ...
+    # Subtest: tarball extracts and package structure is valid
+    ok 2 - tarball extracts and package structure is valid
+      ---
+      duration_ms: 2253.6186
+      type: 'test'
+      ...
+    # Subtest: installed CLI has correct surface
+    ok 3 - installed CLI has correct surface
+      ---
+      duration_ms: 367.475
+      type: 'test'
+      ...
+    1..3
+ok 227 - Final Gate: VERAX Installability & CLI
+  ---
+  duration_ms: 5466.0406
+  type: 'suite'
+  ...
+# Subtest: Finding Explanation Formatter
+    # Subtest: adds required fields for CONFIRMED finding
+    ok 1 - adds required fields for CONFIRMED finding
+      ---
+      duration_ms: 24.3494
+      type: 'test'
+      ...
+    # Subtest: adds required fields for SUSPECTED finding with no evidence
+    ok 2 - adds required fields for SUSPECTED finding with no evidence
+      ---
+      duration_ms: 0.3011
+      type: 'test'
+      ...
+    # Subtest: deterministic output for identical input
+    ok 3 - deterministic output for identical input
+      ---
+      duration_ms: 1.6967
+      type: 'test'
+      ...
+    1..3
+ok 228 - Finding Explanation Formatter
+  ---
+  duration_ms: 28.2635
+  type: 'suite'
+  ...
+# Subtest: Framework Observable Pattern Detection - Contracts
+    # Subtest: Next.js Observable Patterns
+        # Subtest: detectNextJsPresence: should detect Next.js via data-nextjs-router attribute
+        ok 1 - detectNextJsPresence: should detect Next.js via data-nextjs-router attribute
+          ---
+          duration_ms: 1.7108
+          type: 'test'
+          ...
+        # Subtest: detectNextJsPresence: should detect Next.js via __NEXT_DATA__ script
+        ok 2 - detectNextJsPresence: should detect Next.js via __NEXT_DATA__ script
+          ---
+          duration_ms: 0.4219
+          type: 'test'
+          ...
+        # Subtest: detectNextJsPresence: should return false when Next.js not present
+        ok 3 - detectNextJsPresence: should return false when Next.js not present
+          ---
+          duration_ms: 0.2414
+          type: 'test'
+          ...
+        # Subtest: detectNextJsPresence: should handle null HTML gracefully
+        ok 4 - detectNextJsPresence: should handle null HTML gracefully
+          ---
+          duration_ms: 0.1976
+          type: 'test'
+          ...
+        # Subtest: detectAppRouterLayoutTransition: should detect layout component swap
+        ok 5 - detectAppRouterLayoutTransition: should detect layout component swap
+          ---
+          duration_ms: 0.6256
+          type: 'test'
+          ...
+        # Subtest: detectAppRouterLayoutTransition: should return false when no layout change
+        ok 6 - detectAppRouterLayoutTransition: should return false when no layout change
+          ---
+          duration_ms: 0.2161
+          type: 'test'
+          ...
+        # Subtest: detectPageComponentSwap: should detect page component replacement
+        ok 7 - detectPageComponentSwap: should detect page component replacement
+          ---
+          duration_ms: 1.0906
+          type: 'test'
+          ...
+        # Subtest: detectPageComponentSwap: should handle null HTML gracefully
+        ok 8 - detectPageComponentSwap: should handle null HTML gracefully
+          ---
+          duration_ms: 1.2305
+          type: 'test'
+          ...
+        # Subtest: detectAllNextJsPatterns: should aggregate all Next.js patterns
+        ok 9 - detectAllNextJsPatterns: should aggregate all Next.js patterns
+          ---
+          duration_ms: 0.6921
+          type: 'test'
+          ...
+        # Subtest: detectAllNextJsPatterns: should return all false when Next.js not present
+        ok 10 - detectAllNextJsPatterns: should return all false when Next.js not present
+          ---
+          duration_ms: 0.5876
+          type: 'test'
+          ...
+        1..10
+    ok 1 - Next.js Observable Patterns
+      ---
+      duration_ms: 9.0937
+      type: 'suite'
+      ...
+    # Subtest: React Observable Patterns
+        # Subtest: detectReactPresence: should detect React via data-react-root
+        ok 1 - detectReactPresence: should detect React via data-react-root
+          ---
+          duration_ms: 0.6234
+          type: 'test'
+          ...
+        # Subtest: detectReactPresence: should detect React via data-reactroot
+        ok 2 - detectReactPresence: should detect React via data-reactroot
+          ---
+          duration_ms: 0.3016
+          type: 'test'
+          ...
+        # Subtest: detectReactPresence: should return false when React not present
+        ok 3 - detectReactPresence: should return false when React not present
+          ---
+          duration_ms: 0.1401
+          type: 'test'
+          ...
+        # Subtest: detectReactPresence: should handle null HTML gracefully
+        ok 4 - detectReactPresence: should handle null HTML gracefully
+          ---
+          duration_ms: 0.1122
+          type: 'test'
+          ...
+        # Subtest: detectEffectBasedNavigation: should detect URL change
+        ok 5 - detectEffectBasedNavigation: should detect URL change
+          ---
+          duration_ms: 0.3085
+          type: 'test'
+          ...
+        # Subtest: detectEffectBasedNavigation: should detect search params change
+        ok 6 - detectEffectBasedNavigation: should detect search params change
+          ---
+          duration_ms: 0.1736
+          type: 'test'
+          ...
+        # Subtest: detectEffectBasedNavigation: should return false when no navigation
+        ok 7 - detectEffectBasedNavigation: should return false when no navigation
+          ---
+          duration_ms: 0.119
+          type: 'test'
+          ...
+        # Subtest: detectStateReRenderEvidence: should detect component key changes
+        ok 8 - detectStateReRenderEvidence: should detect component key changes
+          ---
+          duration_ms: 0.8204
+          type: 'test'
+          ...
+        # Subtest: detectStateReRenderEvidence: should detect visibility pattern changes
+        ok 9 - detectStateReRenderEvidence: should detect visibility pattern changes
+          ---
+          duration_ms: 0.1883
+          type: 'test'
+          ...
+        # Subtest: detectStateReRenderEvidence: should handle null HTML gracefully
+        ok 10 - detectStateReRenderEvidence: should handle null HTML gracefully
+          ---
+          duration_ms: 0.1215
+          type: 'test'
+          ...
+        # Subtest: detectAllReactPatterns: should aggregate all React patterns
+        ok 11 - detectAllReactPatterns: should aggregate all React patterns
+          ---
+          duration_ms: 0.2785
+          type: 'test'
+          ...
+        # Subtest: detectAllReactPatterns: should return all false when React not present
+        ok 12 - detectAllReactPatterns: should return all false when React not present
+          ---
+          duration_ms: 0.1613
+          type: 'test'
+          ...
+        1..12
+    ok 2 - React Observable Patterns
+      ---
+      duration_ms: 3.8114
+      type: 'suite'
+      ...
+    # Subtest: Vue Observable Patterns
+        # Subtest: detectVuePresence: should detect Vue via data-v-hash
+        ok 1 - detectVuePresence: should detect Vue via data-v-hash
+          ---
+          duration_ms: 0.5021
+          type: 'test'
+          ...
+        # Subtest: detectVuePresence: should detect Vue via data-v-app
+        ok 2 - detectVuePresence: should detect Vue via data-v-app
+          ---
+          duration_ms: 0.2686
+          type: 'test'
+          ...
+        # Subtest: detectVuePresence: should return false when Vue not present
+        ok 3 - detectVuePresence: should return false when Vue not present
+          ---
+          duration_ms: 0.1565
+          type: 'test'
+          ...
+        # Subtest: detectVuePresence: should handle null HTML gracefully
+        ok 4 - detectVuePresence: should handle null HTML gracefully
+          ---
+          duration_ms: 0.1155
+          type: 'test'
+          ...
+        # Subtest: detectRouterTransition: should detect Vue router hash change
+        ok 5 - detectRouterTransition: should detect Vue router hash change
+          ---
+          duration_ms: 0.2495
+          type: 'test'
+          ...
+        # Subtest: detectRouterTransition: should return false when no route change
+        ok 6 - detectRouterTransition: should return false when no route change
+          ---
+          duration_ms: 0.2116
+          type: 'test'
+          ...
+        # Subtest: detectDOMReplacementPatterns: should detect v-show visibility changes
+        ok 7 - detectDOMReplacementPatterns: should detect v-show visibility changes
+          ---
+          duration_ms: 0.7953
+          type: 'test'
+          ...
+        # Subtest: detectDOMReplacementPatterns: should detect component count changes
+        ok 8 - detectDOMReplacementPatterns: should detect component count changes
+          ---
+          duration_ms: 0.1929
+          type: 'test'
+          ...
+        # Subtest: detectDOMReplacementPatterns: should handle null HTML gracefully
+        ok 9 - detectDOMReplacementPatterns: should handle null HTML gracefully
+          ---
+          duration_ms: 0.1231
+          type: 'test'
+          ...
+        # Subtest: detectAllVuePatterns: should aggregate all Vue patterns
+        ok 10 - detectAllVuePatterns: should aggregate all Vue patterns
+          ---
+          duration_ms: 0.2574
+          type: 'test'
+          ...
+        # Subtest: detectAllVuePatterns: should return all false when Vue not present
+        ok 11 - detectAllVuePatterns: should return all false when Vue not present
+          ---
+          duration_ms: 0.1685
+          type: 'test'
+          ...
+        1..11
+    ok 3 - Vue Observable Patterns
+      ---
+      duration_ms: 3.4842
+      type: 'suite'
+      ...
+    # Subtest: Cross-Framework Validation
+        # Subtest: should not produce false positives on plain HTML
+        ok 1 - should not produce false positives on plain HTML
+          ---
+          duration_ms: 0.337
+          type: 'test'
+          ...
+        # Subtest: should handle mixed framework markers without cross-contamination
+        ok 2 - should handle mixed framework markers without cross-contamination
+          ---
+          duration_ms: 1.4151
+          type: 'test'
+          ...
+        # Subtest: all detectors must handle null input without crashing
+        ok 3 - all detectors must handle null input without crashing
+          ---
+          duration_ms: 0.458
+          type: 'test'
+          ...
+        # Subtest: all detectors must handle undefined input without crashing
+        ok 4 - all detectors must handle undefined input without crashing
+          ---
+          duration_ms: 0.3684
+          type: 'test'
+          ...
+        # Subtest: all detectors must return deterministic results for identical input
+        ok 5 - all detectors must return deterministic results for identical input
+          ---
+          duration_ms: 1.5454
+          type: 'test'
+          ...
+        1..5
+    ok 4 - Cross-Framework Validation
+      ---
+      duration_ms: 4.4937
+      type: 'suite'
+      ...
+    1..4
+ok 229 - Framework Observable Pattern Detection - Contracts
+  ---
+  duration_ms: 21.9215
+  type: 'suite'
+  ...
+# Subtest: Vue Framework - Detection and Extraction
+ok 230 - Vue Framework - Detection and Extraction
+  ---
+  duration_ms: 43.1693
+  type: 'test'
+  ...
+# Subtest: Angular Framework - Detection and Extraction
+ok 231 - Angular Framework - Detection and Extraction
+  ---
+  duration_ms: 26.2135
+  type: 'test'
+  ...
+# Subtest: SvelteKit Framework - Detection and Extraction
+ok 232 - SvelteKit Framework - Detection and Extraction
+  ---
+  duration_ms: 5.1515
+  type: 'test'
+  ...
+# Subtest: Framework Extraction - Deterministic Output
+ok 233 - Framework Extraction - Deterministic Output
+  ---
+  duration_ms: 4.9404
+  type: 'test'
+  ...
+# Subtest: [gate] PASS path: no findings, stable, trusted
+ok 234 - [gate] PASS path: no findings, stable, trusted
+  ---
+  duration_ms: 29.6319
+  type: 'test'
+  ...
+# Subtest: [gate] FAIL_FINDINGS path: actionable findings detected
+ok 235 - [gate] FAIL_FINDINGS path: actionable findings detected
+  ---
+  duration_ms: 7.3461
+  type: 'test'
+  ...
+# Subtest: [gate] FAIL_INCOMPLETE path: fail-on-incomplete=true
+ok 236 - [gate] FAIL_INCOMPLETE path: fail-on-incomplete=true
+  ---
+  duration_ms: 13.2709
+  type: 'test'
+  ...
+# Subtest: [gate] PASS with INCOMPLETE when fail-on-incomplete=false
+ok 237 - [gate] PASS with INCOMPLETE when fail-on-incomplete=false
+  ---
+  duration_ms: 8.4751
+  type: 'test'
+  ...
+# Subtest: [gate] FAIL_UNSTABLE path: stability classification UNSTABLE
+ok 238 - [gate] FAIL_UNSTABLE path: stability classification UNSTABLE
+  ---
+  duration_ms: 10.7418
+  type: 'test'
+  ...
+# Subtest: [gate] FAIL_TOOL path: tool crashed (exit 2)
+ok 239 - [gate] FAIL_TOOL path: tool crashed (exit 2)
+  ---
+  duration_ms: 11.4332
+  type: 'test'
+  ...
+# Subtest: [gate] FAIL_USAGE path: propagate usage error (exit 64)
+ok 240 - [gate] FAIL_USAGE path: propagate usage error (exit 64)
+  ---
+  duration_ms: 8.6316
+  type: 'test'
+  ...
+# Subtest: [gate] FAIL_DATA path: propagate data error (exit 65)
+ok 241 - [gate] FAIL_DATA path: propagate data error (exit 65)
+  ---
+  duration_ms: 13.2712
+  type: 'test'
+  ...
+# Subtest: [gate] writeGateReport creates gate.json in run directory
+ok 242 - [gate] writeGateReport creates gate.json in run directory
+  ---
+  duration_ms: 21.0656
+  type: 'test'
+  ...
+# Subtest: [gate] determinism: same fixtures produce identical gate.json (except generatedAt)
+ok 243 - [gate] determinism: same fixtures produce identical gate.json (except generatedAt)
+  ---
+  duration_ms: 13.7865
+  type: 'test'
+  ...
+# Subtest: [gate] decision priority: FAIL_TOOL > FAIL_USAGE/DATA > FAIL_INCOMPLETE > FAIL_FINDINGS > FAIL_UNSTABLE > PASS
+ok 244 - [gate] decision priority: FAIL_TOOL > FAIL_USAGE/DATA > FAIL_INCOMPLETE > FAIL_FINDINGS > FAIL_UNSTABLE > PASS
+  ---
+  duration_ms: 22.931
+  type: 'test'
+  ...
+# Subtest: [gate] generateGateReport includes all artifact metadata
+ok 245 - [gate] generateGateReport includes all artifact metadata
+  ---
+  duration_ms: 14.9791
+  type: 'test'
+  ...
+# Subtest: Stage 6B: Integrity manifest
+    # Subtest: produces deterministic manifest and excludes staging/self
+    ok 1 - produces deterministic manifest and excludes staging/self
+      ---
+      duration_ms: 45.902
+      type: 'test'
+      ...
+    # Subtest: detects tampered artifacts
+    ok 2 - detects tampered artifacts
+      ---
+      duration_ms: 16.0844
+      type: 'test'
+      ...
+    # Subtest: detects missing and extra artifacts
+    ok 3 - detects missing and extra artifacts
+      ---
+      duration_ms: 24.5401
+      type: 'test'
+      ...
+    # Subtest: inspect reports PASSED when manifest matches artifacts
+    ok 4 - inspect reports PASSED when manifest matches artifacts
+      ---
+      duration_ms: 18.2086
+      type: 'test'
+      ...
+    # Subtest: inspect reports missing manifest for incomplete runs
+    ok 5 - inspect reports missing manifest for incomplete runs
+      ---
+      duration_ms: 27.8944
+      type: 'test'
+      ...
+    # Subtest: incomplete runs still emit manifest for existing artifacts
+    ok 6 - incomplete runs still emit manifest for existing artifacts
+      ---
+      duration_ms: 11.4957
+      type: 'test'
+      ...
+    1..6
+ok 246 - Stage 6B: Integrity manifest
+  ---
+  duration_ms: 146.4138
+  type: 'suite'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 1 - Evidence must exist with meaningful signals
+ok 247 - Enterprise Hygiene: Invariant 1 - Evidence must exist with meaningful signals
+  ---
+  duration_ms: 3.145
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 1 - Evidence with truthy signals passes
+ok 248 - Enterprise Hygiene: Invariant 1 - Evidence with truthy signals passes
+  ---
+  duration_ms: 0.8043
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 2 - Promise must exist and be non-empty
+ok 249 - Enterprise Hygiene: Invariant 2 - Promise must exist and be non-empty
+  ---
+  duration_ms: 1.1769
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 3 - Confidence must be number in [0,1]
+ok 250 - Enterprise Hygiene: Invariant 3 - Confidence must be number in [0,1]
+  ---
+  duration_ms: 0.6051
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 4 - Impact must be known value
+ok 251 - Enterprise Hygiene: Invariant 4 - Impact must be known value
+  ---
+  duration_ms: 0.4247
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 5 - Internal error flags never produce findings
+ok 252 - Enterprise Hygiene: Invariant 5 - Internal error flags never produce findings
+  ---
+  duration_ms: 0.6341
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invariant 7 - Finding ID must be non-empty string
+ok 253 - Enterprise Hygiene: Invariant 7 - Finding ID must be non-empty string
+  ---
+  duration_ms: 0.3948
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Valid finding passes all invariants
+ok 254 - Enterprise Hygiene: Valid finding passes all invariants
+  ---
+  duration_ms: 1.7609
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Deduplication removes duplicate findings (stable order)
+ok 255 - Enterprise Hygiene: Deduplication removes duplicate findings (stable order)
+  ---
+  duration_ms: 0.8743
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Same findings produce identical report JSON across runs
+ok 256 - Enterprise Hygiene: Same findings produce identical report JSON across runs
+  ---
+  duration_ms: 27.1482
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Findings are sorted deterministically (by id)
+ok 257 - Enterprise Hygiene: Findings are sorted deterministically (by id)
+  ---
+  duration_ms: 1.1767
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Production report excludes enforcement metadata (Trust Lock)
+ok 258 - Enterprise Hygiene: Production report excludes enforcement metadata (Trust Lock)
+  ---
+  duration_ms: 0.4172
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: Invalid findings are silently dropped (no console output)
+ok 259 - Enterprise Hygiene: Invalid findings are silently dropped (no console output)
+  ---
+  duration_ms: 0.8951
+  type: 'test'
+  ...
+# Subtest: Enterprise Hygiene: All findings pass through enforce pipeline
+ok 260 - Enterprise Hygiene: All findings pass through enforce pipeline
+  ---
+  duration_ms: 0.2234
+  type: 'test'
+  ...
+# Subtest: Vue Framework - Detection and Extraction
+ok 261 - Vue Framework - Detection and Extraction
+  ---
+  duration_ms: 47.4058
+  type: 'test'
+  ...
+# Subtest: Angular Framework - Detection and Extraction
+ok 262 - Angular Framework - Detection and Extraction
+  ---
+  duration_ms: 26.1639
+  type: 'test'
+  ...
+# Subtest: SvelteKit Framework - Detection and Extraction
+ok 263 - SvelteKit Framework - Detection and Extraction
+  ---
+  duration_ms: 5.1266
+  type: 'test'
+  ...
+# Subtest: Framework Extraction - Deterministic Output
+ok 264 - Framework Extraction - Deterministic Output
+  ---
+  duration_ms: 4.8551
+  type: 'test'
+  ...
+# Subtest: Taxonomy: invisible_state_failure detects network without UI change
+ok 265 - Taxonomy: invisible_state_failure detects network without UI change
+  ---
+  duration_ms: 5.6342
+  type: 'test'
+  ...
+# Subtest: Taxonomy: invisible_state_failure ignores when UI feedback present
+ok 266 - Taxonomy: invisible_state_failure ignores when UI feedback present
+  ---
+  duration_ms: 0.5213
+  type: 'test'
+  ...
+# Subtest: Taxonomy: stuck_or_phantom_loading detects unresolved loading
+ok 267 - Taxonomy: stuck_or_phantom_loading detects unresolved loading
+  ---
+  duration_ms: 0.7343
+  type: 'test'
+  ...
+# Subtest: Taxonomy: stuck_or_phantom_loading ignores when content loads
+ok 268 - Taxonomy: stuck_or_phantom_loading ignores when content loads
+  ---
+  duration_ms: 0.2816
+  type: 'test'
+  ...
+# Subtest: Taxonomy: silent_permission_wall detects blocked action no feedback
+ok 269 - Taxonomy: silent_permission_wall detects blocked action no feedback
+  ---
+  duration_ms: 0.7287
+  type: 'test'
+  ...
+# Subtest: Taxonomy: silent_permission_wall ignores when error explains block
+ok 270 - Taxonomy: silent_permission_wall ignores when error explains block
+  ---
+  duration_ms: 0.2808
+  type: 'test'
+  ...
+# Subtest: Taxonomy: render_failure detects state change without DOM update
+ok 271 - Taxonomy: render_failure detects state change without DOM update
+  ---
+  duration_ms: 0.7617
+  type: 'test'
+  ...
+# Subtest: Taxonomy: render_failure ignores when DOM updates
+ok 272 - Taxonomy: render_failure ignores when DOM updates
+  ---
+  duration_ms: 0.2857
+  type: 'test'
+  ...
+# Subtest: Taxonomy: deterministic severity matrix
+ok 273 - Taxonomy: deterministic severity matrix
+  ---
+  duration_ms: 1.0271
+  type: 'test'
+  ...
+# Subtest: Determinism: findings.json is byte-identical across runs (after normalization)
+ok 274 - Determinism: findings.json is byte-identical across runs (after normalization)
+  ---
+  duration_ms: 1.6569
+  type: 'test'
+  ...
+# Subtest: Determinism: summary.json is byte-identical across runs (after normalization)
+ok 275 - Determinism: summary.json is byte-identical across runs (after normalization)
+  ---
+  duration_ms: 0.2828
+  type: 'test'
+  ...
+# Subtest: Determinism: finding ordering is stable (sourceRef-based sort)
+ok 276 - Determinism: finding ordering is stable (sourceRef-based sort)
+  ---
+  duration_ms: 10.2154
+  type: 'test'
+  ...
+# Subtest: Exit 0: COMPLETE with zero findings
+ok 277 - Exit 0: COMPLETE with zero findings
+  ---
+  duration_ms: 1.3654
+  type: 'test'
+  ...
+# Subtest: Exit 20: COMPLETE with confirmed findings present
+ok 278 - Exit 20: COMPLETE with confirmed findings present
+  ---
+  duration_ms: 0.2501
+  type: 'test'
+  ...
+# Subtest: Exit 64: Usage error (missing --url)
+ok 279 - Exit 64: Usage error (missing --url)
+  ---
+  duration_ms: 420.8121
+  type: 'test'
+  ...
+# Subtest: Exit 50: Evidence error (non-existent directory)
+ok 280 - Exit 50: Evidence error (non-existent directory)
+  ---
+  duration_ms: 285.5054
+  type: 'test'
+  ...
+# Subtest: Exit 30: INCOMPLETE run (observation timeout)
+ok 281 - Exit 30: INCOMPLETE run (observation timeout)
+  ---
+  duration_ms: 0.2313
+  type: 'test'
+  ...
+# Subtest: Exit 40: Internal crash (not timeout)
+ok 282 - Exit 40: Internal crash (not timeout)
+  ---
+  duration_ms: 0.2123
+  type: 'test'
+  ...
+# Subtest: Exit code precedence: INCOMPLETE (30) overrides findings (20)
+ok 283 - Exit code precedence: INCOMPLETE (30) overrides findings (20)
+  ---
+  duration_ms: 0.2255
+  type: 'test'
+  ...
+# Subtest: Exit code precedence: Crash (40) overrides all
+ok 284 - Exit code precedence: Crash (40) overrides all
+  ---
+  duration_ms: 0.2029
+  type: 'test'
+  ...
+# Subtest: Budget: loadBudgets returns default values
+ok 285 - Budget: loadBudgets returns default values
+  ---
+  duration_ms: 2.7567
+  type: 'test'
+  ...
+# Subtest: Budget: checkExpectationsBudget passes when under limit
+ok 286 - Budget: checkExpectationsBudget passes when under limit
+  ---
+  duration_ms: 0.3082
+  type: 'test'
+  ...
+# Subtest: Budget: checkExpectationsBudget fails when over limit
+ok 287 - Budget: checkExpectationsBudget fails when over limit
+  ---
+  duration_ms: 0.3082
+  type: 'test'
+  ...
+# Subtest: Budget: checkExpectationsBudget passes exactly at limit
+ok 288 - Budget: checkExpectationsBudget passes exactly at limit
+  ---
+  duration_ms: 0.3056
+  type: 'test'
+  ...
+# Subtest: Budget: checkExpectationsBudget fails at limit + 1
+ok 289 - Budget: checkExpectationsBudget fails at limit + 1
+  ---
+  duration_ms: 0.2175
+  type: 'test'
+  ...
+# Subtest: Budget: checkInteractionsBudget passes when under limit
+ok 290 - Budget: checkInteractionsBudget passes when under limit
+  ---
+  duration_ms: 0.222
+  type: 'test'
+  ...
+# Subtest: Budget: checkInteractionsBudget fails when over limit
+ok 291 - Budget: checkInteractionsBudget fails when over limit
+  ---
+  duration_ms: 0.3036
+  type: 'test'
+  ...
+# Subtest: Budget: checkRuntimeBudget passes when under limit
+ok 292 - Budget: checkRuntimeBudget passes when under limit
+  ---
+  duration_ms: 0.2885
+  type: 'test'
+  ...
+# Subtest: Budget: checkRuntimeBudget fails when over limit
+ok 293 - Budget: checkRuntimeBudget fails when over limit
+  ---
+  duration_ms: 0.5742
+  type: 'test'
+  ...
+# Subtest: Budget: checkEvidenceFilesBudget passes when under limit
+ok 294 - Budget: checkEvidenceFilesBudget passes when under limit
+  ---
+  duration_ms: 0.6367
+  type: 'test'
+  ...
+# Subtest: Budget: checkEvidenceFilesBudget fails when over limit
+ok 295 - Budget: checkEvidenceFilesBudget fails when over limit
+  ---
+  duration_ms: 0.272
+  type: 'test'
+  ...
+# Subtest: Budget: custom budget configuration via parameter
+ok 296 - Budget: custom budget configuration via parameter
+  ---
+  duration_ms: 0.1969
+  type: 'test'
+  ...
+# Subtest: Budget: env var VERAX_MAX_EXPECTATIONS overrides default
+ok 297 - Budget: env var VERAX_MAX_EXPECTATIONS overrides default
+  ---
+  duration_ms: 0.2534
+  type: 'test'
+  ...
+# Subtest: Budget: invalid env var falls back to default
+ok 298 - Budget: invalid env var falls back to default
+  ---
+  duration_ms: 0.2445
+  type: 'test'
+  ...
+# Subtest: Budget: negative env var falls back to default
+ok 299 - Budget: negative env var falls back to default
+  ---
+  duration_ms: 0.2338
+  type: 'test'
+  ...
+# Subtest: Deduplication: getDeduplicationKey generates stable keys
+ok 300 - Deduplication: getDeduplicationKey generates stable keys
+  ---
+  duration_ms: 2.3826
+  type: 'test'
+  ...
+# Subtest: Deduplication: identical keys for identical findings
+ok 301 - Deduplication: identical keys for identical findings
+  ---
+  duration_ms: 0.38
+  type: 'test'
+  ...
+# Subtest: Deduplication: different keys for different types
+ok 302 - Deduplication: different keys for different types
+  ---
+  duration_ms: 0.3746
+  type: 'test'
+  ...
+# Subtest: Deduplication: no deduplication for single finding
+ok 303 - Deduplication: no deduplication for single finding
+  ---
+  duration_ms: 0.5273
+  type: 'test'
+  ...
+# Subtest: Deduplication: merges duplicate findings
+ok 304 - Deduplication: merges duplicate findings
+  ---
+  duration_ms: 22.7652
+  type: 'test'
+  ...
+# Subtest: Deduplication: keeps highest confidence when severity equal
+ok 305 - Deduplication: keeps highest confidence when severity equal
+  ---
+  duration_ms: 0.5747
+  type: 'test'
+  ...
+# Subtest: Deduplication: preserves distinct findings
+ok 306 - Deduplication: preserves distinct findings
+  ---
+  duration_ms: 0.4565
+  type: 'test'
+  ...
+# Subtest: Deduplication: handles empty array
+ok 307 - Deduplication: handles empty array
+  ---
+  duration_ms: 0.2727
+  type: 'test'
+  ...
+# Subtest: Deduplication: handles null input
+ok 308 - Deduplication: handles null input
+  ---
+  duration_ms: 0.6911
+  type: 'test'
+  ...
+# Subtest: Deduplication: merges multiple findings (3+)
+ok 309 - Deduplication: merges multiple findings (3+)
+  ---
+  duration_ms: 3.4874
+  type: 'test'
+  ...
+# Subtest: Deduplication: deterministic evidence merge
+ok 310 - Deduplication: deterministic evidence merge
+  ---
+  duration_ms: 1.6614
+  type: 'test'
+  ...
+# Subtest: Project Shape: deterministic candidate listing order
+ok 311 - Project Shape: deterministic candidate listing order
+  ---
+  duration_ms: 39.8736
+  type: 'test'
+  ...
+# Subtest: Project Shape: selects single clear candidate
+ok 312 - Project Shape: selects single clear candidate
+  ---
+  duration_ms: 4.431
+  type: 'test'
+  ...
+# Subtest: Project Shape: root src preferred when single
+ok 313 - Project Shape: root src preferred when single
+  ---
+  duration_ms: 7.8405
+  type: 'test'
+  ...
+# Subtest: Src Resolver: ambiguity throws DataError with exit 50
+ok 314 - Src Resolver: ambiguity throws DataError with exit 50
+  ---
+  duration_ms: 12.2038
+  type: 'test'
+  ...
+# Subtest: PUBLIC SURFACE CONTRACT: Only documented commands exposed
+    # Subtest: verax --help output contains only public commands
+    ok 1 - verax --help output contains only public commands
+      ---
+      duration_ms: 275.9118
+      type: 'test'
+      ...
+    # Subtest: verax recognizes only public commands
+    ok 2 - verax recognizes only public commands
+      ---
+      duration_ms: 243.2611
+      type: 'test'
+      ...
+    # Subtest: internal commands were removed in Stage 5
+    ok 3 - internal commands were removed in Stage 5
+      ---
+      duration_ms: 0.4549
+      type: 'test'
+      ...
+    # Subtest: entry.js does not import internal commands
+    ok 4 - entry.js does not import internal commands
+      ---
+      duration_ms: 0.7775
+      type: 'test'
+      ...
+    # Subtest: run, inspect, doctor handle invalid args gracefully
+    ok 5 - run, inspect, doctor handle invalid args gracefully
+      ---
+      duration_ms: 384.0727
+      type: 'test'
+      ...
+    # Subtest: help command works correctly
+    ok 6 - help command works correctly
+      ---
+      duration_ms: 116.6035
+      type: 'test'
+      ...
+    # Subtest: version command works correctly
+    ok 7 - version command works correctly
+      ---
+      duration_ms: 121.1415
+      type: 'test'
+      ...
+    # Subtest: verax version reports trust surface
+    ok 8 - verax version reports trust surface
+      ---
+      duration_ms: 117.1683
+      type: 'test'
+      ...
+    # Subtest: no args shows help with UsageError exit
+    ok 9 - no args shows help with UsageError exit
+      ---
+      duration_ms: 124.0849
+      type: 'test'
+      ...
+    1..9
+ok 315 - PUBLIC SURFACE CONTRACT: Only documented commands exposed
+  ---
+  duration_ms: 1388.2456
+  type: 'test'
+  ...
+# Subtest: Release Integrity
+    # Subtest: Provenance Builder
+        # Subtest: should build provenance with all required fields
+        ok 1 - should build provenance with all required fields
+          ---
+          duration_ms: 773.1571
+          type: 'test'
+          ...
+        # Subtest: should write provenance to file
+        ok 2 - should write provenance to file
+          ---
+          duration_ms: 420.6923
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Provenance Builder
+      ---
+      duration_ms: 1195.1289
+      type: 'suite'
+      ...
+    # Subtest: SBOM Builder
+        # Subtest: should build SBOM with CycloneDX format
+        ok 1 - should build SBOM with CycloneDX format
+          ---
+          duration_ms: 955.2879
+          type: 'test'
+          ...
+        # Subtest: should include main package in SBOM
+        ok 2 - should include main package in SBOM
+          ---
+          duration_ms: 930.6519
+          type: 'test'
+          ...
+        # Subtest: should write SBOM to file
+        ok 3 - should write SBOM to file
+          ---
+          duration_ms: 914.9169
+          type: 'test'
+          ...
+        1..3
+    ok 2 - SBOM Builder
+      ---
+      duration_ms: 2801.2994
+      type: 'suite'
+      ...
+    # Subtest: Reproducibility Check
+        # Subtest: should check reproducibility and generate report
+        ok 1 - should check reproducibility and generate report
+          ---
+          duration_ms: 92.9107
+          type: 'test'
+          ...
+        # Subtest: should write reproducibility report to file
+        ok 2 - should write reproducibility report to file
+          ---
+          duration_ms: 101.7429
+          type: 'test'
+          ...
+        1..2
+    ok 3 - Reproducibility Check
+      ---
+      duration_ms: 194.968
+      type: 'suite'
+      ...
+    # Subtest: Release Enforcer
+        # Subtest: should block release when provenance is missing
+        ok 1 - should block release when provenance is missing
+          ---
+          duration_ms: 2.0992
+          type: 'test'
+          ...
+        # Subtest: should block release when SBOM is missing
+        ok 2 - should block release when SBOM is missing
+          ---
+          duration_ms: 335.8444
+          type: 'test'
+          ...
+        # Subtest: should block release when reproducibility report is missing
+        ok 3 - should block release when reproducibility report is missing
+          ---
+          duration_ms: 1156.5172
+          type: 'test'
+          ...
+        # Subtest: should block release when reproducibility is NON_REPRODUCIBLE
+        ok 4 - should block release when reproducibility is NON_REPRODUCIBLE
+          ---
+          duration_ms: 1176.2617
+          type: 'test'
+          ...
+        1..4
+    ok 4 - Release Enforcer
+      ---
+      duration_ms: 2671.0248
+      type: 'suite'
+      ...
+    1..4
+ok 316 - Release Integrity
+  ---
+  duration_ms: 6863.7156
+  type: 'suite'
+  ...
+# Subtest: Retention HARD GUARD: run.js always passes activeRunId
+ok 317 - Retention HARD GUARD: run.js always passes activeRunId
+  ---
+  duration_ms: 1.9544
+  type: 'test'
+  ...
+# Subtest: Retention error handling: missing activeRunId returns error (not silent no-op)
+ok 318 - Retention error handling: missing activeRunId returns error (not silent no-op)
+  ---
+  duration_ms: 1.4932
+  type: 'test'
+  ...
+# Subtest: Deterministic: NO_NAVIGATION + HIGH severity + high confidence
+ok 319 - Deterministic: NO_NAVIGATION + HIGH severity + high confidence
+  ---
+  duration_ms: 4.3058
+  type: 'test'
+  ...
+# Subtest: Deterministic: BLOCKED_WITHOUT_MESSAGE + MEDIUM severity + high confidence
+ok 320 - Deterministic: BLOCKED_WITHOUT_MESSAGE + MEDIUM severity + high confidence
+  ---
+  duration_ms: 0.2566
+  type: 'test'
+  ...
+# Subtest: Deterministic: STALLED_LOADING + HIGH severity + low confidence (risk uncertain)
+ok 321 - Deterministic: STALLED_LOADING + HIGH severity + low confidence (risk uncertain)
+  ---
+  duration_ms: 0.1986
+  type: 'test'
+  ...
+# Subtest: Deterministic: UNKNOWN_SILENCE + MEDIUM severity + high confidence
+ok 322 - Deterministic: UNKNOWN_SILENCE + MEDIUM severity + high confidence
+  ---
+  duration_ms: 0.2293
+  type: 'test'
+  ...
+# Subtest: Graceful fallback: maps undefined silenceKind with severity mapping
+ok 323 - Graceful fallback: maps undefined silenceKind with severity mapping
+  ---
+  duration_ms: 0.4292
+  type: 'test'
+  ...
+# Subtest: No semantic changes: severity, confidence, status untouched
+ok 324 - No semantic changes: severity, confidence, status untouched
+  ---
+  duration_ms: 0.3345
+  type: 'test'
+  ...
+# Subtest: Does not apply to non-silent-failure findings
+ok 325 - Does not apply to non-silent-failure findings
+  ---
+  duration_ms: 0.3386
+  type: 'test'
+  ...
+# Subtest: Does not apply to SUSPECTED findings that are not silent failures
+ok 326 - Does not apply to SUSPECTED findings that are not silent failures
+  ---
+  duration_ms: 0.1818
+  type: 'test'
+  ...
+# Subtest: NO_FEEDBACK + MEDIUM severity + low confidence
+ok 327 - NO_FEEDBACK + MEDIUM severity + low confidence
+  ---
+  duration_ms: 0.61
+  type: 'test'
+  ...
+# Subtest: NO_UI_CHANGE + LOW severity + high confidence
+ok 328 - NO_UI_CHANGE + LOW severity + high confidence
+  ---
+  duration_ms: 0.6615
+  type: 'test'
+  ...
+# Subtest: Confidence boundary: exactly 0.7 is NOT low (>= 0.7)
+ok 329 - Confidence boundary: exactly 0.7 is NOT low (>= 0.7)
+  ---
+  duration_ms: 0.2529
+  type: 'test'
+  ...
+# Subtest: Confidence boundary: 0.69 is low (< 0.7)
+ok 330 - Confidence boundary: 0.69 is low (< 0.7)
+  ---
+  duration_ms: 0.1326
+  type: 'test'
+  ...
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r
+# \\r                                                            \\r\\r                                                            \\r
+# Subtest: run directories do not overwrite across consecutive runs
+ok 331 - run directories do not overwrite across consecutive runs
+  ---
+  duration_ms: 6502.0266
+  type: 'test'
+  ...
+# Subtest: coverage below threshold enforces exit 30
+ok 332 - coverage below threshold enforces exit 30
+  ---
+  duration_ms: 2560.0507
+  type: 'test'
+  ...
+# Subtest: advisory mode exits 0 when coverage passes
+ok 333 - advisory mode exits 0 when coverage passes
+  ---
+  duration_ms: 2393.6547
+  type: 'test'
+  ...
+# Subtest: Semantic Determinism
+    # Subtest: should compare identical summaries
+    ok 1 - should compare identical summaries
+      ---
+      duration_ms: 22.5657
+      type: 'test'
+      ...
+    # Subtest: should ignore timestamps in comparison
+    ok 2 - should ignore timestamps in comparison
+      ---
+      duration_ms: 2.7609
+      type: 'test'
+      ...
+    # Subtest: should ignore runId in comparison
+    ok 3 - should ignore runId in comparison
+      ---
+      duration_ms: 2.6133
+      type: 'test'
+      ...
+    # Subtest: should ignore duration fields in comparison
+    ok 4 - should ignore duration fields in comparison
+      ---
+      duration_ms: 2.2811
+      type: 'test'
+      ...
+    # Subtest: should normalize paths in comparison
+    ok 5 - should normalize paths in comparison
+      ---
+      duration_ms: 1.7294
+      type: 'test'
+      ...
+    # Subtest: should detect semantic differences in findings
+    ok 6 - should detect semantic differences in findings
+      ---
+      duration_ms: 1.4593
+      type: 'test'
+      ...
+    # Subtest: should detect difference in findings count
+    ok 7 - should detect difference in findings count
+      ---
+      duration_ms: 1.4354
+      type: 'test'
+      ...
+    # Subtest: should normalize findings for comparison
+    ok 8 - should normalize findings for comparison
+      ---
+      duration_ms: 1.6998
+      type: 'test'
+      ...
+    # Subtest: should load and compare runs from disk
+    ok 9 - should load and compare runs from disk
+      ---
+      duration_ms: 5.4383
+      type: 'test'
+      ...
+    # Subtest: should handle comparison errors gracefully
+    ok 10 - should handle comparison errors gracefully
+      ---
+      duration_ms: 8.5645
+      type: 'test'
+      ...
+    # Subtest: should detect type mismatch
+    ok 11 - should detect type mismatch
+      ---
+      duration_ms: 1.3545
+      type: 'test'
+      ...
+    # Subtest: should detect missing fields
+    ok 12 - should detect missing fields
+      ---
+      duration_ms: 1.3998
+      type: 'test'
+      ...
+    # Subtest: should handle nested object comparison
+    ok 13 - should handle nested object comparison
+      ---
+      duration_ms: 4.0266
+      type: 'test'
+      ...
+    # Subtest: should handle array comparison
+    ok 14 - should handle array comparison
+      ---
+      duration_ms: 1.1792
+      type: 'test'
+      ...
+    # Subtest: should detect array length mismatch
+    ok 15 - should detect array length mismatch
+      ---
+      duration_ms: 3.5836
+      type: 'test'
+      ...
+    1..15
+ok 334 - Semantic Determinism
+  ---
+  duration_ms: 64.9823
+  type: 'suite'
+  ...
+# Subtest: A: Navigation > CONFIRMED: click attempted, no nav change, no feedback, no DOM, run complete
+ok 335 - A: Navigation > CONFIRMED: click attempted, no nav change, no feedback, no DOM, run complete
+  ---
+  duration_ms: 2.9067
+  type: 'test'
+  ...
+# Subtest: A: Navigation > DISCONFIRM: meaningful DOM change proves something happened
+ok 336 - A: Navigation > DISCONFIRM: meaningful DOM change proves something happened
+  ---
+  duration_ms: 0.3365
+  type: 'test'
+  ...
+# Subtest: A: Navigation > DISCONFIRM: feedback proves communication occurred
+ok 337 - A: Navigation > DISCONFIRM: feedback proves communication occurred
+  ---
+  duration_ms: 0.3178
+  type: 'test'
+  ...
+# Subtest: A: Navigation > SUSPECTED: attempt but incomplete observation
+ok 338 - A: Navigation > SUSPECTED: attempt but incomplete observation
+  ---
+  duration_ms: 0.2308
+  type: 'test'
+  ...
+# Subtest: B: Submit > CONFIRMED: submit attempted, no feedback, no DOM, run complete
+ok 339 - B: Submit > CONFIRMED: submit attempted, no feedback, no DOM, run complete
+  ---
+  duration_ms: 0.3955
+  type: 'test'
+  ...
+# Subtest: B: Submit > CONFIRMED even with network: network present but UI silent
+ok 340 - B: Submit > CONFIRMED even with network: network present but UI silent
+  ---
+  duration_ms: 0.216
+  type: 'test'
+  ...
+# Subtest: B: Submit > DISCONFIRM: feedback proves user got response
+ok 341 - B: Submit > DISCONFIRM: feedback proves user got response
+  ---
+  duration_ms: 0.2857
+  type: 'test'
+  ...
+# Subtest: B: Submit > DISCONFIRM: DOM change proves something happened
+ok 342 - B: Submit > DISCONFIRM: DOM change proves something happened
+  ---
+  duration_ms: 0.1616
+  type: 'test'
+  ...
+# Subtest: B: Submit > SUSPECTED: incomplete observation
+ok 343 - B: Submit > SUSPECTED: incomplete observation
+  ---
+  duration_ms: 0.6325
+  type: 'test'
+  ...
+# Subtest: C: UI Feedback > CONFIRMED: attempted, no feedback, no DOM, no nav, run complete
+ok 344 - C: UI Feedback > CONFIRMED: attempted, no feedback, no DOM, no nav, run complete
+  ---
+  duration_ms: 0.6764
+  type: 'test'
+  ...
+# Subtest: C: UI Feedback > DISCONFIRM: feedback proves user notified
+ok 345 - C: UI Feedback > DISCONFIRM: feedback proves user notified
+  ---
+  duration_ms: 0.2755
+  type: 'test'
+  ...
+# Subtest: C: UI Feedback > DISCONFIRM: DOM change proves something happened
+ok 346 - C: UI Feedback > DISCONFIRM: DOM change proves something happened
+  ---
+  duration_ms: 0.2579
+  type: 'test'
+  ...
+# Subtest: C: UI Feedback > DISCONFIRM: navigation contradicts pure feedback silence
+ok 347 - C: UI Feedback > DISCONFIRM: navigation contradicts pure feedback silence
+  ---
+  duration_ms: 0.1808
+  type: 'test'
+  ...
+# Subtest: D: State Change > CONFIRMED: mutation attempted, no DOM outcome, no feedback, run complete
+ok 348 - D: State Change > CONFIRMED: mutation attempted, no DOM outcome, no feedback, run complete
+  ---
+  duration_ms: 0.2626
+  type: 'test'
+  ...
+# Subtest: D: State Change > DISCONFIRM: meaningful DOM change proves state reflected to UI
+ok 349 - D: State Change > DISCONFIRM: meaningful DOM change proves state reflected to UI
+  ---
+  duration_ms: 0.1839
+  type: 'test'
+  ...
+# Subtest: D: State Change > DISCONFIRM: feedback proves notification happened
+ok 350 - D: State Change > DISCONFIRM: feedback proves notification happened
+  ---
+  duration_ms: 0.1536
+  type: 'test'
+  ...
+# Subtest: D: State Change > SUSPECTED: incomplete observation
+ok 351 - D: State Change > SUSPECTED: incomplete observation
+  ---
+  duration_ms: 0.1688
+  type: 'test'
+  ...
+# Subtest: E: Loading Phantom > CONFIRMED: loading started, never resolved, run complete, no outcome
+ok 352 - E: Loading Phantom > CONFIRMED: loading started, never resolved, run complete, no outcome
+  ---
+  duration_ms: 0.2546
+  type: 'test'
+  ...
+# Subtest: E: Loading Phantom > SUSPECTED: loading resolved but with no outcome
+ok 353 - E: Loading Phantom > SUSPECTED: loading resolved but with no outcome
+  ---
+  duration_ms: 0.1848
+  type: 'test'
+  ...
+# Subtest: E: Loading Phantom > DISCONFIRM: feedback ends silence claim
+ok 354 - E: Loading Phantom > DISCONFIRM: feedback ends silence claim
+  ---
+  duration_ms: 0.1457
+  type: 'test'
+  ...
+# Subtest: E: Loading Phantom > INCOMPLETE: observation window not complete
+ok 355 - E: Loading Phantom > INCOMPLETE: observation window not complete
+  ---
+  duration_ms: 0.3162
+  type: 'test'
+  ...
+# Subtest: F: Permission Wall > CONFIRMED: action attempted, silently blocked, no denial feedback, run complete
+ok 356 - F: Permission Wall > CONFIRMED: action attempted, silently blocked, no denial feedback, run complete
+  ---
+  duration_ms: 0.2724
+  type: 'test'
+  ...
+# Subtest: F: Permission Wall > CONFIRMED: 403 response with no denial message
+ok 357 - F: Permission Wall > CONFIRMED: 403 response with no denial message
+  ---
+  duration_ms: 0.2055
+  type: 'test'
+  ...
+# Subtest: F: Permission Wall > DISCONFIRM: denial feedback contradicts silence
+ok 358 - F: Permission Wall > DISCONFIRM: denial feedback contradicts silence
+  ---
+  duration_ms: 0.2309
+  type: 'test'
+  ...
+# Subtest: F: Permission Wall > DISCONFIRM: redirect after block ends silence
+ok 359 - F: Permission Wall > DISCONFIRM: redirect after block ends silence
+  ---
+  duration_ms: 0.1578
+  type: 'test'
+  ...
+# Subtest: F: Permission Wall > SUSPECTED: observation incomplete
+ok 360 - F: Permission Wall > SUSPECTED: observation incomplete
+  ---
+  duration_ms: 0.1339
+  type: 'test'
+  ...
+# Subtest: CROSS: Evidence Law - No CONFIRMED without runComplete
+ok 361 - CROSS: Evidence Law - No CONFIRMED without runComplete
+  ---
+  duration_ms: 0.2427
+  type: 'test'
+  ...
+# Subtest: CROSS: Confidence decreases with contradicting signals
+ok 362 - CROSS: Confidence decreases with contradicting signals
+  ---
+  duration_ms: 0.244
+  type: 'test'
+  ...
+# Subtest: DETERMINISM: Multiple invocations produce same output
+ok 363 - DETERMINISM: Multiple invocations produce same output
+  ---
+  duration_ms: 0.2118
+  type: 'test'
+  ...
+# Subtest: Deterministic: NO_NAVIGATION classification
+ok 364 - Deterministic: NO_NAVIGATION classification
+  ---
+  duration_ms: 2.677
+  type: 'test'
+  ...
+# Subtest: Deterministic: STALLED_LOADING classification
+ok 365 - Deterministic: STALLED_LOADING classification
+  ---
+  duration_ms: 0.3003
+  type: 'test'
+  ...
+# Subtest: Graceful fallback: UNKNOWN_SILENCE when evidence insufficient
+ok 366 - Graceful fallback: UNKNOWN_SILENCE when evidence insufficient
+  ---
+  duration_ms: 0.2861
+  type: 'test'
+  ...
+# Subtest: No semantic changes: severity/confidence untouched
+ok 367 - No semantic changes: severity/confidence untouched
+  ---
+  duration_ms: 0.4244
+  type: 'test'
+  ...
+# Subtest: Taxonomy: invisible_state_failure detects network without UI change
+ok 368 - Taxonomy: invisible_state_failure detects network without UI change
+  ---
+  duration_ms: 5.0576
+  type: 'test'
+  ...
+# Subtest: Taxonomy: invisible_state_failure ignores when UI feedback present
+ok 369 - Taxonomy: invisible_state_failure ignores when UI feedback present
+  ---
+  duration_ms: 1.4712
+  type: 'test'
+  ...
+# Subtest: Taxonomy: stuck_or_phantom_loading detects unresolved loading
+ok 370 - Taxonomy: stuck_or_phantom_loading detects unresolved loading
+  ---
+  duration_ms: 0.7426
+  type: 'test'
+  ...
+# Subtest: Taxonomy: stuck_or_phantom_loading ignores when content loads
+ok 371 - Taxonomy: stuck_or_phantom_loading ignores when content loads
+  ---
+  duration_ms: 1.1837
+  type: 'test'
+  ...
+# Subtest: Taxonomy: silent_permission_wall detects blocked action no feedback
+ok 372 - Taxonomy: silent_permission_wall detects blocked action no feedback
+  ---
+  duration_ms: 1.0778
+  type: 'test'
+  ...
+# Subtest: Taxonomy: silent_permission_wall ignores when error explains block
+ok 373 - Taxonomy: silent_permission_wall ignores when error explains block
+  ---
+  duration_ms: 0.3147
+  type: 'test'
+  ...
+# Subtest: Taxonomy: render_failure detects state change without DOM update
+ok 374 - Taxonomy: render_failure detects state change without DOM update
+  ---
+  duration_ms: 0.7052
+  type: 'test'
+  ...
+# Subtest: Taxonomy: render_failure ignores when DOM updates
+ok 375 - Taxonomy: render_failure ignores when DOM updates
+  ---
+  duration_ms: 0.2267
+  type: 'test'
+  ...
+# Subtest: Taxonomy: deterministic severity matrix
+ok 376 - Taxonomy: deterministic severity matrix
+  ---
+  duration_ms: 0.8451
+  type: 'test'
+  ...
+# Subtest: Time Provider | default provider returns real-time values
+ok 377 - Time Provider | default provider returns real-time values
+  ---
+  duration_ms: 209.3702
+  type: 'test'
+  ...
+# Subtest: Time Provider | VERAX_TEST_TIME forces deterministic output
+ok 378 - Time Provider | VERAX_TEST_TIME forces deterministic output
+  ---
+  duration_ms: 140.1576
+  type: 'test'
+  ...
+# Subtest: Time Provider | provider has required methods
+ok 379 - Time Provider | provider has required methods
+  ---
+  duration_ms: 149.7922
+  type: 'test'
+  ...
+# Subtest: Time Provider | setTimeProvider accepts valid provider
+ok 380 - Time Provider | setTimeProvider accepts valid provider
+  ---
+  duration_ms: 138.5575
+  type: 'test'
+  ...
+# Subtest: Time Provider | setTimeProvider rejects invalid provider
+ok 381 - Time Provider | setTimeProvider rejects invalid provider
+  ---
+  duration_ms: 127.2382
+  type: 'test'
+  ...
+# Subtest: Time Provider | is singleton across imports
+ok 382 - Time Provider | is singleton across imports
+  ---
+  duration_ms: 122.6329
+  type: 'test'
+  ...
+# Subtest: Time Provider | iso() and now() are consistent (within 100ms)
+ok 383 - Time Provider | iso() and now() are consistent (within 100ms)
+  ---
+  duration_ms: 124.0774
+  type: 'test'
+  ...
+# Subtest: ClientSideRoutingDetector: hash navigation detected
+ok 384 - ClientSideRoutingDetector: hash navigation detected
+  ---
+  duration_ms: 2.2085
+  type: 'test'
+  ...
+# Subtest: ClientSideRoutingDetector: no hash change returns false
+ok 385 - ClientSideRoutingDetector: no hash change returns false
+  ---
+  duration_ms: 0.6091
+  type: 'test'
+  ...
+# Subtest: ClientSideRoutingDetector: path navigation detected
+ok 386 - ClientSideRoutingDetector: path navigation detected
+  ---
+  duration_ms: 0.633
+  type: 'test'
+  ...
+# Subtest: ClientSideRoutingDetector: query string change detected
+ok 387 - ClientSideRoutingDetector: query string change detected
+  ---
+  duration_ms: 0.7806
+  type: 'test'
+  ...
+# Subtest: ClientSideRoutingDetector: history state changes detected
+ok 388 - ClientSideRoutingDetector: history state changes detected
+  ---
+  duration_ms: 0.7066
+  type: 'test'
+  ...
+# Subtest: ClientSideRoutingDetector: graceful null handling
+ok 389 - ClientSideRoutingDetector: graceful null handling
+  ---
+  duration_ms: 0.6377
+  type: 'test'
+  ...
+# Subtest: ClientSideRoutingDetector: comprehensive routing detection
+ok 390 - ClientSideRoutingDetector: comprehensive routing detection
+  ---
+  duration_ms: 0.5761
+  type: 'test'
+  ...
+# Subtest: UIFeedbackPatternDetector: loading indicators detected in HTML
+ok 391 - UIFeedbackPatternDetector: loading indicators detected in HTML
+  ---
+  duration_ms: 0.8815
+  type: 'test'
+  ...
+# Subtest: UIFeedbackPatternDetector: progressbar role detected
+ok 392 - UIFeedbackPatternDetector: progressbar role detected
+  ---
+  duration_ms: 0.7526
+  type: 'test'
+  ...
+# Subtest: UIFeedbackPatternDetector: spinner class detected
+ok 393 - UIFeedbackPatternDetector: spinner class detected
+  ---
+  duration_ms: 0.6022
+  type: 'test'
+  ...
+# Subtest: UIFeedbackPatternDetector: no loading indicators returns false
+ok 394 - UIFeedbackPatternDetector: no loading indicators returns false
+  ---
+  duration_ms: 0.284
+  type: 'test'
+  ...
+# Subtest: UIFeedbackPatternDetector: graceful null handling
+ok 395 - UIFeedbackPatternDetector: graceful null handling
+  ---
+  duration_ms: 0.4602
+  type: 'test'
+  ...
+# Subtest: UIFeedbackPatternDetector: ephemeral DOM patterns detected
+ok 396 - UIFeedbackPatternDetector: ephemeral DOM patterns detected
+  ---
+  duration_ms: 0.2968
+  type: 'test'
+  ...
+# Subtest: UIFeedbackPatternDetector: comprehensive pattern detection
+ok 397 - UIFeedbackPatternDetector: comprehensive pattern detection
+  ---
+  duration_ms: 0.6802
+  type: 'test'
+  ...
+# Subtest: LoadingResolutionDetector: loading start detected
+ok 398 - LoadingResolutionDetector: loading start detected
+  ---
+  duration_ms: 0.3398
+  type: 'test'
+  ...
+# Subtest: LoadingResolutionDetector: loading resolution detected
+ok 399 - LoadingResolutionDetector: loading resolution detected
+  ---
+  duration_ms: 0.2177
+  type: 'test'
+  ...
+# Subtest: LoadingResolutionDetector: stalled loading detected
+ok 400 - LoadingResolutionDetector: stalled loading detected
+  ---
+  duration_ms: 1.2482
+  type: 'test'
+  ...
+# Subtest: LoadingResolutionDetector: stalled loading not detected when content changed
+ok 401 - LoadingResolutionDetector: stalled loading not detected when content changed
+  ---
+  duration_ms: 0.1985
+  type: 'test'
+  ...
+# Subtest: LoadingResolutionDetector: graceful null handling
+ok 402 - LoadingResolutionDetector: graceful null handling
+  ---
+  duration_ms: 0.1588
+  type: 'test'
+  ...
+# Subtest: LoadingResolutionDetector: comprehensive loading state detection
+ok 403 - LoadingResolutionDetector: comprehensive loading state detection
+  ---
+  duration_ms: 0.241
+  type: 'test'
+  ...
+# Subtest: LoadingResolutionDetector: deterministic output for identical inputs
+ok 404 - LoadingResolutionDetector: deterministic output for identical inputs
+  ---
+  duration_ms: 1.1462
+  type: 'test'
+  ...
+# Subtest: LoadingResolutionDetector: no false positives on unrelated HTML changes
+ok 405 - LoadingResolutionDetector: no false positives on unrelated HTML changes
+  ---
+  duration_ms: 0.1607
+  type: 'test'
+  ...
+# Subtest: ZERO CONFIG | config-loader.js must not exist
+ok 406 - ZERO CONFIG | config-loader.js must not exist
+  ---
+  duration_ms: 2.5215
+  type: 'test'
+  ...
+# Subtest: ZERO CONFIG | no references to config loading in entry.js
+ok 407 - ZERO CONFIG | no references to config loading in entry.js
+  ---
+  duration_ms: 0.6653
+  type: 'test'
+  ...
+# Subtest: ZERO CONFIG | run command does not accept --config flags
+ok 408 - ZERO CONFIG | run command does not accept --config flags
+  ---
+  duration_ms: 0.6594
+  type: 'test'
+  ...
+# Subtest: DETERMINISM | run-id generator does not use Date.now()
+ok 409 - DETERMINISM | run-id generator does not use Date.now()
+  ---
+  duration_ms: 0.4577
+  type: 'test'
+  ...
+# Subtest: DETERMINISM | run-id generator does not use Math.random()
+ok 410 - DETERMINISM | run-id generator does not use Math.random()
+  ---
+  duration_ms: 0.6347
+  type: 'test'
+  ...
+# Subtest: DETERMINISM | core run-id generator uses deterministic hash
+ok 411 - DETERMINISM | core run-id generator uses deterministic hash
+  ---
+  duration_ms: 0.7925
+  type: 'test'
+  ...
+# Subtest: DETERMINISM | safetyFlags.allowWrites hardcoded to false
+ok 412 - DETERMINISM | safetyFlags.allowWrites hardcoded to false
+  ---
+  duration_ms: 0.5639
+  type: 'test'
+  ...
+# Subtest: NO GUESSING | detect/ has no opinionated guessing functions
+ok 413 - NO GUESSING | detect/ has no opinionated guessing functions
+  ---
+  duration_ms: 29.9309
+  type: 'test'
+  ...
+# Subtest: NO GUESSING | observe/ has no opinionated guessing functions
+ok 414 - NO GUESSING | observe/ has no opinionated guessing functions
+  ---
+  duration_ms: 12.8414
+  type: 'test'
+  ...
+# Subtest: NO GUESSING | cli/ has no opinionated guessing functions
+ok 415 - NO GUESSING | cli/ has no opinionated guessing functions
+  ---
+  duration_ms: 32.5475
+  type: 'test'
+  ...
+# Subtest: NO INTERACTIVE | default.js removed in Stage 5
+ok 416 - NO INTERACTIVE | default.js removed in Stage 5
+  ---
+  duration_ms: 0.6443
+  type: 'test'
+  ...
+# Subtest: NO INTERACTIVE | CLI entry.js rejects no-args with usage error
+ok 417 - NO INTERACTIVE | CLI entry.js rejects no-args with usage error
+  ---
+  duration_ms: 131.8367
+  type: 'test'
+  ...
+# Subtest: NO INTERACTIVE | no interactive prompt logic in entry.js
+ok 418 - NO INTERACTIVE | no interactive prompt logic in entry.js
+  ---
+  duration_ms: 0.5334
+  type: 'test'
+  ...
+# Subtest: READ ONLY | no --allow-writes CLI flag exists
+ok 419 - READ ONLY | no --allow-writes CLI flag exists
+  ---
+  duration_ms: 0.4289
+  type: 'test'
+  ...
+# Subtest: READ ONLY | safety-observer blocks POST/PUT/PATCH/DELETE
+ok 420 - READ ONLY | safety-observer blocks POST/PUT/PATCH/DELETE
+  ---
+  duration_ms: 0.4239
+  type: 'test'
+  ...
+# Subtest: READ ONLY | safety-observer checks allowWrites
+ok 421 - READ ONLY | safety-observer checks allowWrites
+  ---
+  duration_ms: 0.3258
+  type: 'test'
+  ...
+# Subtest: READ ONLY | observe() enforces write blocking
+ok 422 - READ ONLY | observe() enforces write blocking
+  ---
+  duration_ms: 1.0092
+  type: 'test'
+  ...
+# Subtest: GUARDRAILS | vision-enforcement.test.js exists as regression guard
+ok 423 - GUARDRAILS | vision-enforcement.test.js exists as regression guard
+  ---
+  duration_ms: 0.2738
+  type: 'test'
+  ...
+# Subtest: GUARDRAILS | vision-compliance.test.js exists as constitutional test
+ok 424 - GUARDRAILS | vision-compliance.test.js exists as constitutional test
+  ---
+  duration_ms: 0.2259
+  type: 'test'
+  ...
+# Subtest: GUARDRAILS | VISION.md documents core principles
+ok 425 - GUARDRAILS | VISION.md documents core principles
+  ---
+  duration_ms: 0.608
+  type: 'test'
+  ...
+# Subtest: GUARDRAILS | no temporary artifacts in root directory
+ok 426 - GUARDRAILS | no temporary artifacts in root directory
+  ---
+  duration_ms: 0.2979
+  type: 'test'
+  ...
+# Subtest: config system is absent
+ok 427 - config system is absent
+  ---
+  duration_ms: 1.3678
+  type: 'test'
+  ...
+# Subtest: run IDs are deterministic
+ok 428 - run IDs are deterministic
+  ---
+  duration_ms: 16.6229
+  type: 'test'
+  ...
+# Subtest: interactive mode is disabled
+ok 429 - interactive mode is disabled
+  ---
+  duration_ms: 128.6822
+  type: 'test'
+  ...
+# Ô£ô Visual redaction determinism contract tests loaded
+# Subtest: DOM Redaction - Placeholder Determinism
+    # Subtest: same input always produces same placeholder
+    ok 1 - same input always produces same placeholder
+      ---
+      duration_ms: 2.1979
+      type: 'test'
+      ...
+    # Subtest: different inputs produce different placeholders
+    ok 2 - different inputs produce different placeholders
+      ---
+      duration_ms: 0.3324
+      type: 'test'
+      ...
+    1..2
+ok 430 - DOM Redaction - Placeholder Determinism
+  ---
+  duration_ms: 3.9435
+  type: 'test'
+  ...
+# Subtest: DOM Redaction - Email Pattern Matching
+    # Subtest: detects and redacts email addresses
+    ok 1 - detects and redacts email addresses
+      ---
+      duration_ms: 1.742
+      type: 'test'
+      ...
+    # Subtest: handles multiple emails in one text
+    ok 2 - handles multiple emails in one text
+      ---
+      duration_ms: 0.868
+      type: 'test'
+      ...
+    1..2
+ok 431 - DOM Redaction - Email Pattern Matching
+  ---
+  duration_ms: 4.1996
+  type: 'test'
+  ...
+# Subtest: DOM Redaction - JWT Token Pattern
+    # Subtest: detects JWT tokens
+    ok 1 - detects JWT tokens
+      ---
+      duration_ms: 0.4994
+      type: 'test'
+      ...
+    1..1
+ok 432 - DOM Redaction - JWT Token Pattern
+  ---
+  duration_ms: 0.9944
+  type: 'test'
+  ...
+# Subtest: DOM Redaction - API Key Pattern
+    # Subtest: detects API keys
+    ok 1 - detects API keys
+      ---
+      duration_ms: 0.6041
+      type: 'test'
+      ...
+    1..1
+ok 433 - DOM Redaction - API Key Pattern
+  ---
+  duration_ms: 1.5129
+  type: 'test'
+  ...
+# Subtest: DOM Redaction - Password Fields
+    # Subtest: redacts password field values
+    ok 1 - redacts password field values
+      ---
+      duration_ms: 0.533
+      type: 'test'
+      ...
+    # Subtest: handles case-insensitive password type
+    ok 2 - handles case-insensitive password type
+      ---
+      duration_ms: 0.2236
+      type: 'test'
+      ...
+    1..2
+ok 434 - DOM Redaction - Password Fields
+  ---
+  duration_ms: 1.2853
+  type: 'test'
+  ...
+# Subtest: DOM Redaction - Full Snapshot
+    # Subtest: redacts complete DOM snapshots deterministically
+    ok 1 - redacts complete DOM snapshots deterministically
+      ---
+      duration_ms: 0.4012
+      type: 'test'
+      ...
+    # Subtest: tracks redaction statistics
+    ok 2 - tracks redaction statistics
+      ---
+      duration_ms: 0.1997
+      type: 'test'
+      ...
+    1..2
+ok 435 - DOM Redaction - Full Snapshot
+  ---
+  duration_ms: 0.9305
+  type: 'test'
+  ...
+# Subtest: DOM Redaction - Non-Sensitive Content Preserved
+    # Subtest: does not redact normal text
+    ok 1 - does not redact normal text
+      ---
+      duration_ms: 0.3318
+      type: 'test'
+      ...
+    # Subtest: preserves HTML structure
+    ok 2 - preserves HTML structure
+      ---
+      duration_ms: 0.2113
+      type: 'test'
+      ...
+    1..2
+ok 436 - DOM Redaction - Non-Sensitive Content Preserved
+  ---
+  duration_ms: 0.8695
+  type: 'test'
+  ...
+# Subtest: Screenshot Redaction - BBox Padding
+    # Subtest: applies padding to bounding boxes
+    ok 1 - applies padding to bounding boxes
+      ---
+      duration_ms: 0.3145
+      type: 'test'
+      ...
+    # Subtest: clamps padded bboxes to viewport bounds
+    ok 2 - clamps padded bboxes to viewport bounds
+      ---
+      duration_ms: 0.1828
+      type: 'test'
+      ...
+    1..2
+ok 437 - Screenshot Redaction - BBox Padding
+  ---
+  duration_ms: 0.8417
+  type: 'test'
+  ...
+# Subtest: Screenshot Redaction - BBox Merging
+    # Subtest: merges overlapping bounding boxes
+    ok 1 - merges overlapping bounding boxes
+      ---
+      duration_ms: 0.3532
+      type: 'test'
+      ...
+    # Subtest: preserves non-overlapping bounding boxes
+    ok 2 - preserves non-overlapping bounding boxes
+      ---
+      duration_ms: 0.1441
+      type: 'test'
+      ...
+    1..2
+ok 438 - Screenshot Redaction - BBox Merging
+  ---
+  duration_ms: 0.8154
+  type: 'test'
+  ...
+# Subtest: Redaction Config - Environment Variables
+    # Subtest: reads redaction enable flags from env
+    ok 1 - reads redaction enable flags from env
+      ---
+      duration_ms: 0.227
+      type: 'test'
+      ...
+    # Subtest: respects VERAX_REDACT_VISUAL=0
+    ok 2 - respects VERAX_REDACT_VISUAL=0
+      ---
+      duration_ms: 0.2153
+      type: 'test'
+      ...
+    # Subtest: includes rules version in config
+    ok 3 - includes rules version in config
+      ---
+      duration_ms: 0.1846
+      type: 'test'
+      ...
+    1..3
+ok 439 - Redaction Config - Environment Variables
+  ---
+  duration_ms: 0.9681
+  type: 'test'
+  ...
+# Subtest: Sensitive Selectors - Coverage
+    # Subtest: includes password input selector
+    ok 1 - includes password input selector
+      ---
+      duration_ms: 0.1296
+      type: 'test'
+      ...
+    # Subtest: includes email input selectors
+    ok 2 - includes email input selectors
+      ---
+      duration_ms: 0.1278
+      type: 'test'
+      ...
+    # Subtest: includes token/key selectors
+    ok 3 - includes token/key selectors
+      ---
+      duration_ms: 0.1243
+      type: 'test'
+      ...
+    # Subtest: includes autocomplete selectors
+    ok 4 - includes autocomplete selectors
+      ---
+      duration_ms: 0.1519
+      type: 'test'
+      ...
+    # Subtest: includes explicit redaction selector
+    ok 5 - includes explicit redaction selector
+      ---
+      duration_ms: 0.1346
+      type: 'test'
+      ...
+    1..5
+ok 440 - Sensitive Selectors - Coverage
+  ---
+  duration_ms: 1.342
+  type: 'test'
+  ...
+# Subtest: Sensitive Patterns - Regex Coverage
+    # Subtest: email pattern matches valid emails
+    ok 1 - email pattern matches valid emails
+      ---
+      duration_ms: 1.0392
+      type: 'test'
+      ...
+    # Subtest: jwt pattern matches JWT tokens
+    ok 2 - jwt pattern matches JWT tokens
+      ---
+      duration_ms: 0.1758
+      type: 'test'
+      ...
+    # Subtest: phone pattern matches US phone numbers
+    ok 3 - phone pattern matches US phone numbers
+      ---
+      duration_ms: 0.1474
+      type: 'test'
+      ...
+    # Subtest: ssn pattern matches SSN format
+    ok 4 - ssn pattern matches SSN format
+      ---
+      duration_ms: 0.1269
+      type: 'test'
+      ...
+    1..4
+ok 441 - Sensitive Patterns - Regex Coverage
+  ---
+  duration_ms: 2.0302
+  type: 'test'
+  ...
+1..441
+# tests 824
+# suites 89
+# pass 818
+# fail 4
+# cancelled 0
+# skipped 2
+# todo 0
+# duration_ms 34753.7111
+
+[TEST CLEANUP] Exit code: 1, Reason: test_complete
+[TEST CLEANUP] Playwright resources closed
+[EVENT LOOP] Active handles: 4, Active requests: 0
+  Handle 0: Socket
+  Handle 1: Socket
+  Handle 2: ChildProcess
+  Handle 3: ReadStream

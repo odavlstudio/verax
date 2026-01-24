@@ -1,5 +1,16 @@
 # 🛡️ VERAX
 
+[![VERAX CI](https://github.com/odavlstudio/verax/actions/workflows/verax.yml/badge.svg)](https://github.com/odavlstudio/verax/actions/workflows/verax.yml)
+[![npm version](https://img.shields.io/npm/v/@veraxhq/verax.svg)](https://www.npmjs.com/package/@veraxhq/verax)
+[![stability: stable](https://img.shields.io/badge/stability-stable-green.svg)](https://github.com/odavlstudio/verax/blob/main/src/version.js)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/odavlstudio/verax/blob/main/LICENSE)
+
+Release & Upgrade Safety (10s read)
+- Current version: 0.5.1 (stable). Semantic versioning: MAJOR = CLI/exit code/artifact schema breaks; MINOR = new capabilities; PATCH = fixes/perf/tests. Source: [src/version.js](src/version.js).
+- Compatibility guarantees: CLI commands and exit codes stay stable; artifact schemas unchanged; deterministic, read-only, zero-config behavior preserved.
+- Deprecation policy: No silent removals. Deprecated flags warn for at least one minor release before removal.
+- Release gate: npm publish blocked unless version bumped, changelog (json + markdown) updated, tests pass, and git is clean ([scripts/prepublish-check.js](scripts/prepublish-check.js)).
+
 A forensic observation engine for real user outcomes
 
 VERAX observes and reports gaps between what your code explicitly promises and what users can actually observe.
@@ -142,40 +153,287 @@ npm link
 
 ## Commands
 
-VERAX provides these CLI commands:
+VERAX provides 10 CLI commands organized by purpose. See [docs/PHASES.md](docs/PHASES.md) for feature maturity and stability information.
 
-- `verax` — Interactive mode (detects URL or prompts for it)
-- `verax run --url <url> [--src <path>] [--out <path>]` — Non-interactive CI mode (strict, explicit)
-- `verax inspect <runPath>` — Inspect results from a previous run
-- `verax doctor [--json]` — Verify environment (Node, Playwright, Chromium binary)
-- `verax --version` — Show CLI version
-- `verax --help` — Show help text
+### Core Observation Commands (Always Production-Ready)
 
-## Examples
+These commands perform forensic observation of your applications and are fully stable (Phase 5).
 
-Run a non-interactive scan (ideal for CI):
+#### `verax run --url <url> [options]`
 
+**Purpose**: Execute the primary forensic observation scan
+
+**Usage**:
 ```bash
 verax run --url http://localhost:3000 --src . --out .verax
 ```
 
-Run interactive mode (default auto-detection):
+**Common options**:
+- `--src <path>` — Source code root (default: current directory)
+- `--out <path>` — Output directory for artifacts (default: `.verax`)
+- `--profile <profile>` — Scan profile: `standard` or `strict` (default: `standard`)
+- `--json` — JSON-only output (suppress console summary)
+- `[--auth-*]` — Authentication options (storage, cookies, headers)
 
-```bash
-verax
-```
+**Output**: Generates `.verax/runs/<runId>/` with findings, evidence, and logs
 
-Check environment readiness:
+---
 
-```bash
-verax doctor --json
-```
+#### `verax inspect <runPath> [options]`
 
-Inspect a previous run:
+**Purpose**: Inspect and analyze results from a previous run
 
+**Usage**:
 ```bash
 verax inspect .verax/runs/2026-01-11T12-34-56Z_abc123
+verax inspect .verax/runs/latest  # Inspect most recent run
 ```
+
+**Common options**:
+- `--compare <otherRunPath>` — Compare findings across runs
+- `--json` — JSON output only
+
+**Output**: Detailed report with findings, evidence locations, and comparisons
+
+---
+
+#### `verax doctor [--json]`
+
+**Purpose**: Verify environment readiness (Node.js, Playwright, Chromium)
+
+**Usage**:
+```bash
+verax doctor
+verax doctor --json  # Machine-readable output
+```
+
+**Output**: Environment diagnostics and readiness status
+
+**Exit codes**:
+- `0` — Environment ready for VERAX
+- `1` — Issues detected (Playwright, Chromium, or other dependencies missing)
+
+---
+
+### Advanced Analysis Commands (Phase 5 · Production-Ready)
+
+These commands provide deeper post-hoc analysis based on run artifacts.
+
+#### `verax diagnose <runId> [--json]`
+
+**Purpose**: Generate post-hoc diagnostics explaining HOW and WHY a run behaved as it did
+
+**Usage**:
+```bash
+verax diagnose 2026-01-11T12-34-56Z_abc123
+verax diagnose .verax/runs/2026-01-11T12-34-56Z_abc123
+```
+
+**Output**: Diagnostics report explaining run behavior, decision-making, and any anomalies
+
+---
+
+#### `verax explain <runId> <findingId> [--json]`
+
+**Purpose**: Deep-dive explanation for a specific finding
+
+**Usage**:
+```bash
+verax explain 2026-01-11T12-34-56Z_abc123 finding-001
+```
+
+**Output**: Finding details with evidence chains, confidence reasoning, and context
+
+---
+
+#### `verax stability <runId> [--json]`
+
+**Purpose**: Analyze stability metrics for a single run
+
+**Usage**:
+```bash
+verax stability 2026-01-11T12-34-56Z_abc123
+```
+
+**Output**: Stability analysis, coverage metrics, and reliability indicators
+
+---
+
+#### `verax triage <runId> [--json]`
+
+**Purpose**: Generate incident triage report with action plan
+
+**Usage**:
+```bash
+verax triage 2026-01-11T12-34-56Z_abc123
+```
+
+**Output**: Triage report with prioritized findings and recommended actions
+
+---
+
+### Enterprise & CI Commands (Phase 5 · Production-Ready)
+
+These commands automate release decisions and run management.
+
+#### `verax stability-run --url <url> --repeat <N> [--mode ci|standard] [--json]`
+
+**Purpose**: Execute batch stability testing (multiple iterations) to measure consistency
+
+**Usage**:
+```bash
+verax stability-run --url http://localhost:3000 --repeat 5
+verax stability-run --url http://localhost:3000 --repeat 10 --mode ci
+```
+
+**Options**:
+- `--repeat <N>` — Number of iterations (minimum 2, recommended 5–10)
+- `--mode ci` — CI mode (fast, fewer observations); default: `standard`
+- `--json` — JSON output only
+
+**Output**: Batch stability report with consistency metrics across all runs
+
+---
+
+#### `verax gate --url <url> [options]`
+
+**Purpose**: CI release gate — runs a scan and generates pass/fail decision for automated deployment
+
+**Usage**:
+```bash
+verax gate --url http://staging.example.com
+verax gate --url http://prod.example.com --profile strict
+```
+
+**Options**:
+- `--profile <profile>` — Scan profile (default: `standard`)
+- `--json` — JSON gate report only
+
+**Exit codes**:
+- `0` — Gate decision passed; safe to deploy
+- `1` — Gate decision failed or warnings present
+- `2` — Internal crash
+
+**Use case**: Integrate into CI/CD pipelines to prevent releasing with known silent failures
+
+---
+
+#### `verax clean [--dry-run] [--keep-last N] [--older-than-days N]`
+
+**Purpose**: Run retention and hygiene — manage `.verax/runs/` storage
+
+**Usage**:
+```bash
+verax clean --dry-run                    # Preview what would be deleted
+verax clean --keep-last 10               # Keep latest 10 runs, delete rest
+verax clean --older-than-days 30         # Delete runs older than 30 days
+verax clean --allow-delete-confirmed     # Actually delete (default: dry-run only)
+```
+
+**Default behavior**: Dry-run (shows what would be deleted without making changes)
+
+**Safety**: Defaults to safe dry-run mode; explicit `--allow-delete-confirmed` required for actual deletion
+
+---
+
+### Help & Version
+
+#### `verax --help`
+
+Show all available commands and options
+
+#### `verax --version`
+
+Show installed VERAX version
+
+---
+
+## Command Examples
+
+### Basic Scan
+
+```bash
+verax run --url http://localhost:3000
+```
+
+### CI/CD Integration (Release Gate)
+
+```bash
+#!/bin/bash
+verax gate --url http://staging.example.com
+if [ $? -eq 0 ]; then
+  deploy_to_production
+else
+  echo "Gate failed; deployment blocked"
+  exit 1
+fi
+```
+
+### Stability Testing
+
+```bash
+verax stability-run --url http://localhost:3000 --repeat 5
+```
+
+### Run Inspection & Comparison
+
+```bash
+# Inspect latest run
+verax inspect .verax/runs/latest
+
+# Compare two runs
+verax inspect .verax/runs/2026-01-11T12-34-56Z_abc123 \
+  --compare .verax/runs/2026-01-11T13-45-00Z_def456
+```
+
+### Deep Diagnostics
+
+```bash
+# Run initial scan
+verax run --url http://localhost:3000
+
+# Get diagnostics
+verax diagnose latest
+
+# Explain a specific finding
+verax explain latest finding-001
+
+# Triage findings with action plan
+verax triage latest
+```
+
+### Cleanup
+
+```bash
+# Preview cleanup
+verax clean --keep-last 10 --dry-run
+
+# Actually delete old runs
+verax clean --keep-last 10 --allow-delete-confirmed
+```
+
+---
+
+## Feature Stability
+
+**Phase 5 (Stable & Production-Ready)**: All commands above are fully tested and safe for production use.
+
+**Phase 6A (Experimental)**: Additional security and integrity features coming in Phase 6A are not yet production-ready.
+
+See [docs/PHASES.md](docs/PHASES.md) for detailed feature maturity information.
+
+---
+
+## Removed Features
+
+Interactive prompt mode (`verax` without arguments) was removed in VERAX 0.4.x.
+
+Use explicit command-line arguments instead (CI-friendly, auditible):
+```bash
+verax run --url http://localhost:3000 --src . --out .verax
+```
+
+See [docs/REMOVED_FEATURES.md](docs/REMOVED_FEATURES.md) for migration guidance on other deprecated commands.
 
 📁 Output (CI-friendly)
 
@@ -202,13 +460,22 @@ Including:
 Exit codes reflect tool execution status only.
 They do not represent site quality or correctness and must not be used as a pass/fail gate without explicit user logic.
 
-0 — VERAX executed successfully (regardless of findings, gaps, or confidence)
+| Exit Code | Meaning |
+|-----------|---------|
+| **0**  | SUCCESS — no actionable findings |
+| **10** | NEEDS_REVIEW — suspected findings present |
+| **20** | FAILURE_CONFIRMED — confirmed findings present |
+| **30** | FAILURE_INCOMPLETE — incomplete or coverage-short run |
+| **40** | INFRA_FAILURE — runtime/crash/invariant failure |
+| **50** | EVIDENCE_LAW_VIOLATION — corrupted/missing artifacts |
+| **64** | USAGE_ERROR — invalid CLI usage |
 
-2 — Tool crashed or failed internally
+## CI Gates (Optional)
 
-64 — Invalid CLI usage (missing args, invalid flags)
-
-65 — Invalid input data (e.g. malformed JSON, unreadable manifest)
+- Gate metadata (gate outcome, decision usefulness, evidence quality, preview) is always produced for transparency.
+- Enforcement is **off by default**. Exit codes and behavior remain unchanged unless you explicitly opt in.
+- Opt-in requires `VERAX_ENFORCE_GATES=1` plus a policy file at `.verax/gates.policy.json` with `enforcement.enabled: true`.
+- See [docs/gates.md](docs/gates.md) for policy structure, safety notes, and CI examples.
 
 📊 Reading results (observer-first)
 

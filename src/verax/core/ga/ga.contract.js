@@ -5,8 +5,9 @@
  * No human judgment, only code decides.
  */
 
-import { evaluateAllCapabilityGates, buildGateContext } from '../capabilities/gates.js';
-import { CAPABILITY_MATURITY as _CAPABILITY_MATURITY } from '../capabilities/gates.js';
+import { getTimeProvider } from '../../../cli/util/support/time-provider.js';
+
+import { CAPABILITY_MATURITY as _CAPABILITY_MATURITY, buildGateContext, evaluateAllCapabilityGates } from '../capabilities/gates.js';
 import { verifyRun } from '../artifacts/verifier.js';
 import { checkSecurityStatus } from '../security/security.enforcer.js';
 import { readFileSync, existsSync } from 'fs';
@@ -79,8 +80,7 @@ function loadDeterminismAcceptancePolicy(projectDir) {
   }
   
   try {
-    const content = readFileSync(policyPath, 'utf-8');
-  // @ts-expect-error - readFileSync with encoding returns string
+    const content = /** @type {string} */ (readFileSync(policyPath, 'utf-8'));
     const policy = JSON.parse(content);
     
     // Validate policy structure
@@ -421,7 +421,7 @@ export async function evaluateGAReadiness(context) {
     pass,
     blockersCount: blockers.length,
     warningsCount: warnings.length,
-    checkedAt: new Date().toISOString()
+    checkedAt: getTimeProvider().iso()
   };
   
   return {
@@ -432,4 +432,7 @@ export async function evaluateGAReadiness(context) {
     inputs
   };
 }
+
+
+
 

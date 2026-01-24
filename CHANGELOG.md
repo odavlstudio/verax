@@ -5,7 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.0] - 2026-01-17
+## [0.5.1] - 2026-01-24 (patch)
+
+### Breaking Changes
+
+- None.
+
+### Improvements
+
+- Pre-publish validation now fails if the human changelog entry for the release is missing or lacks the required sections/type metadata.
+- `verax version` trust surface is contract-tested and keeps stability, compatibility guarantees, and deprecation policy visible by default.
+- Historical changelog headings now carry explicit release types to mirror the semantic versioning law.
+
+### Fixes
+
+- Added the 0.4.2 human changelog entry to stay aligned with the machine changelog.
+- Release validation now checks CHANGELOG.md alongside changelog.json before publish.
+
+### Guarantees (unchanged)
+
+- CLI commands and exit codes remain stable (0/10/20/30/40/50/64).
+- Artifact schemas unchanged: `summary.json`, `findings.json`, `observe.json`.
+- Deterministic, read-only, zero-config behavior preserved.
+
+## [0.5.0] - 2026-01-24 (minor)
+
+### Breaking Changes
+
+- None.
+
+### Improvements
+
+- `verax version` now reports stability, compatibility guarantees, and versioning law from the single source of truth (`src/version.js`).
+- Pre-publish validation blocks releases without version bumps, semantic changelog entries, passing tests, or clean git state.
+- README surfaces stability/npm badges and upgrade safety rules at the top for quick risk assessment.
+- Deprecation framework wired for CLI flags with policy-first warnings and test coverage.
+
+### Fixes
+
+- Reinforced `src/version.js` as the only version source and synchronized package metadata.
+- Changelog validation now enforces required fields, types, and semver-aligned release types.
+
+### Guarantees (unchanged)
+
+- CLI contract and exit codes remain stable (0/10/20/30/40/50/64).
+- Artifact schema unchanged: `summary.json`, `findings.json`, `observe.json`.
+- Deterministic behavior preserved: same inputs produce identical outputs.
+- Read-only safety remains: scans never modify the application under test.
+- Zero-config defaults still work without user configuration.
+
+## [0.4.2] - 2026-01-24 (minor)
+
+### Breaking Changes
+
+- None.
+
+### Improvements
+
+- Standardized CLI exit codes (0/10/20/30/40/50/64) for Stage 7.0 contract hardening.
+- Zero-config first-run experience with automatic discovery defaults.
+- GitHub Actions workflow wired with exit code mapping for CI trust signals.
+
+### Fixes
+
+- Normalized exit code 65 to 50 (EVIDENCE_VIOLATION) across commands.
+- First-run detection now checks both `.verax/runs/` and `.verax/scans/` directories.
+- CI environments (`CI=true`) disable relaxed first-run defaults.
+
+### Guarantees (unchanged)
+
+- Exit codes 0/10/20/30/40/50/64 remain stable.
+- Artifact schemas unchanged: `summary.json`, `findings.json`, `observe.json`.
+- Deterministic behavior preserved.
+- Read-only, zero-config defaults remain intact.
+
+## [0.4.0] - 2026-01-17 (minor)
 
 Status: Beta
 
@@ -42,7 +116,7 @@ Status: Beta
 
 None. Exit codes, JSON artifacts, and CLI interface remain compatible with v0.3.x.
 
-## [0.3.1] - 2026-01-16
+## [0.3.1] - 2026-01-16 (patch)
 
 ### Fixed
 
@@ -53,7 +127,7 @@ None. Exit codes, JSON artifacts, and CLI interface remain compatible with v0.3.
   - Exit 2, 64, 65: Unchanged (crash, usage error, invalid data)
 - Timeout status changed from 'FAILED' to 'INCOMPLETE' for proper exit code handling
 
-## [0.3.0] - 2026-01-13
+## [0.3.0] - 2026-01-13 (minor)
 
 ### Updates
 
@@ -65,7 +139,7 @@ None. Exit codes, JSON artifacts, and CLI interface remain compatible with v0.3.
 - Improved artifact structure and organization
 - Updated test fixtures for better test coverage
 
-## [0.2.0] - 2026-01-11
+## [0.2.0] - 2026-01-11 (minor)
 
 ### Added (Release Discipline & Documentation)
 
@@ -108,7 +182,7 @@ None. Exit codes, JSON artifacts, and CLI interface remain compatible with v0.3.
 - Documentation no longer references non-existent commands
 - Acceptance criteria match real CLI surface and artifact structure
 
-## [0.1.0] - 2026-01-11
+## [0.1.0] - 2026-01-11 (minor)
 
 ### Added
 

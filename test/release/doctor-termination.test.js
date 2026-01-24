@@ -102,3 +102,4 @@ describe('Doctor Command Termination', () => {
     assert.ok(output.includes('Node.js version'), 'doctor output contains checks');
   });
 });
+

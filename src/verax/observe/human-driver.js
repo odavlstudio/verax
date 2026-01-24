@@ -3,7 +3,8 @@
  * Deterministic, safe, human-like interaction executor for observation.
  */
 
-import { waitForSettle } from './settle.js';
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
+import { waitForSettle } from './wait-for-settle.js';
 import { DEFAULT_SCAN_BUDGET } from '../shared/scan-budget.js';
 import { mkdtempSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
@@ -163,8 +164,9 @@ export class HumanBehaviorDriver {
     }
 
     const waitForUiIdle = async () => {
-      const start = Date.now();
-      while (Date.now() - start < timeoutMs) {
+      const timeProvider = getTimeProvider();
+      const start = timeProvider.now();
+      while (timeProvider.now() - start < timeoutMs) {
         const busy = await page.evaluate(() => {
           const loading = document.querySelector('[aria-busy="true"], .loading, .spinner, [data-loading="true"]');
           return Boolean(loading);
@@ -761,3 +763,6 @@ export class HumanBehaviorDriver {
   }
 
 }
+
+
+

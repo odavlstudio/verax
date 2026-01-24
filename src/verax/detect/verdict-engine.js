@@ -1,3 +1,4 @@
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 /**
  * OBSERVATION ENGINE
  *
@@ -176,7 +177,7 @@ export function computeObservationSummary(findings, observeTruth, learnTruth, co
       createImpactSummary(detectTruth.silences.entries) : 
       null,
     evidenceIndex: evidenceBuild.evidenceIndex,
-    observedAt: new Date().toISOString()
+    observedAt: getTimeProvider().iso()
   };
 
   return summary;
@@ -559,3 +560,6 @@ function clampRatio(ratio) {
 
 // writeEvidenceIndex moved to evidence-index.js - re-exported below
 export { buildEvidenceIndex, writeEvidenceIndex } from './evidence-index.js';
+
+
+

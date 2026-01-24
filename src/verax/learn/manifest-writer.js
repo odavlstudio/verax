@@ -5,12 +5,11 @@ import { runCodeIntelligence } from '../intel/index.js';
 import { isProvenExpectation } from '../shared/expectation-prover.js';
 import { extractFlows } from './flow-extractor.js';
 import { createTSProgram } from '../intel/ts-program.js';
-import { extractVueNavigationPromises } from '../intel/vue-navigation-extractor.js';
+import { extractVueNavigationPromises } from '../vue-extractors/vue/vue-navigation-extractor.js';
 
 /**
  * @typedef {Object} Manifest
  * @property {number} version
- * @property {string} learnedAt
  * @property {string} projectDir
  * @property {string} projectType
  * @property {Array} routes
@@ -28,15 +27,15 @@ import { extractVueNavigationPromises } from '../intel/vue-navigation-extractor.
  * @param {string} projectDir
  * @param {string} projectType
  * @param {Array} routes
+ * @param {Object} scanOptions - Optional scan configuration (learnPaths, allowEmptyLearn)
  * @returns {Promise<Manifest>}
  */
-export async function writeManifest(projectDir, projectType, routes) {
+export async function writeManifest(projectDir, projectType, routes, scanOptions = {}) {
   const publicRoutes = routes.filter(r => r.public).map(r => r.path);
   const internalRoutes = routes.filter(r => !r.public).map(r => r.path);
   
   const manifest = {
     version: 1,
-    learnedAt: new Date().toISOString(),
     projectDir: projectDir,
     projectType: projectType,
     routes: routes.map(r => ({
@@ -56,7 +55,7 @@ export async function writeManifest(projectDir, projectType, routes) {
   
   // Static sites: extract from HTML
   if (projectType === 'static' && routes.length > 0) {
-    staticExpectations = await extractStaticExpectations(projectDir, routes);
+    staticExpectations = await extractStaticExpectations(projectDir, routes, scanOptions);
     manifest.staticExpectations = staticExpectations;
     allExpectations = staticExpectations || [];
   }
@@ -94,7 +93,7 @@ export async function writeManifest(projectDir, projectType, routes) {
       
       // STATE INTELLIGENCE: Also extract state expectations from AST
       const { extractStateExpectationsFromAST } = await import('./state-extractor.js');
-      const stateResult = await extractStateExpectationsFromAST(projectDir);
+      const stateResult = await extractStateExpectationsFromAST(projectDir, projectType, scanOptions);
       
       if (stateResult.expectations && stateResult.expectations.length > 0) {
         // Convert state expectations to manifest format with sourceRef
@@ -148,7 +147,7 @@ export async function writeManifest(projectDir, projectType, routes) {
     manifest.flows = flows;
   }
   
-  const learnTruth = await assessLearnTruth(projectDir, projectType, routes, allExpectations);
+  const learnTruth = await assessLearnTruth(projectDir, projectType, routes, allExpectations, scanOptions);
   manifest.notes.push({
     type: 'truth',
     learn: learnTruth
@@ -158,4 +157,7 @@ export async function writeManifest(projectDir, projectType, routes) {
   // Direct usage is deprecated in favor of CLI learn.json writer
   return manifest;
 }
+
+
+
 
