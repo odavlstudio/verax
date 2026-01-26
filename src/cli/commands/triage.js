@@ -1,3 +1,6 @@
+// ⚠️ FROZEN FOR V1 — Not part of VERAX v1 product guarantee
+// Finding triage [ALPHA] — Not core to scan workflow.
+
 /*
 Command: verax triage [ALPHA]
 Purpose: Generate incident triage report from existing run artifacts.

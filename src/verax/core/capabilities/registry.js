@@ -1,5 +1,5 @@
 /**
- * PHASE 7 — Capability Registry
+ * Capability Registry
  * 
  * Single source of truth for all VERAX capabilities.
  * 
@@ -35,12 +35,12 @@ export const CAPABILITY_CATEGORY = {
   ROUTES: 'routes',
   EVIDENCE: 'evidence',
   VALIDATION: 'validation',
-  ANALYSIS: 'analysis',  // PHASE 15: Analysis capabilities (confidence, scoring)
-  RELIABILITY: 'reliability',  // PHASE 21: Reliability capabilities (determinism)
-  SECURITY: 'security',  // PHASE 22: Security capabilities
-  RELEASE: 'release',  // PHASE 22: Release/GA capabilities
-  OPERATIONS: 'operations',  // PHASE 22: Operational guarantees
-  PERFORMANCE: 'performance'  // PHASE 22: Performance capabilities
+  ANALYSIS: 'analysis',  // Analysis capabilities (confidence scoring, quality metrics)
+  RELIABILITY: 'reliability',  // Reliability capabilities (determinism, consistency)
+  SECURITY: 'security',  // Security capabilities (redaction, privacy)
+  RELEASE: 'release',  // Release capabilities (gates, stability)
+  OPERATIONS: 'operations',  // Operational guarantees (performance, resource management)
+  PERFORMANCE: 'performance'  // Performance capabilities (timing, budgets)
 };
 
 /**
@@ -110,73 +110,73 @@ export const CAPABILITY_REGISTRY = {
     maturity: CAPABILITY_MATURITY.STABLE
   },
   
-  // PHASE 20: Vue-specific capabilities
+  // Vue.js Framework Capabilities (Experimental - Learn-only)
   'vue-navigation-detection': {
     id: 'vue-navigation-detection',
     category: CAPABILITY_CATEGORY.NAVIGATION,
     description: 'Detects Vue Router navigation promises from <router-link> and router.push/replace in Vue SFCs',
     requiredArtifacts: ['learn', 'findings', 'traces'],
-    maturity: CAPABILITY_MATURITY.STABLE
+    maturity: CAPABILITY_MATURITY.EXPERIMENTAL
   },
   'vue-network-detection': {
     id: 'vue-network-detection',
     category: CAPABILITY_CATEGORY.NETWORK,
     description: 'Detects network calls (fetch/axios) inside Vue handlers, setup functions, and methods',
     requiredArtifacts: ['learn', 'findings', 'traces'],
-    maturity: CAPABILITY_MATURITY.STABLE
+    maturity: CAPABILITY_MATURITY.EXPERIMENTAL
   },
   'vue-state-detection': {
     id: 'vue-state-detection',
     category: CAPABILITY_CATEGORY.STATE,
     description: 'Detects Vue ref/reactive state mutations that are UI-bound via template bindings',
     requiredArtifacts: ['learn', 'findings', 'traces'],
-    maturity: CAPABILITY_MATURITY.STABLE
+    maturity: CAPABILITY_MATURITY.EXPERIMENTAL
   },
   
-  // PHASE 20: Svelte-specific capabilities
+  // Svelte Framework Capabilities (Experimental - Learn-only)
   'svelte-navigation-detection': {
     id: 'svelte-navigation-detection',
     category: CAPABILITY_CATEGORY.NAVIGATION,
     description: 'Detects Svelte navigation promises from <a href> links and goto() calls in Svelte SFCs',
     requiredArtifacts: ['learn', 'findings', 'traces'],
-    maturity: CAPABILITY_MATURITY.STABLE
+    maturity: CAPABILITY_MATURITY.EXPERIMENTAL
   },
   'svelte-network-detection': {
     id: 'svelte-network-detection',
     category: CAPABILITY_CATEGORY.NETWORK,
     description: 'Detects network calls (fetch/axios) inside Svelte handlers, functions, and reactive statements',
     requiredArtifacts: ['learn', 'findings', 'traces'],
-    maturity: CAPABILITY_MATURITY.STABLE
+    maturity: CAPABILITY_MATURITY.EXPERIMENTAL
   },
   'svelte-state-detection': {
     id: 'svelte-state-detection',
     category: CAPABILITY_CATEGORY.STATE,
     description: 'Detects Svelte reactive store mutations and variable assignments that are UI-bound via markup bindings',
     requiredArtifacts: ['learn', 'findings', 'traces'],
-    maturity: CAPABILITY_MATURITY.STABLE
+    maturity: CAPABILITY_MATURITY.EXPERIMENTAL
   },
   
-  // PHASE 20: Angular-specific capabilities
+  // Angular Framework Capabilities (Experimental - Learn-only)
   'angular-navigation-detection': {
     id: 'angular-navigation-detection',
     category: CAPABILITY_CATEGORY.NAVIGATION,
     description: 'Detects Angular navigation promises from routerLink directives and Router.navigate() calls in Angular components',
     requiredArtifacts: ['learn', 'findings', 'traces'],
-    maturity: CAPABILITY_MATURITY.STABLE
+    maturity: CAPABILITY_MATURITY.EXPERIMENTAL
   },
   'angular-network-detection': {
     id: 'angular-network-detection',
     category: CAPABILITY_CATEGORY.NETWORK,
     description: 'Detects network calls (HttpClient, fetch) inside Angular component methods and services',
     requiredArtifacts: ['learn', 'findings', 'traces'],
-    maturity: CAPABILITY_MATURITY.STABLE
+    maturity: CAPABILITY_MATURITY.EXPERIMENTAL
   },
   'angular-state-detection': {
     id: 'angular-state-detection',
     category: CAPABILITY_CATEGORY.STATE,
     description: 'Detects Angular component property mutations that are UI-bound via template bindings',
     requiredArtifacts: ['learn', 'findings', 'traces'],
-    maturity: CAPABILITY_MATURITY.STABLE
+    maturity: CAPABILITY_MATURITY.EXPERIMENTAL
   },
   
   'route-validation-reachability': {

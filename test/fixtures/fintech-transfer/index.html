@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureBank - Account Transfer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #333; background: #f0f2f5; }
+        .container { max-width: 600px; margin: 40px auto; }
+        header { background: #1a3a52; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        header h1 { margin-bottom: 10px; }
+        header p { opacity: 0.9; }
+        .card { background: white; padding: 30px; }
+        .section { margin-bottom: 30px; }
+        .section h3 { margin-bottom: 15px; color: #1a3a52; border-bottom: 2px solid #1a3a52; padding-bottom: 10px; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .label { color: #666; }
+        .value { font-weight: bold; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 1em; }
+        .amount-field { font-size: 1.3em; font-weight: bold; }
+        .button-group { display: flex; gap: 15px; margin-top: 30px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1.1em; }
+        .btn-primary { background: #ff9c00; color: white; }
+        .btn-primary:hover { background: #e68900; }
+        .btn-secondary { background: #e0e0e0; color: #333; }
+        .btn-secondary:hover { background: #d0d0d0; }
+        .loading { display: none; text-align: center; margin: 20px 0; }
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #ddd; border-top: 3px solid #ff9c00; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .status-message { padding: 15px; margin: 20px 0; border-radius: 4px; display: none; }
+        .status-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status-message.pending { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .review-section { display: none; }
+        .confirm-amount { font-size: 2em; text-align: center; margin: 20px 0; color: #ff9c00; font-weight: bold; }
+        .step-indicator { display: flex; gap: 10px; margin-bottom: 30px; }
+        .step { flex: 1; padding: 10px; text-align: center; background: #e0e0e0; border-radius: 4px; }
+        .step.active { background: #ff9c00; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💳 SecureBank</h1>
+            <p>Fast, Safe Account Transfers</p>
+        </header>
+
+        <div class="card">
+            <div class="step-indicator">
+                <div class="step active" id="stepTransfer">Transfer Details</div>
+                <div class="step" id="stepReview">Review</div>
+                <div class="step" id="stepConfirm">Confirm</div>
+            </div>
+
+            <div id="transferForm">
+                <div class="section">
+                    <h3>From Account</h3>
+                    <div class="info-row">
+                        <span class="label">Account Number</span>
+                        <span class="value">****2847</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Available Balance</span>
+                        <span class="value">$45,320.50</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Transfer Details</h3>
+                    <label>Recipient Name</label>
+                    <input type="text" id="recipientName" placeholder="Name on account" required>
+                    
+                    <label>Recipient Account</label>
+                    <input type="text" id="recipientAccount" placeholder="Account number" required>
+                    
+                    <label>Transfer Amount ($)</label>
+                    <input type="number" id="amount" placeholder="0.00" min="0" step="0.01" required>
+                    
+                    <label>Transfer Type</label>
+                    <select id="transferType" required>
+                        <option value="">Select transfer type</option>
+                        <option value="domestic">Domestic Transfer (1-2 business days)</option>
+                        <option value="international">International Transfer (3-5 business days)</option>
+                        <option value="same-day">Same Day (Higher fee)</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="resetForm()">Cancel</button>
+                    <button class="btn btn-primary" onclick="reviewTransfer()">Continue to Review</button>
+                </div>
+            </div>
+
+            <div id="reviewSection" class="review-section">
+                <div class="section">
+                    <h3>Confirm Transfer Details</h3>
+                    <div class="info-row">
+                        <span class="label">To</span>
+                        <span class="value" id="reviewRecipient">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Account</span>
+                        <span class="value" id="reviewAccount">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Type</span>
+                        <span class="value" id="reviewType">-</span>
+                    </div>
+                    <div class="confirm-amount" id="reviewAmount">$0.00</div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="backToTransfer()">Edit</button>
+                    <button class="btn btn-primary" onclick="submitTransfer()">Confirm & Submit</button>
+                </div>
+            </div>
+
+            <div class="loading" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Processing transfer...</p>
+            </div>
+
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        function reviewTransfer() {
+            const name = document.getElementById('recipientName').value;
+            const account = document.getElementById('recipientAccount').value;
+            const amount = document.getElementById('amount').value;
+            const type = document.getElementById('transferType').value;
+
+            if (!name || !account || !amount || !type) {
+                alert('Please complete all fields');
+                return;
+            }
+
+            document.getElementById('reviewRecipient').textContent = name;
+            document.getElementById('reviewAccount').textContent = account;
+            document.getElementById('reviewAmount').textContent = '$' + parseFloat(amount).toFixed(2);
+            document.getElementById('reviewType').textContent = document.querySelector('#transferType option:checked').text;
+
+            document.getElementById('transferForm').style.display = 'none';
+            document.getElementById('reviewSection').classList.add('active');
+            document.getElementById('reviewSection').style.display = 'block';
+            document.getElementById('stepTransfer').classList.remove('active');
+            document.getElementById('stepReview').classList.add('active');
+        }
+
+        function backToTransfer() {
+            document.getElementById('transferForm').style.display = 'block';
+            document.getElementById('reviewSection').style.display = 'none';
+            document.getElementById('reviewSection').classList.remove('active');
+            document.getElementById('stepTransfer').classList.add('active');
+            document.getElementById('stepReview').classList.remove('active');
+        }
+
+        function submitTransfer() {
+            const name = document.getElementById('recipientName').value;
+            const account = document.getElementById('recipientAccount').value;
+            const amount = document.getElementById('amount').value;
+            const type = document.getElementById('transferType').value;
+
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('statusMessage').style.display = 'none';
+
+            // INTENTIONAL CRITICAL BUG: 
+            // Promise resolves successfully, but confirmation step is never shown
+            // User sees "Processing..." but never gets confirmation number or receipt
+            // Transfer may or may not happen on backend - user has no way to know
+            fetch('https://api.securebank.example/transfers/initiate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    recipientName: name,
+                    recipientAccount: account,
+                    amount: amount,
+                    type: type
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                // INTENTIONAL: Response received but confirmation UI is never displayed
+                document.getElementById('loadingSpinner').style.display = 'none';
+                
+                // Bug: Should show confirmation number, receipt, next steps
+                // Instead, nothing happens. Form stays hidden. No success state shown.
+                // User is left wondering if transfer went through
+                
+                // Step indicator should move to "Confirm" but doesn't
+                // Confirmation number should display but doesn't
+                // Receipt should be available but user sees blank screen
+            })
+            .catch(err => {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                // Silent error - network error swallowed, user sees spinner forever if they refresh
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('transferForm').reset();
+            backToTransfer();
+        }
+    </script>
+</body>
+</html>

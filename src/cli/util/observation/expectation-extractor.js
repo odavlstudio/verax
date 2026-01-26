@@ -1,11 +1,12 @@
 import { readdirSync, readFileSync, statSync } from 'fs';
-import { join, relative, resolve } from 'path';
+import { join, relative, resolve, sep } from 'path';
 import { expIdFromHash, compareExpectations } from '../support/idgen.js';
 import { extractPromisesFromAST } from '../detection/ast-promise-extractor.js';
 import { extractVueExpectations } from '../detection/vue-extractor.js';
 import { extractAngularExpectations } from '../detection/angular-extractor.js';
 import { extractSvelteKitExpectations, extractSvelteKitFilesystemRoutes } from '../detection/sveltekit-extractor.js';
 import { extractPromises2 } from '../detection/promise-extractor-2.js';
+import { DataError } from '../support/errors.js';
 
 /**
  * Static Expectation Extractor
@@ -13,7 +14,7 @@ import { extractPromises2 } from '../detection/promise-extractor-2.js';
  * Extracts explicit, static expectations from source files using AST parsing
  */
 
-export async function extractExpectations(projectProfile, _srcPath) {
+export async function extractExpectations(projectProfile, expectedSourceRoot) {
   const expectations = [];
   const skipped = {
     dynamic: 0,
@@ -39,10 +40,13 @@ export async function extractExpectations(projectProfile, _srcPath) {
   };
   
   const sourceRoot = resolve(projectProfile.sourceRoot);
+  const guardRoot = resolve(expectedSourceRoot || sourceRoot);
+  enforceSourceRootBoundary(sourceRoot, guardRoot);
   const scanPaths = getScanPaths(projectProfile, sourceRoot);
+  scanPaths.forEach((scanPath) => enforceScanPathWithinRoot(scanPath, guardRoot));
   
   for (const scanPath of scanPaths) {
-    const fileExpectations = await scanDirectory(scanPath, sourceRoot, skipped, projectProfile.framework);
+    const fileExpectations = await scanDirectory(scanPath, sourceRoot, guardRoot, skipped, projectProfile.framework);
     expectations.push(...fileExpectations);
   }
   
@@ -175,7 +179,7 @@ function getScanPaths(projectProfile, sourceRoot) {
 /**
  * Recursively scan directory for expectations
  */
-async function scanDirectory(dirPath, sourceRoot, skipped, framework = 'unknown') {
+async function scanDirectory(dirPath, sourceRoot, guardRoot, skipped, framework = 'unknown') {
   const expectations = [];
   
   try {
@@ -192,10 +196,10 @@ async function scanDirectory(dirPath, sourceRoot, skipped, framework = 'unknown'
       const fullPath = join(dirPath, entry.name);
       
       if (entry.isDirectory()) {
-        const dirExpectations = await scanDirectory(fullPath, sourceRoot, skipped, framework);
+        const dirExpectations = await scanDirectory(fullPath, sourceRoot, guardRoot, skipped, framework);
         expectations.push(...dirExpectations);
       } else if (entry.isFile() && shouldScanFile(entry.name)) {
-        const fileExpectations = scanFile(fullPath, sourceRoot, skipped, framework);
+        const fileExpectations = scanFile(fullPath, sourceRoot, guardRoot, skipped, framework);
         expectations.push(...fileExpectations);
       }
     }
@@ -238,12 +242,16 @@ function shouldScanFile(name) {
 /**
  * Scan a single file for expectations
  */
-function scanFile(filePath, sourceRoot, skipped, framework = 'unknown') {
+function scanFile(filePath, sourceRoot, guardRoot, skipped, framework = 'unknown') {
   const expectations = [];
   
   try {
+    enforceScanPathWithinRoot(filePath, guardRoot);
     const content = /** @type {string} */ (readFileSync(filePath, 'utf8'));
     const relPath = relative(sourceRoot, filePath);
+    if (relPath.startsWith('..')) {
+      throw new DataError(`Expectation extraction attempted outside allowed source root: ${filePath}`);
+    }
     
     if (filePath.endsWith('.html')) {
       // HTML files: Use regex-based extraction (static HTML fallback)
@@ -327,6 +335,24 @@ function scanFile(filePath, sourceRoot, skipped, framework = 'unknown') {
   }
   
   return expectations;
+}
+
+function enforceSourceRootBoundary(sourceRoot, guardRoot) {
+  const normalizedRoot = resolve(guardRoot);
+  const normalizedSource = resolve(sourceRoot);
+  const within = normalizedSource === normalizedRoot || normalizedSource.startsWith(`${normalizedRoot}${sep}`);
+  if (!within) {
+    throw new DataError(`Expectation extraction root (${normalizedSource}) must stay within provided --src (${normalizedRoot})`);
+  }
+}
+
+function enforceScanPathWithinRoot(targetPath, guardRoot) {
+  const normalizedTarget = resolve(targetPath);
+  const normalizedRoot = resolve(guardRoot);
+  const within = normalizedTarget === normalizedRoot || normalizedTarget.startsWith(`${normalizedRoot}${sep}`);
+  if (!within) {
+    throw new DataError(`Expectation extraction attempted outside provided --src: ${normalizedTarget}`);
+  }
 }
 
 /**

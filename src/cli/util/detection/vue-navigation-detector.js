@@ -25,28 +25,35 @@ export class VueNavigationDetector extends BaseDetector {
     });
   }
 
-  detect(_filePath, _content, _projectRoot) {
-    // detectVueNavigationPromises expects different signature
-    // For now, return empty array (stub implementation)
-    return [];
+  detect(filePath, content, projectRoot) {
+    return detectVueNavigation(filePath, content, projectRoot);
   }
 }
 
 /**
- * PHASE 20: Detect Vue navigation promises
+ * Detect Vue navigation promises from Router API calls
+ * Parses Vue SFC script blocks for router.push(), router.replace() calls
+ * that target named or dynamic routes.
  * 
- * @param {string} scriptContent - Script block content
- * @param {string} filePath - File path
- * @param {string} relPath - Relative path
- * @param {Object} _scriptBlock - Script block metadata
- * @param {Object} _templateBindings - Template bindings (optional)
- * @ts-expect-error - JSDoc params documented but unused
- * @returns {Array} Navigation promises
+ * @param {string} filePath - Path to .vue file
+ * @param {string} content - Full file content
+ * @param {string} projectRoot - Project root directory
+ * @returns {Array} Array of navigation promises
  */
-export function detectVueNavigationPromises(scriptContent, filePath, relPath, _scriptBlock, _templateBindings) {
-  const promises = [];
+function detectVueNavigation(filePath, content, projectRoot) {
+  const expectations = [];
   
   try {
+    // Find script block
+    const scriptMatch = content.match(/<script[^>]*>([\s\S]*?)<\/script>/);
+    if (!scriptMatch) {
+      return expectations;
+    }
+    
+    const scriptContent = scriptMatch[1];
+    const lines = content.split('\n');
+    const relPath = filePath.replace(projectRoot, '').replace(/^\//, '');
+    
     const ast = parse(scriptContent, {
       sourceType: 'module',
       plugins: [
@@ -57,145 +64,90 @@ export function detectVueNavigationPromises(scriptContent, filePath, relPath, _s
         'dynamicImport',
         'topLevelAwait',
         'objectRestSpread',
+        ['decorators', { decoratorsBeforeExport: true }],
       ],
       errorRecovery: true,
     });
-    
-    const lines = scriptContent.split('\n');
     
     traverse(ast, {
       CallExpression(path) {
         const node = path.node;
         const callee = node.callee;
         
-        // Detect router.push() and router.replace()
-        if (callee.type === 'MemberExpression') {
-          const object = callee.object;
-          const property = callee.property;
+        if (!callee || callee.type !== 'MemberExpression') return;
+        
+        const property = callee.property;
+        if (!property || !property.name || (property.name !== 'push' && property.name !== 'replace')) return;
+        
+        const object = callee.object;
+        const isRouter = 
+          (object.type === 'Identifier' && object.name === 'router') ||
+          (object.type === 'MemberExpression' && 
+           object.object.type === 'ThisExpression' && 
+           object.property.name === '$router');
+        
+        if (!isRouter || !node.arguments.length) return;
+        
+        const arg = node.arguments[0];
+        let targetPath = null;
+        let isDynamic = false;
+        
+        if (arg.type === 'StringLiteral' || (arg.type === 'Literal' && typeof arg.value === 'string')) {
+          targetPath = arg.value;
+        } else if (arg.type === 'ObjectExpression') {
+          const pathProp = arg.properties.find(p => p.key && p.key.name === 'path');
+          const nameProp = arg.properties.find(p => p.key && p.key.name === 'name');
           
-          if (property.name === 'push' || property.name === 'replace') {
-            // Check if object is 'router' or 'this.$router' or 'useRouter()'
-            const isRouter = 
-              (object.type === 'Identifier' && object.name === 'router') ||
-              (object.type === 'MemberExpression' && 
-               object.object.type === 'ThisExpression' && 
-               object.property.name === '$router') ||
-              (object.type === 'CallExpression' &&
-               callee.type === 'Identifier' &&
-               callee.name === 'useRouter');
-            
-            if (isRouter && node.arguments.length > 0) {
-              const arg = node.arguments[0];
-              let targetPath = null;
-              let isDynamic = false;
-              
-              // String literal: router.push('/path')
-              if (arg.type === 'StringLiteral') {
-                targetPath = arg.value;
-              }
-              // Object literal: router.push({ name: 'X', params: {} })
-              else if (arg.type === 'ObjectExpression') {
-                const nameProp = arg.properties.find(p => 
-                  p.key && p.key.name === 'name'
-                );
-                const pathProp = arg.properties.find(p => 
-                  p.key && p.key.name === 'path'
-                );
-                
-                if (pathProp && pathProp.value && pathProp.value.type === 'StringLiteral') {
-                  targetPath = pathProp.value.value;
-                } else if (nameProp) {
-                  // Named route - mark as dynamic/ambiguous
-                  isDynamic = true;
-                  targetPath = '<named-route>';
-                } else {
-                  isDynamic = true;
-                  targetPath = '<dynamic>';
-                }
-              }
-              // Template literal or other dynamic
-              else {
-                isDynamic = true;
-                targetPath = '<dynamic>';
-              }
-              
-              if (targetPath) {
-                const loc = node.loc;
-                const line = loc ? loc.start.line : 1;
-                const column = loc ? loc.start.column : 0;
-                
-                // Extract AST source
-                const astSource = lines.slice(line - 1, loc ? loc.end.line : line)
-                  .join('\n')
-                  .substring(0, 200);
-                
-                // Build context chain
-                const context = buildContext(path);
-                
-                promises.push({
-                  type: 'navigation',
-                  promise: {
-                    kind: 'navigate',
-                    value: targetPath,
-                    isDynamic,
-                  },
-                  source: {
-                    file: relPath,
-                    line,
-                    column,
-                    context,
-                    astSource,
-                  },
-                  confidence: isDynamic ? 0.7 : 1.0,
-                });
-              }
-            }
+          if (pathProp && (pathProp.value.type === 'StringLiteral' || pathProp.value.type === 'Literal')) {
+            targetPath = pathProp.value.value;
+          } else if (nameProp) {
+            isDynamic = true;
+            targetPath = '<named-route>';
+          } else {
+            isDynamic = true;
+            targetPath = '<dynamic>';
           }
+        } else {
+          isDynamic = true;
+          targetPath = '<dynamic>';
         }
+        
+        if (!targetPath) return;
+        
+        const loc = node.loc;
+        const line = loc ? loc.start.line : 1;
+        const column = loc ? loc.start.column : 0;
+        
+        const astSource = lines.slice(line - 1, Math.min(loc?.end?.line || line, line + 3))
+          .join('\n')
+          .substring(0, 200);
+        
+        expectations.push({
+          type: 'navigation',
+          promise: {
+            kind: 'navigate',
+            value: targetPath,
+            isDynamic,
+          },
+          source: {
+            file: relPath,
+            line,
+            column,
+            astSource,
+          },
+          confidence: isDynamic ? 0.7 : 1.0,
+        });
       },
     });
   } catch (error) {
-    // Parse error - skip
+    // Parse errors are silently handled
   }
   
-  return promises;
+  return expectations;
 }
 
-/**
- * Build context chain from AST path
- */
-function buildContext(path) {
-  const context = [];
-  let current = path;
-  
-  while (current) {
-    if (current.isFunctionDeclaration()) {
-      context.push({
-        type: 'function',
-        name: current.node.id?.name || '<anonymous>',
-      });
-    } else if (current.isArrowFunctionExpression()) {
-      context.push({
-        type: 'arrow-function',
-        name: '<arrow>',
-      });
-    } else if (current.isMethodDefinition()) {
-      context.push({
-        type: 'method',
-        name: current.node.key?.name || '<method>',
-      });
-    } else if (current.isObjectProperty()) {
-      context.push({
-        type: 'property',
-        name: current.node.key?.name || '<property>',
-      });
-    }
-    
-    current = current.parentPath;
-  }
-  
-  return context.reverse().map(c => `${c.type}:${c.name}`).join(' > ');
-}
+export default VueNavigationDetector;
+
 
 
 

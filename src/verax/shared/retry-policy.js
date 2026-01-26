@@ -11,31 +11,19 @@
  * - Deterministic: same failures don't retry
  */
 
-const MAX_RETRIES = 2;
-const RETRY_DELAYS = [200, 400]; // ms
+import { RUNTIME_STABILITY_CONTRACT, isRetryAllowed } from '../core/runtime-stability-contract.js';
+
+const MAX_RETRIES = RUNTIME_STABILITY_CONTRACT.maxRetriesPerInteraction;
+const RETRY_DELAYS = RUNTIME_STABILITY_CONTRACT.retryDelaysMs; // ms
 
 /**
  * Determine if an error is retryable (e.g., element detached, clickability).
  * @param {Error} error - The error that occurred
  * @returns {boolean} - True if we should retry
  */
-export function isRetryableError(error) {
+export function isRetryableError(error, stage = 'interaction') {
   if (!error) return false;
-
-  const message = error.message || '';
-  
-  // Element detachment/clickability errors from Playwright/Puppeteer
-  const retryablePatterns = [
-    'element is not attached to the DOM',
-    'element is not visible',
-    'element is not clickable',
-    'element was detached from the DOM',
-    'timeout waiting for element',
-    'Navigation failed',
-    'net::ERR_' // Network timeouts
-  ];
-
-  return retryablePatterns.some(pattern => message.includes(pattern));
+  return isRetryAllowed(error, stage);
 }
 
 /**
@@ -67,6 +55,13 @@ export async function retryOperation(fn, operationName = 'operation', decisionRe
           recordRetryAttempt(decisionRecorder, operationName, attempt + 1, delayMs, lastError.message);
         }
         
+        // Explicit transparency: emit deterministic retry note
+        try {
+          console.log(`[VERAX][retry] Retrying ${operationName} attempt ${attempt + 2}/${MAX_RETRIES + 1} after ${delayMs}ms due to: ${lastError.message}`);
+        } catch {
+          // logging must never break retry flow
+        }
+
         await new Promise(resolve => setTimeout(resolve, delayMs));
         // Continue to next attempt
       } else {

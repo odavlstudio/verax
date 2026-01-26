@@ -53,6 +53,7 @@ export function getRunPaths(projectRoot, outDir, scanId, runId, options = {}) {
     baseDir,
     scanBaseDir,
     runStatusJson: join(baseDir, 'run.status.json'),
+    runManifestJson: join(baseDir, 'run-manifest.json'),
     runMetaJson: join(baseDir, 'run.meta.json'),
     summaryJson: join(baseDir, 'summary.json'),
     judgmentsJson: join(baseDir, 'judgments.json'),

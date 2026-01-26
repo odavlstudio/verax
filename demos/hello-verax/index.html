@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VERAX Demo — Hello</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    nav a { margin-right: 1rem; }
+    .card { border: 1px solid #ccc; padding: 1rem; margin-top: 1rem; max-width: 520px; }
+    button { padding: 0.6rem 1rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/signup.html">Signup</a>
+    <a href="/faq.html">FAQ</a>
+  </nav>
+
+  <h1>Welcome to the VERAX Demo</h1>
+  <p>This mini site is intentionally simple so you can see VERAX outputs quickly.</p>
+
+  <div class="card">
+    <h2>Primary CTA</h2>
+    <p>Navigate to signup to try the broken flow.</p>
+    <a id="cta-signup" href="/signup.html">Go to signup</a>
+  </div>
+
+  <div class="card">
+    <h2>Working feedback</h2>
+    <button id="ping">Ping</button>
+    <p id="ping-result" aria-live="polite"></p>
+  </div>
+
+  <script>
+    document.getElementById('ping').addEventListener('click', () => {
+      const target = document.getElementById('ping-result');
+      target.textContent = 'Ping acknowledged';
+    });
+  </script>
+</body>
+</html>

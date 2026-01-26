@@ -4,6 +4,7 @@ import { detectProjectType } from './project-detector.js';
 import { extractRoutes } from './route-extractor.js';
 import { writeManifest } from './manifest-writer.js';
 import { resolveProjectBase } from './scan-roots.js';
+import { evaluateFrameworkSupport } from '../core/framework-support.js';
 
 /**
  * @typedef {Object} LearnResult
@@ -40,21 +41,32 @@ export async function learn(projectDir, scanOptions = {}) {
   }
   
   const projectType = await detectProjectType(baseDir);
+  const frameworkSupport = evaluateFrameworkSupport(projectType);
   const routes = await extractRoutes(baseDir, projectType, scanOptions);
+  const normalizedRoutes = frameworkSupport.status === 'supported'
+    ? routes
+    : routes.map((route) => ({ ...route, status: 'OUT_OF_SCOPE', reason: frameworkSupport.warning || 'unsupported_framework' }));
   
-    const manifest = await writeManifest(baseDir, projectType, routes, scanOptions);
+  const manifest = await writeManifest(baseDir, projectType, normalizedRoutes, scanOptions);
+  manifest.learnTruth = {
+    ...(manifest.learnTruth || {}),
+    frameworkSupport
+  };
+  if (frameworkSupport.warning) {
+    manifest.notes.push({ type: 'framework', warning: frameworkSupport.warning });
+  }
   
-    // Write manifest to disk and return path
-    const veraxDir = resolve(baseDir, '.verax');
-    mkdirSync(veraxDir, { recursive: true });
+  // Write manifest to disk and return path
+  const veraxDir = resolve(baseDir, '.verax');
+  mkdirSync(veraxDir, { recursive: true });
   
-    const manifestPath = resolve(veraxDir, 'project.json');
-    writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
+  const manifestPath = resolve(veraxDir, 'project.json');
+  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
   
-    return {
-      ...manifest,
-      manifestPath
-    };
+  return {
+    ...manifest,
+    manifestPath
+  };
 }
 
 

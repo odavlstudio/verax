@@ -16,7 +16,7 @@
  * - *.js, *.ts, *.jsx, *.tsx file
  */
 
-import { existsSync, readdirSync, statSync } from 'fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { resolve, extname } from 'path';
 
 const CANDIDATE_DIRS = [
@@ -33,12 +33,52 @@ const _CODE_INDICATORS = [
 const CODE_EXTENSIONS = ['.js', '.ts', '.jsx', '.tsx'];
 
 /**
+ * Check if directory is part of VERAX installation
+ * @param {string} dirPath - Absolute path to directory
+ * @returns {boolean} true if this is VERAX's own directory
+ */
+function isVeraxDirectory(dirPath) {
+  // Walk up the tree looking for VERAX's package.json
+  let current = dirPath;
+  const maxDepth = 5; // Limit search depth
+  
+  for (let i = 0; i < maxDepth; i++) {
+    try {
+      const pkgPath = resolve(current, 'package.json');
+      if (existsSync(pkgPath)) {
+        const pkgContent = String(readFileSync(pkgPath, 'utf8'));
+        const pkg = JSON.parse(pkgContent);
+        if (pkg.name === '@veraxhq/verax' || pkg.name === 'verax') {
+          return true;
+        }
+      }
+    } catch {
+      // Ignore read errors
+    }
+    
+    const parent = resolve(current, '..');
+    if (parent === current) {
+      // Reached filesystem root
+      break;
+    }
+    current = parent;
+  }
+  
+  return false;
+}
+
+/**
  * Check if directory contains code indicators
  * @param {string} dirPath - Absolute path to directory
  * @returns {boolean} true if contains code
  */
 function containsCode(dirPath) {
   try {
+    // First check if this is VERAX's own directory
+    if (isVeraxDirectory(dirPath)) {
+      return false;
+    }
+    
     const entries = readdirSync(dirPath);
     
     // Check for package.json

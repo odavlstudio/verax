@@ -37,7 +37,7 @@ test('Source Discovery - Single App Repo', async (t) => {
 });
 
 test('Source Discovery - Monorepo with apps/web and apps/api', async (t) => {
-  const fixturePath = resolve('./test/fixtures/stage5-monorepo-apps');
+  const fixturePath = resolve('./test/fixtures/monorepo-apps-fixture');
   
   await t.test('finds multiple candidates', () => {
     const { candidates } = findAppRootCandidates(fixturePath);
@@ -68,7 +68,7 @@ test('Source Discovery - Monorepo with apps/web and apps/api', async (t) => {
 });
 
 test('Source Discovery - Ambiguous Monorepo', async (t) => {
-  const fixturePath = resolve('./test/fixtures/stage5-ambiguous-monorepo');
+  const fixturePath = resolve('./test/fixtures/ambiguous-monorepo-fixture');
   
   await t.test('detects ambiguity with two equal web apps', () => {
     const result = resolveAppRoot(fixturePath);
@@ -102,7 +102,7 @@ test('Extraction Outcomes - EXTRACTED Status', async (t) => {
 });
 
 test('Extraction Outcomes - EMPTY Status', async (t) => {
-  const fixturePath = resolve('./test/fixtures/stage5-no-promises');
+  const fixturePath = resolve('./test/fixtures/no-promises-fixture');
   const appContent = readFileSync(resolve(fixturePath, 'src/App.js'), 'utf8');
   
   await t.test('returns no promises when none extractable', () => {
@@ -194,8 +194,8 @@ test('Determinism - Multiple Extractions', async (t) => {
 
 test('Source Discovery - Deterministic Scoring', async (t) => {
   await t.test('scoring rules are applied consistently', () => {
-    const path1 = resolve('./test/fixtures/stage5-single-app');
-    const path2 = resolve('./test/fixtures/stage5-single-app');
+    const path1 = resolve('./test/fixtures/single-app-fixture');
+    const path2 = resolve('./test/fixtures/single-app-fixture');
     
     const score1 = scoreCandidate(path1);
     const score2 = scoreCandidate(path2);
@@ -204,8 +204,8 @@ test('Source Discovery - Deterministic Scoring', async (t) => {
   });
   
   await t.test('higher score for react than no framework', () => {
-    const withReact = resolve('./test/fixtures/stage5-single-app');
-    const withoutFramework = resolve('./test/fixtures/stage5-no-promises');
+    const withReact = resolve('./test/fixtures/single-app-fixture');
+    const withoutFramework = resolve('./test/fixtures/no-promises-fixture');
     
     const scoreReact = scoreCandidate(withReact);
     const scoreEmpty = scoreCandidate(withoutFramework);
@@ -220,7 +220,7 @@ test('Source Discovery - Deterministic Scoring', async (t) => {
 // === EXIT CODE 65 ENFORCEMENT TESTS ===
 
 test('Exit Code 65 - EMPTY Outcome', async (t) => {
-  const fixturePath = resolve('./test/fixtures/stage5-truly-empty');
+  const fixturePath = resolve('./test/fixtures/truly-empty-fixture');
   
   // Mock a simple project profile for the fixture
   const projectProfile = {
@@ -253,7 +253,7 @@ test('Exit Code 65 - AMBIGUOUS Outcome', async (t) => {
   // For now, test that EMPTY exit 65 behavior is in place
   
   await t.test('EMPTY outcome should be caught before Observe phase', async () => {
-    const fixturePath = resolve('./test/fixtures/stage5-truly-empty');
+    const fixturePath = resolve('./test/fixtures/truly-empty-fixture');
     const projectProfile = {
       sourceRoot: fixturePath,
       framework: 'static',
@@ -270,7 +270,7 @@ test('Exit Code 65 - AMBIGUOUS Outcome', async (t) => {
 });
 
 test('Exit Code - EXTRACTED Proceeds Normally', async (t) => {
-  const fixturePath = resolve('./test/fixtures/stage5-single-app');
+  const fixturePath = resolve('./test/fixtures/single-app-fixture');
   
   const projectProfile = {
     sourceRoot: fixturePath,

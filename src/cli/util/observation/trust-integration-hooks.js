@@ -152,16 +152,5 @@ export function verifyArtifactsBeforeRead(runDir) {
   }
 }
 
-/**
- * Check budget compliance during execution
- * Placeholder for Phase 6C
- * 
- * @returns {{ ok: boolean, violations?: string[] }}
- */
-export function checkBudgetCompliance() {
-  // Placeholder for Phase 6C
-  return { ok: true };
-}
-
 
 

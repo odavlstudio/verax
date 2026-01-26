@@ -28,7 +28,7 @@ test('Profile Budget: Profile loading works and validates', () => {
   const dir = setupTestDir();
   try {
     // Valid profile
-    const result1 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--profile', 'fast', '--out', dir], {
+    const result1 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--src', projectRoot, '--profile', 'fast', '--out', dir], {
       cwd: projectRoot,
       encoding: 'utf-8',
       timeout: 10000,
@@ -38,7 +38,7 @@ test('Profile Budget: Profile loading works and validates', () => {
     assert.ok(result1.status === 65 || result1.status === 66 || result1.status === null, `Expected exit 65/66/null, got ${result1.status}`);
     
     // Invalid profile
-    const result2 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--profile', 'invalid', '--out', dir], {
+    const result2 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--src', projectRoot, '--profile', 'invalid', '--out', dir], {
       cwd: projectRoot,
       encoding: 'utf-8',
       timeout: 10000,
@@ -55,7 +55,7 @@ test('Profile Budget: max-total-ms validation', () => {
   const dir = setupTestDir();
   try {
     // Invalid (non-numeric)
-    const result1 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--max-total-ms', 'abc', '--out', dir], {
+    const result1 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--src', projectRoot, '--max-total-ms', 'abc', '--out', dir], {
       cwd: projectRoot,
       encoding: 'utf-8',
       timeout: 10000,
@@ -64,7 +64,7 @@ test('Profile Budget: max-total-ms validation', () => {
     assert.strictEqual(result1.status, 64, 'Non-numeric max-total-ms should exit 64');
     
     // Invalid (negative)
-    const result2 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--max-total-ms', '-100', '--out', dir], {
+    const result2 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--src', projectRoot, '--max-total-ms', '-100', '--out', dir], {
       cwd: projectRoot,
       encoding: 'utf-8',
       timeout: 10000,
@@ -73,7 +73,7 @@ test('Profile Budget: max-total-ms validation', () => {
     assert.strictEqual(result2.status, 64, 'Negative max-total-ms should exit 64');
     
     // Invalid (zero)
-    const result3 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--max-total-ms', '0', '--out', dir], {
+    const result3 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--src', projectRoot, '--max-total-ms', '0', '--out', dir], {
       cwd: projectRoot,
       encoding: 'utf-8',
       timeout: 10000,
@@ -89,7 +89,7 @@ test('Profile Budget: Profile metadata recorded in run-meta.json', () => {
   const dir = setupTestDir();
   try {
     // Run with fast profile (will fail to connect but should record profile)
-    const _result = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--profile', 'fast', '--out', dir], {
+    const _result = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--src', projectRoot, '--profile', 'fast', '--out', dir], {
       cwd: projectRoot,
       encoding: 'utf-8',
       timeout: 10000,
@@ -118,7 +118,7 @@ test('Profile Budget: Profile metadata recorded in run-meta.json', () => {
 test('Profile Budget: exit-on-first-actionable flag accepted', () => {
   const dir = setupTestDir();
   try {
-    const result = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--exit-on-first-actionable', '--out', dir], {
+    const result = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--src', projectRoot, '--exit-on-first-actionable', '--out', dir], {
       cwd: projectRoot,
       encoding: 'utf-8',
       timeout: 10000,

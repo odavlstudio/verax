@@ -1,3 +1,6 @@
+// ⚠️ FROZEN FOR V1 — Not part of VERAX v1 product guarantee
+// Post-hoc diagnostics [ALPHA] — Not core to scan workflow.
+
 /*
 Command: verax diagnose [ALPHA]
 Purpose: Generate post-hoc diagnostics for an existing run (explains HOW and WHY run behaved).

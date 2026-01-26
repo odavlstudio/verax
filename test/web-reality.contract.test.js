@@ -27,7 +27,7 @@ function readFixtureFile(fixtureName, filePath) {
 // === EXTRACTION TESTS ===
 
 test('Promise Extraction - Static Router Links', async (t) => {
-  const appContent = readFixtureFile('stage4-router-extraction/src', 'App.js');
+  const appContent = readFixtureFile('router-extraction-fixture/src', 'App.js');
   const promises = extractPromisesFromAST(appContent, 'App.js', 'src/App.js');
   
   // Filter to navigation promises
@@ -89,7 +89,7 @@ test('Promise Extraction - Submit Buttons Outside Forms', async (t) => {
 });
 
 test('Promise Extraction - Determinism', async (t) => {
-  const appContent = readFixtureFile('stage4-router-extraction/src', 'App.js');
+  const appContent = readFixtureFile('router-extraction-fixture/src', 'App.js');
   
   await t.test('multiple extractions produce identical results', () => {
     const extract1 = extractPromisesFromAST(appContent, 'App.js', 'src/App.js');

@@ -1,3 +1,6 @@
+// ⚠️ FROZEN FOR V1 — Not part of VERAX v1 product guarantee
+// Cleanup utility — Stable but not core to scan workflow.
+
 /*
 Command: verax clean
 Purpose: Clean up old run artifacts with retention policies (defaults to dry-run for safety).

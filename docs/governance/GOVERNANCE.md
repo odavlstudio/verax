@@ -471,7 +471,6 @@ Examples of acceptable limitations:
 Examples of FORBIDDEN language:
 
 ```javascript
-// TODO: Add redaction later
 // Placeholder for redaction logic
 // This should probably work
 // Maybe add validation here

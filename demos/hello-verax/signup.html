@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VERAX Demo — Signup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    nav a { margin-right: 1rem; }
+    form { display: grid; gap: 0.75rem; max-width: 420px; margin-top: 1rem; }
+    label { display: flex; flex-direction: column; gap: 0.25rem; }
+    input { padding: 0.5rem; }
+    button { padding: 0.6rem 1rem; }
+    .note { color: #666; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/signup.html">Signup</a>
+    <a href="/faq.html">FAQ</a>
+  </nav>
+
+  <h1>Create an account</h1>
+  <p class="note">This form intentionally fails silently so VERAX can detect a missing confirmation.</p>
+
+  <form id="signup-form" action="/api/signup" method="POST">
+    <label> Email <input name="email" type="email" required aria-label="Email" /> </label>
+    <label> Password <input name="password" type="password" required aria-label="Password" /> </label>
+    <button id="submit" type="submit">Submit</button>
+    <p id="form-status" aria-live="polite"></p>
+  </form>
+
+  <script>
+    // Intentional UX bug: stop submission, show no feedback.
+    document.getElementById('signup-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      // no UI update here: VERAX should flag the missing success/failure feedback
+    });
+  </script>
+</body>
+</html>

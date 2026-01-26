@@ -567,38 +567,34 @@ export class RunResult {
   }
   
   /**
-   * Get exit code based on current state (CLI Contract — Stage 7)
+   * Get exit code based on current state (CLI Contract — Vision 1.0)
    * Precedence:
    * 1. Evidence violations → 50
-   * 2. FAILED state → 40
-   * 3. INCOMPLETE state → 30
-   * 4. COMPLETE + confirmed findings → 20
-   * 5. COMPLETE + suspected/any findings → 10
-   * 6. COMPLETE + no findings → 0
+   * 2. FAILED or INCOMPLETE state → 30
+   * 3. COMPLETE + any findings (suspected or confirmed) → 20
+   * 4. COMPLETE + no findings → 0
    */
   getExitCode() {
     const state = this.finalize();
 
     const hasEvidenceViolation = Boolean(this.contractViolations?.droppedCount > 0);
     if (hasEvidenceViolation) {
-      return EXIT_CODES.EVIDENCE_VIOLATION;
+      return EXIT_CODES.INVARIANT_VIOLATION;
     }
 
     if (state === ANALYSIS_STATE.FAILED) {
-      return EXIT_CODES.INFRA_FAILURE;
+      // Map FAILED to INCOMPLETE under tri-state contract
+      return EXIT_CODES.INCOMPLETE;
     }
     
     if (state === ANALYSIS_STATE.INCOMPLETE) {
-      return EXIT_CODES.FAILURE_INCOMPLETE;
+      return EXIT_CODES.INCOMPLETE;
     }
     
-    const hasConfirmed = this._hasConfirmedFindings();
     const hasAnyFindings = this._hasAnyFindings();
-    if (hasConfirmed) {
-      return EXIT_CODES.FAILURE_CONFIRMED;
-    }
     if (hasAnyFindings) {
-      return EXIT_CODES.NEEDS_REVIEW;
+      // All findings signal FINDINGS under tri-state
+      return EXIT_CODES.FINDINGS;
     }
     
     return EXIT_CODES.SUCCESS;

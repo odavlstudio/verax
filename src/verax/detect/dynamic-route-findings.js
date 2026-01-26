@@ -1,31 +1,38 @@
 /**
- * PHASE 14 — Dynamic Route Findings Detector
+ * PHASE 14 — Dynamic Route Findings Detector (Vision 1.0 Scope Lock)
  * 
- * Detects dynamic route-related findings with proper verifiability classification
- * and intentional skips for unverifiable routes.
+ * VISION 1.0: Dynamic routes are OUT OF SCOPE.
+ * Produces SKIP entries for all dynamic routes (regardless of verifiability).
+ * Never produces CONFIRMED findings or FAILURE judgments for dynamic routes.
  */
 
 import {
   classifyDynamicRoute,
-  correlateDynamicRouteNavigation,
-  buildDynamicRouteEvidence,
-  shouldSkipDynamicRoute,
   DYNAMIC_ROUTE_VERIFIABILITY,
-  ROUTE_VERDICT,
 } from '../core/dynamic-route-intelligence.js';
 import { buildRouteModels } from '../core/route-intelligence.js';
-import { computeConfidence, computeConfidenceForFinding } from '../core/confidence/index.js';
-import { buildAndEnforceEvidencePackage } from '../core/evidence-builder.js';
-import { applyGuardrails } from '../core/guardrails-engine.js';
 
 /**
  * PHASE 14: Detect dynamic route-related findings
  * 
+ * VISION 1.0 SCOPE LOCK: All dynamic routes are OUT OF SCOPE.
+ * This function now skips ALL dynamic route expectations and produces
+ * no CONFIRMED findings or FAILURE judgments for dynamic routes.
+ * 
+ * Dynamic routes include:
+ * - Parametrized routes (e.g., /user/:id, /post/[slug])
+ * - Routes with dynamic segments that require runtime data
+ * - Routes that cannot be fully verified without user context
+ * 
+ * Rationale: Dynamic routes in pre-auth flows depend on runtime entity data
+ * (user IDs, slugs, etc.) that cannot be deterministically verified in v1.
+ * Scope focuses on pure pre-auth public flows (signup, pricing, landing pages).
+ * 
  * @param {Array} traces - Interaction traces
  * @param {Object} manifest - Project manifest with routes and expectations
- * @param {Array} _findings - Findings array to append to
+ * @param {Array} _findings - Findings array (unused in Vision 1.0 dynamic route handling)
  * @ts-expect-error - JSDoc param documented but unused
- * @returns {Object} { findings: Array, skips: Array }
+ * @returns {Object} { findings: Array (empty for dynamic routes), skips: Array }
  */
 export function detectDynamicRouteFindings(traces, manifest, _findings) {
   const dynamicRouteFindings = [];
@@ -59,8 +66,6 @@ export function detectDynamicRouteFindings(traces, manifest, _findings) {
       
       // If route is unverifiable, add to skips
       if (classification.verifiability === DYNAMIC_ROUTE_VERIFIABILITY.UNVERIFIABLE_DYNAMIC) {
-        const skipDecision = shouldSkipDynamicRoute(matchingRoute, trace);
-        
         skips.push({
           type: 'dynamic_route_unverifiable',
           interaction: {
@@ -73,8 +78,8 @@ export function detectDynamicRouteFindings(traces, manifest, _findings) {
             originalPattern: matchingRoute.originalPattern,
             sourceRef: matchingRoute.sourceRef,
           },
-          reason: skipDecision.reason,
-          confidence: skipDecision.confidence,
+          reason: 'out_of_scope_dynamic_route',
+          confidence: 1.0,
           expectation: {
             target: navigationTarget,
             source: expectation.source,
@@ -83,139 +88,35 @@ export function detectDynamicRouteFindings(traces, manifest, _findings) {
         continue;
       }
       
-      // Correlate navigation with dynamic route
-      const correlation = correlateDynamicRouteNavigation(expectation, matchingRoute, trace);
-      
-      // If correlation indicates skip, add to skips
-      if (correlation.skip) {
-        skips.push({
-          type: 'dynamic_route_skip',
-          interaction: {
-            type: interaction.type,
-            selector: interaction.selector,
-            label: interaction.label,
-          },
-          route: {
-            path: matchingRoute.path,
-            originalPattern: matchingRoute.originalPattern,
-            sourceRef: matchingRoute.sourceRef,
-          },
-          reason: correlation.skipReason,
-          confidence: correlation.confidence,
-          expectation: {
-            target: navigationTarget,
-            source: expectation.source,
-          },
-        });
-        continue;
-      }
-      
-      // Generate finding if verdict indicates failure
-      if (correlation.verdict === ROUTE_VERDICT.SILENT_FAILURE ||
-          correlation.verdict === ROUTE_VERDICT.ROUTE_MISMATCH ||
-          (correlation.verdict === ROUTE_VERDICT.AMBIGUOUS && correlation.confidence >= 0.7)) {
-        
-        // Build evidence
-        const evidence = buildDynamicRouteEvidence(expectation, matchingRoute, correlation, trace);
-        const classificationReason = classification.reason || correlation.reason || null;
-        
-        // PHASE 14: Evidence Law - require sufficient evidence for CONFIRMED
-        const hasSufficientEvidence = evidence.beforeAfter.beforeUrl &&
-                                      evidence.beforeAfter.afterUrl &&
-                                      (evidence.signals.urlChanged ||
-                                       evidence.signals.routeMatched ||
-                                       evidence.signals.uiFeedback !== 'FEEDBACK_MISSING' ||
-                                       evidence.signals.domChanged);
-        
-        // Determine finding type early (before use in confidence call)
-        let findingType = 'dynamic_route_silent_failure';
-        if (correlation.verdict === ROUTE_VERDICT.ROUTE_MISMATCH) {
-          findingType = 'dynamic_route_mismatch';
-        } else if (correlation.verdict === ROUTE_VERDICT.AMBIGUOUS) {
-          findingType = 'dynamic_route_ambiguous';
-        }
-        
-        // PHASE 15: Compute unified confidence
-        const unifiedConfidence = computeConfidenceForFinding({
-          findingType: findingType,
-          expectation,
-          sensors: trace.sensors || {},
-          comparisons: {},
-          attemptMeta: {},
-          evidenceIntent: null,
-          guardrailsOutcome: null,
-          truthStatus: 'SUSPECTED',
-          evidence,
-          options: {}
-        });
-        
-        // Legacy confidence for backward compatibility
-        const _confidence = computeConfidence({
-          findingType: 'dynamic_route_silent_failure',
-          expectation,
-          sensors: trace.sensors || {},
-          comparisons: {},
-          attemptMeta: {},
-          evidenceIntent: null,
-          guardrailsOutcome: null,
-          truthStatus: 'SUSPECTED',
-          evidence: {},
-          options: {}
-        });
-        
-        // Determine severity based on evidence and verdict
-        let severity = 'SUSPECTED';
-        if (hasSufficientEvidence && correlation.verdict === ROUTE_VERDICT.SILENT_FAILURE && (unifiedConfidence.score01 || unifiedConfidence.score || 0) >= 0.8) {
-          severity = 'CONFIRMED';
-        } else if (correlation.verdict === ROUTE_VERDICT.ROUTE_MISMATCH && hasSufficientEvidence) {
-          severity = 'CONFIRMED';
-        }
-        
-        const finding = {
-          type: findingType,
-          severity,
-          confidence: unifiedConfidence.score01 || unifiedConfidence.score || 0, // Contract v1: score01 canonical
-          confidenceLevel: unifiedConfidence.level, // PHASE 15: Add confidence level
-          confidenceReasons: unifiedConfidence.topReasons || unifiedConfidence.reasons || [], // Contract v1: topReasons
-          interaction: {
-            type: interaction.type,
-            selector: interaction.selector,
-            label: interaction.label,
-          },
-          reason: correlation.reason || 'Dynamic route navigation outcome unclear',
-          evidence,
-          source: {
-            file: expectation.source?.file || null,
-            line: expectation.source?.line || null,
-            column: expectation.source?.column || null,
-            context: expectation.source?.context || null,
-            astSource: expectation.source?.astSource || null,
-          },
-          route: correlation.route,
-          expectation,
-          classification: classification,
-          classificationReason: classificationReason,
-        };
-        
-        // PHASE 16: Build and enforce evidence package
-        const findingWithEvidence = buildAndEnforceEvidencePackage(finding, {
-          expectation,
-          trace,
-          evidence,
-          confidence: unifiedConfidence,
-        });
-        
-        // PHASE 17: Apply guardrails (AFTER evidence builder)
-        const context = {
-          evidencePackage: findingWithEvidence.evidencePackage,
-          signals: findingWithEvidence.evidencePackage?.signals || evidence.signals || {},
-          confidenceReasons: unifiedConfidence.reasons || [],
-          promiseType: expectation?.type || null,
-        };
-        const { finding: findingWithGuardrails } = applyGuardrails(findingWithEvidence, context);
-        
-        dynamicRouteFindings.push(findingWithGuardrails);
-      }
+      // VISION 1.0 SCOPE LOCK: Dynamic routes are OUT OF SCOPE
+      // Skip ALL dynamic routes (static/verified/ambiguous/unverifiable)
+      // Never produce CONFIRMED findings or FAILURE judgments for dynamic routes
+      skips.push({
+        type: 'out_of_scope_dynamic_route',
+        interaction: {
+          type: interaction.type,
+          selector: interaction.selector,
+          label: interaction.label,
+        },
+        route: {
+          path: matchingRoute.path,
+          originalPattern: matchingRoute.originalPattern,
+          sourceRef: matchingRoute.sourceRef,
+          isDynamic: matchingRoute.isDynamic,
+          examplePath: matchingRoute.examplePath || null,
+        },
+        reason: 'out_of_scope_dynamic_route',
+        details: {
+          classification: classification.verifiability,
+          classificationReason: classification.reason,
+          guidance: 'Dynamic entity routes are outside Vision 1.0 scope; focused on pre-auth public flows.',
+        },
+        confidence: 1.0,
+        expectation: {
+          target: navigationTarget,
+          source: expectation.source,
+        },
+      });
     }
   }
   

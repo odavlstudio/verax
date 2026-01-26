@@ -2,18 +2,13 @@
 import { extractStaticRoutes } from './static-extractor.js';
 import { createTSProgram } from '../intel/ts-program.js';
 import { extractRoutes as extractRoutesAST } from '../intel/route-extractor.js';
+import { defaultScopePolicy } from '../core/scope-policy.js';
 
-const INTERNAL_PATH_PATTERNS = [
-  /^\/admin/,
-  /^\/dashboard/,
-  /^\/account/,
-  /^\/settings/,
-  /\/internal/,
-  /\/private/
-];
-
+// GATE 3: Scope filtering now uses centralized scope-policy.js
+// This maintains legacy isInternalRoute() for backward compatibility
 function isInternalRoute(path) {
-  return INTERNAL_PATH_PATTERNS.some(pattern => pattern.test(path));
+  const classification = defaultScopePolicy.classify(path);
+  return classification.classification !== 'IN_SCOPE_PUBLIC';
 }
 
 export async function extractRoutes(projectDir, projectType, scanOptions = {}) {

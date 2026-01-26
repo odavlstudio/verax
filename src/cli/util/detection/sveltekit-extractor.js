@@ -1,3 +1,6 @@
+// 🧪 EXPERIMENTAL — Behavior not guaranteed in VERAX v1
+// SvelteKit route extraction partially implemented, observation support incomplete.
+
 /**
  * SvelteKit Framework-Specific Expectation Extractor
  * PHASE 4: Production-grade literal-only extraction with deterministic IDs

@@ -5,6 +5,7 @@ import { hasMeaningfulUrlChange, hasVisibleChange, hasDomChange, getUrlPath } fr
 import { writeFindings } from './findings-writer.js';
 import { classifySkipReason, collectSkipReasons } from './skip-classifier.js';
 import { detectInteractiveFindings } from './interactive-findings.js';
+import { detectPostAuthFindings } from './post-auth-findings.js';
 import { enforceGateOutcomesForFindings } from '../core/gates/enforce-gate-outcome.js';
 
 /**
@@ -353,6 +354,20 @@ export async function detect(manifestPath, tracesPath, validation = null, _expec
   
   // Interactive and accessibility intelligence
   detectInteractiveFindings(observation.traces, manifest, findings);
+  
+  // Post-Auth & RBAC Detection (Vision 1.0 Scope Lock)
+  // Detect post-auth contexts and emit OUT_OF_SCOPE markers instead of findings
+  const postAuthResult = detectPostAuthFindings(observation.traces, manifest, findings);
+  // Post-auth never produces findings, but may produce skip markers
+  if (postAuthResult.skips && postAuthResult.skips.length > 0) {
+    for (const skip of postAuthResult.skips) {
+      skips.push({
+        code: 'OUT_OF_SCOPE_POST_AUTH',
+        message: skip.reason,
+        reason: skip.reason
+      });
+    }
+  }
   
   // Infer canonical run directory from tracesPath when available
   let runDir = null;

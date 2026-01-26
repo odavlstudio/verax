@@ -12,6 +12,8 @@ import { buildAuthArtifact } from '../auth/auth-utils.js';
 import { verifyAuthEffectiveness } from '../auth/auth-verifier.js';
 import { discoverRuntimeNavigation, createRuntimeNavExpectation } from './runtime-navigation-discovery.js';
 import { hasAuthInput } from '../auth/auth-config.js';
+import { DiagnosticsCollector, attemptToDiagnostic } from './diagnostics-collector.js';
+import { mapFailureReasons } from '../../../verax/core/failures/failure-mode-matrix.js';
 
 /**
  * PHASE H3/M3 - Real Browser Observation Engine
@@ -23,7 +25,7 @@ import { hasAuthInput } from '../auth/auth-config.js';
 /**
  * Initialize browser and page with standard configuration
  */
-async function setupBrowserAndPage(authConfig, redactionCounters, browserFactory = chromium.launch) {
+async function setupBrowserAndPage(authConfig, redactionCounters, browserFactory = (opts) => chromium.launch(opts)) {
   const browser = await browserFactory({ headless: true });
   const { contextOptions: rawContextOptions = {}, authResult } = buildAuthContextOptions(authConfig, redactionCounters);
 
@@ -162,6 +164,7 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
 
   const observations = [];
   const redactionCounters = { headersRedacted: 0, tokensRedacted: 0 };
+  const diagnosticsCollector = new DiagnosticsCollector();
   let browser = null;
   let page = null;
   let _context = null;
@@ -189,6 +192,21 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
   const runtimeNavAllowCrossOrigin = runtimeNavConfig.allowCrossOrigin || false;
 
   try {
+    if (process.env.VERAX_DEBUG === '1') {
+      try {
+        const dbgBrowserFactory = _options.browserFactory || chromium.launch;
+        const dbgFactoryName = (dbgBrowserFactory && (dbgBrowserFactory.name || 'anonymous'));
+        const dbgChromiumOk = typeof chromium?.launch === 'function';
+        // Minimal, structured, and only in debug mode
+        console.error('[VERAX DEBUG] observation-engine.observeExpectations enter', {
+          url,
+          expectations: Array.isArray(expectations) ? expectations.length : 'n/a',
+          evidencePath,
+          browserFactory: dbgFactoryName,
+          chromiumLaunchAvailable: dbgChromiumOk,
+        });
+      } catch (_err) { /* ignore debug logging errors */ }
+    }
     // Check for forced timeout test pattern
     if (process.env.VERAX_TEST_FORCE_TIMEOUT === '1') {
       status = 'INCOMPLETE';
@@ -196,7 +214,7 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
     }
 
     // Initialize browser and page with auth-aware context
-    const browserFactory = _options.browserFactory || chromium.launch;
+    const browserFactory = _options.browserFactory || ((opts) => chromium.launch(opts));
     const authConfig = _options.authConfig || {};
     const authMode = authConfig.authMode || 'auto';
     let authResult = null;
@@ -226,7 +244,14 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
     planner = new InteractionPlanner(page, evidencePath, {});
 
     // Set up network monitoring (H5: with write-blocking)
-    setupNetworkAndConsoleMonitoring(page, planner, redactionCounters, onProgress);
+    try {
+      setupNetworkAndConsoleMonitoring(page, planner, redactionCounters, onProgress);
+    } catch (e) {
+      if (process.env.VERAX_DEBUG === '1') {
+        try { console.error('[VERAX DEBUG] setupNetworkAndConsoleMonitoring failed:', e && e.stack ? e.stack : e); } catch (_err) { /* ignore */ }
+      }
+      throw e;
+    }
 
     // Navigate to base URL
     const navSignals = await navigateToBaseUrl(page, url, onProgress);
@@ -375,6 +400,10 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
       // Execute the promise
       const attempt = await planner.executeSinglePromise(exp, expNum);
 
+      // PHASE 4: Capture diagnostic for attempt
+      const diagnostic = attemptToDiagnostic(exp, attempt);
+      diagnosticsCollector.record(diagnostic);
+
       // Convert attempt to observation
       const observation = {
         id: exp.id,
@@ -445,6 +474,20 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
       }
     }
 
+    // TECH: Map key failure causes into explicit incomplete reasons
+    try {
+      const reasonsSet = new Set(stability.incompleteReasons || []);
+      for (const obs of observations) {
+        const rc = String(obs.reason || '').toLowerCase();
+        const cc = String(obs.cause || '').toLowerCase();
+        if (rc.includes('selector-not-found') || cc === 'not-found') reasonsSet.add('unproven:selector_mismatch');
+        if (rc.includes('outcome-timeout') || cc === 'timeout') reasonsSet.add('incomplete:timing_instability');
+        if (rc.includes('network') || cc === 'blocked') reasonsSet.add('incomplete:network_unavailable');
+      }
+      stability.incompleteReasons = Array.from(reasonsSet);
+      stability.failureReasons = mapFailureReasons(stability.incompleteReasons);
+    } catch { /* ignore mapping errors */ }
+
     return {
       observations,
       runtimeExpectations,
@@ -467,6 +510,7 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
       redaction: getRedactionCounters(redactionCounters),
       auth: authArtifact,
       observedAt: getTimeProvider().iso(),
+      diagnostics: diagnosticsCollector.getAll(), // PHASE 4: Traceability diagnostics
     };
     
   } catch (error) {

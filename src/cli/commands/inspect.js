@@ -128,7 +128,7 @@ export async function inspectCommand(runPath, options = {}) {
   };
 
   const evidenceIssues = integrityResult.status !== 'OK' && integrityResult.status !== 'MISSING' ? true : false;
-  const exitCode = evidenceIssues ? EXIT_CODES.EVIDENCE_VIOLATION : EXIT_CODES.SUCCESS;
+  const exitCode = evidenceIssues ? EXIT_CODES.INVARIANT_VIOLATION : EXIT_CODES.SUCCESS;
   const reason = evidenceIssues
     ? 'Artifacts failed integrity validation'
     : `Run ${output.status} with ${output.findingsCount} findings`;

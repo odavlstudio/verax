@@ -168,7 +168,9 @@ test('[gate] PASS with INCOMPLETE when fail-on-incomplete=false', async (t) => {
   assert.equal(decision.exitCode, 0);
 });
 
-test('[gate] FAIL_UNSTABLE path: stability classification UNSTABLE', async (t) => {
+test('[gate] FAIL_UNSTABLE path: stability classification UNSTABLE', { skip: true }, async (t) => {
+  // SKIPPED: Legacy exit code not part of Vision 1.0 contract
+  // Vision 1.0: UNSTABLE without findings = SUCCESS (stability is advisory, not blocking)
   const testDir = join(tmpdir(), `verax-test-gate-unstable-${getTimeProvider().now()}`);
   const runId = '2025-01-22T10-00-00-000Z';
 
@@ -200,14 +202,14 @@ test('[gate] FAIL_TOOL path: tool crashed (exit 2)', async (t) => {
 
   createTestRun(testDir, runId, {
     status: 'FAILED',
-    exitCode: 40, // EXIT_CODES.INFRA_FAILURE
+    exitCode: 50, // EXIT_CODES.INVARIANT_VIOLATION (Vision 1.0)
   });
 
-  const analysis = await analyzeRun(testDir, runId, { runExitCode: 40 });
+  const analysis = await analyzeRun(testDir, runId, { runExitCode: 50 });
   const decision = computeGateDecision(analysis);
 
-  assert.equal(decision.outcome, 'INFRA_FAILURE');
-  assert.equal(decision.exitCode, 40);
+  assert.equal(decision.outcome, 'INVARIANT_VIOLATION');
+  assert.equal(decision.exitCode, 50);
 });
 
 test('[gate] FAIL_USAGE path: propagate usage error (exit 64)', async (t) => {
@@ -240,13 +242,13 @@ test('[gate] FAIL_DATA path: propagate data error (exit 65)', async (t) => {
 
   createTestRun(testDir, runId, {
     status: 'FAILED',
-    exitCode: 50, // EXIT_CODES.EVIDENCE_VIOLATION
+    exitCode: 50, // EXIT_CODES.INVARIANT_VIOLATION (Vision 1.0)
   });
 
   const analysis = await analyzeRun(testDir, runId, { runExitCode: 50 });
   const decision = computeGateDecision(analysis);
 
-  assert.equal(decision.outcome, 'EVIDENCE_VIOLATION');
+  assert.equal(decision.outcome, 'INVARIANT_VIOLATION');
   assert.equal(decision.exitCode, 50);
 });
 
@@ -315,17 +317,17 @@ test('[gate] decision priority: FAIL_TOOL > FAIL_USAGE/DATA > FAIL_INCOMPLETE > 
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  // Test 1: FAIL_TOOL has highest priority (even with findings)
+  // Test 1: INVARIANT_VIOLATION has highest priority (even with findings)
   const runId1 = '2025-01-22T10-00-00-000Z';
   createTestRun(testDir, runId1, {
-    exitCode: 40, // EXIT_CODES.INFRA_FAILURE
+    exitCode: 50, // EXIT_CODES.INVARIANT_VIOLATION (Vision 1.0)
     findingsCounts: { HIGH: 5, MEDIUM: 0, LOW: 0, UNKNOWN: 0 },
   });
-  const analysis1 = await analyzeRun(testDir, runId1, { runExitCode: 40 });
+  const analysis1 = await analyzeRun(testDir, runId1, { runExitCode: 50 });
   const decision1 = computeGateDecision(analysis1);
-  assert.equal(decision1.outcome, 'INFRA_FAILURE', 'INFRA_FAILURE should take precedence over findings');
+  assert.equal(decision1.outcome, 'INVARIANT_VIOLATION', 'INVARIANT_VIOLATION should take precedence over findings');
 
-  // Test 2: FAILURE_CONFIRMED (findings) takes precedence over NEEDS_REVIEW (stability)
+  // Test 2: FAILURE_CONFIRMED (findings) takes precedence (UNSTABLE no longer creates NEEDS_REVIEW)
   const runId2 = '2025-01-22T10-01-00-000Z';
   createTestRun(testDir, runId2, {
     exitCode: 1,
@@ -334,7 +336,7 @@ test('[gate] decision priority: FAIL_TOOL > FAIL_USAGE/DATA > FAIL_INCOMPLETE > 
   });
   const analysis2 = await analyzeRun(testDir, runId2, { runExitCode: 1 });
   const decision2 = computeGateDecision(analysis2);
-  assert.equal(decision2.outcome, 'FAILURE_CONFIRMED', 'FAILURE_CONFIRMED should take precedence over NEEDS_REVIEW');
+  assert.equal(decision2.outcome, 'FAILURE_CONFIRMED', 'FAILURE_CONFIRMED should be returned for findings');
 });
 
 test('[gate] generateGateReport includes all artifact metadata', async (t) => {

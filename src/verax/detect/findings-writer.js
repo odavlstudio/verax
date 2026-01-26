@@ -1,11 +1,12 @@
-import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 import { resolve } from 'path';
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 import { atomicWriteJsonSync, atomicMkdirSync } from '../../cli/util/atomic-write.js';
 import { CANONICAL_OUTCOMES } from '../core/canonical-outcomes.js';
 import { ARTIFACT_REGISTRY } from '../core/artifacts/registry.js';
 import { enforceFinalInvariantsWithReport } from '../detect/invariants-enforcer.js';
 import { canonicalizeFinding } from './finding-contract.js';
 import { deduplicateFindings } from './deduplication.js';
+import { normalizeFindings } from './output-normalizer.js';
 
 const DEFAULT_CLOCK = () => getTimeProvider().iso();
 
@@ -78,7 +79,8 @@ function sortEvidenceReferences(finding) {
   return { ...finding, evidence: sortedEvidence };
 }
 
-// Pure: builds deterministic report object from provided data and timestamp
+// Pure: builds deterministic report object from provided data
+// Note: detectedAt parameter ignored; output does NOT include timestamps
 export function buildFindingsReport({ url, findings = [], coverageGaps = [], detectedAt: _detectedAt }) {
   const outcomeSummary = {};
   Object.values(CANONICAL_OUTCOMES).forEach(outcome => {
@@ -132,18 +134,24 @@ export function buildFindingsReport({ url, findings = [], coverageGaps = [], det
       dropped: enforcement.dropped || []
     }
   };
+
 }
 
-// Side-effectful: persists a fully built report to disk using atomic writes (Week 3)
+// Side-effectful: persists a fully built report to disk using atomic writes
+// Report is normalized for determinism before writing
 export function persistFindingsReport(runDir, report) {
   if (!runDir) {
     throw new Error('runDirOpt is required');
   }
   // @ts-ignore - atomicMkdirSync supports recursive option
   atomicMkdirSync(runDir, { recursive: true });
+  
+  // Normalize for determinism (removes timestamps, sorts keys, rounds values)
+  const normalizedReport = normalizeFindings(report);
+  
   const findingsPath = resolve(runDir, 'findings.json');
-  atomicWriteJsonSync(findingsPath, report);
-  return { ...report, findingsPath };
+  atomicWriteJsonSync(findingsPath, normalizedReport);
+  return { ...normalizedReport, findingsPath };
 }
 
 /**

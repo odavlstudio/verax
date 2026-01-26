@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -324,10 +324,37 @@ test('GUARDRAILS | VISION.md documents core principles', () => {
 });
 
 test('GUARDRAILS | no temporary artifacts in root directory', () => {
-  const rootContents = readFileSync(resolve(ROOT, 'package.json'), 'utf-8');
-  // This is a sanity check - package.json should be the only JSON at root
-  // (besides tsconfig, which is allowed)
+  const rootContents = readdirSync(ROOT);
   
-  assert.ok(rootContents.includes('"name"'), 'package.json structure intact');
+  // After tests, root must NOT contain temporary artifacts
+  const tmpPatterns = [
+    /^tmp-/,                    // tmp-* directories/files
+    /\.tgz$/,                   // tarball artifacts
+    /^\d{4}-\d{2}-\d{2}/,      // date-named directories (YYYY-MM-DD*)
+    /^verax-.*\.tgz$/,         // package tarballs
+  ];
+  
+  const allowedItems = new Set([
+    '.verax',         // VERAX artifacts directory (gitignored)
+    'tmp',            // Temp directory (gitignored)
+    'node_modules',   // Dependencies (gitignored)
+    '.git',           // Git directory
+    'artifacts',      // Test artifacts (gitignored)
+  ]);
+  
+  const unexpectedArtifacts = rootContents.filter(name => {
+    // Skip allowed items
+    if (allowedItems.has(name)) return false;
+    
+    // Check if matches any tmp pattern
+    return tmpPatterns.some(pattern => pattern.test(name));
+  });
+  
+  assert.strictEqual(
+    unexpectedArtifacts.length, 
+    0, 
+    `Found unexpected temporary artifacts in root: ${unexpectedArtifacts.join(', ')}. ` +
+    `Root directory must be clean after tests. Run cleanup scripts or check .gitignore.`
+  );
 });
 

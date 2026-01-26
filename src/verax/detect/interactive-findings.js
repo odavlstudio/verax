@@ -25,6 +25,14 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
     const afterUrl = trace.afterUrl || '';
     const beforeScreenshot = trace.beforeScreenshot || '';
     const afterScreenshot = trace.afterScreenshot || '';
+    
+    // VISION 1.0: Skip post-auth contexts (403, post-auth session)
+    // These are out of scope and should not produce findings
+    const httpStatus = trace.httpStatus || trace.authGuard?.httpStatus || null;
+    if (httpStatus === 403) {
+      // 403 Forbidden: Post-auth/RBAC context, skip to post-auth detector
+      continue;
+    }
 
     // Handle specific interaction types: keyboard, hover, file_upload, login, logout, auth_guard
     if (['keyboard', 'hover', 'file_upload', 'login', 'logout', 'auth_guard'].includes(interaction.type)) {
@@ -113,6 +121,15 @@ export function detectInteractiveFindings(traces, manifest, findings, _helpers =
         evidence.redirectedToLogin = guardMeta.redirectedToLogin || false;
         evidence.hasAccessDenied = guardMeta.hasAccessDenied || false;
         evidence.httpStatus = guardMeta.httpStatus || null;
+        
+        // VISION 1.0: 401 on pre-auth gates is IN SCOPE, all other 401/403 is OUT OF SCOPE
+        // Check if this is a pre-auth gate (login, signup, reset)
+        const _isPreAuthGate = ['login', 'signin', 'signup', 'register', 'reset', 'forgot'].some(
+          p => (evidence.url || '').toLowerCase().includes(p)
+        );
+        
+        // Only emit findings for routes that should be protected but are accessible
+        // Skip 401/403 cases - they're handled by post-auth detector
         const notProtected = !guardMeta.isProtected;
         if (guardMeta.url && notProtected && guardMeta.httpStatus !== 401 && guardMeta.httpStatus !== 403) {
           findingType = 'protected_route_silent_failure';

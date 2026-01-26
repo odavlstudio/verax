@@ -45,7 +45,7 @@ describe(' Formal Exit Code Verification', () => {
     });
   });
   
-  describe('Exit Code 10: NEEDS_REVIEW (suspected findings)', () => {
+  describe('Exit Code 20: FINDINGS (any findings)', () => {
     test('complete analysis with suspected findings', () => {
       const result = new RunResult();
       result.state = ANALYSIS_STATE.COMPLETE;
@@ -55,7 +55,7 @@ describe(' Formal Exit Code Verification', () => {
       result.findingsCount = 2;
       
       const exitCode = result.getExitCode();
-      assert.strictEqual(exitCode, 10);
+      assert.strictEqual(exitCode, 20);
     });
     
     test('single suspected finding', () => {
@@ -67,7 +67,7 @@ describe(' Formal Exit Code Verification', () => {
       result.findingsCount = 1;
       
       const exitCode = result.getExitCode();
-      assert.strictEqual(exitCode, 10);
+      assert.strictEqual(exitCode, 20);
     });
   });
   
@@ -97,23 +97,23 @@ describe(' Formal Exit Code Verification', () => {
     });
   });
   
-  describe('Exit Code 40: FAILED State', () => {
+  describe('Exit Code 30: FAILED State (mapped to INCOMPLETE)', () => {
     test('analysis failed with error', () => {
       const result = new RunResult();
       result.state = ANALYSIS_STATE.FAILED;
       result.error = 'Internal crash';
       
       const exitCode = result.getExitCode();
-      assert.strictEqual(exitCode, 40);
+      assert.strictEqual(exitCode, 30);
     });
     
     test('failed state overrides findings', () => {
       const result = new RunResult();
       result.state = ANALYSIS_STATE.FAILED;
-      result.findingsCount = 10; // Even with findings, exit 40
+      result.findingsCount = 10; // Even with findings, exit 30
       
       const exitCode = result.getExitCode();
-      assert.strictEqual(exitCode, 40);
+      assert.strictEqual(exitCode, 30);
     });
   });
   
@@ -195,7 +195,7 @@ describe(' Formal Exit Code Verification', () => {
       result.recordSkip(SKIP_REASON.BUDGET_EXCEEDED, 10);
       
       const exitCode = result.getExitCode();
-      assert.strictEqual(exitCode, 40);
+      assert.strictEqual(exitCode, 30);
     });
     
     test('FAILED takes precedence over findings', () => {
@@ -204,7 +204,7 @@ describe(' Formal Exit Code Verification', () => {
       result.findingsCount = 100;
       
       const exitCode = result.getExitCode();
-      assert.strictEqual(exitCode, 40);
+      assert.strictEqual(exitCode, 30);
     });
     
     test('INCOMPLETE takes precedence over findings', () => {
@@ -255,13 +255,13 @@ describe(' Formal Exit Code Verification', () => {
   });
   
   describe('Integrity Violation Cases', () => {
-    test('poisoned run = FAILED = exit 40', () => {
+    test('poisoned run = FAILED = exit 30', () => {
       const result = new RunResult();
       result.state = ANALYSIS_STATE.FAILED;
       result.error = 'RUN_POISONED';
       
       const exitCode = result.getExitCode();
-      assert.strictEqual(exitCode, 40);
+      assert.strictEqual(exitCode, 30);
     });
     
     test('integrity hash mismatch = evidence violation = exit 50', () => {
@@ -274,13 +274,13 @@ describe(' Formal Exit Code Verification', () => {
       assert.strictEqual(exitCode, 50);
     });
     
-    test('artifact write failure = FAILED = exit 40', () => {
+    test('artifact write failure = FAILED = exit 30', () => {
       const result = new RunResult();
       result.state = ANALYSIS_STATE.FAILED;
       result.error = 'Failed to write primary truth artifact';
       
       const exitCode = result.getExitCode();
-      assert.strictEqual(exitCode, 40);
+      assert.strictEqual(exitCode, 30);
     });
   });
   
@@ -302,19 +302,19 @@ describe(' Formal Exit Code Verification', () => {
           const exitCode = result.getExitCode();
           
           // Verify exit code is in valid range
-          assert.ok([0, 10, 20, 30, 40, 50].includes(exitCode), 
+          assert.ok([0, 20, 30, 50].includes(exitCode), 
             `Invalid exit code ${exitCode} for state=${state}, findings=${findings}`);
           
           // Verify state-based rules
           if (state === ANALYSIS_STATE.FAILED) {
-            assert.strictEqual(exitCode, 40);
+            assert.strictEqual(exitCode, 30);
           } else if (state === ANALYSIS_STATE.INCOMPLETE) {
             assert.strictEqual(exitCode, 30);
           } else if (state === ANALYSIS_STATE.COMPLETE) {
             if (findings === 0) {
               assert.strictEqual(exitCode, 0);
             } else {
-              assert.strictEqual(exitCode, 10);
+              assert.strictEqual(exitCode, 20);
             }
           }
         }

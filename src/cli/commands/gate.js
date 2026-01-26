@@ -1,3 +1,6 @@
+// ⚠️ FROZEN FOR V1 — Not part of VERAX v1 product guarantee
+// Gate enforcement is opt-in and limited in v1. Full enterprise gates planned for v1.1+.
+
 /*
 Command: verax gate
 Purpose: Execute a VERAX run and emit a deterministic release gate decision.
@@ -62,7 +65,7 @@ export async function gateCommand(options = {}) {
       noRetention: false,
     });
 
-    const runExitCode = runResult?.exitCode ?? EXIT_CODES.INFRA_FAILURE;
+    const runExitCode = runResult?.exitCode ?? EXIT_CODES.INVARIANT_VIOLATION;
     const runId = runResult?.runId;
     const runDir = runResult?.paths?.baseDir;
 

@@ -1,3 +1,6 @@
+// ⚠️ FROZEN FOR V1 — Not part of VERAX v1 product guarantee
+// Release gates (provenance, SBOM) planned for v1.1+ enterprise features.
+
 /**
  * PHASE 21.7 — Release Enforcer
  * 

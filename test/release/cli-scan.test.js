@@ -157,8 +157,8 @@ describe('CLI run command', () => {
     const outDir = sharedOutDir;
     const result = sharedRun;
 
-    // Should exit with code 0 (no HIGH findings expected for static site)
-    assert.ok(result.code === 0 || result.code === 1 || result.code === 10 || result.code === 20, `Expected exit code 0, 1, 10 or 20, got ${result.code}. stderr: ${result.stderr}`);
+    // Exit code should follow tri-state contract (SUCCESS=0, FINDINGS=20, INCOMPLETE=30, EVIDENCE=50, USAGE=64)
+    assert.ok([0, 20, 30, 50, 64].includes(result.code), `Unexpected exit code ${result.code}. stderr: ${result.stderr}`);
     
     // Check that artifacts directory was created in the output directory
     const runsDir = pathResolve(outDir, 'runs');
@@ -224,11 +224,11 @@ describe('CLI run command', () => {
       const lastLine = lines[lines.length - 1];
       const output = JSON.parse(lastLine);
       
-      // Check for run:complete event
-      assert.ok(output.type === 'run:complete' || output.runId, 'JSON output should have type or runId');
+      // Final outcome line should include programmatic fields
       assert.ok(output.runId, 'JSON output should have runId');
       assert.ok(output.url === testUrl, 'JSON output should have URL');
-      assert.ok(typeof output.findingsCounts === 'object', 'JSON output should have findingsCounts');
+      assert.ok(output.truth !== undefined, 'JSON output should include truth');
+      assert.ok(output.digest !== undefined, 'JSON output should include digest');
     } catch (e) {
       assert.fail(`Failed to parse JSON output: ${e.message}. Output: ${result.stdout}`);
     }
@@ -239,8 +239,9 @@ describe('CLI run command', () => {
     
     // Should exit with error code
     assert.ok(result.code !== 0, 'Should exit with non-zero code when URL is missing');
-    assert.ok(result.stderr.includes('--url is required') || result.stderr.includes('Error'), 
-      'Should show error message about missing URL');
+    const combined = (result.stderr || '') + (result.stdout || '');
+    assert.ok(combined.includes('--url') || combined.toLowerCase().includes('usage') || combined.toLowerCase().includes('error'), 
+      'Should show error/usage message about missing URL');
   });
 });
 

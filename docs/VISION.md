@@ -1,380 +1,285 @@
-VERAX — Vision 1.0
+# VERAX — Vision
 
-Silent User Failure Detection for the Web
+## 1. What VERAX Is
 
-1. What VERAX Is
+**VERAX is a read-only, deterministic guard for public, pre-authentication user flows.**
 
-VERAX is a read-only, evidence-driven system that joins any web application,
-understands its observable technical promises,
-executes real user interactions,
-and reveals Silent Failures — moments where the application promised something,
-the user acted,
-and nothing clearly happened.
+It observes real user interactions on live web applications  
+and detects **Silent User Failures** — moments where:
 
-VERAX exists to expose the truth gap between
-what the code and UI promise
-and
-what users actually experience.
+- the application makes a visible technical promise,
+- the user acts on that promise,
+- and no clear, observable acknowledgment happens.
 
-2. The Core Problem
+VERAX exists to reveal **where users are lost before trust is established** —
+before signup, before login, before conversion.
 
-Most user losses do not happen because of visible crashes or server errors.
+It does not simulate intent.  
+It does not guess meaning.  
+It does not modify systems.
+
+**VERAX observes promises, actions, and outcomes — and reports only what can be proven.**
+
+---
+
+## 2. The Exact Problem VERAX Solves
+
+Most critical user losses do **not** happen after login.
 
 They happen when a user:
 
-clicks a button
+- clicks a primary CTA,
+- submits a signup or login form,
+- requests a password reset,
+- or navigates between public pages,
 
-submits a form
+and **nothing clearly happens**.
 
-attempts to continue a critical flow
+No error.  
+No confirmation.  
+No feedback.  
 
-tries to complete an important action
+The system may be technically “working”,  
+yet from the user’s perspective, the promise was broken.
 
-and receives no clear feedback:
+Traditional tools miss this gap:
 
-no navigation
+- QA verifies expected paths.
+- Monitoring checks availability.
+- Analytics shows behavior after the fact.
 
-no message
+**None of them answer the question:  
+“Did the user clearly experience what the system promised?”**
 
-no visible state change
+VERAX exists to answer exactly that — with evidence.
 
-no explanation
+---
 
-These failures:
+## 3. Scope of Responsibility (Strict and Explicit)
 
-do not appear in logs
+### ✅ IN SCOPE (What VERAX Is Responsible For)
 
-do not fail automated tests
+VERAX guarantees accurate, deterministic analysis for:
 
-do not break servers
+- Public pages (pre-authentication)
+- Landing pages and marketing flows
+- Primary CTAs and navigation
+- Signup, login, and password-reset forms
+- Visible, user-triggered interactions
+- Observable outcomes:
+  - URL or route changes
+  - Meaningful DOM updates
+  - User-visible feedback
+  - Network activity correlated to the action
 
-often remain invisible
+All findings are:
 
-This class of failures is called Silent Failures.
+- Read-only
+- Evidence-backed
+- Deterministic (same input → same output)
 
-Silent Failures silently destroy conversion, trust, and revenue.
+---
 
-VERAX was created to detect them before users leave.
+### ❌ OUT OF SCOPE (By Design, For Now)
 
-3. What VERAX Actually Understands
+VERAX explicitly does **not** claim responsibility for:
 
-VERAX does not understand:
+- Authenticated / post-login flows
+- Role-based or permission-gated behavior
+- Business logic correctness
+- Dynamic entity routes (e.g. `/users/:id`)
+- Feature flags and A/B variants
+- Mobile or native applications
+- Non-observable internal state changes
 
-business intent
+These areas are **intentionally excluded**, not forgotten.
 
-product strategy
+---
 
-user personas
+## 4. What VERAX Is NOT
 
-design opinions
+VERAX is **not**:
 
-VERAX understands only one thing:
+- a testing framework
+- a QA replacement
+- a monitoring system
+- a crawler
+- an analytics tool
+- an AI decision engine
+- a bug fixer
+- a simulator of user intent
 
-Explicit technical promises observable in the code and UI.
+**VERAX does not use heuristics, learning, or guessing.**
 
-This includes:
+Instead, it uses **explicit, centralized rules** that do not adapt, learn, or infer intent.
 
-navigation intent (links, routing, redirects)
+---
 
-form submission behavior
+## 5. Definition of a Silent User Failure
 
-validation and error signaling
+A Silent User Failure exists **only if all conditions are met**:
 
-visible state transitions (state → UI)
+1. A **technical promise** is visible to the user  
+   (navigation, submission, or feedback is expected).
+2. The user **performs the corresponding action**.
+3. Within a defined observation window:
+   - no navigation occurs,
+   - no meaningful UI change is visible,
+   - no clear feedback is presented.
 
-feedback indicators (messages, spinners, confirmations)
+If any observable acknowledgment exists,  
+VERAX does **not** report a failure.
 
-basic user interaction contracts
+If evidence is incomplete,  
+VERAX reports **incompleteness**, not success.
 
-VERAX asks a single question:
+---
 
-“Based on this code and UI, what should a reasonable user expect to happen?”
+## 6. Result Semantics and Trust Contract
 
-VERAX evaluates what should happen,
-not why the code was written this way.
+VERAX results are intentionally conservative.
 
-4. How VERAX Operates
+### SUCCESS
+- All in-scope interactions were observed
+- No silent failures were detected
 
-VERAX operates through three immutable steps:
+This does **not** mean the application is correct —  
+only that no silent failures were observed in the tested scope.
 
-1. Promise Extraction
+### FINDINGS DETECTED
+- At least one silent failure was observed
+- Evidence is attached and reproducible
 
-VERAX analyzes the application to derive explicit, observable promises made to the user through the UI and code structure.
+### INCOMPLETE
+- Coverage was partial
+- Time, budget, or environmental limits were reached
 
-2. Real Interaction Execution
+An INCOMPLETE result must **never** be interpreted as safe.
 
-VERAX interacts with the application as a rational, realistic user would —
-without guessing intent, inventing scenarios, or forcing behavior.
+---
 
-3. Promise vs Reality Comparison
+## 7. Determinism Over Intelligence
 
-If a promise exists, the user acts, and no clear outcome is observable,
-VERAX records a Silent Failure.
+VERAX prioritizes determinism over cleverness.
 
-No promise → no expectation → no finding.
+- No probabilistic reasoning
+- No hidden heuristics
+- No learning from past runs
+- No adaptive behavior that changes outcomes
 
-5. Evidence Is the Supreme Authority
+**Given the same code input and stable environment,**
+**VERAX produces deterministic logic and reproducible artifacts.**
 
-VERAX is an evidence system, not an opinion engine.
+**Note:** Time-based fields (timestamps, run duration) are not deterministically identical across runs, by design. Framework and feature detection are deterministic. Retry logic and timeout classification are centralized and deterministic.
 
-No evidence → no finding
+Trust is earned through reproducibility and explicit rules, not prediction.
 
-Weak evidence → low confidence
+---
 
-Conflicting signals → explicit uncertainty
+## 8. Evidence Is the Product
 
-Every Silent Failure must be supported by:
+VERAX **attempts** to produce findings backed by:
 
-observable UI state
+- before/after screenshots
+- DOM diffs
+- network traces
+- execution timelines
 
-before/after artifacts
+**When evidence is incomplete:**
+- The finding is downgraded or discarded.
+- If the gap cannot be assessed, the result is marked INCOMPLETE.
 
-verifiable runtime signals
+VERAX never asks to be trusted blindly.
 
-VERAX never reports assumptions.
-VERAX reports provable reality.
+---
 
-6. Determinism Over Intelligence
+## 9. Supported Frameworks
 
-VERAX prioritizes determinism over perceived intelligence.
+VERAX provides **full support** for:
+- Static HTML
+- React (with react-router-dom)
+- Next.js (App Router and Pages Router, dev and prod)
 
-Given:
+VERAX provides **partial support** for:
+- Vue 3 (code extraction only; observation partially supported)
+- Angular (code extraction only; observation partially supported)
+- SvelteKit (code extraction only; observation partially supported)
 
-the same application
+**Unsupported frameworks** are detected and explicitly marked `OUT_OF_SCOPE`, with warnings printed to the CLI and incomplete reasons recorded in artifacts.
 
-the same state
+---
 
-the same interaction
+## 10. Zero Configuration — With Honest Limits
 
-VERAX must produce the same outcome.
+VERAX is designed to work out-of-the-box for public flows.
 
-Predictability, reproducibility, and forensic clarity are more important than speculative intelligence.
+**Auto-Detection:**
+- When `--src` is omitted, VERAX automatically searches for source code in:
+  1. Current directory (`.`)
+  2. Common subdirectories: `./src`, `./app`, `./frontend`, `./pages`
+  3. Parent directories (up to 3 levels above current directory)
 
-7. Silence Is a First-Class Signal
+**If source IS detected:**
+- Runs with full detection capabilities (source-based + runtime observation)
+- Result can be SUCCESS, FINDINGS, or INCOMPLETE based on actual findings
+- Full evidence guarantees apply
 
-The absence of feedback is not neutral.
+**If source is NOT detected:**
+- Runs in LIMITED mode (runtime observation only, no source-based detection)
+- Result is **ALWAYS INCOMPLETE** with explicit reasons:
+  - `source_not_detected`
+  - `limited_runtime_only_mode`
+- Exit code: 30 (INCOMPLETE)
+- User must provide `--src` explicitly to enable full trust
 
-Silence includes:
+**"Zero configuration" means:**
+> You can run `verax run --url <site>` meaningfully without specifying `--src`  
+> **within the defined scope** (projects with detectable source code).
 
-no UI change
+**Safety guarantee:**  
+LIMITED mode never returns SUCCESS or false confidence.  
+Absence of source code → always INCOMPLETE → CI gates block safely.
 
-no navigation
+**Enterprise CI/CD recommendation:**  
+Provide `--src` explicitly for deterministic, reproducible builds.
 
-no message
+---
 
-no visible acknowledgment
+## 11. Expansion Philosophy
 
-If the user acts and silence follows,
-VERAX treats that silence as meaningful data.
+VERAX will expand its scope **only when guarantees can be preserved**.
 
-Silence is evidence.
+Future capabilities may include:
 
-8. Global Adoption Principle — Works on Any Repo
+- authenticated flows
+- deeper SPA state observation
+- enterprise orchestration
 
-VERAX is designed so that any company with a web application repository
-can run it with minimal effort and receive immediate, actionable value.
+Each expansion will be:
+- explicit
+- versioned
+- and contractually defined
 
-VERAX:
+Nothing is added implicitly.
 
-does not require code changes
+---
 
-does not impose conventions
+## 12. The Core Principle
 
-does not demand explanations
+> **If VERAX cannot prove it,  
+> VERAX will not claim it.**
 
-The project never adapts to VERAX.
-VERAX adapts to the project.
+This principle overrides all others.
 
-9. 90% Web Reality Coverage
+---
 
-VERAX is built to be useful for more than 90% of modern web applications.
+## Final Statement
 
-This is achieved not by duplicating framework logic,
-but by understanding shared, observable web patterns.
+VERAX is not built to test everything.
 
-Framework support is an outcome — not a strategy.
+It is built to protect the moment where users decide
+whether they trust your product or leave forever.
 
-The strategy is to observe universal browser reality:
-DOM behavior, navigation, rendering, network effects, and user-visible feedback.
+That moment happens **before login**.
 
-10. Framework-Agnostic by Design
-
-VERAX does not rely on:
-
-framework plugins
-
-SDKs
-
-framework-specific adapters
-
-VERAX understands applications through common web interaction patterns,
-allowing it to operate across most modern stacks without coupling.
-
-Frameworks change.
-Reality does not.
-
-11. Read-Only by Nature (With Management Exceptions)
-
-VERAX is strictly observational with respect to analyzed applications:
-
-It:
-
-never mutates analyzed application state
-
-never applies fixes to application code
-
-never patches code or behavior
-
-never enforces behavior on target sites
-
-VERAX reports reality.
-Decisions remain human.
-
-### Management Commands Exception
-
-VERAX management commands (`clean`, `gate`) may modify VERAX-generated artifacts and reports, but never modify the analyzed application:
-
-- **`verax clean`** — Deletes old VERAX run artifacts (`.verax/runs/`) for storage management. Defaults to dry-run; requires explicit `--allow-delete-confirmed` to actually delete.
-- **`verax gate`** — Analyzes a run and generates a pass/fail decision report. Does not modify the target application; only produces a gate report for CI systems.
-
-These management commands are opt-in and exist to support enterprise automation. They do not violate the "read-only with respect to analyzed applications" contract.
-
-12. Operational Definition of Silent Failure
-
-A Silent Failure occurs when:
-
-A technical promise exists
-
-The user performs the expected action
-
-The application produces no observable acknowledgment
-
-No success, error, redirect, or explanation is provided
-
-Promise → Action → No Acknowledgment → No Explanation = Silent Failure
-
-Observable acknowledgment may include:
-
-navigation or route change
-
-success or error messaging
-
-visible state updates
-
-loading indicators that resolve meaningfully
-
-validation feedback or focus changes
-
-13. Silent Failure Classes
-
-VERAX detects Silent Failures across common categories, including:
-
-Dead Interactions — clicks that do nothing
-
-Silent Submissions — forms with no success or error feedback
-
-Broken Navigation Promises — implied navigation that never occurs
-
-Invisible State Failures — backend actions without UI reflection
-
-Stuck or Phantom Loading — loading without outcome
-
-Silent Permission Walls — blocked actions without explanation
-
-Render Failures — state changes without visible re-render
-
-14. What VERAX Delivers to Teams
-
-For each Silent Failure, VERAX provides:
-
-the exact interaction location
-
-the expected user outcome
-
-the observed reality
-
-clear before/after evidence
-
-an honest confidence score
-
-impact framing in user terms
-
-VERAX does not output vague judgments.
-VERAX outputs accountability with evidence.
-
-15. Zero Configuration by Default
-
-Zero configuration is a design principle.
-
-VERAX works out-of-the-box in the common case.
-
-Optional configuration exists only to:
-
-narrow scope
-
-provide authentication context
-
-integrate with CI workflows
-
-VERAX never requires teams to rewrite their application.
-
-16. Not Coverage-Driven
-
-VERAX does not aim for total interaction coverage.
-
-It aims for meaningful interaction accountability.
-
-Interactions without a clear promise or user impact are outside VERAX’s scope.
-
-17. Never a Gatekeeper by Default
-
-VERAX informs decisions — it does not block delivery.
-
-By default:
-
-no hard failures
-
-no forced pipeline blocks
-
-no automated judgment authority
-
-VERAX provides clarity, confidence, and evidence.
-The decision belongs to people.
-
-18. What VERAX Will Never Be
-
-VERAX will never:
-
-guess user intent
-
-derive business logic
-
-evaluate UX subjectively
-
-compare applications to others
-
-replace QA, analytics, or product judgment
-
-claim completeness or perfection
-
-19. Measure of Success
-
-VERAX is successful when it:
-
-runs on most web repositories with minimal effort
-
-understands common interaction patterns across stacks
-
-reveals the majority of provable Silent Failures
-
-reduces internal debate about “is this a real problem?”
-
-provides evidence strong enough to act upon
-
-20. The Final Truth
-
-Silent Failures are the most dangerous failures
-because they are invisible.
-
-VERAX exists to make silence observable —
-and truth undeniable.
+VERAX exists for that moment.

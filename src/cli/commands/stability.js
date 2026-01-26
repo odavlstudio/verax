@@ -1,3 +1,6 @@
+// ⚠️ FROZEN FOR V1 — Not part of VERAX v1 product guarantee
+// Stability metrics [ALPHA] — Not core to scan workflow.
+
 /*
 Command: verax stability [ALPHA]
 Purpose: Generate stability metrics for a single run from existing artifacts.

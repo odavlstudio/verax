@@ -6,6 +6,7 @@
 import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 import { waitForSettle } from './wait-for-settle.js';
 import { DEFAULT_SCAN_BUDGET } from '../shared/scan-budget.js';
+import { RUNTIME_STABILITY_CONTRACT } from '../core/runtime-stability-contract.js';
 import { mkdtempSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -16,7 +17,7 @@ const HOVER_MS = 120;
 const FOCUS_PAUSE_MS = 40;
 const CLICK_TIMEOUT_MS = 2000;
 const POST_ACTION_TIMEOUT_MS = 1500; // Keep post-action waits short for fast coverage
-const FORM_RETRY_LIMIT = 1;
+const FORM_RETRY_LIMIT = RUNTIME_STABILITY_CONTRACT.maxRetriesPerInteraction;
 const SAFE_INPUT_TYPES = ['text', 'email', 'password', 'number', 'textarea'];
 const DANGEROUS_KEYWORDS = ['delete', 'drop', 'destroy', 'payment', 'card', 'checkout', 'billing'];
 const DEFAULT_UPLOAD_CONTENT = 'verax-upload-fixture';

@@ -1,3 +1,6 @@
+// 🧪 EXPERIMENTAL — Behavior not guaranteed in VERAX v1
+// Vue SFC extraction implemented but observation support incomplete.
+
 /**
  * Vue Framework-Specific Expectation Extractor
  * PHASE H6: Extracts static routes from Vue Single File Components

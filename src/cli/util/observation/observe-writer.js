@@ -46,6 +46,7 @@ export function writeObserveJson(runDir, observeData) {
       headersRedacted: observeData.redaction?.headersRedacted || 0,
       tokensRedacted: observeData.redaction?.tokensRedacted || 0,
     },
+    diagnostics: observeData.diagnostics || [], // PHASE 4: Traceability diagnostics
   };
   
   atomicWriteJson(observePath, payload);

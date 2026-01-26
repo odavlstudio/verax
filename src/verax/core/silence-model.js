@@ -12,6 +12,7 @@
  */
 
 import { mapSilenceReasonToOutcome } from './canonical-outcomes.js';
+import { applyFailureMode } from './failures/failure-mode-matrix.js';
 
 /**
  * SilenceEntry - Unified structure for tracking all silence/gaps/unknowns
@@ -158,6 +159,9 @@ export class SilenceTracker {
     if (!entry.outcome) {
       entry.outcome = mapSilenceReasonToOutcome(entry.reason);
     }
+
+    // Apply unified failure-mode classification for transparency
+    applyFailureMode(entry, entry.reason);
     
     // PHASE 4: Infer lifecycle fields if not provided
     if (!entry.silence_type) {

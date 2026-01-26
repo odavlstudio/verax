@@ -5,7 +5,7 @@
  * - Detect invalid JSON (syntax errors, truncation)
  * - Verify required fields present
  * - Detect missing referenced files
- * - Report corruption deterministically as INCOMPLETE/FAIL_DATA
+ * - Report corruption deterministically as INCOMPLETE (Vision 1.0)
  * 
  * Never silently accept corrupted artifacts.
  */
@@ -307,22 +307,9 @@ export function validateRunDirectory(runDir) {
  */
 export function determineRunStatus(validation, existingStatus = null) {
   if (!validation || !validation.valid) {
-    if (validation && validation.corruptedFiles && validation.corruptedFiles.length > 0) {
-      return 'FAIL_DATA';
-    }
-
-    if (validation && validation.missingFiles && validation.missingFiles.length > 0) {
-      return 'INCOMPLETE';
-    }
-
-    if (validation && validation.errors && 
-        validation.errors.some(e => e.message.includes('completion sentinel'))) {
-      return 'INCOMPLETE';
-    }
-
-    return 'FAIL_DATA';
+    // Vision 1.0: never emit legacy FAIL_DATA status
+    return 'INCOMPLETE';
   }
-
   return existingStatus || 'COMPLETE';
 }
 
@@ -339,7 +326,10 @@ function getFindingsTotal(findings) {
 
 export function validationExitCode(validation) {
   if (!validation || !validation.valid) {
-    // New explicit contract: incomplete artifacts → 30, corrupted data → 30
+    // Corrupted artifacts → 50; otherwise INCOMPLETE → 30
+    if (validation && Array.isArray(validation.corruptedFiles) && validation.corruptedFiles.length > 0) {
+      return 50;
+    }
     return 30;
   }
   return 0;

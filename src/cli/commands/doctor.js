@@ -1,3 +1,6 @@
+// ⚠️ FROZEN FOR V1 — Not part of VERAX v1 product guarantee
+// Environment diagnostics are stable but not core to scan workflow.
+
 /*
 Command: verax doctor
 Purpose: Diagnose local environment for VERAX prerequisites (Node.js, Playwright, browsers).

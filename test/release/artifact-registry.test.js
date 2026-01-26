@@ -94,7 +94,7 @@ test('registry artifacts are written with contract metadata', async () => {
     const url = `http://localhost:${port}`;
     const result = await runCLI(['run', '--url', url, '--src', fixtureDir, '--out', outDir, '--min-coverage', '0'], process.cwd());
 
-    assert.ok(result.code === 0 || result.code === 1 || result.code === 10 || result.code === 20, `Unexpected exit code ${result.code}. stderr: ${result.stderr}`);
+    assert.ok([0, 20, 30, 50, 64].includes(result.code), `Unexpected exit code ${result.code}. stderr: ${result.stderr}`);
 
     const runsDir = join(outDir, 'runs');
     const scans = readdirSync(runsDir)

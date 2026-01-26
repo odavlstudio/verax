@@ -1,10 +1,10 @@
-import { getTimeProvider } from '../cli/util/support/time-provider.js';
 import { resolve } from 'path';
 import { mkdirSync, readFileSync, existsSync } from 'fs';
 import { atomicWriteJsonSync } from '../cli/util/atomic-write.js';
 import { computeExpectationsSummary } from './shared/artifact-manager.js';
 import { createImpactSummary } from './core/silence-impact.js';
 import { computeDecisionSnapshot } from './core/decision-snapshot.js';
+import { normalizeSummary } from './detect/output-normalizer.js';
 
 export function writeScanSummary(projectDir, url, projectType, learnTruth, observeTruth, detectTruth, manifestPath, tracesPath, findingsPath, runDirOpt, findingsArray = null) {
   if (!runDirOpt) {
@@ -64,7 +64,6 @@ export function writeScanSummary(projectDir, url, projectType, learnTruth, obser
   
   const summary = {
     version: 1,
-    scannedAt: getTimeProvider().iso(),
     url: url,
     projectType: projectType,
     expectationsSummary: expectationsSummary,
@@ -100,10 +99,14 @@ export function writeScanSummary(projectDir, url, projectType, learnTruth, obser
   };
   
   const summaryPath = resolve(scanDir, 'scan-summary.json');
-  atomicWriteJsonSync(summaryPath, summary);
+  
+  // Normalize summary for determinism before writing
+  const normalizedSummary = normalizeSummary(summary);
+  
+  atomicWriteJsonSync(summaryPath, normalizedSummary);
   
   return {
-    ...summary,
+    ...normalizedSummary,
     summaryPath: summaryPath
   };
 }

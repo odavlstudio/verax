@@ -76,7 +76,7 @@ function runDeterminismFixture() {
 
   const runOnce = (outDir) => {
     try {
-      execSync(`node bin/verax.js run --url "${fixtureUrl}" --out "${outDir}" --min-coverage 0`, {
+      execSync(`node bin/verax.js run --url "${fixtureUrl}" --src . --out "${outDir}" --min-coverage 0`, {
         cwd: process.cwd(),
         stdio: 'pipe',
         env

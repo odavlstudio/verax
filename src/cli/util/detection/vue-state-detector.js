@@ -31,224 +31,129 @@ const traverse = _traverse.default || _traverse;
 
   /**
    * Main Vue state detector function
-   * @param {string} filePath
-   * @param {string} content
-   * @param {string} projectRoot
-   * @returns {Array}
+   * Parses Vue SFC and extracts state mutations (ref/reactive)
+   * that are bound to template bindings.
+   * 
+   * @param {string} filePath - Path to .vue file
+   * @param {string} content - Full file content
+   * @param {string} projectRoot - Project root directory
+   * @returns {Array} Array of state promises
    */
-  /**
-   * Main Vue state detector function
-   * @param {string} _filePath
-   * @param {string} _content
-   * @param {string} _projectRoot
-   * @returns {Array}
-   */
-  function detectVueState(_filePath, _content, _projectRoot) {
-    // Stub implementation returning empty array
-    // Full implementation would parse Vue SFC and extract state promises
-    return [];
-  }
-
-/**
- * PHASE 20: Detect Vue state promises
- * 
- * @param {string} scriptContent - Script block content
- * @param {string} filePath - File path
- * @param {string} relPath - Relative path
- * @param {Object} scriptBlock - Script block metadata
- * @param {Object} templateBindings - Template bindings
- * @returns {Array} State promises
- */
-export function detectVueStatePromises(scriptContent, filePath, relPath, scriptBlock, templateBindings) {
-  const promises = [];
-  const templateVars = new Set(templateBindings.bindings || []);
-  
-  if (templateVars.size === 0) {
-    return promises; // No template bindings, skip
-  }
-  
-  try {
-    const ast = parse(scriptContent, {
-      sourceType: 'module',
-      plugins: [
-        'typescript',
-        'classProperties',
-        'optionalChaining',
-        'nullishCoalescingOperator',
-        'dynamicImport',
-        'topLevelAwait',
-        'objectRestSpread',
-      ],
-      errorRecovery: true,
-    });
+  function detectVueState(filePath, content, projectRoot) {
+    const expectations = [];
     
-    const lines = scriptContent.split('\n');
-    const refDeclarations = new Map(); // varName -> { loc, astSource }
-    const reactiveDeclarations = new Map();
-    
-    traverse(ast, {
-      // Detect ref() declarations
-      VariableDeclarator(path) {
-        const node = path.node;
-        const init = node.init;
-        
-        if (init && init.type === 'CallExpression') {
-          const callee = init.callee;
-          
-          // ref(0) or ref({})
-          if (callee.type === 'Identifier' && callee.name === 'ref') {
-            const varName = node.id.name;
-            if (templateVars.has(varName)) {
-              const loc = node.loc;
-              const line = loc ? loc.start.line : 1;
-              const astSource = lines.slice(line - 1, loc ? loc.end.line : line)
-                .join('\n')
-                .substring(0, 200);
-              
-              refDeclarations.set(varName, {
-                loc,
-                astSource,
-                line,
-              });
-            }
-          }
-          
-          // reactive({})
-          if (callee.type === 'Identifier' && callee.name === 'reactive') {
-            const varName = node.id.name;
-            if (templateVars.has(varName)) {
-              const loc = node.loc;
-              const line = loc ? loc.start.line : 1;
-              const astSource = lines.slice(line - 1, loc ? loc.end.line : line)
-                .join('\n')
-                .substring(0, 200);
-              
-              reactiveDeclarations.set(varName, {
-                loc,
-                astSource,
-                line,
-              });
-            }
-          }
-        }
-      },
+    try {
+      // Find script block
+      const scriptMatch = content.match(/<script[^>]*>([\s\S]*?)<\/script>/);
+      if (!scriptMatch) {
+        return expectations;
+      }
       
-      // Detect mutations: count.value = ... or state.x = ...
-      AssignmentExpression(path) {
-        const node = path.node;
-        const left = node.left;
-        
-        // count.value = ...
-        if (left.type === 'MemberExpression' && 
-            left.property.name === 'value' &&
-            left.object.type === 'Identifier') {
-          const varName = left.object.name;
+      const scriptContent = scriptMatch[1];
+      const lines = content.split('\n');
+      
+      // Extract template bindings to identify user-visible state
+      const templateMatch = content.match(/<template[^>]*>([\s\S]*?)<\/template>/);
+      if (!templateMatch) {
+        return expectations;
+      }
+      
+      const templateContent = templateMatch[1];
+      const templateVars = new Set();
+      
+      // Extract {variable} patterns from template
+      const varPattern = /\{\{?\s*([a-zA-Z_$][a-zA-Z0-9_$.]*)\s*\}?\}/g;
+      let match;
+      while ((match = varPattern.exec(templateContent)) !== null) {
+        const varName = match[1].split('.')[0]; // Extract base variable name
+        templateVars.add(varName);
+      }
+      
+      // Extract v-model="variable" patterns
+      const vModelPattern = /v-model(?::[a-z-]+)?\s*=\s*["\']([a-zA-Z_$][a-zA-Z0-9_$]*)["\']|v-model="([a-zA-Z_$][a-zA-Z0-9_$]*)"/g;
+      while ((match = vModelPattern.exec(templateContent)) !== null) {
+        const varName = match[1] || match[2];
+        if (varName) templateVars.add(varName);
+      }
+      
+      // Extract :value and similar bindings
+      const bindingPattern = /:\w+\s*=\s*["\']([a-zA-Z_$][a-zA-Z0-9_$]*)["\']|:\w+="([a-zA-Z_$][a-zA-Z0-9_$]*)"/g;
+      while ((match = bindingPattern.exec(templateContent)) !== null) {
+        const varName = match[1] || match[2];
+        if (varName) templateVars.add(varName);
+      }
+      
+      if (templateVars.size === 0) {
+        return expectations;
+      }
+      
+      // Parse script block for ref() and reactive() declarations
+      const ast = parse(scriptContent, {
+        sourceType: 'module',
+        plugins: [
+          'typescript',
+          'classProperties',
+          'optionalChaining',
+          'nullishCoalescingOperator',
+          'dynamicImport',
+          'topLevelAwait',
+          'objectRestSpread',
+          ['decorators', { decoratorsBeforeExport: true }],
+        ],
+        errorRecovery: true,
+      });
+      
+      const relPath = filePath.replace(projectRoot, '').replace(/^\//, '');
+      
+      traverse(ast, {
+        VariableDeclarator(path) {
+          const node = path.node;
+          const init = node.init;
           
-          if (refDeclarations.has(varName) && templateVars.has(varName)) {
-            const _decl = refDeclarations.get(varName);
+          if (!init || init.type !== 'CallExpression') return;
+          
+          const callee = init.callee;
+          if (!callee || !callee.name) return;
+          
+          const varName = node.id.name;
+          if (!templateVars.has(varName)) return;
+          
+          if (callee.name === 'ref' || callee.name === 'reactive') {
             const loc = node.loc;
             const line = loc ? loc.start.line : 1;
             const column = loc ? loc.start.column : 0;
             
-            const astSource = lines.slice(line - 1, loc ? loc.end.line : line)
+            const astSource = lines.slice(line - 1, Math.min(loc?.end?.line || line, line + 5))
               .join('\n')
               .substring(0, 200);
             
-            const context = buildContext(path);
-            
-            promises.push({
+            expectations.push({
               type: 'state',
               promise: {
                 kind: 'state-change',
-                value: `${varName}.value`,
+                value: varName,
                 stateVar: varName,
               },
               source: {
                 file: relPath,
                 line,
                 column,
-                context,
                 astSource,
               },
               confidence: 0.9,
             });
           }
-        }
-        
-        // state.x = ...
-        if (left.type === 'MemberExpression' &&
-            left.object.type === 'Identifier') {
-          const varName = left.object.name;
-          
-          if (reactiveDeclarations.has(varName) && templateVars.has(varName)) {
-            const loc = node.loc;
-            const line = loc ? loc.start.line : 1;
-            const column = loc ? loc.start.column : 0;
-            
-            const astSource = lines.slice(line - 1, loc ? loc.end.line : line)
-              .join('\n')
-              .substring(0, 200);
-            
-            const context = buildContext(path);
-            const propName = left.property.name || '<property>';
-            
-            promises.push({
-              type: 'state',
-              promise: {
-                kind: 'state-change',
-                value: `${varName}.${propName}`,
-                stateVar: varName,
-              },
-              source: {
-                file: relPath,
-                line,
-                column,
-                context,
-                astSource,
-              },
-              confidence: 0.9,
-            });
-          }
-        }
-      },
-    });
-  } catch (error) {
-    // Parse error - skip
-  }
-  
-  return promises;
-}
-
-/**
- * Build context chain from AST path
- */
-function buildContext(path) {
-  const context = [];
-  let current = path;
-  
-  while (current) {
-    if (current.isFunctionDeclaration()) {
-      context.push({
-        type: 'function',
-        name: current.node.id?.name || '<anonymous>',
+        },
       });
-    } else if (current.isArrowFunctionExpression()) {
-      context.push({
-        type: 'arrow-function',
-        name: '<arrow>',
-      });
-    } else if (current.isMethodDefinition()) {
-      context.push({
-        type: 'method',
-        name: current.node.key?.name || '<method>',
-      });
+    } catch (error) {
+      // Parse errors are silently handled
     }
     
-    current = current.parentPath;
+    return expectations;
   }
-  
-  return context.reverse().map(c => `${c.type}:${c.name}`).join(' > ');
-}
+
+export default VueStateDetector;
+
 
 
 

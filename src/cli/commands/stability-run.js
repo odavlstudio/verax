@@ -1,3 +1,6 @@
+// ⚠️ FROZEN FOR V1 — Not part of VERAX v1 product guarantee
+// Batch stability [ALPHA] — Not core to scan workflow.
+
 /*
 Command: verax stability-run [ALPHA]
 Purpose: Execute multiple VERAX runs and generate batch stability report.

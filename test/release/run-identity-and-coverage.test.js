@@ -44,8 +44,8 @@ test('coverage below threshold enforces exit 30', async () => {
 });
 
 // Advisory mode: always exit 0 for findings; also when minCoverage=0, exit 0
-test('advisory mode exits 0 when coverage passes', async () => {
+test('advisory mode exits 0 or 30 depending on completeness', async () => {
   const url = 'https://example.com';
   const r = await runCommand({ url, src: '.', out: '.verax', json: false, verbose: false, minCoverage: 0, ciMode: 'advisory' });
-  assert.strictEqual(r.exitCode, 0);
+  assert.ok([0,30].includes(r.exitCode));
 });

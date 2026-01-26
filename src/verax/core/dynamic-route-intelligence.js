@@ -1,3 +1,7 @@
+// ⚠️ FROZEN FOR V1 — Not part of VERAX v1 product guarantee
+// Dynamic routes (e.g., /user/${id}) intentionally excluded from v1 scope per VISION.
+// Future expansion planned when guarantees can be preserved.
+
 /**
  * PHASE 14 — DYNAMIC ROUTE INTELLIGENCE
  * 

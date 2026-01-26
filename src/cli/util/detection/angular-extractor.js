@@ -1,3 +1,6 @@
+// 🧪 EXPERIMENTAL — Behavior not guaranteed in VERAX v1
+// Angular extraction partially implemented, observation support incomplete.
+
 /**
  * Angular Framework-Specific Expectation Extractor
  * PHASE 3: Production-grade literal-only extraction with deterministic IDs

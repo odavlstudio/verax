@@ -145,16 +145,16 @@ export function computeGateDecision(analysis) {
   const {
     runExitCode,
     findingsCounts,
-    stabilityClassification,
+    _stabilityClassification,
     failOnIncomplete,
     _summary,
   } = analysis;
 
-  if (runExitCode === EXIT_CODES.INFRA_FAILURE) {
+  if (runExitCode === EXIT_CODES.INVARIANT_VIOLATION) {
     return {
-      outcome: 'INFRA_FAILURE',
-      reason: 'Underlying scan failed to execute',
-      exitCode: EXIT_CODES.INFRA_FAILURE,
+      outcome: 'INVARIANT_VIOLATION',
+      reason: 'Underlying scan failed to execute or artifacts corrupted',
+      exitCode: EXIT_CODES.INVARIANT_VIOLATION,
     };
   }
 
@@ -166,19 +166,19 @@ export function computeGateDecision(analysis) {
     };
   }
 
-  if (runExitCode === EXIT_CODES.EVIDENCE_VIOLATION) {
+  if (runExitCode === EXIT_CODES.INVARIANT_VIOLATION) {
     return {
-      outcome: 'EVIDENCE_VIOLATION',
+      outcome: 'INVARIANT_VIOLATION',
       reason: 'Artifacts failed validation',
-      exitCode: EXIT_CODES.EVIDENCE_VIOLATION,
+      exitCode: EXIT_CODES.INVARIANT_VIOLATION,
     };
   }
 
-  if (runExitCode === EXIT_CODES.FAILURE_INCOMPLETE && failOnIncomplete) {
+  if (runExitCode === EXIT_CODES.INCOMPLETE && failOnIncomplete) {
     return {
       outcome: 'INCOMPLETE',
       reason: 'Run incomplete and gating requires completeness',
-      exitCode: EXIT_CODES.FAILURE_INCOMPLETE,
+      exitCode: EXIT_CODES.INCOMPLETE,
     };
   }
 
@@ -186,40 +186,29 @@ export function computeGateDecision(analysis) {
     Number(findingsCounts.HIGH || 0) > 0 ||
     Number(findingsCounts.MEDIUM || 0) > 0 ||
     Number(findingsCounts.LOW || 0) > 0;
-  const hasSuspectedOnly = Number(findingsCounts.UNKNOWN || 0) > 0 && !hasActionableFindings;
+  const _hasSuspectedOnly = Number(findingsCounts.UNKNOWN || 0) > 0 && !hasActionableFindings;
 
-  if (runExitCode === EXIT_CODES.FAILURE_CONFIRMED || hasActionableFindings) {
+  if (runExitCode === EXIT_CODES.FINDINGS || hasActionableFindings) {
     return {
       outcome: 'FAILURE_CONFIRMED',
       reason: `Actionable findings detected: HIGH=${findingsCounts.HIGH || 0} MEDIUM=${findingsCounts.MEDIUM || 0} LOW=${findingsCounts.LOW || 0}`,
-      exitCode: EXIT_CODES.FAILURE_CONFIRMED,
+      exitCode: EXIT_CODES.FINDINGS,
     };
   }
 
-  if (runExitCode === EXIT_CODES.NEEDS_REVIEW || hasSuspectedOnly) {
+  // Vision 1.0: Suspected findings without actionable ones = SUCCESS
+  // (Detection pipeline filters low-confidence results)
+
+  if (runExitCode === EXIT_CODES.INCOMPLETE && !failOnIncomplete) {
     return {
-      outcome: 'NEEDS_REVIEW',
-      reason: 'Suspected findings require review',
-      exitCode: EXIT_CODES.NEEDS_REVIEW,
+      outcome: 'INCOMPLETE',
+      reason: 'Run incomplete but fail-on-incomplete=false',
+      exitCode: EXIT_CODES.INCOMPLETE,
     };
   }
 
-  if (runExitCode === EXIT_CODES.FAILURE_INCOMPLETE && !failOnIncomplete) {
-    return {
-      outcome: 'NEEDS_REVIEW',
-      reason: 'Run incomplete but fail-on-incomplete=false; manual review required',
-      exitCode: EXIT_CODES.NEEDS_REVIEW,
-    };
-  }
-
-  // Check stability classification - UNSTABLE without findings requires review
-  if (stabilityClassification === 'UNSTABLE' && !hasActionableFindings) {
-    return {
-      outcome: 'NEEDS_REVIEW',
-      reason: 'Stability classification is UNSTABLE',
-      exitCode: EXIT_CODES.NEEDS_REVIEW,
-    };
-  }
+  // Vision 1.0: UNSTABLE without findings = SUCCESS
+  // (Stability is advisory metric, not blocking)
 
   return {
     outcome: 'PASS',

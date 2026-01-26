@@ -1,3 +1,6 @@
+// ⚠️ FROZEN FOR V1 — Not part of VERAX v1 product guarantee
+// Post-hoc explanation [ALPHA] — Not core to scan workflow.
+
 /*
 Command: verax explain [ALPHA]
 Purpose: Generate post-hoc explanation for a specific finding (WHY did it exist).

@@ -6,6 +6,7 @@ import { isProvenExpectation } from '../shared/expectation-prover.js';
 import { extractFlows } from './flow-extractor.js';
 import { createTSProgram } from '../intel/ts-program.js';
 import { extractVueNavigationPromises } from '../vue-extractors/vue/vue-navigation-extractor.js';
+import { defaultScopePolicy } from '../core/scope-policy.js';
 
 /**
  * @typedef {Object} Manifest
@@ -15,6 +16,9 @@ import { extractVueNavigationPromises } from '../vue-extractors/vue/vue-navigati
  * @property {Array} routes
  * @property {Array<string>} publicRoutes
  * @property {Array<string>} internalRoutes
+ * @property {number} [totalRoutesDiscovered]
+ * @property {number} [routesInScope]
+ * @property {Object} [routesOutOfScope]
  * @property {Array} [staticExpectations]
  * @property {Array} [flows]
  * @property {string} [expectationsStatus]
@@ -34,6 +38,10 @@ export async function writeManifest(projectDir, projectType, routes, scanOptions
   const publicRoutes = routes.filter(r => r.public).map(r => r.path);
   const internalRoutes = routes.filter(r => !r.public).map(r => r.path);
   
+  // GATE 3: Classify routes by scope
+  const scopeClassification = defaultScopePolicy.classifyMany(routes.map(r => r.path));
+  const skippedExamples = defaultScopePolicy.getSkippedExamples(scopeClassification, 10);
+  
   const manifest = {
     version: 1,
     projectDir: projectDir,
@@ -46,6 +54,14 @@ export async function writeManifest(projectDir, projectType, routes, scanOptions
     })),
     publicRoutes: publicRoutes,
     internalRoutes: internalRoutes,
+    // GATE 3: Scope enforcement transparency
+    totalRoutesDiscovered: routes.length,
+    routesInScope: scopeClassification.summary.inScopeCount,
+    routesOutOfScope: {
+      total: scopeClassification.summary.outOfScopeCount,
+      byCategory: scopeClassification.summary.outOfScopeCounts,
+      examples: skippedExamples
+    },
     notes: []
   };
   

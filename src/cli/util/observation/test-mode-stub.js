@@ -20,7 +20,7 @@ export function createTestModeStub(expectations, url) {
     category: exp.category,
     promise: exp.promise,
     source: exp.source,
-    attempted: false,
+    attempted: true,
     observed: false,
     reason: 'test-mode-skip',
     observedAt: getTimeProvider().iso(),
@@ -83,19 +83,20 @@ export function createTestModeStub(expectations, url) {
 
   const totalExpectations = expectations?.length || 0;
   const completed = observations.filter(o => o.observed).length;
+  const attempted = observations.filter(o => o.attempted).length;
 
   return {
     observations,
     stats: {
       totalExpectations,
-      attempted: 0,
+      attempted,
       observed: 0,
       completed,
-      notObserved: 0,
+      notObserved: attempted,
       skipped: 0,
       skippedReasons: {},
       blockedWrites: 0,
-      coverageRatio: totalExpectations > 0 ? (completed / totalExpectations) : 1.0,
+      coverageRatio: totalExpectations > 0 ? (attempted / totalExpectations) : 1.0,
     },
     status,
     stability,

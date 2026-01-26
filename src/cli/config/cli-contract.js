@@ -8,6 +8,7 @@
 
 import { UsageError, DataError, CLIError } from '../util/support/errors.js';
 import { formatErrorForHumans } from '../util/support/error-contract.js';
+import { formatTruthAsText } from '../../verax/core/truth-classifier.js';
 
 /**
  * @typedef {object} OutcomeParams
@@ -16,25 +17,26 @@ import { formatErrorForHumans } from '../util/support/error-contract.js';
  * @property {string} [result]
  * @property {string} reason
  * @property {string} action
+ * @property {import('../../verax/core/truth-classifier.js').TruthResult} [truth]
+ * @property {object} [digest]
+ * @property {string} [runId]
+ * @property {string} [url]
+ * @property {boolean} [isFirstRun]
  */
 
 export const EXIT_CODES = {
   SUCCESS: 0,
-  NEEDS_REVIEW: 10,
-  FAILURE_CONFIRMED: 20,
-  FAILURE_INCOMPLETE: 30,
-  INFRA_FAILURE: 40,
-  EVIDENCE_VIOLATION: 50,
+  FINDINGS: 20,
+  INCOMPLETE: 30,
+  INVARIANT_VIOLATION: 50,
   USAGE_ERROR: 64,
 };
 
 const RESULT_LABELS = {
   [EXIT_CODES.SUCCESS]: 'SUCCESS',
-  [EXIT_CODES.NEEDS_REVIEW]: 'NEEDS_REVIEW',
-  [EXIT_CODES.FAILURE_CONFIRMED]: 'FAILURE_CONFIRMED',
-  [EXIT_CODES.FAILURE_INCOMPLETE]: 'INCOMPLETE',
-  [EXIT_CODES.INFRA_FAILURE]: 'INFRA_FAILURE',
-  [EXIT_CODES.EVIDENCE_VIOLATION]: 'EVIDENCE_LAW_VIOLATION',
+  [EXIT_CODES.FINDINGS]: 'FINDINGS',
+  [EXIT_CODES.INCOMPLETE]: 'INCOMPLETE',
+  [EXIT_CODES.INVARIANT_VIOLATION]: 'INVARIANT_VIOLATION',
   [EXIT_CODES.USAGE_ERROR]: 'USAGE_ERROR',
 };
 
@@ -48,24 +50,21 @@ function sanitize(value) {
 
 function normalizeExitCode(exitCode) {
   if (VALID_EXIT_CODES.has(exitCode)) return exitCode;
-  return EXIT_CODES.INFRA_FAILURE;
+  return EXIT_CODES.INCOMPLETE;
 }
 
 function defaultActionForExit(exitCode) {
   switch (exitCode) {
     case EXIT_CODES.SUCCESS:
       return 'Proceed';
-    case EXIT_CODES.NEEDS_REVIEW:
-      return 'Review findings and confirm';
-    case EXIT_CODES.FAILURE_CONFIRMED:
+    case EXIT_CODES.FINDINGS:
       return 'Address findings and rerun';
-    case EXIT_CODES.FAILURE_INCOMPLETE:
+    case EXIT_CODES.INCOMPLETE:
       return 'Increase coverage or rerun with higher budget';
-    case EXIT_CODES.EVIDENCE_VIOLATION:
+    case EXIT_CODES.INVARIANT_VIOLATION:
       return 'Repair or regenerate required artifacts';
     case EXIT_CODES.USAGE_ERROR:
       return 'Fix CLI usage and retry';
-    case EXIT_CODES.INFRA_FAILURE:
     default:
       return 'Re-run with --debug for stack trace';
   }
@@ -81,14 +80,25 @@ export function buildOutcome({
   result,
   reason,
   action,
+  truth,
+  digest,
+  runId,
+  url,
+  isFirstRun,
 }) {
-  const normalizedExit = Number.isFinite(exitCode) ? normalizeExitCode(exitCode) : EXIT_CODES.INFRA_FAILURE;
+  const normalizedExit = Number.isFinite(exitCode) ? normalizeExitCode(exitCode) : EXIT_CODES.INCOMPLETE;
   return {
     command: command || 'verax',
     exitCode: normalizedExit,
     result: result || RESULT_LABELS[normalizedExit] || 'UNKNOWN',
     reason: sanitize(reason) || 'No reason provided',
     action: sanitize(action) || 'No action provided',
+    // Phase 2: augment with truth-first extras
+    truth: truth || null,
+    digest: digest || null,
+    runId: runId || null,
+    url: url || null,
+    isFirstRun: isFirstRun || false,
   };
 }
 
@@ -101,10 +111,21 @@ export function emitOutcome(outcome, { json = false, stream = process.stdout } =
       result: outcome.result,
       reason: outcome.reason,
       action: outcome.action,
+      // Phase 2: include truth + digest + run meta in final JSON line
+      truth: outcome.truth || null,
+      digest: outcome.digest || null,
+      runId: outcome.runId || null,
+      url: outcome.url || null,
     })}\n`);
     return;
   }
+  // Phase 2: Single concise paragraph, truth-first (but skip for first-run; use summary block instead)
+  if (outcome.truth && outcome.isFirstRun !== true) {
+    const paragraph = formatTruthAsText(outcome.truth);
+    stream.write(`${paragraph}\n`);
+  }
 
+  // Always emit RESULT/REASON/ACTION block for contract compatibility
   stream.write(`RESULT ${outcome.result}\n`);
   stream.write(`REASON ${outcome.reason}\n`);
   stream.write(`ACTION ${outcome.action}\n`);
@@ -114,9 +135,9 @@ export function outcomeFromError(error, { command = 'verax' } = {}) {
   if (!error) {
     return buildOutcome({
       command,
-      exitCode: EXIT_CODES.INFRA_FAILURE,
+      exitCode: EXIT_CODES.INCOMPLETE,
       reason: 'Unknown error',
-      action: defaultActionForExit(EXIT_CODES.INFRA_FAILURE),
+      action: defaultActionForExit(EXIT_CODES.INCOMPLETE),
     });
   }
 
@@ -131,7 +152,7 @@ export function outcomeFromError(error, { command = 'verax' } = {}) {
   }
 
   if (error instanceof DataError) {
-    const exitCode = EXIT_CODES.EVIDENCE_VIOLATION;
+    const exitCode = EXIT_CODES.INVARIANT_VIOLATION;
     return buildOutcome({
       command,
       exitCode,

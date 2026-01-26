@@ -18,9 +18,9 @@
  */
 
 import { createHash } from 'crypto';
-import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 import { mapOutcomeToJudgment } from './judgment-mapper.js';
 import { deriveSeverity } from './severity-mapper.js';
+import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 
 /**
  * Create a judgment object from promise capture and observation

@@ -373,8 +373,7 @@ function extractEnvironmentDiagnostics(summary) {
     os: summary.meta?.os || 'unknown',
   };
   
-  // Extract framework/router if available (not in current summary schema, but may be added)
-  // For now, this is a placeholder for future enhancement
+  // Framework and router information may be added to summary schema in future versions
   
   return environment;
 }

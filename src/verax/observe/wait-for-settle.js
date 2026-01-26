@@ -20,10 +20,16 @@ export async function waitForSettle(page, scanBudget = DEFAULT_SCAN_BUDGET) {
   const baseTimeoutMs = scanBudget.settleTimeoutMs;
   const baseIdleMs = scanBudget.settleIdleMs;
   const baseDomStableMs = scanBudget.settleDomStableMs;
-  const adaptiveStabilization = scanBudget.adaptiveStabilization || false;
+  
+  // GATE 2: Disable adaptive stabilization for determinism
+  // Adaptive extension based on Date.now() jitter makes outcomes non-deterministic
+  // Machine speed differences would cause different verdicts on same inputs
+  // Instead, use fixed timeouts derived from config (deterministic input contract)
+  // See: src/verax/core/canonical-artifacts-contract.js
+  const adaptiveStabilization = false;
 
-  // With adaptive stabilization, allow up to 1.5x the base timeout for difficult pages
-  const timeoutMs = adaptiveStabilization ? Math.round(baseTimeoutMs * 1.5) : baseTimeoutMs;
+  // Fixed timeout based on configuration (no machine-speed dependent scaling)
+  const timeoutMs = baseTimeoutMs;
   const idleMs = baseIdleMs;
   const domStableMs = baseDomStableMs;
 
