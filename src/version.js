@@ -22,7 +22,7 @@ export const DEPRECATION_POLICY = {
 
 export const COMPATIBILITY_GUARANTEES = {
   cli: {
-    commands: 'stable', // run, inspect, gate, version, help
+    commands: 'stable', // run, inspect, version, help
     exitCodes: 'stable', // 0, 10, 20, 30, 40, 50, 64
   },
   artifacts: {
@@ -32,10 +32,6 @@ export const COMPATIBILITY_GUARANTEES = {
     determinism: 'stable', // Same input → same output
     readOnly: 'stable', // Never modifies application under test
     zeroConfig: 'stable', // Works without configuration files
-  },
-  experimental: {
-    commands: 'experimental', // doctor, diagnose, explain, triage, clean
-    advancedAuth: 'experimental', // Complex auth flows beyond basic patterns
   },
 };
 
