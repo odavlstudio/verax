@@ -107,10 +107,7 @@ export async function runDeterminismCheck(runFn, options = { runs: 2, config: {}
       
       diffs.push(...artifactDiffs);
     }
-  }
-  
-  // PHASE 21.2: Check for adaptive events in DecisionRecorder (if available)
-  // HARD RULE: If adaptive events exist → verdict MUST be NON_DETERMINISTIC
+  }  // HARD RULE: If adaptive events exist → verdict MUST be NON_DETERMINISTIC
   let adaptiveVerdict = null;
   let adaptiveReasons = [];
   let adaptiveEvents = [];
@@ -134,23 +131,14 @@ export async function runDeterminismCheck(runFn, options = { runs: 2, config: {}
         // Ignore errors reading decisions
       }
     }
-  }
-  
-  // PHASE 21.2: Determine verdict
-  // HARD RULE: If adaptive events exist → verdict MUST be NON_DETERMINISTIC (even if artifacts match)
+  }  // HARD RULE: If adaptive events exist → verdict MUST be NON_DETERMINISTIC (even if artifacts match)
   const blockerDiffs = diffs.filter(d => d.severity === 'BLOCKER');
-  const artifactVerdict = blockerDiffs.length === 0 ? DETERMINISM_VERDICT.DETERMINISTIC : DETERMINISM_VERDICT.NON_DETERMINISTIC;
-  
-  // PHASE 21.2: Final verdict - adaptive events override artifact comparison
-  const verdict = (adaptiveVerdict === DETERMINISM_VERDICT.NON_DETERMINISTIC) 
+  const artifactVerdict = blockerDiffs.length === 0 ? DETERMINISM_VERDICT.DETERMINISTIC : DETERMINISM_VERDICT.NON_DETERMINISTIC;  const verdict = (adaptiveVerdict === DETERMINISM_VERDICT.NON_DETERMINISTIC) 
     ? DETERMINISM_VERDICT.NON_DETERMINISTIC 
     : artifactVerdict;
   
   // Build summary
-  const summary = buildSummary(diffs, runsMeta);
-  
-  // PHASE 21.2: Include adaptive event information in summary
-  if (adaptiveVerdict === DETERMINISM_VERDICT.NON_DETERMINISTIC) {
+  const summary = buildSummary(diffs, runsMeta);  if (adaptiveVerdict === DETERMINISM_VERDICT.NON_DETERMINISTIC) {
     summary.adaptiveEventsDetected = true;
     summary.adaptiveEventCount = adaptiveEvents.length;
     summary.adaptiveReasons = adaptiveReasons;
@@ -160,9 +148,7 @@ export async function runDeterminismCheck(runFn, options = { runs: 2, config: {}
     verdict,
     summary,
     diffs,
-    runsMeta,
-    // PHASE 21.2: Include adaptive event information
-    adaptiveVerdict,
+    runsMeta,    adaptiveVerdict,
     adaptiveReasons,
     adaptiveEvents
   };

@@ -64,21 +64,21 @@ export function computeObservationSummary(findings, observeTruth, learnTruth, co
     UNKNOWN: 0
   };
   const findingsByType = {};
-  const findingsByOutcome = {};  // PHASE 2: Added outcome tracking
-  const findingsByPromise = {};  // PHASE 3: Added promise tracking
+  const findingsByOutcome = {};
+  const findingsByPromise = {};
   
   for (const finding of (findings || [])) {
     const confidence = finding.confidence?.level || 'UNKNOWN';
     const type = finding.type || 'unknown';
     const outcome = finding.outcome || CANONICAL_OUTCOMES.SILENT_FAILURE;  // Default for legacy findings
-    const promiseType = finding.promise?.type || 'UNKNOWN_PROMISE';  // PHASE 3
+    const promiseType = finding.promise?.type || 'UNKNOWN_PROMISE';
     
     if (Object.prototype.hasOwnProperty.call(findingsByConfidence, confidence)) {
       findingsByConfidence[confidence]++;
     }
     findingsByType[type] = (findingsByType[type] || 0) + 1;
-    findingsByOutcome[outcome] = (findingsByOutcome[outcome] || 0) + 1;  // PHASE 2
-    findingsByPromise[promiseType] = (findingsByPromise[promiseType] || 0) + 1;  // PHASE 3
+    findingsByOutcome[outcome] = (findingsByOutcome[outcome] || 0) + 1;
+    findingsByPromise[promiseType] = (findingsByPromise[promiseType] || 0) + 1;
   }
 
   // Calculate ratios (factual, not judgmental)
@@ -99,7 +99,7 @@ export function computeObservationSummary(findings, observeTruth, learnTruth, co
   const gapDetails = [];
   if (isBudgetExceeded) {
     gapDetails.push({
-      outcome: CANONICAL_OUTCOMES.COVERAGE_GAP,  // PHASE 2
+      outcome: CANONICAL_OUTCOMES.COVERAGE_GAP,
       type: 'budget_exceeded',
       message: `Budget limit reached: ${pagesEvaluated} ${pagesEvaluated}/${pagesDiscovered} pages and ${interactionsEvaluated}/${interactionsDiscovered} interactions evaluated - observation incomplete`,
       pagesAffected: pagesDiscovered - pagesEvaluated,
@@ -108,7 +108,7 @@ export function computeObservationSummary(findings, observeTruth, learnTruth, co
   }
   if (gaps.pages > 0) {
     gapDetails.push({
-      outcome: CANONICAL_OUTCOMES.COVERAGE_GAP,  // PHASE 2
+      outcome: CANONICAL_OUTCOMES.COVERAGE_GAP,
       type: 'pages_not_evaluated',
       message: `${gaps.pages} page(s) discovered but not visited - observations for these pages are unavailable`,
       count: gaps.pages
@@ -116,7 +116,7 @@ export function computeObservationSummary(findings, observeTruth, learnTruth, co
   }
   if (gaps.interactions > 0) {
     gapDetails.push({
-      outcome: CANONICAL_OUTCOMES.COVERAGE_GAP,  // PHASE 2
+      outcome: CANONICAL_OUTCOMES.COVERAGE_GAP,
       type: 'interactions_not_evaluated',
       message: `${gaps.interactions} interaction(s) discovered but not executed - behavior of these interactions is unknown`,
       count: gaps.interactions
@@ -124,7 +124,7 @@ export function computeObservationSummary(findings, observeTruth, learnTruth, co
   }
   if (gaps.expectations > 0) {
     gapDetails.push({
-      outcome: CANONICAL_OUTCOMES.COVERAGE_GAP,  // PHASE 2
+      outcome: CANONICAL_OUTCOMES.COVERAGE_GAP,
       type: 'expectations_not_evaluated',
       message: `${gaps.expectations} expectation(s) defined but not evaluated - cannot determine if code matches reality for these`,
       count: gaps.expectations,
@@ -133,7 +133,7 @@ export function computeObservationSummary(findings, observeTruth, learnTruth, co
   }
   if (gaps.skippedInteractions > 0) {
     gapDetails.push({
-      outcome: CANONICAL_OUTCOMES.UNPROVEN_INTERACTION,  // PHASE 2: Executed but outcome not asserted
+      outcome: CANONICAL_OUTCOMES.UNPROVEN_INTERACTION,
       type: 'interactions_skipped',
       message: `${gaps.skippedInteractions} interaction(s) executed but outcomes not evaluated (safety policy, ambiguous state, or technical limitations)`,
       count: gaps.skippedInteractions
@@ -147,8 +147,8 @@ export function computeObservationSummary(findings, observeTruth, learnTruth, co
       discrepanciesObserved: findings?.length || 0,
       discrepanciesByType: findingsByType,
       discrepanciesByConfidence: findingsByConfidence,
-      discrepanciesByOutcome: findingsByOutcome,  // PHASE 2: Canonical outcomes
-      discrepanciesByPromise: findingsByPromise,  // PHASE 3: Promise types
+      discrepanciesByOutcome: findingsByOutcome,
+      discrepanciesByPromise: findingsByPromise,
       findings: findings || []
     },
     coverage: {
@@ -171,9 +171,7 @@ export function computeObservationSummary(findings, observeTruth, learnTruth, co
       details: gapDetails
     },
     // SILENCE TRACKING: Attach all silence data for explicit reporting
-    silences: detectTruth?.silences || null,
-    // PHASE 4: Add silence impact accounting
-    silenceImpactSummary: detectTruth?.silences?.entries ? 
+    silences: detectTruth?.silences || null,    silenceImpactSummary: detectTruth?.silences?.entries ? 
       createImpactSummary(detectTruth.silences.entries) : 
       null,
     evidenceIndex: evidenceBuild.evidenceIndex,
@@ -221,20 +219,14 @@ export function formatObservationSummary(observationSummary) {
     lines.push('  Types observed:');
     for (const [type, count] of Object.entries(obs.discrepanciesByType || {})) {
       lines.push(`    - ${type}: ${count}`);
-    }
-    
-    // PHASE 2: Show outcomes
-    if (obs.discrepanciesByOutcome && Object.keys(obs.discrepanciesByOutcome).length > 0) {
+    }    if (obs.discrepanciesByOutcome && Object.keys(obs.discrepanciesByOutcome).length > 0) {
       lines.push('  By outcome classification:');
       for (const [outcome, count] of Object.entries(obs.discrepanciesByOutcome)) {
         if (count > 0) {
           lines.push(`    - ${outcome}: ${count}`);
         }
       }
-    }
-    
-    // PHASE 3: Show promises
-    if (obs.discrepanciesByPromise && Object.keys(obs.discrepanciesByPromise).length > 0) {
+    }    if (obs.discrepanciesByPromise && Object.keys(obs.discrepanciesByPromise).length > 0) {
       lines.push('  By promise type:');
       for (const [promise, count] of Object.entries(obs.discrepanciesByPromise)) {
         if (count > 0) {
@@ -282,26 +274,18 @@ export function formatObservationSummary(observationSummary) {
     lines.push('  (No gaps reported - all discovered items were evaluated)');
   }
   
-  // SILENCE TRACKING: Explicitly show all silences (timeouts, skips, sensor failures, caps)
-  // PHASE 4: Include lifecycle information (type, status, promise association, confidence impact)
-  const silences = observationSummary.silences;
+  // SILENCE TRACKING: Explicitly show all silences (timeouts, skips, sensor failures, caps)  const silences = observationSummary.silences;
   if (silences && silences.totalSilences > 0) {
     lines.push('');
     lines.push('UNKNOWNS (Silences - things attempted but outcome unknown):');
-    lines.push(`  Total silence events: ${silences.totalSilences}`);
-    
-    // PHASE 2: Show outcomes in silence
-    if (silences.summary && silences.summary.byOutcome && Object.keys(silences.summary.byOutcome).length > 0) {
+    lines.push(`  Total silence events: ${silences.totalSilences}`);    if (silences.summary && silences.summary.byOutcome && Object.keys(silences.summary.byOutcome).length > 0) {
       lines.push('  By outcome classification:');
       for (const [outcome, count] of Object.entries(silences.summary.byOutcome)) {
         if (count > 0) {
           lines.push(`    - ${outcome}: ${count}`);
         }
       }
-    }
-    
-    // PHASE 4: Show silence lifecycle metrics
-    if (silences.summary && silences.summary.byType && Object.keys(silences.summary.byType).length > 0) {
+    }    if (silences.summary && silences.summary.byType && Object.keys(silences.summary.byType).length > 0) {
       lines.push('  By silence type:');
       const types = Object.entries(silences.summary.byType)
         .filter(([_, count]) => count > 0)
@@ -311,25 +295,16 @@ export function formatObservationSummary(observationSummary) {
         const typeLabel = type.replace(/_/g, ' ').toLowerCase();
         lines.push(`    - ${typeLabel}: ${count}`);
       }
-    }
-    
-    // PHASE 4: Show evaluation status distribution
-    if (silences.summary && silences.summary.byEvaluationStatus && Object.keys(silences.summary.byEvaluationStatus).length > 0) {
+    }    if (silences.summary && silences.summary.byEvaluationStatus && Object.keys(silences.summary.byEvaluationStatus).length > 0) {
       lines.push('  By evaluation status:');
       for (const [status, count] of Object.entries(silences.summary.byEvaluationStatus)) {
         if (count > 0) {
           lines.push(`    - ${status}: ${count}`);
         }
       }
-    }
-    
-    // PHASE 4: Show promise association count
-    if (silences.summary && silences.summary.withPromiseAssociation) {
+    }    if (silences.summary && silences.summary.withPromiseAssociation) {
       lines.push(`  Silences with promise association: ${silences.summary.withPromiseAssociation}`);
-    }
-    
-    // PHASE 4: Show confidence impact
-    if (silences.summary && silences.summary.confidenceImpact) {
+    }    if (silences.summary && silences.summary.confidenceImpact) {
       const impact = silences.summary.confidenceImpact;
       if (impact.coverage !== 0 || impact.promise_verification !== 0 || impact.overall !== 0) {
         lines.push('  Confidence impact:');
@@ -363,10 +338,7 @@ export function formatObservationSummary(observationSummary) {
     lines.push('');
     lines.push('UNKNOWNS (Silences):');
     lines.push('  No silence events recorded (all attempted actions completed)');
-  }
-  
-  // PHASE 4: Show silence impact summary
-  const impactSummary = observationSummary.silenceImpactSummary;
+  }  const impactSummary = observationSummary.silenceImpactSummary;
   if (impactSummary && impactSummary.total_silences > 0) {
     lines.push('');
     lines.push('SILENCE IMPACT ON CONFIDENCE:');

@@ -36,9 +36,7 @@ export function writeFindingsJson(runDir, findingsData) {
       coverageGaps: findingsData.stats?.coverageGaps || 0,
       unproven: findingsData.stats?.unproven || 0,
       informational: findingsData.stats?.informational || 0,
-    },
-    // PHASE 5: detectedAt removed for determinism
-    enforcement: findingsData.enforcement || null,
+    },    enforcement: findingsData.enforcement || null,
     findingsExecutionOrder: executionOrder,
     findingsDeterministicOrder: deterministicOrder,
   };

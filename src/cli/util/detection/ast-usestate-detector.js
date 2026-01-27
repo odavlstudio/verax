@@ -48,10 +48,7 @@ export function detectUseStatePromises(content, _filePath, _relPath) {
     const useStateImported = new Set();
     
     // Track all state declarations: { stateName, setterName, componentName, loc }
-    const stateDeclarations = [];
-    
-    // PHASE 10: Enhanced setter calls with context and AST source
-    // Track setter calls: { setterName, stateName, loc, isUpdaterFunction, context, astSource, isUIBound }
+    const stateDeclarations = [];    // Track setter calls: { setterName, stateName, loc, isUpdaterFunction, context, astSource, isUIBound }
     const setterCalls = [];
     
     // Track JSX usage of state variables: { stateName, loc, usageType }
@@ -126,10 +123,7 @@ export function detectUseStatePromises(content, _filePath, _relPath) {
             }
           }
         }
-      },
-      
-      // PHASE 10: Detect setter calls with context tracking and AST source
-      CallExpression(path) {
+      },      CallExpression(path) {
         const { node } = path;
         const loc = node.loc;
         
@@ -142,14 +136,8 @@ export function detectUseStatePromises(content, _filePath, _relPath) {
             // Check if it's an updater function: setX(prev => next)
             const isUpdaterFunction = node.arguments.length > 0 &&
               (node.arguments[0].type === 'ArrowFunctionExpression' ||
-               node.arguments[0].type === 'FunctionExpression');
-            
-            // PHASE 10: Infer context (handler/hook/function) - reuse Phase 9 style
-            const context = inferContext(path);
-            const isUIBound = isUIBoundHandler(path);
-            
-            // PHASE 10: Extract AST source code for evidence
-            const astSource = extractASTSource(node, lines, loc);
+               node.arguments[0].type === 'FunctionExpression');            const context = inferContext(path);
+            const isUIBound = isUIBoundHandler(path);            const astSource = extractASTSource(node, lines, loc);
             
             setterCalls.push({
               setterName: calleeName,
@@ -159,9 +147,9 @@ export function detectUseStatePromises(content, _filePath, _relPath) {
                 column: loc?.start.column,
               },
               isUpdaterFunction,
-              context, // PHASE 10: Context tracking
-              astSource, // PHASE 10: AST source for evidence
-              isUIBound, // PHASE 10: UI-bound detection
+              context,
+              astSource,
+              isUIBound,
             });
           }
         }
@@ -313,14 +301,9 @@ export function detectUseStatePromises(content, _filePath, _relPath) {
       const { stateName, setterName, componentName, location } = stateDecl;
       
       const relatedSetterCalls = setterCalls.filter(c => c.stateName === stateName);
-      const relatedJSXUsages = jsxUsages.filter(u => u.stateName === stateName);
-      
-      // PHASE 10: Only emit promise if:
-      // - State is used in JSX (proves UI connection)
+      const relatedJSXUsages = jsxUsages.filter(u => u.stateName === stateName);      // - State is used in JSX (proves UI connection)
       // - Setter is called (proves mutation intent)
-      if (relatedJSXUsages.length > 0 && relatedSetterCalls.length > 0) {
-        // PHASE 10: Include context and AST source in promises
-        promises.push({
+      if (relatedJSXUsages.length > 0 && relatedSetterCalls.length > 0) {        promises.push({
           type: 'state-ui-promise',
           stateName,
           setterName,
@@ -328,9 +311,7 @@ export function detectUseStatePromises(content, _filePath, _relPath) {
           setterCallCount: relatedSetterCalls.length,
           jsxUsageCount: relatedJSXUsages.length,
           usageTypes: [...new Set(relatedJSXUsages.map(u => u.usageType))],
-          location,
-          // PHASE 10: Enhanced metadata with context and AST source
-          metadata: {
+          location,          metadata: {
             hasUpdaterFunction: relatedSetterCalls.some(c => c.isUpdaterFunction),
             setterCalls: relatedSetterCalls.map(c => ({
               context: c.context,

@@ -94,10 +94,7 @@ export function detectNetworkCallsAST(content, _filePath, _relPath) {
           
           const urlArg = node.arguments[0];
           const initArg = node.arguments[1];
-          const url = extractUrl(urlArg);
-          
-          // PHASE 9: Filter false positives (analytics calls)
-          if (isAnalyticsCall(url, path)) {
+          const url = extractUrl(urlArg);          if (isAnalyticsCall(url, path)) {
             return; // Skip analytics - not a user-facing promise
           }
           
@@ -126,10 +123,7 @@ export function detectNetworkCallsAST(content, _filePath, _relPath) {
             node.callee.property.name === 'fetch') {
           const urlArg = node.arguments[0];
           const initArg = node.arguments[1];
-          const url = extractUrl(urlArg);
-          
-          // PHASE 9: Filter false positives (analytics calls)
-          if (isAnalyticsCall(url, path)) {
+          const url = extractUrl(urlArg);          if (isAnalyticsCall(url, path)) {
             return; // Skip analytics - not a user-facing promise
           }
           
@@ -156,10 +150,7 @@ export function detectNetworkCallsAST(content, _filePath, _relPath) {
         if (isAxiosCall(node, axiosBindings)) {
           const method = extractAxiosMethod(node);
           const urlArg = getAxiosUrlArg(node, method);
-          const url = extractUrl(urlArg);
-          
-          // PHASE 9: Filter false positives (analytics calls)
-          if (isAnalyticsCall(url, path)) {
+          const url = extractUrl(urlArg);          if (isAnalyticsCall(url, path)) {
             return; // Skip analytics - not a user-facing promise
           }
           
@@ -194,10 +185,7 @@ export function detectNetworkCallsAST(content, _filePath, _relPath) {
           // Try to find associated .open() call
           const xhrDetails = findXhrOpen(path);
           
-          const url = xhrDetails.url || '<dynamic>';
-          
-          // PHASE 9: Filter false positives (analytics calls)
-          if (isAnalyticsCall(url, path)) {
+          const url = xhrDetails.url || '<dynamic>';          if (isAnalyticsCall(url, path)) {
             return; // Skip analytics - not a user-facing promise
           }
           

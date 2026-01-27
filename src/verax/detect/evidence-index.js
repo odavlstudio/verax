@@ -40,10 +40,7 @@ export function buildEvidenceIndex(traces, _projectDir = null, _silenceTracker =
     const beforeUrl = trace.before?.url ?? trace.evidence?.beforeUrl ?? null;
     const afterUrl = trace.after?.url ?? trace.evidence?.afterUrl ?? null;
     let beforeScreenshot = trace.before?.screenshot ?? trace.evidence?.beforeScreenshot ?? null;
-    let afterScreenshot = trace.after?.screenshot ?? trace.evidence?.afterScreenshot ?? null;
-
-    // PHASE 3: Evidence file validation removed - screenshots stored in .verax/runs/<runId>/evidence/
-
+    let afterScreenshot = trace.after?.screenshot ?? trace.evidence?.afterScreenshot ?? null;
     const entry = {
       id: `ev-${id}`,
       expectationId: trace.expectationId || null,

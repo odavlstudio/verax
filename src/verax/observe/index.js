@@ -59,10 +59,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
   const timeProvider = getTimeProvider();
   const startTime = timeProvider.now();
   const baseOrigin = getBaseOrigin(url);
-  const silenceTracker = new SilenceTracker();
-  
-  // PHASE 6: Record all adaptive decisions for determinism tracking
-  const decisionRecorder = new DecisionRecorder(runId);
+  const silenceTracker = new SilenceTracker();  const decisionRecorder = new DecisionRecorder(runId);
   
   // Record budget and timeout configuration decisions
   const profileName = scanBudgetOverride ? 'custom' : 'standard';
@@ -168,9 +165,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
     let nextPageUrl = frontier.getNextUrl();
 
     while (nextPageUrl && timeProvider.now() - startTime < scanBudget.maxScanDurationMs) {
-      if (frontier.isPageLimitExceeded()) {
-        // PHASE 6: Record truncation decision
-        recordTruncation(decisionRecorder, 'pages', {
+      if (frontier.isPageLimitExceeded()) {        recordTruncation(decisionRecorder, 'pages', {
           limit: scanBudget.maxPages,
           reached: frontier.pagesVisited
         });
@@ -296,9 +291,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
 
       // Execute discovered interactions on this page (sorted for determinism)
       for (let i = 0; i < sortedInteractions.length; i++) {
-        if (timeProvider.now() - startTime > scanBudget.maxScanDurationMs) {
-          // PHASE 6: Record truncation decision
-          recordTruncation(decisionRecorder, 'time', {
+        if (timeProvider.now() - startTime > scanBudget.maxScanDurationMs) {          recordTruncation(decisionRecorder, 'time', {
             limit: scanBudget.maxScanDurationMs,
             elapsed: timeProvider.now() - startTime
           });
@@ -320,9 +313,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
           break;
         }
 
-        if (totalInteractionsExecuted >= routeBudget.maxInteractionsPerPage) {
-          // PHASE 6: Record truncation decision
-          recordTruncation(decisionRecorder, 'interactions', {
+        if (totalInteractionsExecuted >= routeBudget.maxInteractionsPerPage) {          recordTruncation(decisionRecorder, 'interactions', {
             limit: routeBudget.maxInteractionsPerPage,
             reached: totalInteractionsExecuted,
             scope: 'per_page'
@@ -346,9 +337,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
           break;
         }
 
-        if (totalInteractionsExecuted >= scanBudget.maxTotalInteractions) {
-          // PHASE 6: Record truncation decision
-          recordTruncation(decisionRecorder, 'interactions', {
+        if (totalInteractionsExecuted >= scanBudget.maxTotalInteractions) {          recordTruncation(decisionRecorder, 'interactions', {
             limit: scanBudget.maxTotalInteractions,
             reached: totalInteractionsExecuted,
             scope: 'total'
@@ -795,10 +784,7 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
       observation.incremental = incrementalMetadata;
     }
 
-    await closeBrowser(browser);
-    
-    // PHASE 6: Export determinism decisions to run directory
-    if (runId && projectDir) {
+    await closeBrowser(browser);    if (runId && projectDir) {
       const runsDir = resolve(projectDir, '.verax', 'runs', runId);
       mkdirSync(runsDir, { recursive: true });
       const decisionsPath = resolve(runsDir, 'decisions.json');

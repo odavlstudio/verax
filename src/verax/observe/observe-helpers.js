@@ -173,9 +173,7 @@ export async function processTraversalResults(traversalResult, expectationResult
 /**
  * Write determinism artifacts
  */
-export async function writeDeterminismArtifacts(projectDir, runId, decisionRecorder) {
-  // PHASE 25: Write determinism contract
-  const { writeDeterminismContract } = await import('../core/determinism/contract-writer.js');
+export async function writeDeterminismArtifacts(projectDir, runId, decisionRecorder) {  const { writeDeterminismContract } = await import('../core/determinism/contract-writer.js');
   const { getRunArtifactDir } = await import('../core/run-id.js');
   const runDir = getRunArtifactDir(projectDir, runId);
   writeDeterminismContract(runDir, decisionRecorder);

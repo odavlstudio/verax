@@ -92,10 +92,7 @@ export function writeSummaryJson(summaryPath, summaryData, stats = {}, truthResu
       unattemptedCount: Math.max(0, observeBlock.expectationsTotal - observeBlock.attempted),
       unattemptedBreakdown: observeBlock.unattemptedReasons || {},
       incompleteReasons: observeBlock.incompleteReasons || [],
-    }) : {},
-    
-    // PHASE 2: Always-available stable blocks
-    observe: observeBlock || {},
+    }) : {},    observe: observeBlock || {},
     learn: learnBlock || {},
     detect: detectBlock || {},
     

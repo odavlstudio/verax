@@ -26,10 +26,7 @@ export async function writeDeterminismReport(determinismResult, verificationResu
 
   reportCounter += 1;
   const reportId = `determinism-${reportCounter.toString().padStart(6, '0')}`;
-  const reportPath = resolve(reportsDir, `${reportId}.json`);
-  
-  // PHASE 25: Check run fingerprints
-  const runFingerprints = [];
+  const reportPath = resolve(reportsDir, `${reportId}.json`);  const runFingerprints = [];
   const runFingerprintMismatches = [];
   for (const runMeta of determinismResult.runsMeta) {
     if (runMeta.runFingerprint) {
@@ -47,10 +44,7 @@ export async function writeDeterminismReport(determinismResult, verificationResu
         });
       }
     }
-  }
-  
-  // PHASE 25: Check verifier errors
-  const verifierErrors = [];
+  }  const verifierErrors = [];
   for (const verification of verificationResults) {
     if (verification.verification && !verification.verification.ok) {
       verifierErrors.push({
@@ -59,10 +53,7 @@ export async function writeDeterminismReport(determinismResult, verificationResu
         verdictStatus: verification.verification.verdictStatus
       });
     }
-  }
-  
-  // PHASE 25: Determine final verdict with expected/unexpected distinction
-  let finalVerdict = determinismResult.verdict;
+  }  let finalVerdict = determinismResult.verdict;
   if (runFingerprintMismatches.length > 0) {
     finalVerdict = 'NON_DETERMINISTIC_UNEXPECTED';
   } else if (verifierErrors.length > 0) {
@@ -76,10 +67,7 @@ export async function writeDeterminismReport(determinismResult, verificationResu
     } else {
       finalVerdict = 'NON_DETERMINISTIC_EXPECTED';
     }
-  }
-  
-  // PHASE 25: Build top reasons
-  const topReasons = [];
+  }  const topReasons = [];
   if (runFingerprintMismatches.length > 0) {
     topReasons.push({ code: 'RUN_FINGERPRINT_MISMATCH', count: runFingerprintMismatches.length });
   }
@@ -97,7 +85,7 @@ export async function writeDeterminismReport(determinismResult, verificationResu
   }
   
   const report = {
-    version: 2, // PHASE 25: Bump version
+    version: 2,
     contractVersion: 1,
     artifactVersions: getArtifactVersions(),
     generatedAt: getTimeProvider().iso(),

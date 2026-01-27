@@ -211,10 +211,7 @@ export class PipelineTracker {
       existingMeta = JSON.parse(content);
     } catch {
       existingMeta = {};
-    }
-
-    // PHASE 25: Compute run fingerprint if params provided
-    let runFingerprint = existingMeta.runFingerprint || null;
+    }    let runFingerprint = existingMeta.runFingerprint || null;
     if (this.runFingerprintParams && !runFingerprint) {
       runFingerprint = computeRunFingerprint({
         ...this.runFingerprintParams,

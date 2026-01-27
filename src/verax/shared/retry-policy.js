@@ -47,10 +47,7 @@ export async function retryOperation(fn, operationName = 'operation', decisionRe
       // Check if we should retry
       if (attempt < MAX_RETRIES && isRetryableError(error)) {
         retriesUsed++;
-        const delayMs = RETRY_DELAYS[attempt];
-        
-        // PHASE 6: Record retry decision for determinism tracking
-        if (decisionRecorder && decisionRecorder.record) {
+        const delayMs = RETRY_DELAYS[attempt];        if (decisionRecorder && decisionRecorder.record) {
           const { recordRetryAttempt } = await import('../core/determinism-model.js');
           recordRetryAttempt(decisionRecorder, operationName, attempt + 1, delayMs, lastError.message);
         }

@@ -73,10 +73,7 @@ export async function runTraversalLoop(params) {
   
   let totalInteractionsDiscovered = initialTotalInteractionsDiscovered;
   let totalInteractionsExecuted = initialTotalInteractionsExecuted;
-  let nextPageUrl = frontier.getNextUrl();
-  
-  // PHASE 21.3: Create observe context once (updated per page)
-  const baseContext = {
+  let nextPageUrl = frontier.getNextUrl();  const baseContext = {
     page,
     baseOrigin,
     scanBudget,
@@ -109,10 +106,7 @@ export async function runTraversalLoop(params) {
   const timeProvider = getTimeProvider();
   while (nextPageUrl && timeProvider.now() - startTime < scanBudget.maxScanDurationMs) {
     const currentUrl = page.url();
-    const context = createObserveContext({ ...baseContext, currentUrl, routeBudget: baseContext.routeBudget });
-    
-    // PHASE 21.3: Check page limit using budget-observer
-    const pageLimitCheck = checkBudget(context, runState, { 
+    const context = createObserveContext({ ...baseContext, currentUrl, routeBudget: baseContext.routeBudget });    const pageLimitCheck = checkBudget(context, runState, { 
       remainingInteractions: 0,
       currentTotalExecuted: 0,
       limitType: 'pages' 
@@ -135,10 +129,7 @@ export async function runTraversalLoop(params) {
     markPageVisited({ frontier }, nextPageUrl, alreadyOnPageFlag);
 
     // Discover ALL links on this page and add to frontier BEFORE executing interactions
-    await discoverPageLinks({ page, baseOrigin, frontier, silenceTracker });
-
-    // PHASE 21.3: Discover interactions using interaction-observer
-    const discoveryResult = await discoverInteractions({
+    await discoverPageLinks({ page, baseOrigin, frontier, silenceTracker });    const discoveryResult = await discoverInteractions({
       page,
       baseOrigin,
       scanBudget,
@@ -156,9 +147,7 @@ export async function runTraversalLoop(params) {
     let remainingInteractionsStartIndex = 0;
     let currentTotalInteractionsExecuted = totalInteractionsExecuted;
 
-    for (let i = 0; i < sortedInteractions.length; i++) {
-      // PHASE 21.3: Check budget limits using budget-observer
-      const remaining = sortedInteractions.length - i;
+    for (let i = 0; i < sortedInteractions.length; i++) {      const remaining = sortedInteractions.length - i;
       const budgetChecks = ['time', 'per_page', 'total'].map(limitType => 
         checkBudget(context, runState, { limitType, remainingInteractions: remaining, currentTotalExecuted: currentTotalInteractionsExecuted })
       );
@@ -167,17 +156,11 @@ export async function runTraversalLoop(params) {
         break;
       }
 
-      const interaction = sortedInteractions[i];
-      
-      // PHASE 21.3: Check if interaction should be skipped
-      const skipResult = await checkAndSkipInteraction(
+      const interaction = sortedInteractions[i];      const skipResult = await checkAndSkipInteraction(
         { page }, interaction, currentUrl, traces, skippedInteractions, silenceTracker,
         frontier, incrementalMode, manifest, oldSnapshot, snapshotDiff, allowWrites, allowRiskyActions
       );
-      if (skipResult.skip) continue;
-
-      // PHASE 21.3: Execute interaction
-      const executionResult = await executeInteraction(
+      if (skipResult.skip) continue;      const executionResult = await executeInteraction(
         { page, timestamp, screenshotsDir, routeBudget, silenceTracker },
         interaction, currentTotalInteractionsExecuted, page.url(),
         traces, observedExpectations, remainingInteractionsGaps, frontier, baseOrigin,
@@ -226,10 +209,7 @@ export async function runTraversalLoop(params) {
     totalInteractionsExecuted: runState.totalInteractionsExecuted,
     remainingInteractionsGaps: runState.remainingInteractionsGaps
   };
-}
-
-// PHASE 21.3: repeatObservedInteraction moved to interaction-observer.js
-
+}
 
 
 

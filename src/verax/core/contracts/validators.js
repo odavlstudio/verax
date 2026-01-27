@@ -94,11 +94,7 @@ export function validateFinding(finding) {
     }
   }
 
-  // *** EVIDENCE LAW ENFORCEMENT ***
-  // PHASE 16: Check evidencePackage completeness for CONFIRMED findings
-  // PHASE 21.1: HARD LOCK - CONFIRMED without complete evidencePackage is IMPOSSIBLE
-  // PHASE 21: Evidence Law validation for CONFIRMED findings
-  if (finding.status === FINDING_STATUS.CONFIRMED || finding.severity === 'CONFIRMED') {
+  // *** EVIDENCE LAW ENFORCEMENT ***  if (finding.status === FINDING_STATUS.CONFIRMED || finding.severity === 'CONFIRMED') {
     // EVIDENCE LAW v1: Check evidence structure first (context anchor + effect evidence)
     const evidenceLawResult = enforceEvidenceLawV1(finding.evidence);
     if (!evidenceLawResult.ok && evidenceLawResult.downgrade) {
@@ -112,16 +108,11 @@ export function validateFinding(finding) {
         shouldDowngrade: true,
         suggestedStatus: evidenceLawResult.downgrade
       };
-    }
-
-    // PHASE 21.1: Strict invariant - CONFIRMED findings MUST have complete evidencePackage
-    if (finding.evidencePackage) {
+    }    if (finding.evidencePackage) {
       const missingFields = finding.evidencePackage.missingEvidence || [];
       const isComplete = finding.evidencePackage.isComplete === true;
       
-      if (!isComplete || missingFields.length > 0) {
-        // PHASE 21.1: HARD FAILURE - do not downgrade, fail validation
-        errors.push(
+      if (!isComplete || missingFields.length > 0) {        errors.push(
           `Evidence Law Violation (CRITICAL): Finding marked CONFIRMED but evidencePackage is incomplete. ` +
           `Missing fields: ${missingFields.join(', ')}. ` +
           `evidencePackage.isComplete=${isComplete}. ` +
@@ -135,9 +126,7 @@ export function validateFinding(finding) {
           suggestedStatus: null
         };
       }
-    } else if (!isEvidenceSubstantive(finding.evidence)) {
-      // PHASE 21.1: CONFIRMED finding without evidencePackage and without substantive evidence → CRITICAL FAILURE
-      errors.push(
+    } else if (!isEvidenceSubstantive(finding.evidence)) {      errors.push(
         `Evidence Law Violation (CRITICAL): Finding marked CONFIRMED but lacks evidencePackage and evidence is insufficient. ` +
         `This finding MUST be dropped, not downgraded.`
       );

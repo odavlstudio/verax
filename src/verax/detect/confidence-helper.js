@@ -26,9 +26,9 @@ export function addUnifiedConfidence(finding, params) {
   // Add unified confidence fields (additive only)
   return {
     ...finding,
-    confidence: unifiedConfidence.score, // PHASE 15: Normalized 0..1
-    confidenceLevel: unifiedConfidence.level, // PHASE 15: HIGH/MEDIUM/LOW/UNPROVEN
-    confidenceReasons: unifiedConfidence.reasons, // PHASE 15: Stable reason codes
+    confidence: unifiedConfidence.score,
+    confidenceLevel: unifiedConfidence.level,
+    confidenceReasons: unifiedConfidence.reasons,
   };
 }
 

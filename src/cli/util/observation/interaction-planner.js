@@ -511,10 +511,7 @@ export class InteractionPlanner {
       if (!interactable) {
         bundle.timing.endedAt = getTimeProvider().iso();
         return { success: false, reason: 'element-not-interactable', cause: 'blocked' };
-      }
-      
-      // PHASE 3: Extract interaction intent record before click
-      const element = await this.page.locator(resolution.selector).elementHandle();
+      }      const element = await this.page.locator(resolution.selector).elementHandle();
       const intentRecord = await extractIntentRecordFromElement(this.page, element);
       await element?.dispose();
       if (intentRecord) {

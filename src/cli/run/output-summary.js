@@ -65,10 +65,7 @@ export function printSummary(url, paths, expectations, observeData, detectData, 
   console.log(`  → Silent failures: ${detectData.stats?.silentFailures || 0}`);
   console.log(`  → Unproven: ${detectData.stats?.unproven || 0}`);
   console.log(`  → Coverage gaps: ${detectData.stats?.coverageGaps || 0}`);
-  console.log('');
-  
-  // PHASE 5: Print diagnostic summary if run was incomplete with attempted > 0
-  if (observeData.status === 'INCOMPLETE' && attempted > 0) {
+  console.log('');  if (observeData.status === 'INCOMPLETE' && attempted > 0) {
     const diagnostics = observeData.diagnostics || [];
     const summary = computeDiagnosticsSummary(diagnostics);
     const summaryLine = formatDiagnosticsSummaryLine(summary);
@@ -76,10 +73,7 @@ export function printSummary(url, paths, expectations, observeData, detectData, 
       console.log(summaryLine);
       console.log('');
     }
-  }
-  
-  // PHASE 6: Product Truth Lock Guards
-  
+  }  
   // Guard 1: Persona Lock (first run only)
   if (isFirstRun) {
     console.log('VERAX is designed for frontend codebases (React / Next.js / Vue / Angular / SvelteKit) with local source code provided via --src.');
@@ -102,10 +96,7 @@ export function printSummary(url, paths, expectations, observeData, detectData, 
   if (status === 'SUCCESS' && attempted < total && total > 0) {
     console.log('Some extracted promises were not exercised. SUCCESS indicates no silent failures in the observed subset.');
     console.log('');
-  }
-  
-  // PHASE 7: One-Screen Sales Truth
-  console.log('VERAX checks whether real user actions actually produce visible results.');
+  }  console.log('VERAX checks whether real user actions actually produce visible results.');
   console.log('These failures often pass tests and monitoring because nothing crashes.');
   console.log('Use VERAX for public, pre-auth frontend flows when you have the source code.');
   console.log('');

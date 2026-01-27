@@ -20,25 +20,16 @@ import { DecisionRecorder } from '../determinism-model.js';
  * @returns {string} Path to determinism report
  */
 export function writeDeterminismReport(runDir, decisionRecorder) {
-  const reportPath = resolve(runDir, ARTIFACT_REGISTRY.determinismReport.filename);
-  
-  // PHASE 21.2: Compute HARD verdict from adaptive events
-  const verdict = computeDeterminismVerdict(decisionRecorder);
+  const reportPath = resolve(runDir, ARTIFACT_REGISTRY.determinismReport.filename);  const verdict = computeDeterminismVerdict(decisionRecorder);
   
   const report = {
     version: 1,
     contractVersion: 1,
     artifactVersions: getArtifactVersions(),
-    generatedAt: getTimeProvider().iso(),
-    // PHASE 21.2: HARD TRUTH - binary verdict only
-    verdict: verdict.verdict,
+    generatedAt: getTimeProvider().iso(),    verdict: verdict.verdict,
     message: verdict.message,
     reasons: verdict.reasons,
-    adaptiveEvents: verdict.adaptiveEvents,
-    // PHASE 21.2: Decision summary for transparency
-    decisionSummary: decisionRecorder ? decisionRecorder.getSummary() : null,
-    // PHASE 21.2: Contract definition
-    contract: {
+    adaptiveEvents: verdict.adaptiveEvents,    decisionSummary: decisionRecorder ? decisionRecorder.getSummary() : null,    contract: {
       deterministic: 'Same inputs + same environment + same config → identical normalized artifacts',
       nonDeterministic: 'Any adaptive behavior (adaptive stabilization, retries, truncations) → NON_DETERMINISTIC',
       tracking: 'Tracking adaptive decisions is NOT determinism. Only absence of adaptive events = DETERMINISTIC.'

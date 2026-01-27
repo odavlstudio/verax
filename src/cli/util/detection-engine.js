@@ -507,10 +507,7 @@ export async function detectSilentFailures(learnData, observeData) {
       candidates.push(finding);
       continue;
     }
-  }
-  
-  // PHASE 3: Detect interaction-based silent failures (no static promise required)
-  const interactionFindings = detectInteractionSilentFailures(observations);
+  }  const interactionFindings = detectInteractionSilentFailures(observations);
   candidates.push(...interactionFindings);
   
   // Convert candidates to constitutional findings

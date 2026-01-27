@@ -51,10 +51,7 @@ export async function runWithDeterminism(scanFn, options = { runs: 2, out: '.ver
       runId: result.runId,
       artifactPaths,
     };
-  };
-  
-  // PHASE 25: Load run fingerprints from run.meta.json
-  const loadRunFingerprints = async (runMeta) => {
+  };  const loadRunFingerprints = async (runMeta) => {
     if (runMeta.runId) {
       const runDir = resolve(out, 'runs', runMeta.runId);
       const metaPath = resolve(runDir, 'run.meta.json');
@@ -77,10 +74,7 @@ export async function runWithDeterminism(scanFn, options = { runs: 2, out: '.ver
     runs,
     config: options,
     normalize: true,
-  });
-  
-  // PHASE 25: Load run fingerprints for each run
-  for (const runMeta of determinismResult.runsMeta) {
+  });  for (const runMeta of determinismResult.runsMeta) {
     runMeta.runFingerprint = await loadRunFingerprints(runMeta);
   }
   

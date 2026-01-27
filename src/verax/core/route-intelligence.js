@@ -241,10 +241,7 @@ export function evaluateRouteNavigation(correlation, trace, beforeUrl, afterUrl)
   
   // Check UI change
   const uiChanged = sensors.uiSignals?.diff?.changed === true;
-  const domChanged = trace.after?.dom !== trace.before?.dom;
-  
-  // PHASE 12: Evidence Law - require before/after + supporting signal
-  const hasEvidence = (beforeUrl && afterUrl) && 
+  const domChanged = trace.after?.dom !== trace.before?.dom;  const hasEvidence = (beforeUrl && afterUrl) && 
                       (urlChanged || routerStateChanged || uiChanged || domChanged);
   
   if (routeMatched && hasEvidence) {

@@ -95,10 +95,7 @@ export function detectInteractiveElementsAST(content, _filePath, _relPath) {
             }
           });
         }
-      },
-      
-      // PHASE 11: Detect JSX elements with interactive handlers
-      JSXOpeningElement(path) {
+      },      JSXOpeningElement(path) {
         const { node } = path;
         const loc = node.loc;
         
@@ -145,10 +142,7 @@ export function detectInteractiveElementsAST(content, _filePath, _relPath) {
               routerBindings.add(tagName);
             }
           }
-        }
-        
-        // PHASE 11: Detect interactive elements
-        const isInteractive = 
+        }        const isInteractive = 
           onClickHandler || 
           onSubmitHandler || 
           roleAttr === 'button' || 

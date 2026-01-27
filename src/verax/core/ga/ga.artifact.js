@@ -31,10 +31,7 @@ export function writeGAStatus(projectDir, runId, gaResult) {
     inputs: gaResult.inputs
   };
   
-  writeFileSync(artifactPath, JSON.stringify(artifact, null, 2), 'utf-8');
-  
-  // PHASE 21.11: Freeze baseline when GA-READY
-  if (gaResult.pass) {
+  writeFileSync(artifactPath, JSON.stringify(artifact, null, 2), 'utf-8');  if (gaResult.pass) {
     try {
       const baseline = buildBaselineSnapshot(projectDir);
       writeBaselineSnapshot(projectDir, baseline, true); // true = GA-READY, freeze it

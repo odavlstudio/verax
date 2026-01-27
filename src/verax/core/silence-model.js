@@ -153,18 +153,12 @@ export class SilenceTracker {
   record(entry) {
     if (!entry.scope || !entry.reason || !entry.description) {
       throw new Error(`Invalid silence entry: missing required fields. Got: ${JSON.stringify(entry)}`);
-    }
-    
-    // PHASE 2: Auto-compute and assign outcome if not provided
-    if (!entry.outcome) {
+    }    if (!entry.outcome) {
       entry.outcome = mapSilenceReasonToOutcome(entry.reason);
     }
 
     // Apply unified failure-mode classification for transparency
-    applyFailureMode(entry, entry.reason);
-    
-    // PHASE 4: Infer lifecycle fields if not provided
-    if (!entry.silence_type) {
+    applyFailureMode(entry, entry.reason);    if (!entry.silence_type) {
       entry.silence_type = this._inferSilenceType(entry.reason);
     }
     if (!entry.trigger) {
@@ -410,12 +404,10 @@ export class SilenceTracker {
   getSummary() {
     const summary = {
       totalSilences: this.entries.length,
-      byOutcome: {},     // PHASE 2: Added outcome grouping
+      byOutcome: {},
       byCategory: {},
       byReason: {},
-      scopes: {},
-      // PHASE 4: Lifecycle metrics
-      byType: {},
+      scopes: {},      byType: {},
       byEvaluationStatus: {},
       withPromiseAssociation: 0,
       confidenceImpact: this.getAggregatedConfidenceImpact()
@@ -445,10 +437,7 @@ export class SilenceTracker {
     // Count by scope
     this.entries.forEach(entry => {
       summary.scopes[entry.scope] = (summary.scopes[entry.scope] || 0) + 1;
-    });
-
-    // PHASE 4: Count by type and status
-    this.entries.forEach(entry => {
+    });    this.entries.forEach(entry => {
       if (entry.silence_type) {
         summary.byType[entry.silence_type] = (summary.byType[entry.silence_type] || 0) + 1;
       }
@@ -478,9 +467,7 @@ export class SilenceTracker {
    * Export all silence data for serialization (used by writeTraces)
    * PHASE 5: Entries sorted deterministically for replay consistency
    */
-  export() {
-    // PHASE 5: Sort entries deterministically by: scope, reason, description
-    const sortedEntries = [...this.entries].sort((a, b) => {
+  export() {    const sortedEntries = [...this.entries].sort((a, b) => {
       if (a.scope !== b.scope) return a.scope.localeCompare(b.scope);
       if (a.reason !== b.reason) return a.reason.localeCompare(b.reason);
       return (a.description || '').localeCompare(b.description || '');

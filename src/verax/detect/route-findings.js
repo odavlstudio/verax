@@ -74,10 +74,7 @@ export function detectRouteFindings(traces, manifest, _findings) {
         } else if (evaluation.outcome === 'SUSPECTED') {
           findingType = 'route_ambiguous';
           reason = 'Dynamic route cannot be deterministically validated';
-        }
-        
-        // PHASE 15: Compute unified confidence
-        const unifiedConfidence = computeConfidenceForFinding({
+        }        const unifiedConfidence = computeConfidenceForFinding({
           findingType: findingType,
           expectation,
           sensors: trace.sensors || {},
@@ -91,10 +88,7 @@ export function detectRouteFindings(traces, manifest, _findings) {
           truthStatus: 'SUSPECTED',
           evidence,
           options: {}
-        });
-        
-        // PHASE 12: Evidence Law - require sufficient evidence for CONFIRMED
-        const hasSufficientEvidence = evidence.beforeAfter.beforeUrl && 
+        });        const hasSufficientEvidence = evidence.beforeAfter.beforeUrl && 
                                       evidence.beforeAfter.afterUrl &&
                                       (evidence.signals.urlChanged || 
                                        evidence.signals.routerStateChanged || 
@@ -107,7 +101,7 @@ export function detectRouteFindings(traces, manifest, _findings) {
           type: findingType,
           severity,
           confidence: unifiedConfidence.score01 || unifiedConfidence.score || 0, // Contract v1: score01 canonical
-          confidenceLevel: unifiedConfidence.level, // PHASE 15: Add confidence level
+          confidenceLevel: unifiedConfidence.level,
           confidenceReasons: unifiedConfidence.topReasons || unifiedConfidence.reasons || [], // Contract v1: topReasons
           interaction: {
             type: interaction.type,
@@ -123,18 +117,12 @@ export function detectRouteFindings(traces, manifest, _findings) {
             context: expectation.source?.context || null,
             astSource: expectation.source?.astSource || expectation.metadata?.astSource || null,
           },
-        };
-        
-        // PHASE 16: Build and enforce evidence package
-        const findingWithEvidence = buildAndEnforceEvidencePackage(finding, {
+        };        const findingWithEvidence = buildAndEnforceEvidencePackage(finding, {
           expectation,
           trace,
           evidence,
           confidence: unifiedConfidence,
-        });
-        
-        // PHASE 17: Apply guardrails (AFTER evidence builder)
-        const context = {
+        });        const context = {
           evidencePackage: findingWithEvidence.evidencePackage,
           signals: findingWithEvidence.evidencePackage?.signals || evidence.signals || {},
           confidenceReasons: unifiedConfidence.reasons || [],

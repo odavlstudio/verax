@@ -31,9 +31,7 @@ export function checkBudget(context, runState, options) {
   const timeProvider = getTimeProvider();
   const now = timeProvider.now();
   
-  if (limitType === 'time' && now - startTime > scanBudget.maxScanDurationMs) {
-    // PHASE 6: Record truncation decision
-    recordTruncation(decisionRecorder, 'time', {
+  if (limitType === 'time' && now - startTime > scanBudget.maxScanDurationMs) {    recordTruncation(decisionRecorder, 'time', {
       limit: scanBudget.maxScanDurationMs,
       elapsed: now - startTime
     });
@@ -70,9 +68,7 @@ export function checkBudget(context, runState, options) {
     };
   }
   
-  if (limitType === 'per_page' && currentTotalExecuted >= routeBudget.maxInteractionsPerPage) {
-    // PHASE 6: Record truncation decision
-    recordTruncation(decisionRecorder, 'interactions', {
+  if (limitType === 'per_page' && currentTotalExecuted >= routeBudget.maxInteractionsPerPage) {    recordTruncation(decisionRecorder, 'interactions', {
       limit: routeBudget.maxInteractionsPerPage,
       reached: currentTotalExecuted,
       scope: 'per_page'
@@ -111,9 +107,7 @@ export function checkBudget(context, runState, options) {
     };
   }
   
-  if (limitType === 'total' && currentTotalExecuted >= scanBudget.maxTotalInteractions) {
-    // PHASE 6: Record truncation decision
-    recordTruncation(decisionRecorder, 'interactions', {
+  if (limitType === 'total' && currentTotalExecuted >= scanBudget.maxTotalInteractions) {    recordTruncation(decisionRecorder, 'interactions', {
       limit: scanBudget.maxTotalInteractions,
       reached: currentTotalExecuted,
       scope: 'total'
@@ -151,9 +145,7 @@ export function checkBudget(context, runState, options) {
     };
   }
   
-  if (limitType === 'pages' && frontier.isPageLimitExceeded()) {
-    // PHASE 6: Record truncation decision
-    recordTruncation(decisionRecorder, 'pages', {
+  if (limitType === 'pages' && frontier.isPageLimitExceeded()) {    recordTruncation(decisionRecorder, 'pages', {
       limit: scanBudget.maxPages,
       reached: frontier.pagesVisited
     });

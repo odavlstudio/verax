@@ -24,10 +24,7 @@ export function getDeduplicationKey(finding) {
   const type = finding.type || 'unknown';
   const sourceRef = finding.evidence?.sourceRef || 'no-source';
   const promiseKind = finding.promise?.kind || 'unknown';
-  const promiseValue = finding.promise?.value || 'unknown';
-  
-  // PHASE 6: If no sourceRef, include finding ID to prevent over-deduplication
-  // Only dedupe when we have actual source location
+  const promiseValue = finding.promise?.value || 'unknown';  // Only dedupe when we have actual source location
   if (!finding.evidence?.sourceRef) {
     const findingId = finding.id || 'no-id';
     return `${type}|no-source|${promiseKind}|${promiseValue}|${findingId}`;

@@ -48,10 +48,7 @@ export function detectUIFeedbackFindings(traces, manifest, _findings) {
       // Generate finding if correlation indicates silent failure
       if (correlation.outcome === 'CONFIRMED' || correlation.outcome === 'SUSPECTED') {
         // Build evidence
-        const evidence = buildUIFeedbackEvidence(feedbackScore, correlation, trace, expectation);
-        
-        // PHASE 13: Evidence Law - require sufficient evidence for CONFIRMED
-        const hasSufficientEvidence = evidence.beforeAfter.beforeScreenshot &&
+        const evidence = buildUIFeedbackEvidence(feedbackScore, correlation, trace, expectation);        const hasSufficientEvidence = evidence.beforeAfter.beforeScreenshot &&
                                       evidence.beforeAfter.afterScreenshot &&
                                       (evidence.feedback.signals.length > 0 || 
                                        evidence.feedback.score === FEEDBACK_SCORE.MISSING);
@@ -64,10 +61,7 @@ export function detectUIFeedbackFindings(traces, manifest, _findings) {
           findingType = 'navigation_feedback_missing';
         } else if (expectation.type === 'validation' || expectation.type === 'form_submission') {
           findingType = 'validation_feedback_missing';
-        }
-        
-        // PHASE 15: Compute unified confidence
-        const unifiedConfidence = computeConfidenceForFinding({
+        }        const unifiedConfidence = computeConfidenceForFinding({
           findingType: findingType,
           expectation,
           sensors: trace.sensors || {},
@@ -103,7 +97,7 @@ export function detectUIFeedbackFindings(traces, manifest, _findings) {
           type: findingType,
           severity,
           confidence: unifiedConfidence.score01 || unifiedConfidence.score || 0, // Contract v1: score01 canonical
-          confidenceLevel: unifiedConfidence.level, // PHASE 15: Add confidence level
+          confidenceLevel: unifiedConfidence.level,
           confidenceReasons: unifiedConfidence.topReasons || unifiedConfidence.reasons || [], // Contract v1: topReasons
           interaction: {
             type: interaction.type,
@@ -119,18 +113,12 @@ export function detectUIFeedbackFindings(traces, manifest, _findings) {
             context: expectation.source?.context || null,
             astSource: expectation.source?.astSource || null,
           },
-        };
-        
-        // PHASE 16: Build and enforce evidence package
-        const findingWithEvidence = buildAndEnforceEvidencePackage(finding, {
+        };        const findingWithEvidence = buildAndEnforceEvidencePackage(finding, {
           expectation,
           trace,
           evidence,
           confidence: unifiedConfidence,
-        });
-        
-        // PHASE 17: Apply guardrails (AFTER evidence builder)
-        const context = {
+        });        const context = {
           evidencePackage: findingWithEvidence.evidencePackage,
           signals: findingWithEvidence.evidencePackage?.signals || evidence.signals || {},
           confidenceReasons: unifiedConfidence.reasons || [],

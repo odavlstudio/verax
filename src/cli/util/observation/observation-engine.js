@@ -124,10 +124,7 @@ async function navigateToBaseUrl(page, url, onProgress) {
     });
     initialStatus = response?.status?.() ?? null;
     finalUrl = response?.url?.() ?? null;
-    await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
-    
-    // PHASE 1: Inject route sensor after page load
-    const routeSensorResult = await injectRouteSensor(page);
+    await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});    const routeSensorResult = await injectRouteSensor(page);
     if (!routeSensorResult.injected && onProgress) {
       onProgress({
         event: 'observe:warning',
@@ -398,10 +395,7 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
       }
 
       // Execute the promise
-      const attempt = await planner.executeSinglePromise(exp, expNum);
-
-      // PHASE 4: Capture diagnostic for attempt
-      const diagnostic = attemptToDiagnostic(exp, attempt);
+      const attempt = await planner.executeSinglePromise(exp, expNum);      const diagnostic = attemptToDiagnostic(exp, attempt);
       diagnosticsCollector.record(diagnostic);
 
       // Convert attempt to observation
@@ -510,7 +504,7 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
       redaction: getRedactionCounters(redactionCounters),
       auth: authArtifact,
       observedAt: getTimeProvider().iso(),
-      diagnostics: diagnosticsCollector.getAll(), // PHASE 4: Traceability diagnostics
+      diagnostics: diagnosticsCollector.getAll(),
     };
     
   } catch (error) {

@@ -113,10 +113,7 @@ export function filterCausesWithEvidence(evidence, causes) {
 }
 
 function _enforceFinalInvariant(finding) {
-  if (!finding) return null;
-
-  // PHASE 1: Use constitution validator for systematic enforcement
-  const constitutionResult = validateFindingConstitution(finding);
+  if (!finding) return null;  const constitutionResult = validateFindingConstitution(finding);
   if (!constitutionResult.valid) {
     // Constitution violation - drop with optional downgrade
     if (constitutionResult.action === 'DOWNGRADE' && constitutionResult.downgrade) {

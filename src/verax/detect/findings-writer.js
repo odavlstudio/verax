@@ -95,10 +95,7 @@ export function buildFindingsReport({ url, findings = [], coverageGaps = [], det
     .filter(Boolean);
 
   // Contract enforcement: enforce invariants and collect metadata
-  const { findings: enforcedFindings, enforcement } = enforceFinalInvariantsWithReport(canonicalFindings);
-  
-  // PHASE 6: Deduplicate findings to prevent flooding
-  const { findings: deduplicatedFindings, deduplicatedCount } = deduplicateFindings(enforcedFindings);
+  const { findings: enforcedFindings, enforcement } = enforceFinalInvariantsWithReport(canonicalFindings);  const { findings: deduplicatedFindings, deduplicatedCount } = deduplicateFindings(enforcedFindings);
   
   // Sort evidence references within each finding
   const findingsWithSortedEvidence = deduplicatedFindings.map(sortEvidenceReferences);
@@ -119,8 +116,8 @@ export function buildFindingsReport({ url, findings = [], coverageGaps = [], det
     version: 1,
     contractVersion: ARTIFACT_REGISTRY.findings.contractVersion,
     url,
-    outcomeSummary,  // PHASE 2
-    promiseSummary,  // PHASE 3
+    outcomeSummary,
+    promiseSummary,
     findings: sortedFindings,
     coverageGaps,
     notes: [],
@@ -129,7 +126,7 @@ export function buildFindingsReport({ url, findings = [], coverageGaps = [], det
       contractVersion: enforcement.contractVersion,
       droppedCount: enforcement.droppedCount,
       downgradedCount: enforcement.downgradedCount,
-      deduplicatedCount,  // PHASE 6
+      deduplicatedCount,
       downgrades: enforcement.downgrades || [],
       dropped: enforcement.dropped || []
     }

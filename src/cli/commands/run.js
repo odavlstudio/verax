@@ -1239,10 +1239,7 @@ export async function runCommand(options) {
 
     if (expectations.length === 0) {
       throw new UsageError('No observable user-facing promises were found in the provided source.\nVERAX requires frontend code with navigation, forms, or interactive UI.');
-    }
-
-    // PHASE 3: Check alignment between extracted expectations and target URL
-    // Skip in test mode or when json output is requested
+    }    // Skip in test mode or when json output is requested
     if (!json && !process.env.VERAX_TEST_MODE) {
       try {
         const alignmentResult = await checkExpectationAlignment(expectations, url);

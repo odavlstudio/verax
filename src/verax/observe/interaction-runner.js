@@ -87,22 +87,10 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
   // ANALYSIS: INTERACTION EXECUTION MAIN FLOW
   // =============================================================================
   // This function orchestrates evidence collection across multiple phases:
-  //
-  // PHASE 1: Trace initialization + sensor creation
-  // PHASE 2: Pre-execution budget check + before-state capture
-  // PHASE 3: External navigation early return (policy-driven)
-  // PHASE 4: Sensor activation + interaction execution
-  // PHASE 5: Navigation policy enforcement (external URL blocking)
-  // PHASE 6: Post-execution evidence collection (settle, sensors, timing)
-  // PHASE 7: Trace assembly with all evidence
-  // PHASE 8: Error handling (timeout + execution errors)
-  //
+  //  //
   // CONSTITUTIONAL GUARANTEE: This refactored implementation maintains
   // IDENTICAL behavior, timing, and trace shape to the original.
-  // =============================================================================
-  
-  // PHASE 1: Initialize trace structure and sensors
-  const trace = {
+  // =============================================================================  const trace = {
     interaction: {
       type: interaction.type,
       selector: interaction.selector,
@@ -153,10 +141,7 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
     // Capture session state before interaction for auth-aware interactions
     if (interaction.type === 'login' || interaction.type === 'logout') {
       await sensors.humanDriver.captureSessionState(page);
-    }
-    
-    // PHASE 2: Budget check + before-state capture
-    const timeProvider = getTimeProvider();
+    }    const timeProvider = getTimeProvider();
     if (timeProvider.now() - startTime > scanBudget.maxScanDurationMs) {
       trace.policy = { timeout: true, reason: 'max_scan_duration_exceeded' };
       trace.sensors = {
@@ -172,10 +157,7 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
     }
     
     const beforeState = await captureBeforeState(page, screenshotsDir, timestamp, i, sensors);
-    uiBefore = beforeState.uiBefore;
-    
-    // PHASE 3: External navigation early return
-    // SACRED: This is a policy decision that blocks external links unconditionally
+    uiBefore = beforeState.uiBefore;    // SACRED: This is a policy decision that blocks external links unconditionally
     if (interaction.isExternal && interaction.type === 'link') {
       const href = await interaction.element.getAttribute('href');
       const resolvedUrl = href.startsWith('http') ? href : new URL(href, beforeState.beforeUrl).href;
@@ -237,10 +219,7 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
       };
       
       return trace;
-    }
-
-    // PHASE 4: Sensor activation + interaction execution
-    const sensorState = await startSensorCollection(page, sensors);
+    }    const sensorState = await startSensorCollection(page, sensors);
     networkWindowId = sensorState.networkWindowId;
     consoleWindowId = sensorState.consoleWindowId;
     // eslint-disable-next-line no-unused-vars
@@ -255,10 +234,7 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
     try {
       const execResult = await executeInteraction(page, interaction, sensors, beforeState.beforeUrl, scanBudget, baseOrigin, silenceTracker);
       navigationResult = execResult.navigationResult;
-      executionResult = execResult.executionResult;
-      
-      // PHASE 5: Capture timing evidence after interaction
-      await captureTimingEvidence(page, sensors, uiBefore);
+      executionResult = execResult.executionResult;      await captureTimingEvidence(page, sensors, uiBefore);
 
       // Wait for navigation if expected
       if (navigationResult) {
@@ -271,10 +247,7 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
         return trace;
       }
       throw error;
-    }
-
-    // PHASE 5: Navigation policy enforcement
-    if (navigationResult) {
+    }    if (navigationResult) {
       const afterUrl = page.url();
       if (isExternalUrl(afterUrl, baseOrigin)) {
         await page.goBack({ timeout: scanBudget.navigationTimeoutMs }).catch(() => {});
@@ -284,20 +257,14 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
           blockedUrl: afterUrl
         };
       }
-    }
-
-    // PHASE 6: Capture after-state + collect sensor evidence
-    const { settleResult, afterUrl } = await captureAfterState(page, screenshotsDir, timestamp, i, trace, scanBudget, markTimeoutPolicy);
+    }    const { settleResult, afterUrl } = await captureAfterState(page, screenshotsDir, timestamp, i, trace, scanBudget, markTimeoutPolicy);
     const afterTitle = typeof page.title === 'function' ? await page.title().catch(() => null) : (page.title || null);
     
     // PERF: Collect all sensor evidence in single phase (reduced awaits)
     const sensorEvidence = await collectSensorEvidence(page, sensors, sensorState, uiBefore, afterUrl, scanBudget);
     if (sensorEvidence.captureOutcomes && sensorEvidence.captureOutcomes.length > 0) {
       trace.captureOutcomes = [...(trace.captureOutcomes || []), ...sensorEvidence.captureOutcomes];
-    }
-    
-    // PHASE 7: Derive HTTP status and assemble final trace
-    const httpStatus = deriveHttpStatus(sensorEvidence.networkSummary, sensorEvidence.navigationSummary, afterUrl);
+    }    const httpStatus = deriveHttpStatus(sensorEvidence.networkSummary, sensorEvidence.navigationSummary, afterUrl);
     
     assembleFinalTrace(
       trace,
@@ -311,9 +278,7 @@ export async function runInteraction(page, interaction, timestamp, i, screenshot
     );
 
     return trace;
-  } catch (error) {
-    // PHASE 8: Error handling
-    if (error.message === 'timeout' || error.name === 'TimeoutError') {
+  } catch (error) {    if (error.message === 'timeout' || error.name === 'TimeoutError') {
       // Timeout in outer try block (settle or sensor collection)
       await handleTimeoutError(trace, page, screenshotsDir, timestamp, i, sensors, { networkWindowId, consoleWindowId, stateSensorActive }, uiBefore, silenceTracker);
       return trace;

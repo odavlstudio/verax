@@ -35,27 +35,19 @@ export class EvidenceBundle {
       consoleErrors: false,
       meaningfulDomChange: false, // NEW: tracks only meaningful changes
       correlatedNetworkActivity: false, // NEW: tracks network within action window
-      routeChanged: false, // PHASE 1: Route sensor detected route transition
-      outcomeAcknowledged: false, // PHASE 2B: Outcome watcher detected acknowledgment
-      delayedAcknowledgment: false, // PHASE 2B: Outcome took >6s
-      meaningfulUIChange: false, // PHASE 2C: UI mutations detected meaningful change
+      routeChanged: false,
+      outcomeAcknowledged: false,
+      delayedAcknowledgment: false,
+      meaningfulUIChange: false,
     };
     this.files = [];
-    this.correlatedRequests = []; // Network requests correlated to this action
-    // PHASE 1: Route sensor data
-    this.routeData = {
+    this.correlatedRequests = []; // Network requests correlated to this action    this.routeData = {
       before: null,
       after: null,
       transitions: [],
       signatureChanged: false
-    };
-    // PHASE 2B: Outcome watcher result
-    this.outcomeWatcher = null;
-    // PHASE 2C: UI mutation tracking
-    this.mutationSummary = null;
-    this.mutationAnalysis = null;
-    // PHASE 3: Interaction intent
-    this.interactionIntentRecord = null;
+    };    this.outcomeWatcher = null;    this.mutationSummary = null;
+    this.mutationAnalysis = null;    this.interactionIntentRecord = null;
     this.interactionIntentClassification = null;
     this.interactionAcknowledgment = null;
   }
@@ -107,20 +99,14 @@ export class EvidenceBundle {
     // Navigation change (legacy URL comparison)
     if (urlBefore && urlAfter && urlBefore !== urlAfter) {
       this.signals.navigationChanged = true;
-    }
-    
-    // PHASE 1: Route sensor enhanced navigation detection
-    if (routeData) {
+    }    if (routeData) {
       this.routeData = routeData;
       if (routeData.signatureChanged || routeData.transitions.length > 0) {
         this.signals.routeChanged = true;
         // If route changed via History API or signature, count as navigation
         this.signals.navigationChanged = true;
       }
-    }
-    
-    // PHASE 2B: Outcome watcher result
-    if (phase2Data?.outcomeWatcher) {
+    }    if (phase2Data?.outcomeWatcher) {
       this.outcomeWatcher = phase2Data.outcomeWatcher;
       if (phase2Data.outcomeWatcher.acknowledged) {
         this.signals.outcomeAcknowledged = true;
@@ -129,10 +115,7 @@ export class EvidenceBundle {
           (phase2Data.outcomeWatcher.latencyBucket === '6-10s' || phase2Data.outcomeWatcher.latencyBucket === '>10s')) {
         this.signals.delayedAcknowledgment = true;
       }
-    }
-    
-    // PHASE 2C: UI mutation tracking
-    if (phase2Data?.mutationSummary && phase2Data?.mutationAnalysis) {
+    }    if (phase2Data?.mutationSummary && phase2Data?.mutationAnalysis) {
       this.mutationSummary = phase2Data.mutationSummary;
       this.mutationAnalysis = phase2Data.mutationAnalysis;
       

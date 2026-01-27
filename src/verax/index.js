@@ -78,10 +78,7 @@ export async function scan(projectDir, url, manifestPath = null, scanBudgetOverr
   }
   
   // Use budget profile if no override provided
-  const scanBudget = scanBudgetOverride || createScanBudgetWithProfile();
-  
-  // PHASE 5: Generate deterministic runId and create run manifest
-  const { getBaseOrigin } = await import('./observe/domain-boundary.js');
+  const scanBudget = scanBudgetOverride || createScanBudgetWithProfile();  const { getBaseOrigin } = await import('./observe/domain-boundary.js');
   const baseOrigin = getBaseOrigin(url);
   const runId = generateRunId({
     url,
@@ -137,7 +134,7 @@ export async function scan(projectDir, url, manifestPath = null, scanBudgetOverr
     observation.tracesPath,
     findings.findingsPath,
     runDir,
-    findings.findings // PHASE 7: Pass findings array for decision snapshot
+    findings.findings
   );
   
   // Compute observation summary from scan results (not a verdict)
@@ -165,10 +162,7 @@ export async function scan(projectDir, url, manifestPath = null, scanBudgetOverr
     findings.findingsPath,
     runDir
   );
-  observationSummary.evidenceIndexPath = evidenceIndexPath;
-  
-  // PHASE 5: Compute artifact hashes and update run manifest
-  const artifactHashes = computeArtifactHashes(projectDir, runId);
+  observationSummary.evidenceIndexPath = evidenceIndexPath;  const artifactHashes = computeArtifactHashes(projectDir, runId);
   updateRunManifestHashes(projectDir, runId, artifactHashes);
 
   return { 
