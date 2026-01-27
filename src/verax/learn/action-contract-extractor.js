@@ -450,8 +450,7 @@ function formatSourceRef(filePath, workspaceRoot, loc, lineOffset = 0) {
 export async function scanForContracts(rootPath, workspaceRoot) {
   const contracts = [];
   
-  // For now, just scan known patterns
-  // In real implementation, would recurse through directories
+  // Recursively scan known source file patterns while skipping common build/output directories
   const { readdirSync, statSync } = await import('fs');
   const { join } = await import('path');
   

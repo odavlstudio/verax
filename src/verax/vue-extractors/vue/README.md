@@ -40,4 +40,4 @@ Vue.js support may be formalized if:
 - Maintainability burden is acceptable
 - Test coverage and documentation are complete
 
-For now, these extractors are research artifacts only.
+These extractors are research artifacts only and are not supported for production use.

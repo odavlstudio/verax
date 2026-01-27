@@ -80,7 +80,7 @@ All findings are:
 
 ---
 
-### ❌ OUT OF SCOPE (By Design, For Now)
+### ❌ OUT OF SCOPE (By Design)
 
 VERAX explicitly does **not** claim responsibility for:
 

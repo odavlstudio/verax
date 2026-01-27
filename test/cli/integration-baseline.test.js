@@ -233,12 +233,11 @@ export async function test_invalidInputReturnsExit64() {
 export async function test_incompleteReturnsExit30() {
   const _outDir = `${tempOutDir}/test4`;
   
-  // For now, we skip this test because the finalize phase doesn't actually
-  // trigger INCOMPLETE automatically. This test would need a special fixture
-  // or environment variable to force INCOMPLETE status.
-  // Until detection is implemented, we cannot reliably trigger exit 30.
+  // Finalize phase does not currently trigger INCOMPLETE automatically; a
+  // dedicated fixture or environment toggle would be required to force exit 30.
+  // Document skip until detection path supports deterministic INCOMPLETE.
   
-  return { passed: true, skipped: true, reason: 'Detection phase is stubbed; INCOMPLETE cannot be reliably triggered yet' };
+  return { passed: true, skipped: true, reason: 'Detection phase lacks deterministic INCOMPLETE trigger; guard documented' };
 }
 
 /**

@@ -89,13 +89,14 @@ export function deriveObservedExpectation(trace, interaction, beforeUrl, afterUr
       ...topFailedUrls.map(r => r.url)
     ];
     
-    // Find first concrete URL (no template variables, no query params for now)
+    // Find first concrete URL (no template variables, no query params) to keep
+    // expectations deterministic and tied to observed behavior
     const concreteRequestUrl = allRequestUrls.find(url => 
       url && 
       typeof url === 'string' &&
       !url.includes('{') && 
       !url.includes('${') &&
-      !url.includes('?') // Avoid query params for now (could be dynamic)
+      !url.includes('?') // Avoid query params that would make the match unstable
     );
     
     // Network expectation: requires network request with concrete URL

@@ -3,7 +3,7 @@ import { strict as assert } from 'node:assert';
 import { EvidenceSecurityPolicy, REDACTION_MODE, createSecurityPolicyFromCli } from '../src/verax/core/evidence-security-policy.js';
 import { filterConsoleLog, filterTracesConsole } from '../src/verax/core/console-log-filter.js';
 
-test('Minimal Gate 4 Tests', async () => {
+test('Gate 4: Evidence Security Policy Tests', async () => {
   // Test 1: Basic field detection
   await test('Field detection', () => {
     const policy = new EvidenceSecurityPolicy();

@@ -64,13 +64,15 @@ function isDestructiveLabel(label) {
 }
 
 export class PageFrontier {
-  constructor(startUrl, baseOrigin, scanBudget, startTime) {
+  constructor(startUrl, baseOrigin, scanBudget, startTime, scopePolicy = null) {
     this.baseOrigin = baseOrigin;
     this.scanBudget = scanBudget;
     this.startTime = startTime;
+    this.scopePolicy = scopePolicy; // Optional scope enforcement (constitutive runtime lock)
     
     this.queue = [startUrl]; // URLs to visit
     this.visited = new Set(); // Visited URLs (canonical form)
+    this.skippedUrls = []; // Track out-of-scope URLs skipped at runtime
     this.pagesVisited = 0;
     this.pagesDiscovered = 1; // include start page
     this.frontierCapped = false; // Track if maxUniqueUrls was exceeded
@@ -154,31 +156,73 @@ export class PageFrontier {
 
   /**
    * Add a new URL to the frontier (discovered during interaction).
-   * Only adds if same-origin, not already visited, and within maxUniqueUrls limit.
-   * Returns true if added, false if skipped (with reason).
+   * Only adds if same-origin, not already visited, within budget, AND passes scope check.
+   * Returns { added: boolean, reason?: string } for skip tracking.
+   * 
+   * CONSTITUTIONAL RUNTIME LOCK:
+   * If scopePolicy is present, only IN_SCOPE_PUBLIC URLs are enqueued.
+   * Out-of-scope URLs (auth, dynamic, unknown) are skipped and recorded.
    */
   addUrl(urlString) {
     if (!this.isSameOrigin(urlString)) {
-      return false;
+      return { added: false, reason: 'out_of_origin' };
     }
 
     const normalized = this.normalizeUrl(urlString);
     if (this.visited.has(normalized)) {
-      return false;
+      return { added: false, reason: 'already_visited' };
+    }
+
+    // CONSTITUTIONAL RUNTIME LOCK: Check scope-policy before enqueueing
+    if (this.scopePolicy) {
+      // Extract path from URL for scope classification
+      try {
+        const url = new URL(urlString);
+        const path = url.pathname + url.search; // Include query string for full path
+        
+        const classification = this.scopePolicy.classify(path);
+        
+        if (classification.classification !== 'IN_SCOPE_PUBLIC') {
+          // Skip out-of-scope URLs at runtime
+          this.skippedUrls.push({
+            url: urlString,
+            classification: classification.classification,
+            reason: classification.reason
+          });
+          
+          return {
+            added: false,
+            reason: 'out_of_scope_runtime',
+            scopeClassification: classification.classification
+          };
+        }
+      } catch (error) {
+        // If scope check fails, treat as out of scope (conservative)
+        this.skippedUrls.push({
+          url: urlString,
+          classification: 'OUT_OF_SCOPE_UNKNOWN',
+          reason: `Scope check error: ${error.message}`
+        });
+        
+        return {
+          added: false,
+          reason: 'out_of_scope_unknown'
+        };
+      }
     }
 
     // Check maxUniqueUrls cap
     const maxUniqueUrls = this.scanBudget.maxUniqueUrls || Infinity;
     if (this.pagesDiscovered >= maxUniqueUrls) {
       this.frontierCapped = true;
-      return false; // Frontier capped, don't add
+      return { added: false, reason: 'frontier_capped' };
     }
 
-    // Add the normalized URL to visited set and original to queue
+    // All checks passed, add the URL
     this.visited.add(normalized);
     this.queue.push(urlString);
     this.pagesDiscovered++;
-    return true;
+    return { added: true };
   }
 
   /**

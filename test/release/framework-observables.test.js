@@ -279,6 +279,7 @@ describe('Framework Observable Pattern Detection - Contracts', () => {
       const newHtml = '<div data-v-abc12345 style="display: block"></div>';
       const result = VueObservableDetector.detectAllVuePatterns(oldHtml, newHtml, beforeUrl, afterUrl);
       
+      assert.strictEqual(result.vueObservablePatternsDetected, true);
       assert.strictEqual(result.presence.vueDetected, true);
       assert.strictEqual(result.routerTransition.routerTransitionDetected, true);
       assert.strictEqual(result.domReplacement.domReplacementDetected, true);
@@ -289,6 +290,7 @@ describe('Framework Observable Pattern Detection - Contracts', () => {
       const url = 'http://example.com/page';
       const result = VueObservableDetector.detectAllVuePatterns(html, html, url, url);
       
+      assert.strictEqual(result.vueObservablePatternsDetected, false);
       assert.strictEqual(result.presence.vueDetected, false);
       assert.strictEqual(result.routerTransition.routerTransitionDetected, false);
       assert.strictEqual(result.domReplacement.domReplacementDetected, false);

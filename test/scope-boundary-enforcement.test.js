@@ -89,8 +89,8 @@ test('SCOPE ENFORCEMENT | --force-post-auth prints loud warnings', (t) => {
 });
 
 test('SCOPE ENFORCEMENT | post-auth mode forces INCOMPLETE result', async (t) => {
-  // This is a placeholder - would need live server to complete full run
-  // The logic is enforced at artifact write phase in run.js:895-913
+  // Static enforcement check to avoid needing a live server; this asserts the
+  // contract in the code path that writes final artifacts.
   
   // Verify the enforcement code exists
   const runJsPath = resolve(ROOT, 'src/cli/commands/run.js');
@@ -107,6 +107,7 @@ test('SCOPE ENFORCEMENT | post-auth mode forces INCOMPLETE result', async (t) =>
   // Verify truthState is forced to INCOMPLETE
   const postAuthBlock = content.match(/if \(hasAuthFlags\) \{[\s\S]*?finalTruthResult\.truthState = 'INCOMPLETE'/);
   assert.ok(postAuthBlock, 'Should force INCOMPLETE when hasAuthFlags=true');
+  assert.match(postAuthBlock[0], /recommendedAction/, 'Should include remediation guidance');
 });
 
 test('SCOPE ENFORCEMENT | Vision.md documents pre-auth scope', async (t) => {

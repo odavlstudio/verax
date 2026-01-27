@@ -9,6 +9,7 @@ import { join } from 'path';
 import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { getTimeProvider } from '../cli/util/support/time-provider.js';
 import { EXIT_CODES } from '../cli/config/cli-contract.js';
+import { applyPolicy, countNonSuppressedFindings } from '../cli/util/policy/policy-loader.js';
 
 /**
  * Analyze run artifacts and generate gate report
@@ -63,15 +64,23 @@ export async function analyzeRun(projectRoot, runId, options = {}) {
     }
   }
 
-  // Compute non-suppressed findings
+  // Compute findings counts with policy enforcement (no silent trust)
   const findingsCounts = summary?.findingsCounts || { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 };
-  
-  // Apply policy suppressions if policy exists
   let nonSuppressedCounts = { ...findingsCounts };
-  if (policy && policy.ignore && Array.isArray(policy.ignore)) {
-    // For gate purposes, we count suppressed findings as non-actionable
-    // This is a simplification - in reality we'd need to load findings and check suppressions
-    // For now, we trust that the run command already applied policy
+
+  const findingsPath = join(runDir, 'findings.json');
+  if (existsSync(findingsPath) && policy) {
+    try {
+      const rawFindings = JSON.parse(String(readFileSync(findingsPath, 'utf-8')));
+      const findingsArray = Array.isArray(rawFindings?.findings) ? rawFindings.findings : null;
+      if (findingsArray) {
+        const enforcedFindings = applyPolicy(findingsArray, policy);
+        nonSuppressedCounts = countNonSuppressedFindings(enforcedFindings);
+      }
+    } catch {
+      // If findings cannot be parsed, fall back to reported counts
+      nonSuppressedCounts = { ...findingsCounts };
+    }
   }
 
   // Check for stability artifact

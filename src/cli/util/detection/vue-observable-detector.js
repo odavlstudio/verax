@@ -1,8 +1,8 @@
 /**
  * Vue Observable Detector
  *
- * Detects observable Vue.js patterns in HTML before/after snapshots
- * This is a minimal implementation that returns safe defaults.
+ * Detects observable Vue.js patterns in HTML before/after snapshots.
+ * Deterministic, side-effect free.
  *
  * DESIGN: Only static analysis of HTML for Vue-specific patterns
  * - Vue Router transitions (URL changes + DOM replacements)
@@ -136,8 +136,14 @@ export class VueObservableDetector {
     const routerTransition = VueObservableDetector.detectRouterTransition(beforeUrl, afterUrl, beforeHtml, afterHtml);
     const domReplacement = VueObservableDetector.detectDOMReplacementPatterns(beforeHtml, afterHtml);
 
+    const vueObservablePatternsDetected = Boolean(
+      presence.vueDetected ||
+      routerTransition.routerTransitionDetected ||
+      domReplacement.domReplacementDetected
+    );
+
     return {
-      vueObservablePatternsDetected: false,
+      vueObservablePatternsDetected,
       presence,
       routerTransition,
       domReplacement,

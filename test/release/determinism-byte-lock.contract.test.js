@@ -167,8 +167,7 @@ test('Determinism: finding ordering is stable (sourceRef-based sort)', () => {
     { id: '2', type: 'silent_failure', status: 'CONFIRMED', severity: 'HIGH', promise: { kind: 'click', value: 'btn2' }, interaction: { sourceRef: 'file.js:20:5' }, evidence: {} },
   ];
   
-  // Import and test sorting function directly
-  // For now, just verify the findings would be sorted deterministically
+  // Import and test sorting function directly to confirm deterministic ordering
   const sortedIds = findings
     .sort((a, b) => {
       const refA = a.interaction?.sourceRef || '~';

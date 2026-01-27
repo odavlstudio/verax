@@ -22,7 +22,7 @@ import { resolve } from 'path';
 // === SOURCE DISCOVERY TESTS ===
 
 test('Source Discovery - Single App Repo', async (t) => {
-  const fixturePath = resolve('./test/fixtures/stage5-single-app');
+  const fixturePath = resolve('./test/fixtures/single-app-fixture');
   
   await t.test('finds single app as candidate', () => {
     const { candidates } = findAppRootCandidates(fixturePath);
@@ -92,7 +92,7 @@ test('Source Discovery - Ambiguous Monorepo', async (t) => {
 // === EXTRACTION OUTCOME TESTS ===
 
 test('Extraction Outcomes - EXTRACTED Status', async (t) => {
-  const fixturePath = resolve('./test/fixtures/stage5-single-app');
+  const fixturePath = resolve('./test/fixtures/single-app-fixture');
   const appContent = readFileSync(resolve(fixturePath, 'src/App.js'), 'utf8');
   
   await t.test('extracts promises and returns EXTRACTED', () => {
@@ -247,10 +247,11 @@ test('Exit Code 65 - EMPTY Outcome', async (t) => {
   });
 });
 
-test('Exit Code 65 - AMBIGUOUS Outcome', async (t) => {
-  // Note: AMBIGUOUS outcome comes from source-discovery module during extraction
-  // It would be triggered by a fixture with ambiguous app roots
-  // For now, test that EMPTY exit 65 behavior is in place
+test('Exit Code 65 - EMPTY outcome prevents observe phase', async (t) => {
+  // AMBIGUOUS outcome comes from source-discovery module during extraction and
+  // would be triggered by a fixture with ambiguous app roots. Until such a
+  // fixture exists, this test documents the enforced behavior for EMPTY
+  // outcomes that must block browser launch with exit 65.
   
   await t.test('EMPTY outcome should be caught before Observe phase', async () => {
     const fixturePath = resolve('./test/fixtures/truly-empty-fixture');

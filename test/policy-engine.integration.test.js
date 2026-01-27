@@ -239,5 +239,6 @@ test('Determinism: same policy + same findings => identical output', () => {
 test('Cleanup: remove temporary directories', () => {
   const root = setupProject();
   rmSync(root, { recursive: true, force: true });
-  assert.ok(true); // Cleanup successful
+  // Verify cleanup by checking directory no longer exists
+  assert.strictEqual(existsSync(root), false, 'Temporary directory should be removed');
 });

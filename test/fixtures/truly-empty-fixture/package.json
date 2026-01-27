@@ -1,5 +1,5 @@
 {
-  "name": "stage5-truly-empty",
+  "name": "verax-test-truly-empty",
   "version": "1.0.0",
   "description": "Test fixture with absolutely no extractable promises",
   "scripts": {},

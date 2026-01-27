@@ -57,8 +57,8 @@ test('GatePreview: PASS gate produces no-action-needed summary', () => {
 });
 
 test('GatePreview: BLOCK usefulness produces critical recommendation', () => {
-  // BLOCK scenario: CONFIRMED + HIGH + STRONG (if we can construct it)
-  // For now test via decisionUsefulness BLOCK path
+  // BLOCK scenario: CONFIRMED + HIGH + STRONG (constructed through
+  // decisionUsefulness BLOCK path to avoid relying on broader fixture data)
   const params = baseParams({
     comparisons: { hasUrlChange: true, hasDomChange: true },
     evidence: {

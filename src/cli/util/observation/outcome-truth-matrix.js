@@ -18,6 +18,7 @@ export const OUTCOME_TYPES = {
   PARTIAL_SUCCESS: 'partial_success',
   MISLEADING: 'misleading',
   SILENT_FAILURE: 'silent_failure',
+  ACKNOWLEDGED_FAILURE: 'acknowledged_failure',
   AMBIGUOUS: 'ambiguous',
 };
 
@@ -66,16 +67,10 @@ export function determineOutcome(evaluation) {
   const level = acknowledgment.level || 'none';
   const detectedSignals = acknowledgment.detectedSignals || [];
 
-  // Hard error rules (always failure)
-  if (hasHardError(errors, promiseKind)) {
-    return {
-      outcome: OUTCOME_TYPES.SILENT_FAILURE,
-      confidence: 0.95,
-      reasoning: 'Hard error detected (console error, network 5xx, etc.)',
-      signals_present: detectedSignals,
-      warnings: getErrorWarnings(errors),
-    };
-  }
+  // CONSTITUTIONAL FIX: Check acknowledgment BEFORE hard errors
+  // Hard errors with acknowledgment → ACKNOWLEDGED_FAILURE (not silent)
+  // Hard errors WITHOUT acknowledgment → SILENT_FAILURE (silent)
+  const hasErrors = hasHardError(errors, promiseKind);
 
   // Strong acknowledgment rules
   if (level === 'strong') {
@@ -89,6 +84,17 @@ export function determineOutcome(evaluation) {
           reasoning: 'Acknowledgment signals present but error indicators conflict',
           signals_present: detectedSignals,
           warnings: ['error-with-ui-feedback', 'contradictory-signals'],
+        };
+      }
+
+      // Hard errors with strong acknowledgment → ACKNOWLEDGED_FAILURE
+      if (hasErrors) {
+        return {
+          outcome: OUTCOME_TYPES.ACKNOWLEDGED_FAILURE,
+          confidence: 0.85,
+          reasoning: 'Error occurred but user was clearly informed via strong UI feedback',
+          signals_present: detectedSignals,
+          warnings: [...getErrorWarnings(errors), 'error-with-strong-acknowledgment'],
         };
       }
 
@@ -116,6 +122,17 @@ export function determineOutcome(evaluation) {
   if (level === 'partial') {
     // Some required signals present
     if (stabilityWindowMet && isMeaningfulPartial(evaluation)) {
+      // Hard errors with partial acknowledgment → ACKNOWLEDGED_FAILURE
+      if (hasErrors) {
+        return {
+          outcome: OUTCOME_TYPES.ACKNOWLEDGED_FAILURE,
+          confidence: 0.65,
+          reasoning: 'Error occurred and user received partial acknowledgment',
+          signals_present: detectedSignals,
+          warnings: [...getErrorWarnings(errors), 'error-with-partial-acknowledgment'],
+        };
+      }
+
       return {
         outcome: OUTCOME_TYPES.PARTIAL_SUCCESS,
         confidence: 0.6,
@@ -148,6 +165,17 @@ export function determineOutcome(evaluation) {
       };
     }
 
+    // Hard errors with weak acknowledgment → still check for acknowledgment
+    if (hasErrors) {
+      return {
+        outcome: OUTCOME_TYPES.ACKNOWLEDGED_FAILURE,
+        confidence: 0.5,
+        reasoning: 'Error occurred with minimal acknowledgment',
+        signals_present: detectedSignals,
+        warnings: [...getErrorWarnings(errors), 'error-with-weak-acknowledgment'],
+      };
+    }
+
     return {
       outcome: OUTCOME_TYPES.AMBIGUOUS,
       confidence: 0.2,
@@ -157,8 +185,19 @@ export function determineOutcome(evaluation) {
     };
   }
 
-  // No acknowledgment (silence)
+  // No acknowledgment (silence) — this is where hard errors become SILENT_FAILURE
   if (level === 'none') {
+    // Hard errors WITHOUT acknowledgment → SILENT_FAILURE (constitutional)
+    if (hasErrors) {
+      return {
+        outcome: OUTCOME_TYPES.SILENT_FAILURE,
+        confidence: 0.95,
+        reasoning: 'Hard error detected (console error, network 5xx, etc.) with no observable acknowledgment',
+        signals_present: detectedSignals,
+        warnings: getErrorWarnings(errors),
+      };
+    }
+
     // Check for server-side-only success
     if (networkStatus.lastResponseStatus >= 200 && networkStatus.lastResponseStatus < 300) {
       if (silenceKind === 'server_side_only') {
@@ -349,10 +388,21 @@ export function scoreOutcome(outcome) {
     [OUTCOME_TYPES.PARTIAL_SUCCESS]: 0.6,
     [OUTCOME_TYPES.AMBIGUOUS]: 0.3,
     [OUTCOME_TYPES.MISLEADING]: 0.2,
+    [OUTCOME_TYPES.ACKNOWLEDGED_FAILURE]: 0.1,
     [OUTCOME_TYPES.SILENT_FAILURE]: 0,
   };
 
   return scores[outcome] ?? 0;
+}
+
+/**
+ * Determine if outcome is a true silent failure (no acknowledgment)
+ * 
+ * ACKNOWLEDGED_FAILURE is NOT silent (user was informed)
+ * SILENT_FAILURE is silent (user received no feedback)
+ */
+export function isSilentOutcome(outcome) {
+  return outcome === OUTCOME_TYPES.SILENT_FAILURE;
 }
 
 /**
@@ -377,6 +427,7 @@ export function explainOutcome(outcome) {
     [OUTCOME_TYPES.SUCCESS]: 'Promise executed successfully with full acknowledgment',
     [OUTCOME_TYPES.PARTIAL_SUCCESS]: 'Promise partially executed or acknowledged incompletely',
     [OUTCOME_TYPES.MISLEADING]: 'UI shows success but error signals detected (misleading outcome)',
+    [OUTCOME_TYPES.ACKNOWLEDGED_FAILURE]: 'Error occurred but user was informed via UI feedback (not silent)',
     [OUTCOME_TYPES.SILENT_FAILURE]: 'Promise execution failed with no observable acknowledgment',
     [OUTCOME_TYPES.AMBIGUOUS]: 'Insufficient evidence to determine outcome',
   };

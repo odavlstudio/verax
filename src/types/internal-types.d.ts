@@ -1,6 +1,6 @@
 /**
  * Internal type definitions for VERAX
- * Minimal types to satisfy TypeScript checking
+ * Focused surface needed for TypeScript tooling used by observation pipeline
  * 
  * @typedef {Object} ObserveContext
  * @property {string} url

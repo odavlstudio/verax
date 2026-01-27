@@ -59,9 +59,9 @@ export function startFixtureServer(fixtureDir, port = 0) {
       });
     };
     
-    // Create stable return object immediately (will be updated on success)
+    // Create stable return object immediately (updated once server binds)
     const result = {
-      url: 'http://127.0.0.1:0', // Placeholder, will be updated
+      url: 'http://127.0.0.1:0', // Initialized to loopback; overwritten with bound port
       server: null,
       close: safeClose // Must be the safeClose function
     };

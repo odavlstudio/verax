@@ -12,6 +12,8 @@
  */
 
 import { getTimeProvider } from '../cli/util/support/time-provider.js';
+import { promises as fsPromises } from 'fs';
+import { dirname } from 'path';
 
 export class CapManager {
   constructor() {
@@ -182,8 +184,12 @@ export class StreamingCollector {
       return { flushed: false, reason: 'empty buffer' };
     }
 
-    // In real implementation, write to file
-    // For now, just track the count
+    const payload = this.buffer.map(item => JSON.stringify(item)).join('\n') + '\n';
+
+    const parentDir = dirname(this.filePath);
+    await fsPromises.mkdir(parentDir, { recursive: true });
+    await fsPromises.appendFile(this.filePath, payload, { encoding: 'utf-8' });
+
     this.totalWritten += this.buffer.length;
     const written = this.buffer.length;
     this.buffer = [];

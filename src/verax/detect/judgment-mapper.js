@@ -24,6 +24,7 @@ export const JUDGMENT_TYPES = {
   WEAK_PASS: 'WEAK_PASS',
   NEEDS_REVIEW: 'NEEDS_REVIEW',
   FAILURE_MISLEADING: 'FAILURE_MISLEADING',
+  FAILURE_ACKNOWLEDGED: 'FAILURE_ACKNOWLEDGED',
   FAILURE_SILENT: 'FAILURE_SILENT',
 };
 
@@ -40,6 +41,7 @@ export function mapOutcomeToJudgment(outcome) {
     [OUTCOME_TYPES.SUCCESS]: JUDGMENT_TYPES.PASS,
     [OUTCOME_TYPES.PARTIAL_SUCCESS]: JUDGMENT_TYPES.WEAK_PASS,
     [OUTCOME_TYPES.MISLEADING]: JUDGMENT_TYPES.FAILURE_MISLEADING,
+    [OUTCOME_TYPES.ACKNOWLEDGED_FAILURE]: JUDGMENT_TYPES.FAILURE_ACKNOWLEDGED,
     [OUTCOME_TYPES.SILENT_FAILURE]: JUDGMENT_TYPES.FAILURE_SILENT,
     [OUTCOME_TYPES.AMBIGUOUS]: JUDGMENT_TYPES.NEEDS_REVIEW,
   };
@@ -61,6 +63,7 @@ export function mapOutcomeToJudgment(outcome) {
  */
 export function isFailureJudgment(judgment) {
   return judgment === JUDGMENT_TYPES.FAILURE_SILENT || 
+         judgment === JUDGMENT_TYPES.FAILURE_ACKNOWLEDGED ||
          judgment === JUDGMENT_TYPES.FAILURE_MISLEADING;
 }
 
@@ -94,8 +97,9 @@ export function isConclusiveJudgment(judgment) {
  */
 export function getJudgmentPriority(judgment) {
   const priorities = {
-    [JUDGMENT_TYPES.FAILURE_MISLEADING]: 100,
-    [JUDGMENT_TYPES.FAILURE_SILENT]: 90,
+    [JUDGMENT_TYPES.FAILURE_SILENT]: 100,
+    [JUDGMENT_TYPES.FAILURE_MISLEADING]: 90,
+    [JUDGMENT_TYPES.FAILURE_ACKNOWLEDGED]: 40,
     [JUDGMENT_TYPES.NEEDS_REVIEW]: 50,
     [JUDGMENT_TYPES.WEAK_PASS]: 20,
     [JUDGMENT_TYPES.PASS]: 10,
@@ -116,6 +120,7 @@ export function explainJudgment(judgment) {
     [JUDGMENT_TYPES.WEAK_PASS]: 'Promise partially fulfilled or weak acknowledgment',
     [JUDGMENT_TYPES.NEEDS_REVIEW]: 'Insufficient evidence for conclusive judgment',
     [JUDGMENT_TYPES.FAILURE_MISLEADING]: 'Contradictory signals: success UI with error indicators',
+    [JUDGMENT_TYPES.FAILURE_ACKNOWLEDGED]: 'Error occurred but user was informed via UI feedback',
     [JUDGMENT_TYPES.FAILURE_SILENT]: 'Promise not fulfilled without user notification',
   };
 

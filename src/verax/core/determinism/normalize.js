@@ -101,7 +101,7 @@ function normalizeFindings(artifact) {
   // Normalize findings array
   if (Array.isArray(normalized.findings)) {
     normalized.findings = normalized.findings.map(f => normalizeFinding(f));
-    // Sort by stable identity (if we had it, but for now sort by type + interaction)
+    // Sort by type + interaction because finding payloads lack stable identity keys
     normalized.findings.sort((a, b) => {
       const keyA = `${a.type || ''}|${a.interaction?.selector || ''}|${a.interaction?.type || ''}`;
       const keyB = `${b.type || ''}|${b.interaction?.selector || ''}|${b.interaction?.type || ''}`;

@@ -29,6 +29,44 @@
  */
 
 /**
+ * OBSERVATION WINDOW - Formal definition of the single interaction window
+ * 
+ * The observation window is the maximum time VERAX observes a single interaction
+ * from initiation through all post-execution evidence collection phases.
+ * This includes execution timeouts, navigation waits, and DOM settle logic.
+ * 
+ * COMPOSITION (default values):
+ * - Interaction execution timeout: 10000ms (interactionTimeoutMs)
+ * - Navigation timeout: 15000ms (navigationTimeoutMs, longer to account for slow networks)
+ * - Post-interaction settle window: 30000ms (settleTimeoutMs, includes network + DOM stability)
+ *
+ * The maximum observation window uses the settle timeout because settle logic is
+ * the FINAL phase of observation - it waits for the page to stabilize completely
+ * and collect all evidence (network events, DOM changes, sensors) before marking
+ * the interaction as complete.
+ *
+ * Typical window: interactionTimeoutMs + navigationTimeoutMs = 25000ms
+ * (for interaction execution and immediate navigation consequences)
+ *
+ * Maximum window: The settleTimeoutMs of 30000ms is used when we need the full
+ * observation window including all stabilization checks, network idle detection,
+ * and DOM mutation monitoring.
+ *
+ * Why adaptive behavior exists within the window:
+ * - Network is unpredictable; settle logic extends idle checks if network restarts
+ * - DOM mutations can be asynchronous; multiple samples check for mutations
+ * - User feedback may appear after initial rendering; extended window catches it
+ * - This is CONSTITUTIONALLY VALID because the window is finite (settleTimeoutMs)
+ *   and bounded - we never wait indefinitely, only extend within fixed limits
+ *
+ * Determinism guarantee:
+ * - Adaptive extensions are DISABLED for deterministic evaluation (see wait-for-settle.js)
+ * - Fixed timeouts are used so machine speed doesn't affect verdicts
+ * - Silent failures are determined within the bounded window regardless of machine
+ */
+export const OBSERVATION_WINDOW_MS = 30000; // settleTimeoutMs - maximum single interaction window
+
+/**
  * Default scan budget that reproduces current behavior exactly.
  * 
  * Current values:
@@ -57,15 +95,15 @@ export const DEFAULT_SCAN_BUDGET = {
   maxFlows: 3,
   maxFlowSteps: 5,
   maxScanDurationMs: 60000,
-  interactionTimeoutMs: 10000,
-  navigationTimeoutMs: 15000,
+  interactionTimeoutMs: 10000, // Used in interaction execution, triggers silence tracking
+  navigationTimeoutMs: 15000, // Used in waitForNavigation, longer than interactionTimeoutMs
   stabilizationWindowMs: 3000, // Total: 500 + 1000 + 1000 + 500
   stabilizationSampleMidMs: 500,
   stabilizationSampleEndMs: 1500,
   networkWaitMs: 1000,
   navigationStableWaitMs: 2000,
   initialNavigationTimeoutMs: 30000,
-  settleTimeoutMs: 30000,
+  settleTimeoutMs: 30000, // Maximum OBSERVATION_WINDOW_MS - final phase includes network + DOM stability
   settleIdleMs: 1500,
   settleDomStableMs: 2000,
   maxUniqueUrls: 500, // Prevent infinite frontier growth on large sites

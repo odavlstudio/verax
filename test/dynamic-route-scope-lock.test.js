@@ -72,13 +72,13 @@ test('Dynamic Route Scope Lock: SKIP Structure', (_t) => {
     reason: 'out_of_scope_dynamic_route',
     confidence: 1.0,
     details: {
-      classification: 'string placeholder',
-      classificationReason: 'string placeholder',
-      guidance: 'string placeholder',
+      classification: 'dynamic_route_requires_context',
+      classificationReason: 'route depends on runtime entity identifiers',
+      guidance: 'supply concrete entity IDs or mark route explicitly in allowlist',
     },
     route: {
-      path: 'string placeholder',
-      originalPattern: 'string placeholder',
+      path: '/user/:userId',
+      originalPattern: '/user/[userId]',
       isDynamic: true,
     },
   };

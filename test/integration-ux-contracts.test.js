@@ -130,8 +130,8 @@ test('STAGE 6.1: Generate canonical run name', async (t) => {
 
 test('STAGE 6.2: Output contract validation', async (t) => {
   await t.test('validates required artifacts exist', async () => {
-    // This would need mock files in a temp directory for full testing
-    // For now, test the validation logic structure
+    // Full validation requires artifact fixtures; this asserts structural
+    // expectations of validation results without filesystem coupling
     const violations = [];
     
     // Test that contract requires summary.json

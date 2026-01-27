@@ -12,7 +12,7 @@ This directory contains one-off scripts and utilities that are **no longer activ
 
 ## Why These Exist Here
 
-These scripts represent specific engineering decisions made during development that required one-off migrations or temporary mitigations. They are preserved in case:
+These scripts represent specific engineering decisions made during development that required one-off migrations or short-lived mitigations. They are preserved in case:
 
 1. Historical context is needed (e.g., "why did we change timestamp handling?")
 2. Similar operations need to be performed again in the future

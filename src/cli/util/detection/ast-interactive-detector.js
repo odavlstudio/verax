@@ -225,8 +225,9 @@ export function detectInteractiveElementsAST(content, _filePath, _relPath) {
 function extractNavigationPromise(handlerValue, path, routerBindings, navigationBindings, historyBindings, lines = []) {
   if (!handlerValue) return null;
   
-  // If handler is a reference to a function, we'd need to follow it
-  // For now, we'll check inline handlers and common patterns
+  // If handler is a reference to a function, we'd need to follow it; currently
+  // only inline handlers and common patterns are supported to avoid speculative
+  // navigation inference
   
   // Check if handler is an inline arrow function or function expression
   if (handlerValue.type === 'JSXExpressionContainer') {
@@ -243,7 +244,8 @@ function extractNavigationPromise(handlerValue, path, routerBindings, navigation
     
     // Function reference: onClick={handleClick}
     if (expr.type === 'Identifier') {
-      // Would need to follow reference - for now return null
+      // Call-graph tracing is not implemented here; leave unresolved to avoid
+      // inventing navigation intents
       return null;
     }
   }

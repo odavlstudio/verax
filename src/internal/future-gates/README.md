@@ -33,7 +33,7 @@ Future versions will:
 3. Document in product-definition.js
 4. Integrate into `npm test` CI pipeline
 
-## For Now
+## Usage Constraints
 
 **Do NOT import from `src/internal/future-gates/` in production code.** Only use for:
 - Historical reference

@@ -148,7 +148,8 @@ test('Determinism Truth Lock - Adaptive stabilization enabled but NOT extended �
   // But this is a design decision - should enabling adaptive stabilization (even without extensions) break determinism?
   // The timeout is already 1.5x, which could affect timing. But if no extensions occur, the execution should be the same.
   
-  // For now, let's test what the current implementation does:
+  // Determinism verdict aligns with current contract: extensions → NON_DETERMINISTIC;
+  // enabled without extensions → DETERMINISTIC
   const hasExtensions = verdict.adaptiveEvents.some(e => e.decision_id === DECISION_IDS.ADAPTIVE_STABILIZATION_EXTENDED);
   
   if (hasExtensions) {

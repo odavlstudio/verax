@@ -71,6 +71,19 @@ function markTimeoutPolicy(trace, phase, silenceTracker = null) {
 
 export async function runInteraction(page, interaction, timestamp, i, screenshotsDir, baseOrigin, startTime, scanBudget, flowContext = null, silenceTracker = null) {
   // =============================================================================
+  // OBSERVATION WINDOW CONCEPT
+  // =============================================================================
+  // Each interaction execution happens within an OBSERVATION_WINDOW (defined in
+  // scan-budget.js). The window encompasses:
+  // - interactionTimeoutMs: time allowed for interaction to execute
+  // - navigationTimeoutMs: time allowed for navigation consequences
+  // - settleTimeoutMs: time allowed for settle logic (network idle + DOM stability)
+  //
+  // Silent failures are detected "within the observation window" - if we don't see
+  // evidence of what happened within this window, we classify as unknown/silent.
+  // This is a CONSTITUTIONAL GUARANTEE: observation is bounded and deterministic.
+  //
+  // =============================================================================
   // ANALYSIS: INTERACTION EXECUTION MAIN FLOW
   // =============================================================================
   // This function orchestrates evidence collection across multiple phases:

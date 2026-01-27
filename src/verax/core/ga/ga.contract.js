@@ -128,9 +128,8 @@ function checkFrameworkWavesStable(gateResult) {
   
   // Check all capabilities marked as STABLE actually pass gates
   for (const [capabilityId, result] of Object.entries(gateResult.perCapability || {})) {
-    // This is a simplified check - in reality, we'd need to check the registry
-    // to see which capabilities are marked as STABLE
-    // For now, we check if any capability fails gates
+    // Registry metadata is not available here; treat any capability that fails
+    // its gates as unstable to avoid overstating readiness
     if (!result.pass) {
       unstable.push(capabilityId);
     }

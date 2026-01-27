@@ -19,6 +19,8 @@ import { execSync } from 'child_process';
 import { resolve } from 'path';
 import { tmpdir } from 'os';
 import { getTimeProvider } from '../../src/cli/util/support/time-provider.js';
+import { computeGateDecision } from '../../src/verax/gate-engine.js';
+import { EXIT_CODES } from '../../src/cli/config/cli-contract.js';
 
 
 function runVerax(args, _expectExit) {
@@ -38,21 +40,29 @@ function runVerax(args, _expectExit) {
 }
 
 test('Exit 0: COMPLETE with zero findings', () => {
-  // Full exit-0 path is exercised in cli-exit-code-integration.test.js.
-  // Keep contract documented here without re-running the slow CLI fixture.
-  assert.ok(true, 'Exit 0 contract covered in integration suite');
+  const decision = computeGateDecision({
+    runExitCode: EXIT_CODES.SUCCESS,
+    findingsCounts: { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 },
+    _stabilityClassification: 'UNKNOWN',
+    failOnIncomplete: true,
+    _summary: null,
+  });
+
+  assert.strictEqual(decision.exitCode, EXIT_CODES.SUCCESS, 'Zero findings must exit 0');
+  assert.strictEqual(decision.outcome, 'PASS');
 });
 
 test('Exit 20: CONFIRMED findings present in balanced/strict modes', () => {
-  // This test assumes a fixture exists that produces findings
-  // For now, we verify the logic exists but skip actual execution
-  // Real fixture would be needed for full verification
-  
-  // The logic in cli/commands/run.js should:
-  // - Count findings from summary.json or findings.json
-  // - If findings.length > 0 AND status === 'COMPLETE', exit 1
-  
-  assert.ok(true, 'Exit 20 logic exists in run command');
+  const decision = computeGateDecision({
+    runExitCode: EXIT_CODES.SUCCESS,
+    findingsCounts: { HIGH: 1, MEDIUM: 0, LOW: 0, UNKNOWN: 0 },
+    _stabilityClassification: 'UNKNOWN',
+    failOnIncomplete: true,
+    _summary: null,
+  });
+
+  assert.strictEqual(decision.exitCode, EXIT_CODES.FINDINGS, 'Findings must yield exit 20');
+  assert.strictEqual(decision.outcome, 'FAILURE_CONFIRMED');
 });
 
 test('Exit 64: Usage error (missing --url)', () => {
@@ -67,54 +77,51 @@ test('Exit 50: Data error (non-existent directory)', () => {
 });
 
 test('Exit 30: INCOMPLETE run (observation timeout)', () => {
-  // This would require a fixture that times out
-  // The logic should be: if status === 'INCOMPLETE', exit 66
-  // regardless of findings count
-  
-  assert.ok(true, 'Exit 30 logic exists for incomplete runs');
+  const decision = computeGateDecision({
+    runExitCode: EXIT_CODES.INCOMPLETE,
+    findingsCounts: { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 },
+    _stabilityClassification: 'UNKNOWN',
+    failOnIncomplete: true,
+    _summary: null,
+  });
+
+  assert.strictEqual(decision.exitCode, EXIT_CODES.INCOMPLETE, 'Incomplete runs must exit 30');
+  assert.strictEqual(decision.outcome, 'INCOMPLETE');
 });
 
-test('Exit 2: Internal crash (not timeout)', () => {
-  // Exit 2 is reserved for internal errors/crashes
-  // Timeouts should NOT produce exit 2
-  // This is enforced by error handling in run.js
-  
-  assert.ok(true, 'Exit 2 reserved for crashes, not timeouts');
+test('Exit 40: Internal crash (not timeout)', () => {
+  const decision = computeGateDecision({
+    runExitCode: EXIT_CODES.INVARIANT_VIOLATION,
+    findingsCounts: { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 },
+    _stabilityClassification: 'UNKNOWN',
+    failOnIncomplete: true,
+    _summary: null,
+  });
+
+  assert.strictEqual(decision.exitCode, EXIT_CODES.INVARIANT_VIOLATION, 'Infra failures must override other states');
+  assert.strictEqual(decision.outcome, 'INVARIANT_VIOLATION');
 });
 
 test('Exit code precedence: INCOMPLETE (30) overrides findings (10/20)', () => {
-  // If run is INCOMPLETE, exit 66 even if findings exist
-  // This ensures incomplete runs are never treated as successful
-  
-  const testData = {
-    status: 'INCOMPLETE',
-    findingsCount: 5
-  };
-  
-  // Expected behavior:
-  // if (status === 'INCOMPLETE') return 66;
-  // else if (findingsCount > 0) return 1;
-  // else return 0;
-  
-  const expectedExit = testData.status === 'INCOMPLETE' ? 30 : (testData.findingsCount > 0 ? 20 : 0);
-  assert.strictEqual(expectedExit, 30, 'INCOMPLETE must override findings for exit code');
+  const decision = computeGateDecision({
+    runExitCode: EXIT_CODES.INCOMPLETE,
+    findingsCounts: { HIGH: 2, MEDIUM: 1, LOW: 0, UNKNOWN: 0 },
+    _stabilityClassification: 'UNKNOWN',
+    failOnIncomplete: true,
+    _summary: null,
+  });
+
+  assert.strictEqual(decision.exitCode, EXIT_CODES.INCOMPLETE, 'Incomplete status must override findings');
 });
 
 test('Exit code precedence: Infra failure (40) overrides all', () => {
-  // Internal crashes should exit 2 regardless of other state
-  
-  const testData = {
-    crashed: true,
-    status: 'INCOMPLETE',
-    findingsCount: 5
-  };
-  
-  // Expected behavior:
-  // if (crashed) return 2;
-  // else if (status === 'INCOMPLETE') return 66;
-  // else if (findingsCount > 0) return 1;
-  // else return 0;
-  
-  const expectedExit = testData.crashed ? 40 : 30;
-  assert.strictEqual(expectedExit, 40, 'Infra failure must override other exit codes');
+  const decision = computeGateDecision({
+    runExitCode: EXIT_CODES.INVARIANT_VIOLATION,
+    findingsCounts: { HIGH: 5, MEDIUM: 0, LOW: 0, UNKNOWN: 0 },
+    _stabilityClassification: 'UNKNOWN',
+    failOnIncomplete: true,
+    _summary: null,
+  });
+
+  assert.strictEqual(decision.exitCode, EXIT_CODES.INVARIANT_VIOLATION, 'Invariant violations must override findings and incompleteness');
 });

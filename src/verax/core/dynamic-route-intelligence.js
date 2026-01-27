@@ -171,8 +171,9 @@ function isAuthGatedRoute(routeModel, _trace) {
 function isSSROnlyRoute(routeModel, _trace) {
   // Next.js app router with dynamic segments might be SSR-only
   if (routeModel.framework === 'next-app' && routeModel.isDynamic) {
-    // Check if route has getServerSideProps or similar indicators
-    // For now, we'll be conservative and not mark as SSR-only without evidence
+    // Check if route has getServerSideProps or similar indicators; without
+    // explicit evidence we intentionally avoid marking SSR-only to prevent
+    // false positives
     return false;
   }
   

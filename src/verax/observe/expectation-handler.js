@@ -10,34 +10,24 @@ import { join } from 'path';
 
 /**
  * Load and execute proven expectations from manifest
- * 
+ * NOTE: Execution is owned by expectation-executor; this guard prevents
+ * silently reporting success when execution is unavailable in this module.
+ *
  * @param {Object} page - Playwright page
  * @param {string} manifestPath - Path to manifest file
  * @param {string} projectDir - Project directory
  * @param {Object} silenceTracker - Silence tracker
- * @returns {Promise<{success: boolean, results: Array|null}>}
+ * @returns {Promise<{success: boolean, results: Array|null, reason: string}>}
  */
 export async function loadAndExecuteProvenExpectations(page, manifestPath, projectDir, silenceTracker) {
-  try {
-    if (!existsSync(manifestPath)) {
-      silenceTracker.record('expectation_manifest_not_found');
-      return { success: false, results: null };
-    }
-
-    const manifestContent = readFileSyncWithEncoding(manifestPath, 'utf8');
-    const manifest = JSON.parse(typeof manifestContent === 'string' ? manifestContent : manifestContent.toString());
-
-    if (!manifest.expectations || !Array.isArray(manifest.expectations)) {
-      silenceTracker.record('expectation_manifest_invalid_format');
-      return { success: false, results: null };
-    }
-
-    // Return empty results for now (expectation execution handled in main observe function)
-    return { success: true, results: [] };
-  } catch (error) {
-    silenceTracker.record('expectation_manifest_load_error');
-    return { success: false, results: null };
+  if (silenceTracker?.record) {
+    silenceTracker.record('expectation_execution_unavailable');
   }
+  return {
+    success: false,
+    results: null,
+    reason: 'expectation_execution_unavailable_use_expectation_executor',
+  };
 }
 
 /**

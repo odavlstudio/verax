@@ -6,8 +6,8 @@
  */
 
 import { createHash } from 'crypto';
-import { readFileSync, existsSync } from 'fs';
-import { resolve, dirname as _dirname } from 'path';
+import { readFileSync, existsSync, readdirSync } from 'fs';
+import { resolve, dirname as _dirname, relative } from 'path';
 import { getVeraxVersion } from '../run-id.js';
 
 /**
@@ -65,15 +65,51 @@ export function computeRunFingerprint(params) {
  */
 function computeSourceHash(projectDir) {
   try {
-    // For now, use a simple approach: hash package.json + src directory structure
-    // In production, this should hash all source files
-    const packagePath = resolve(projectDir, 'package.json');
-    if (existsSync(packagePath)) {
-      const pkgContent = readFileSync(packagePath, 'utf-8');
-      // @ts-expect-error - digest returns string
-      return createHash('sha256').update(pkgContent).digest('hex').substring(0, 16);
+    const root = resolve(projectDir);
+    const hash = createHash('sha256');
+
+    const ignored = new Set([
+      'node_modules',
+      '.git',
+      '.verax',
+      'artifacts',
+      'dist',
+      'build',
+      'coverage',
+      'tmp',
+      'temp',
+      '.cache',
+      '.turbo',
+    ]);
+
+    const stack = [root];
+
+    while (stack.length > 0) {
+      const current = stack.pop();
+      const entries = readdirSync(current, { withFileTypes: true })
+        .sort((a, b) => a.name.localeCompare(b.name, 'en'));
+
+      for (const entry of entries) {
+        if (ignored.has(entry.name)) continue;
+
+        const fullPath = resolve(current, entry.name);
+
+        if (entry.isDirectory()) {
+          stack.push(fullPath);
+          continue;
+        }
+
+        if (entry.isFile()) {
+          const relPath = relative(root, fullPath).split('\\').join('/');
+          const content = readFileSync(fullPath);
+          hash.update(relPath);
+          hash.update(content);
+        }
+      }
     }
-    return 'no-source';
+
+    const digest = hash.digest('hex');
+    return digest.substring(0, 16);
   } catch {
     return 'unknown';
   }

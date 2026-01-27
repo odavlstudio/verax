@@ -12,6 +12,10 @@ import { DEFAULT_SCAN_BUDGET } from '../shared/scan-budget.js';
  * Combines multiple signals: load event, network idle, DOM mutation stabilization.
  * With adaptive stabilization, extends windows if DOM/network still changing.
  *
+ * This function implements the OBSERVATION_WINDOW settle phase (see scan-budget.js).
+ * The settleTimeoutMs defines the maximum observation window for a single interaction.
+ * This is the final phase where we collect all evidence before marking complete.
+ *
  * @param {Page} page - Playwright page object
  * @param {Object} scanBudget - ScanBudget with settle timing parameters
  * @returns {Promise<void>}

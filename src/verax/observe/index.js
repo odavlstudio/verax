@@ -29,6 +29,7 @@ import { computeRouteBudget } from '../core/budget-engine.js';
 import { shouldSkipInteractionIncremental } from '../core/incremental-store.js';
 import SilenceTracker from '../core/silence-model.js';
 import { DecisionRecorder, recordBudgetProfile, recordTimeoutConfig, recordTruncation, recordEnvironment } from '../core/determinism-model.js';
+import { ScopePolicy } from '../core/scope-policy.js';
 
 /**
  * OBSERVE PHASE - Execute interactions and capture runtime behavior
@@ -149,7 +150,13 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
     // Reset to start URL before traversal
     await navigateToUrl(page, url, scanBudget);
 
-    const frontier = new PageFrontier(url, baseOrigin, scanBudget, startTime);
+    // CONSTITUTIONAL RUNTIME LOCK: Create scope policy from manifest routes
+    let scopePolicy = null;
+    if (manifest && manifest.routes && manifest.routes.length > 0) {
+      scopePolicy = new ScopePolicy({ conservativeMode: true });
+    }
+
+    const frontier = new PageFrontier(url, baseOrigin, scanBudget, startTime, scopePolicy);
     const traces = [];
     const observeWarnings = [];
     const skippedInteractions = [];
@@ -234,7 +241,17 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
             if (href && !href.startsWith('#') && !href.startsWith('javascript:')) {
               const resolvedUrl = href.startsWith('http') ? href : new URL(href, page.url()).href;
               if (!isExternalUrl(resolvedUrl, baseOrigin)) {
-                frontier.addUrl(resolvedUrl);
+                const result = frontier.addUrl(resolvedUrl);
+                // Record out-of-scope URL skips as silence (transparent, non-failing)
+                if (!result.added && result.reason === 'out_of_scope_runtime') {
+                  silenceTracker.record({
+                    scope: 'discovery',
+                    reason: 'scope_policy_skip',
+                    description: `URL skipped by scope policy: ${result.scopeClassification}`,
+                    context: { url: resolvedUrl },
+                    impact: 'none'
+                  });
+                }
               }
             }
           } catch (error) {
@@ -601,9 +618,9 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
             const normalizedAfter = frontier.normalizeUrl(afterUrl);
             const wasAlreadyVisited = frontier.visited.has(normalizedAfter);
             if (!wasAlreadyVisited) {
-              const added = frontier.addUrl(afterUrl);
+              const result = frontier.addUrl(afterUrl);
               // If frontier was capped, record coverage gap
-              if (!added && frontier.frontierCapped) {
+              if (!result.added && frontier.frontierCapped) {
                 remainingInteractionsGaps.push({
                   interaction: {
                     type: 'link',
@@ -612,6 +629,16 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
                   },
                   reason: 'frontier_capped',
                   url: afterUrl
+                });
+              }
+              // Record out-of-scope URL skips as silence (transparent, non-failing)
+              if (!result.added && result.reason === 'out_of_scope_runtime') {
+                silenceTracker.record({
+                  scope: 'discovery',
+                  reason: 'scope_policy_skip',
+                  description: `URL skipped by scope policy: ${result.scopeClassification}`,
+                  context: { url: afterUrl },
+                  impact: 'none'
                 });
               }
             }
@@ -629,7 +656,17 @@ export async function observe(url, manifestPath = null, scanBudgetOverride = nul
                   if (href && !href.startsWith('#') && !href.startsWith('javascript:')) {
                     const resolvedUrl = href.startsWith('http') ? href : new URL(href, page.url()).href;
                     if (!isExternalUrl(resolvedUrl, baseOrigin)) {
-                      frontier.addUrl(resolvedUrl);
+                      const result = frontier.addUrl(resolvedUrl);
+                      // Record out-of-scope URL skips as silence (transparent, non-failing)
+                      if (!result.added && result.reason === 'out_of_scope_runtime') {
+                        silenceTracker.record({
+                          scope: 'discovery',
+                          reason: 'scope_policy_skip',
+                          description: `URL skipped by scope policy: ${result.scopeClassification}`,
+                          context: { url: resolvedUrl },
+                          impact: 'none'
+                        });
+                      }
                     }
                   }
                 } catch (error) {
