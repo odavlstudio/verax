@@ -401,7 +401,7 @@ async function handleRunCommand(args, { debug = false } = {}) {
   const authCookiesArgs = parseMultipleArgs(args, '--auth-cookie');
   const authHeadersArgs = parseMultipleArgs(args, '--auth-header');
   const authMode = parseArg(args, '--auth-mode') || 'auto';
-  const forcePostAuth = hasArg(args, '--force-post-auth');
+  const forcePostAuth = args.includes('--force-post-auth');
   
   // SCOPE BOUNDARY ENFORCEMENT: Vision.md explicitly states "Authenticated / post-login flows" are OUT OF SCOPE
   // If user provides auth flags, require explicit --force-post-auth acknowledgement
