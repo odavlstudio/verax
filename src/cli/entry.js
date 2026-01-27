@@ -36,6 +36,7 @@ const FROZEN_COMMANDS = new Set([
   'stability-run',
   'triage',
   'clean',
+  'gate',
 ]);
 
 const __filename = fileURLToPath(import.meta.url);
@@ -50,46 +51,6 @@ async function loadRunCommand() {
 async function loadInspectCommand() {
   const mod = await import('./commands/inspect.js');
   return mod.inspectCommand;
-}
-
-async function loadDoctorCommand() {
-  const mod = await import('./commands/doctor.js');
-  return mod.doctorCommand;
-}
-
-async function loadDiagnoseCommand() {
-  const mod = await import('./commands/diagnose.js');
-  return mod.diagnoseCommand;
-}
-
-async function loadExplainCommand() {
-  const mod = await import('./commands/explain.js');
-  return mod.explainCommand;
-}
-
-async function loadStabilityCommand() {
-  const mod = await import('./commands/stability.js');
-  return mod.stabilityCommand;
-}
-
-async function loadStabilityRunCommand() {
-  const mod = await import('./commands/stability-run.js');
-  return mod.stabilityRunCommand;
-}
-
-async function loadTriageCommand() {
-  const mod = await import('./commands/triage.js');
-  return mod.triageCommand;
-}
-
-async function loadCleanCommand() {
-  const mod = await import('./commands/clean.js');
-  return mod.cleanCommand;
-}
-
-async function loadGateCommand() {
-  const mod = await import('./commands/gate.js');
-  return mod.gateCommand;
 }
 
 // Read package.json for version
@@ -214,9 +175,6 @@ async function main() {
     } else if (command === 'inspect') {
       commandExecuted = true;
       outcomePayload = await handleInspectCommand(args, { debug });
-    } else if (command === 'gate') {
-      commandExecuted = true;
-      outcomePayload = await handleGateCommand(args, { debug });
     } else if (command === 'help' || command === '--help' || command === '-h') {
       commandExecuted = true;
       const topic = args[1];
@@ -228,27 +186,6 @@ async function main() {
     } else if (command === 'version') {
       commandExecuted = true;
       outcomePayload = await handleVersionCommand(args, { debug });
-    } else if (command === 'doctor') {
-      commandExecuted = true;
-      outcomePayload = await handleDoctorCommand(args);
-    } else if (command === 'diagnose') {
-      commandExecuted = true;
-      outcomePayload = await handleDiagnoseCommand(args);
-    } else if (command === 'explain') {
-      commandExecuted = true;
-      outcomePayload = await handleExplainCommand(args);
-    } else if (command === 'stability') {
-      commandExecuted = true;
-      outcomePayload = await handleStabilityCommand(args);
-    } else if (command === 'stability-run') {
-      commandExecuted = true;
-      outcomePayload = await handleStabilityRunCommand(args);
-    } else if (command === 'triage') {
-      commandExecuted = true;
-      outcomePayload = await handleTriageCommand(args);
-    } else if (command === 'clean') {
-      commandExecuted = true;
-      outcomePayload = await handleCleanCommand(args);
     } else {
       // Interactive mode removed
       throw new UsageError('Interactive mode is disabled. Use: verax run --url <url>');
@@ -633,321 +570,6 @@ async function handleInspectCommand(args, { debug = false } = {}) {
 
 }
 
-async function handleDoctorCommand(args) {
-  const allowedFlags = new Set(['--json']);
-  const extraFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
-  if (extraFlags.length > 0) {
-    throw new UsageError(`Unsupported flag(s) for doctor: ${extraFlags.join(', ')}`);
-  }
-  const json = args.includes('--json');
-  
-  // v1 scope notice
-  printV1ScopeNotice('FROZEN', json);
-  
-  const doctorCommand = await loadDoctorCommand();
-  const result = await doctorCommand({ json });
-  const exitCode = result?.exitCode ?? (result?.ok === false ? EXIT_CODES.INVARIANT_VIOLATION : EXIT_CODES.SUCCESS);
-  const outcome = buildOutcome({
-    command: 'doctor',
-    exitCode,
-    reason: result?.ok ? 'Environment checks passed' : `${result?.checks?.filter(c => c.status === 'fail').length || 0} checks failed`,
-    action: result?.ok ? 'Environment is ready' : 'Review recommendations and fix failing checks',
-  });
-  return { outcome, emit: !json, json };
-
-}
-
-async function handleDiagnoseCommand(args) {
-  if (args.length < 2) {
-    throw new UsageError('diagnose command requires a <runId> argument');
-  }
-  
-  const allowedFlags = new Set(['--json']);
-  const extraFlags = args.slice(2).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
-  if (extraFlags.length > 0) {
-    throw new UsageError(`Unsupported flag(s) for diagnose: ${extraFlags.join(', ')}`);
-  }
-  
-  const runIdArg = args[1];
-  const json = args.includes('--json');
-  
-  // v1 scope notice
-  printV1ScopeNotice('FROZEN', json);
-  
-  const diagnoseCommand = await loadDiagnoseCommand();
-  const result = await diagnoseCommand({ runId: runIdArg, json, projectRoot: process.cwd() });
-  
-  const outcome = buildOutcome({
-    command: 'diagnose',
-    exitCode: EXIT_CODES.SUCCESS,
-    reason: `Diagnostics generated for run ${runIdArg}`,
-    action: `Review diagnostics at ${result?.diagnosticsPath || '.verax/runs/' + runIdArg + '/diagnostics.json'}`,
-  });
-  return { outcome, emit: !json, json };
-}
-
-async function handleExplainCommand(args) {
-  if (args.length < 3) {
-    throw new UsageError('explain command requires <runId> and <findingId> arguments');
-  }
-  
-  const allowedFlags = new Set(['--json']);
-  const extraFlags = args.slice(3).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
-  if (extraFlags.length > 0) {
-    throw new UsageError(`Unsupported flag(s) for explain: ${extraFlags.join(', ')}`);
-  }
-  
-  const runIdArg = args[1];
-  const findingIdArg = args[2];
-  const json = args.includes('--json');
-  
-  // v1 scope notice
-  printV1ScopeNotice('FROZEN', json);
-  
-  const explainCommand = await loadExplainCommand();
-  const result = await explainCommand({ runIdArg, findingIdArg, json, projectRoot: process.cwd() });
-  
-  const outcome = buildOutcome({
-    command: 'explain',
-    exitCode: EXIT_CODES.SUCCESS,
-    reason: `Explanation generated for finding ${findingIdArg}`,
-    action: `Review explanation at ${result?.explainPath || `.verax/runs/${runIdArg}/explain/${findingIdArg}.json`}`,
-  });
-  return { outcome, emit: !json, json };
-}
-
-async function handleStabilityCommand(args) {
-  if (args.length < 2) {
-    throw new UsageError('stability command requires <runId> argument');
-  }
-
-  const allowedFlags = new Set(['--json']);
-  const extraFlags = args.slice(2).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
-  if (extraFlags.length > 0) {
-    throw new UsageError(`Unsupported flag(s) for stability: ${extraFlags.join(', ')}`);
-  }
-
-  const runId = args[1];
-  const json = args.includes('--json');
-
-  // v1 scope notice
-  printV1ScopeNotice('FROZEN', json);
-
-  const stabilityCommand = await loadStabilityCommand();
-  const result = await stabilityCommand({ projectRoot: process.cwd(), runId, json });
-  
-  const outcome = buildOutcome({
-    command: 'stability',
-    exitCode: EXIT_CODES.SUCCESS,
-    reason: `Stability metrics generated for run ${runId}`,
-    action: `Review stability at ${result?.stabilityPath || `.verax/runs/${runId}/stability.json`}`,
-  });
-  return { outcome, emit: !json, json };
-}
-
-async function handleStabilityRunCommand(args) {
-  const allowedFlags = new Set(['--url', '--repeat', '--mode', '--json']);
-  const extraFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
-  if (extraFlags.length > 0) {
-    throw new UsageError(`Unsupported flag(s) for stability-run: ${extraFlags.join(', ')}`);
-  }
-
-  const url = parseArg(args, '--url');
-  const repeat = parseArg(args, '--repeat');
-  const mode = parseArg(args, '--mode') || 'standard';
-  const json = args.includes('--json');
-
-  if (!url) {
-    throw new UsageError('stability-run command requires --url <url> argument');
-  }
-
-  if (!repeat) {
-    throw new UsageError('stability-run command requires --repeat <N> argument');
-  }
-
-  const repeatNum = parseInt(repeat, 10);
-  if (isNaN(repeatNum) || repeatNum < 2) {
-    throw new UsageError('--repeat must be a number >= 2');
-  }
-
-  const stabilityRunCommand = await loadStabilityRunCommand();
-  const result = await stabilityRunCommand({
-    projectRoot: process.cwd(),
-    url,
-    repeat: repeatNum,
-    mode,
-    json
-  });
-  
-  const outcome = buildOutcome({
-    command: 'stability-run',
-    exitCode: EXIT_CODES.SUCCESS,
-    reason: `Batch stability analysis complete (${repeatNum} runs)`,
-    action: `Review batch report at ${result?.reportPath || '.verax/stability'}`,
-  });
-  return { outcome, emit: !json, json };
-}
-
-async function handleTriageCommand(args) {
-  if (args.length < 2) {
-    throw new UsageError('triage command requires <runId> argument');
-  }
-
-  const allowedFlags = new Set(['--json']);
-  const extraFlags = args.slice(2).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
-  if (extraFlags.length > 0) {
-    throw new UsageError(`Unsupported flag(s) for triage: ${extraFlags.join(', ')}`);
-  }
-
-  const runId = args[1];
-  const json = args.includes('--json');
-
-  // v1 scope notice
-  printV1ScopeNotice('FROZEN', json);
-
-  const triageCommand = await loadTriageCommand();
-  const result = await triageCommand({ projectRoot: process.cwd(), runId, json });
-  
-  const outcome = buildOutcome({
-    command: 'triage',
-    exitCode: EXIT_CODES.SUCCESS,
-    reason: `Triage report generated for run ${runId}`,
-    action: `Review triage at ${result?.triagePath || `.verax/runs/${runId}/triage.json`}`,
-  });
-  return { outcome, emit: !json, json };
-}
-
-async function handleCleanCommand(args) {
-  const allowedFlags = new Set(['--keep-last', '--older-than', '--allow-delete-confirmed', '--no-dry-run', '--json']);
-  const extraFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
-  if (extraFlags.length > 0) {
-    throw new UsageError(`Unsupported flag(s) for clean: ${extraFlags.join(', ')}`);
-  }
-
-  const keepLastArg = parseArg(args, '--keep-last');
-  const keepLast = keepLastArg !== null ? parseInt(keepLastArg, 10) : 10;
-  
-  const olderThanArg = parseArg(args, '--older-than');
-  const olderThanDays = olderThanArg !== null ? parseInt(olderThanArg, 10) : null;
-  
-  const allowDeleteConfirmed = args.includes('--allow-delete-confirmed');
-  const dryRun = !args.includes('--no-dry-run'); // Default to dry-run
-  const json = args.includes('--json');
-  
-  // v1 scope notice
-  printV1ScopeNotice('FROZEN', json);
-  
-  if (keepLastArg !== null && (isNaN(keepLast) || keepLast < 0)) {
-    throw new UsageError(`--keep-last must be an integer >= 0, got: ${keepLastArg}`);
-  }
-  
-  if (olderThanArg !== null && (isNaN(olderThanDays) || olderThanDays <= 0)) {
-    throw new UsageError(`--older-than must be a positive integer, got: ${olderThanArg}`);
-  }
-
-  const cleanCommand = await loadCleanCommand();
-  const result = await cleanCommand({
-    projectRoot: process.cwd(),
-    keepLast,
-    olderThanDays,
-    allowDeleteConfirmed,
-    dryRun,
-    json,
-  });
-  
-  const outcome = buildOutcome({
-    command: 'clean',
-    exitCode: EXIT_CODES.SUCCESS,
-    reason: dryRun ? `Cleanup plan: ${result?.deleted || 0} runs would be deleted` : `Cleanup complete: ${result?.deleted || 0} runs deleted`,
-    action: dryRun ? 'Run with --no-dry-run to execute' : 'Cleanup finished',
-  });
-  return { outcome, emit: !json, json };
-}
-
-async function handleGateCommand(args, { debug = false } = {}) {
-  const allowedFlags = new Set([
-    '--url',
-    '--src',
-    '--out',
-    '--json',
-    '--debug',
-    '--verbose',
-    '--auth-storage',
-    '--auth-cookie',
-    '--auth-header',
-    '--auth-mode',
-    '--fail-on-incomplete',
-  ]);
-
-  const unknownFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
-  if (unknownFlags.length > 0) {
-    throw new UsageError(`Unsupported flag(s) for gate: ${unknownFlags.join(', ')}`);
-  }
-
-  const url = parseArg(args, '--url');
-  const src = parseArg(args, '--src') || '.';
-  const out = parseArg(args, '--out') || '.verax';
-  const json = args.includes('--json');
-  
-  // v1 scope notice
-  printV1ScopeNotice('FROZEN', json);
-  
-  const verboseFlag = args.includes('--verbose');
-  const debugFlag = debug || verboseFlag || args.includes('--debug');
-  
-  const authStorage = parseArg(args, '--auth-storage');
-  const authCookiesArgs = parseMultipleArgs(args, '--auth-cookie');
-  const authHeadersArgs = parseMultipleArgs(args, '--auth-header');
-  const authMode = parseArg(args, '--auth-mode') || 'auto';
-  const { authConfig, errors: authErrors } = buildAuthConfig({
-    authStorage,
-    authCookiesArgs,
-    authHeadersArgs,
-    authMode,
-    cwd: process.cwd(),
-  });
-  if (authErrors.length > 0) {
-    throw new UsageError(authErrors.join('; '));
-  }
-  
-  const failOnIncompleteArg = parseArg(args, '--fail-on-incomplete');
-  const failOnIncomplete = failOnIncompleteArg === 'false' ? false : true;
-
-  if (!url) {
-    throw new UsageError('gate requires --url <url>');
-  }
-
-  const projectRoot = resolve(process.cwd());
-  const srcPath = resolve(projectRoot, src);
-  const outPath = resolve(projectRoot, out);
-  const readOnlyCheck = enforceReadOnlyOperation({ srcPath, outPath, projectRoot });
-  if (!readOnlyCheck.enforced) {
-    const violation = readOnlyCheck.violations[0];
-    if (violation && violation.message.includes('source code directory')) {
-      throw new UsageError(`Product Contract violation (READ_ONLY): ${violation.message}`);
-    }
-  }
-
-  const gateCommand = await loadGateCommand();
-  const result = await gateCommand({
-    url,
-    projectRoot,
-    src,
-    out,
-    json,
-    verbose: verboseFlag,
-    debug: debugFlag,
-    authConfig,
-    failOnIncomplete,
-  });
-
-  if (json) {
-    return { outcome: result.outcome, emit: true, json: true, jsonOutput: true, jsonPayload: result.jsonPayload };
-  }
-
-  return { outcome: result.outcome, emit: true, json: false };
-}
-
 async function handleVersionCommand(args, { debug: _debug = false } = {}) {
   /*
   Command: verax version
@@ -1012,6 +634,7 @@ main().catch((error) => {
   emitOutcome(outcome, { json: false });
   process.exit(outcome.exitCode);
 });
+
 
 
 
