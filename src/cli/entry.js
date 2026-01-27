@@ -58,21 +58,6 @@ function getVersion() {
   return VERSION;
 }
 
-/**
- * Print v1 scope notice for FROZEN or EXPERIMENTAL commands
- * @param {string} scope - 'FROZEN' or 'EXPERIMENTAL'
- * @param {boolean} json - Whether JSON output mode is active
- */
-function printV1ScopeNotice(scope, json = false) {
-  if (json) return; // Skip in JSON mode
-  
-  if (scope === 'FROZEN') {
-    console.error('Note: This command is frozen and not covered by VERAX v1 guarantees.');
-  } else if (scope === 'EXPERIMENTAL') {
-    console.error('Note: This command is experimental and behavior is not guaranteed in VERAX v1.');
-  }
-}
-
 /*
 Command: verax version
 Purpose: Report the installed VERAX CLI version without side effects.
@@ -234,22 +219,6 @@ USAGE:
   verax run --url <url> [options]              Run scan on a URL
   verax inspect <runPath> [--json]             Inspect an existing run
 
-EXPERIMENTAL COMMANDS:
-  verax diagnose <runId> [--json]              [ALPHA] Generate diagnostics for a run
-  verax explain <runId> <findingId> [--json]   [ALPHA] Explain a specific finding
-  verax triage <runId> [--json]                [ALPHA] Generate incident triage report
-  verax stability <runId> [--json]             [ALPHA] Analyze stability of a single run
-  verax stability-run --url <url> --repeat <N>  [ALPHA] Execute multiple runs and analyze
-                     [--mode ci|standard] [--json]
-
-OPERATIONAL COMMANDS:
-  verax doctor [--json]                        Diagnose local environment
-  verax clean [--keep-last N] [--older-than D]  Clean up old runs (default: dry-run)
-              [--allow-delete-confirmed] [--no-dry-run] [--json]
-  verax gate --url <url> [--fail-on-incomplete true|false]  [BETA] Enterprise CI release gate
-             [--json]
-  verax help results                           Explain VERAX pipeline and results
-
 OPTIONS:
   --url <url>                    Target URL to scan
   --src <path>                   Source directory (optional, auto-detected if omitted)
@@ -263,12 +232,11 @@ OPTIONS:
   --auth-cookie <cookie>         Authentication cookies (repeatable)
   --auth-header <header>         Authentication header (repeatable)
   --auth-mode <mode>             Auth mode: auto (default), strict, or off
-  --force-post-auth              Required to use auth flags (post-auth is OUT OF SCOPE, experimental)
+  --force-post-auth              Required to use auth flags (post-auth is OUT OF SCOPE)
   --retain-runs <number>         Number of recent runs to keep (default: 10, 0=none)
   --no-retention                 Disable automatic run cleanup (keeps all runs)
   --min-coverage <0-1>           Minimum observation coverage ratio (default: 0.90)
   --ci-mode <balanced|strict>    Exit code policy for run (default: balanced)
-  --fail-on-incomplete <bool>    Gate: treat incomplete runs as failure (default: true)
 `;
 
   // Always print help text to stdout
