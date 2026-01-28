@@ -28,13 +28,9 @@
       ],
 
       "guarantees": [
-        "Read-only operation: VERAX never modifies user code or environment",
-        "Deterministic execution: identical inputs produce identical normalized outputs",
-        "No silent success: uncertain results are always marked INCOMPLETE",
-        "No findings without evidence: all findings include observable proof",
-        "Public pre-auth scope enforced by design and code",
         "CLI commands and exit codes remain stable (0/10/20/30/40/50/64)",
-        "Artifact schemas unchanged: summary.json, findings.json, observe.json"
+        "Artifact schemas unchanged: summary.json, findings.json, observe.json",
+        "Deterministic, read-only, zero-config behavior preserved"
       ],
 
       "notes": "Documentation-only release. No code changes, artifact schema changes, or breaking changes. Safe for production upgrades."
