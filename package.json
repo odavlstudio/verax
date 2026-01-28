@@ -1,7 +1,7 @@
 {
   "name": "@veraxhq/verax",
-  "version": "0.4.5",
-  "description": "Public Flow Sanity Guard — Trust-Locked, Deterministic, CI-Safe.",
+  "version": "0.4.6",
+  "description": "Catch buttons and forms that do nothing. Silent failure detection for public user flows.",
   "keywords": [
     "public-flows",
     "pre-auth",

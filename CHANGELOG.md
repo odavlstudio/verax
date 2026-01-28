@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.6] - 2026-01-28 (patch)
+
+### Breaking Changes
+
+- None.
+
+### Improvements
+
+- README completely rewritten for npm onboarding clarity and first-run success.
+- Replaced vague "LIMITED mode" terminology with clear "source-not-detected" behavior explanation.
+- Added explicit prerequisites before own-site usage instructions.
+- Provided concrete example artifact paths and runIds (e.g., `20260128-143052-run-abc123`).
+- Fixed broken URL example (`https://your-site.test` → `http://localhost:3000`).
+- Added operational clarity to INCOMPLETE exit code (table of causes and fixes).
+- Added clarity to SUCCESS exit code (explicit "does NOT mean" and "means" sections).
+- Defined "Partial" framework support operationally.
+- Added `verax doctor` diagnostics to source-not-detected troubleshooting.
+- All examples now realistic and immediately actionable for first-time users.
+
+### Fixes
+
+- Removed placeholder paths like `<id>` and `<runId>`; all paths now concrete.
+- Removed nested-terminology contradictions (LIMITED mode vs evidence-backed safety).
+- Clarified that source detection looks for specific file types (.js, .jsx, .tsx, .html).
+- Clarified that INCOMPLETE is not a reduced-functionality mode but a hard blocker.
+
+### Guarantees (unchanged)
+
+- CLI commands and exit codes remain stable (0/10/20/30/40/50/64).
+- Artifact schemas unchanged: `summary.json`, `findings.json`, `observe.json`.
+- Deterministic, read-only, zero-config behavior preserved.
+- No code changes; documentation-only release.
+
 ## [0.4.5] - 2026-01-24 (patch)
 
 ### Breaking Changes
