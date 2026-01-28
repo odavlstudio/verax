@@ -72,7 +72,7 @@ test('DOM Redaction - API Key Pattern', async (t) => {
     const result = redactTextPatterns(text);
     
     assert.ok(result.count > 0, 'Should detect API key');
-    assert.ok(!result.redacted.includes('sk_live_'), 'API key should be redacted');
+    assert.ok(!result.redacted.includes('sk_test_'), 'API key should be redacted');
   });
 });
 
