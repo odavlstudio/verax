@@ -5,6 +5,8 @@
       "date": "2026-01-27",
       "type": "stable",
 
+      "breakingChanges": [],
+
       "improvements": [
         "Deterministic silent failure detection for public pre-auth user flows",
         "Zero-config source auto-discovery with safety-first LIMITED mode",
