@@ -1,29 +1,33 @@
 {
-  "version": "0.4.5",
-  "date": "2026-01-27",
-  "type": "stable",
-  "summary": "First public, production-ready release of VERAX",
-  "highlights": [
-    "Vision 1.0 fully implemented and audited",
-    "Deterministic silent failure detection for public pre-auth flows",
-    "Evidence-backed findings with screenshots and DOM diffs",
-    "LIMITED mode safety guarantee (INCOMPLETE when source missing)",
-    "Strict CLI exit code contract (0, 20, 30, 50, 64)",
-    "Doctor command hardened for clean installs",
-    "Zero false positives verified across 859 tests"
-  ],
-  "engineering": {
-    "lint": "0 errors",
-    "typecheck": "0 errors",
-    "tests": "856 passing",
-    "ci": "green",
-    "runtimeDependenciesVerified": true
-  },
-  "breakingChanges": [],
-  "knownLimitations": [
-    "Post-authentication flows are out of scope (always INCOMPLETE)",
-    "Visual-only feedback (CSS animations, spinners) not detected",
-    "Dynamic routes requiring backend state are not analyzed"
-  ],
-  "notes": "This release is implementation-honest, vision-compliant, and approved for public distribution."
+  "versions": [
+    {
+      "version": "0.4.5",
+      "date": "2026-01-27",
+      "type": "stable",
+      "summary": "First public, production-ready release of VERAX",
+      "highlights": [
+        "Vision 1.0 fully implemented and externally audited",
+        "Deterministic silent failure detection for public pre-auth flows",
+        "Evidence-backed findings with screenshots and DOM diffs",
+        "LIMITED mode safety guarantee (always INCOMPLETE when source missing)",
+        "Strict CLI exit code contract (0, 20, 30, 50, 64)",
+        "Doctor command hardened for clean installs",
+        "Zero false positives verified across 859 tests"
+      ],
+      "engineering": {
+        "lint": "0 errors",
+        "typecheck": "0 errors",
+        "tests": "856 passing",
+        "ci": "green",
+        "runtimeDependenciesVerified": true
+      },
+      "breakingChanges": [],
+      "knownLimitations": [
+        "Post-authentication flows are out of scope (always INCOMPLETE)",
+        "Visual-only feedback (CSS animations, spinners) not detected",
+        "Dynamic routes requiring backend state are not analyzed"
+      ],
+      "notes": "This release is implementation-honest, vision-compliant, and approved for public distribution."
+    }
+  ]
 }
