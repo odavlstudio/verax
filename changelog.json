@@ -1,6 +1,45 @@
 {
   "versions": [
     {
+      "version": "0.4.6",
+      "date": "2026-01-28",
+      "type": "patch",
+
+      "breakingChanges": [],
+
+      "improvements": [
+        "README completely rewritten for npm onboarding clarity and first-run success",
+        "Replaced vague LIMITED mode terminology with clear source-not-detected behavior explanation",
+        "Added explicit prerequisites before own-site usage instructions",
+        "Provided concrete example artifact paths and runIds (e.g., 20260128-143052-run-abc123)",
+        "Fixed broken URL example (https://your-site.test → http://localhost:3000)",
+        "Added operational clarity to INCOMPLETE exit code with table of causes and fixes",
+        "Added clarity to SUCCESS exit code with explicit does NOT mean sections",
+        "Defined Partial framework support operationally with test recommendations",
+        "Added verax doctor diagnostics to source-not-detected troubleshooting",
+        "All examples now realistic and immediately actionable for first-time users"
+      ],
+
+      "fixes": [
+        "Removed placeholder paths like <id> and <runId>; all paths now concrete",
+        "Removed nested-terminology contradictions (LIMITED mode vs evidence-backed safety)",
+        "Clarified that source detection looks for specific file types (.js, .jsx, .tsx, .html)",
+        "Clarified that INCOMPLETE is not a reduced-functionality mode but a hard blocker"
+      ],
+
+      "guarantees": [
+        "Read-only operation: VERAX never modifies user code or environment",
+        "Deterministic execution: identical inputs produce identical normalized outputs",
+        "No silent success: uncertain results are always marked INCOMPLETE",
+        "No findings without evidence: all findings include observable proof",
+        "Public pre-auth scope enforced by design and code",
+        "CLI commands and exit codes remain stable (0/10/20/30/40/50/64)",
+        "Artifact schemas unchanged: summary.json, findings.json, observe.json"
+      ],
+
+      "notes": "Documentation-only release. No code changes, artifact schema changes, or breaking changes. Safe for production upgrades."
+    },
+    {
       "version": "0.4.5",
       "date": "2026-01-27",
       "type": "patch",

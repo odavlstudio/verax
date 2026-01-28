@@ -5,7 +5,7 @@
  * All other references must import from here.
  */
 
-export const VERSION = '0.4.5';
+export const VERSION = '0.4.6';
 
 export const STABILITY = 'stable'; // 'stable' | 'experimental'
 
