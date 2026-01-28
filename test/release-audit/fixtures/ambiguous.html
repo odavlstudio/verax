@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ambiguous - CSS-Only Feedback</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    .container { border: 1px solid #ccc; padding: 20px; max-width: 400px; }
+    button { padding: 10px 20px; background: purple; color: white; cursor: pointer; }
+    .liked { color: red; font-weight: bold; }
+    #likeCount { font-size: 18px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>Ambiguous Test - CSS Feedback Without State Change</h1>
+  <p>This "Like" button VISUALLY changes (CSS) but doesn't actually persist data.</p>
+  <p style="color: orange; font-weight: bold;">⚠️ The heart turns red, but the like count never actually increases.</p>
+  
+  <div class="container">
+    <p>Article about something important</p>
+    <hr>
+    
+    <p>Likes: <span id="likeCount">0</span></p>
+    <button id="likeBtn">❤️ Like Article</button>
+    
+    <p style="font-size: 12px; color: gray;">Note: Only the visual CSS changes, no actual state update.</p>
+  </div>
+
+  <script>
+    let isLiked = false;
+    
+    document.getElementById('likeBtn').addEventListener('click', function() {
+      isLiked = !isLiked;
+      
+      // PARTIAL: CSS changes (visual feedback)
+      if (isLiked) {
+        this.classList.add('liked');
+        this.textContent = '❤️ Liked (CSS only)';
+      } else {
+        this.classList.remove('liked');
+        this.textContent = '❤️ Like Article';
+      }
+      
+      // BUG: We DON'T actually change the like count
+      // In a proper implementation, it would be:
+      // let count = parseInt(document.getElementById('likeCount').textContent);
+      // count++;
+      // document.getElementById('likeCount').textContent = count;
+      
+      // Result: User sees button change color (proof of interaction)
+      // But no actual data changed (like count stuck at 0)
+      // This is PARTIALLY observable and PARTIALLY silent
+    });
+  </script>
+</body>
+</html>

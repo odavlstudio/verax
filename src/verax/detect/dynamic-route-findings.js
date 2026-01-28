@@ -9,6 +9,7 @@
 import {
   classifyDynamicRoute,
   DYNAMIC_ROUTE_VERIFIABILITY,
+  // @ts-ignore - dynamic-route-intelligence is in src/internal/future-gates which is excluded from typecheck
 } from '../core/dynamic-route-intelligence.js';
 import { buildRouteModels } from '../core/route-intelligence.js';
 

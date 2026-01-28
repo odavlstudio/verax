@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>T5: Delayed 1500ms</title>
+</head>
+<body>
+  <h1>Temporal Attack T5: 1500ms Delay</h1>
+  <p>USER SEES: Success message appears after 1.5 seconds (beyond typical settle)</p>
+  <button id="action-btn">Upload File</button>
+  <div id="feedback"></div>
+
+  <script>
+    // Auto-trigger on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const feedback = document.getElementById('feedback');
+      
+      // Delay feedback by 1500ms (tests if VERAX waits long enough)
+      setTimeout(() => {
+        feedback.textContent = 'File uploaded: document.pdf';
+      }, 1500);
+    });
+  </script>
+</body>
+</html>

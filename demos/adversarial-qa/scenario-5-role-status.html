@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 5: role=status</title>
+</head>
+<body>
+    <h1>Scenario 5: role=status Update (In-Scope)</h1>
+    
+    <button id="status-btn">Update Status</button>
+    <div id="status-region" role="status"></div>
+
+    <script>
+        document.getElementById('status-btn').addEventListener('click', () => {
+            // Text in role=status element - should be in-scope
+            document.getElementById('status-region').textContent = 'Status: Ready at ' + new Date().toLocaleTimeString();
+        });
+
+        // VERAX promise: "Click status-btn produces text in role=status element"
+        // USER PERCEPTION: "I see the status message"
+        // TRUST QUESTION: Is role=status treated same as aria-live?
+    </script>
+</body>
+</html>

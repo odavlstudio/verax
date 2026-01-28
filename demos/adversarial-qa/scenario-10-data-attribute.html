@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 10: data-* Attribute</title>
+</head>
+<body>
+    <h1>Scenario 10: State Change via data-* Attribute (Out-of-Scope)</h1>
+    
+    <button id="toggle-btn">Toggle State</button>
+    <div id="state-box" data-state="off">State: Off</div>
+
+    <script>
+        document.getElementById('toggle-btn').addEventListener('click', () => {
+            const box = document.getElementById('state-box');
+            const current = box.getAttribute('data-state');
+            const newState = current === 'off' ? 'on' : 'off';
+            box.setAttribute('data-state', newState);
+            box.textContent = 'State: ' + newState.toUpperCase();
+        });
+
+        // VERAX promise: "Click toggle-btn changes state"
+        // USER PERCEPTION: "I see text change from 'Off' to 'On'"
+        // TRUST QUESTION: CRITICAL - Text changes should be detected!
+        // But data-state attribute changes should be OUT-OF-SCOPE
+    </script>
+</body>
+</html>

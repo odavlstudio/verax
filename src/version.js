@@ -5,7 +5,7 @@
  * All other references must import from here.
  */
 
-export const VERSION = '0.5.1';
+export const VERSION = '0.4.5';
 
 export const STABILITY = 'stable'; // 'stable' | 'experimental'
 
@@ -32,6 +32,10 @@ export const COMPATIBILITY_GUARANTEES = {
     determinism: 'stable', // Same input → same output
     readOnly: 'stable', // Never modifies application under test
     zeroConfig: 'stable', // Works without configuration files
+  },
+  experimental: {
+    commands: 'Frozen until Vision 1.1 (diagnose, explain, stability, triage, clean, gate)',
+    advancedAuth: 'Post-authentication flows (out of scope in v0.4.5)',
   },
 };
 

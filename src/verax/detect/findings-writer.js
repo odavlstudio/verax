@@ -88,6 +88,14 @@ export function buildFindingsReport({ url, findings = [], coverageGaps = [], det
   });
 
   const promiseSummary = {};
+  
+  // SCOPE AWARENESS v1.0: Count scope classifications
+  const scopeSummary = {
+    inScope: 0,
+    outOfScope: 0,
+    noChange: 0,
+    noiseOnly: 0
+  };
 
   // Normalize to canonical contract before enforcement
   const canonicalFindings = (findings || [])
@@ -95,7 +103,8 @@ export function buildFindingsReport({ url, findings = [], coverageGaps = [], det
     .filter(Boolean);
 
   // Contract enforcement: enforce invariants and collect metadata
-  const { findings: enforcedFindings, enforcement } = enforceFinalInvariantsWithReport(canonicalFindings);  const { findings: deduplicatedFindings, deduplicatedCount } = deduplicateFindings(enforcedFindings);
+  const { findings: enforcedFindings, enforcement } = enforceFinalInvariantsWithReport(canonicalFindings);
+  const { findings: deduplicatedFindings, deduplicatedCount } = deduplicateFindings(enforcedFindings);
   
   // Sort evidence references within each finding
   const findingsWithSortedEvidence = deduplicatedFindings.map(sortEvidenceReferences);
@@ -110,6 +119,18 @@ export function buildFindingsReport({ url, findings = [], coverageGaps = [], det
 
     const promiseType = finding.promise?.type || 'UNKNOWN_PROMISE';
     promiseSummary[promiseType] = (promiseSummary[promiseType] || 0) + 1;
+    
+    // SCOPE AWARENESS v1.0: Count scope classifications
+    const scopeClassification = finding.enrichment?.scopeClassification;
+    if (scopeClassification === 'out-of-scope') {
+      scopeSummary.outOfScope++;
+    } else if (scopeClassification === 'in-scope') {
+      scopeSummary.inScope++;
+    } else if (scopeClassification === 'no-change') {
+      scopeSummary.noChange++;
+    } else if (scopeClassification === 'noise-only') {
+      scopeSummary.noiseOnly++;
+    }
   }
 
   return {
@@ -118,6 +139,7 @@ export function buildFindingsReport({ url, findings = [], coverageGaps = [], det
     url,
     outcomeSummary,
     promiseSummary,
+    scopeSummary,
     findings: sortedFindings,
     coverageGaps,
     notes: [],

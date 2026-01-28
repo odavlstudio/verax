@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>T4: Delayed 900ms</title>
+</head>
+<body>
+  <h1>Temporal Attack T4: 900ms Delay</h1>
+  <p>USER SEES: Success message appears after 900ms (near settle timeout)</p>
+  <button id="action-btn">Save Changes</button>
+  <div id="feedback"></div>
+
+  <script>
+    // Auto-trigger on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const feedback = document.getElementById('feedback');
+      
+      // Delay feedback by 900ms (tests settle window boundary)
+      setTimeout(() => {
+        feedback.textContent = 'Changes saved successfully';
+      }, 900);
+    });
+  </script>
+</body>
+</html>

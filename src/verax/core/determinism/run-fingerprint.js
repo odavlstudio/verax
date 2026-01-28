@@ -87,7 +87,10 @@ function computeSourceHash(projectDir) {
     while (stack.length > 0) {
       const current = stack.pop();
       const entries = readdirSync(current, { withFileTypes: true })
-        .sort((a, b) => a.name.localeCompare(b.name, 'en'));
+        .sort((a, b) => {
+          // @ts-expect-error - Dirent types correctly have .name property
+          return a.name.localeCompare(b.name, 'en');
+        });
 
       for (const entry of entries) {
         if (ignored.has(entry.name)) continue;
@@ -109,6 +112,7 @@ function computeSourceHash(projectDir) {
     }
 
     const digest = hash.digest('hex');
+    // @ts-expect-error - digest('hex') returns string, type definition may be incomplete
     return digest.substring(0, 16);
   } catch {
     return 'unknown';

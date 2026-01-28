@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test 1: Text-Based Feedback (In-Scope)</title>
+</head>
+<body>
+  <h1>Test 1: Text Feedback Detection</h1>
+  <p>This tests whether VERAX correctly detects SUCCESS when a button click produces visible text feedback.</p>
+  
+  <button id="submit-with-feedback">Click Me - Provides Text Feedback</button>
+  <div id="feedback-target" aria-live="polite" role="alert"></div>
+
+  <script>
+    document.getElementById('submit-with-feedback').addEventListener('click', (e) => {
+      // PROMISE: Button click → text feedback
+      // IMPLEMENTATION: Adds text to aria-live region
+      setTimeout(() => {
+        document.getElementById('feedback-target').textContent = 'Success! Your action was processed.';
+      }, 100);
+    });
+  </script>
+</body>
+</html>

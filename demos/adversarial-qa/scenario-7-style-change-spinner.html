@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 7: Style Change (Out-of-Scope)</title>
+    <style>
+        #spinner { display: none; }
+        #spinner.visible { display: block; }
+    </style>
+</head>
+<body>
+    <h1>Scenario 7: Loading Spinner (Style Change - Out-of-Scope)</h1>
+    
+    <button id="load-btn">Load Data</button>
+    <div id="spinner" class="loader">Loading...</div>
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('load-btn').addEventListener('click', () => {
+            // User sees spinner appear
+            document.getElementById('spinner').classList.add('visible');
+            
+            // Simulate async operation
+            setTimeout(() => {
+                document.getElementById('results').textContent = 'Data loaded at ' + new Date().toLocaleTimeString();
+                document.getElementById('spinner').classList.remove('visible');
+            }, 2000);
+        });
+
+        // VERAX promise: "Click load-btn shows spinner and loads data"
+        // USER PERCEPTION: "I see the spinner, then the data"
+        // TRUST QUESTION: DANGEROUS - Does VERAX report SILENT_FAILURE because it can't see the spinner?
+        // Or does it correctly classify spinner as OUT-OF-SCOPE and focus on the data loading?
+    </script>
+</body>
+</html>

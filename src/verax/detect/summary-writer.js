@@ -5,7 +5,11 @@ import { aggregateProblems } from './finding-aggregator.js';
 import { getTimeProvider } from '../../cli/util/support/time-provider.js';
 
 /**
- * Generate human-readable SUMMARY.md for a scan run
+ * Generate human-readable verax-summary.md for a scan run
+ * 
+ * NOTE: This function is deprecated in favor of the CLI's human-summary-writer.js
+ * which generates verax-summary.md. This is kept for backwards compatibility
+ * with older verax core code.
  * 
  * @param {string} runDir - Run directory path
  * @param {string} url - URL that was scanned
@@ -13,10 +17,10 @@ import { getTimeProvider } from '../../cli/util/support/time-provider.js';
  * @param {Object} findings - Findings from detect phase
  * @param {Object} learnData - Learn phase output
  * @param {Object} observeData - Observe phase output
- * @returns {string} Path to written SUMMARY.md file
+ * @returns {string} Path to written verax-summary.md file
  */
 export function writeSummaryMarkdown(runDir, url, srcDir, findings, learnData, observeData) {
-  const summaryPath = resolve(runDir, 'SUMMARY.md');
+  const summaryPath = resolve(runDir, 'verax-summary.md');
   const evidenceDir = resolve(runDir, 'EVIDENCE');
   const hasBefore = existsSync(resolve(evidenceDir, 'before.png'));
   const hasAfter = existsSync(resolve(evidenceDir, 'after.png'));

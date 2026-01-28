@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test 5: True Silent Failure - No Code Handler</title>
+</head>
+<body>
+  <h1>Test 5: Silent Failure - Dead Button</h1>
+  <p>This tests whether VERAX correctly detects a SILENT FAILURE when a button has NO JavaScript handler.</p>
+  
+  <button id="dead-button">This Button Does Nothing</button>
+  <!-- No JavaScript handler for this button -->
+
+  <script>
+    // Button has no event listener - completely dead
+    // PROMISE: Implied by presence of a button (user expects it to do something)
+    // REALITY: Nothing happens when clicked
+    // VERAX SHOULD: Report this as a confirmed silent failure
+  </script>
+</body>
+</html>

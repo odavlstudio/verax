@@ -170,9 +170,47 @@ VERAX prioritizes determinism over cleverness.
 **Given the same code input and stable environment,**
 **VERAX produces deterministic logic and reproducible artifacts.**
 
-**Note:** Time-based fields (timestamps, run duration) are not deterministically identical across runs, by design. Framework and feature detection are deterministic. Retry logic and timeout classification are centralized and deterministic.
+### What Is Deterministic
 
-Trust is earned through reproducibility and explicit rules, not prediction.
+**Core logic and findings:**
+- Silent failure detection (promise vs observation comparison)
+- Evidence validation (same evidence → same classification)
+- Severity assignment (HIGH/MEDIUM/LOW rules are deterministic)
+- Exit codes (same conditions → same code)
+- Artifact structure and counts (same findings → same summary.json)
+
+**Normalized across runs:**
+- Source code discovery (same search paths, same priority)
+- Framework detection (same detection rules)
+- Expectation extraction (same code → same promises)
+- Path normalization (absolute paths made relative consistently)
+
+### What Varies by Design
+
+**Time-based fields** (allowed to differ between runs):
+- `startedAt`, `completedAt` timestamps
+- `duration` (run time in milliseconds)
+- `runId` (unique identifier per execution)
+
+**Environment-dependent** (allowed to vary):
+- `runtimeVersion` (VERAX version)
+- `nodeVersion` (Node.js version)
+- `platform` (OS type)
+
+**Deterministic but unseeded** (same across runs only if timeout/coverage identical):
+- `coverage.coverageRatio` (ratio of attempted/total)
+- `findingsCounts` (counts of each severity)
+
+### First-Run Defaults (Safety Feature)
+
+VERAX applies **different defaults** for first run vs subsequent runs:
+
+| Setting | First Run | Subsequent Runs |
+|---------|-----------|-----------------|
+| `--min-coverage` | 0.50 (relaxed) | 0.90 (strict) |
+| CI mode | `balanced` | `balanced` |
+
+**Why:** First run may have incomplete source extraction or environment issues. Subsequent runs assume you've validated the basic setup. This is documented in run.meta.json for audit trail.
 
 ---
 
@@ -213,39 +251,149 @@ VERAX provides **partial support** for:
 
 VERAX is designed to work out-of-the-box for public flows.
 
-**Auto-Detection:**
-- When `--src` is omitted, VERAX automatically searches for source code in:
-  1. Current directory (`.`)
-  2. Common subdirectories: `./src`, `./app`, `./frontend`, `./pages`
-  3. Parent directories (up to 3 levels above current directory)
+### Source Auto-Discovery (Implementation in v0.4.5)
+
+When `--src` is not provided, VERAX automatically searches for source code in this exact order:
+
+1. `./src`
+2. `./app`
+3. `./frontend`
+4. `.` (current directory)
 
 **If source IS detected:**
 - Runs with full detection capabilities (source-based + runtime observation)
 - Result can be SUCCESS, FINDINGS, or INCOMPLETE based on actual findings
 - Full evidence guarantees apply
 
-**If source is NOT detected:**
+**If source is NOT detected after searching all paths:**
 - Runs in LIMITED mode (runtime observation only, no source-based detection)
-- Result is **ALWAYS INCOMPLETE** with explicit reasons:
+- **Verdict is ALWAYS INCOMPLETE** with explicit reasons:
   - `source_not_detected`
   - `limited_runtime_only_mode`
-- Exit code: 30 (INCOMPLETE)
-- User must provide `--src` explicitly to enable full trust
+- **Exit code: 30 (INCOMPLETE)**
+- User must provide `--src <path>` explicitly to enable full analysis
+
+### LIMITED Mode Guarantee
+
+LIMITED mode is a **safety feature**, not a limitation:
+
+- When source is missing, VERAX does not claim false confidence
+- Runtime-only observation cannot provide the evidence guarantees required for SUCCESS or FINDINGS
+- Even if no failures are observed, result is INCOMPLETE
+- This prevents CI false-negatives (unsafe green signals)
+
+**Example:**
+```bash
+$ verax run --url http://example.com
+# Source not found in ./src, ./app, ./frontend, .
+⚠️  Source: not detected (limited runtime-only mode)
+    Analysis will be limited to runtime observation.
+    Result will be marked INCOMPLETE.
+    Provide --src <path> for full source-based analysis.
+
+# ... observation runs ...
+
+# Output summary
+RESULT INCOMPLETE
+REASON No source code detected; runtime-only observation is insufficient for trust
+ACTION Provide --src <path> to enable full source-based analysis
+
+# Exit code: 30
+```
+
+### "Zero Configuration" Definition
 
 **"Zero configuration" means:**
-> You can run `verax run --url <site>` meaningfully without specifying `--src`  
-> **within the defined scope** (projects with detectable source code).
+> You can run `verax run --url <site>` without `--src`  
+> and VERAX will behave correctly (not crash, not give false confidence).  
+> **Within the defined scope** (projects with detectable source code structure),  
+> you get full detection. **Outside that scope** (missing source), you get honest INCOMPLETE.
 
-**Safety guarantee:**  
-LIMITED mode never returns SUCCESS or false confidence.  
-Absence of source code → always INCOMPLETE → CI gates block safely.
+**Safety guarantee:**
+- LIMITED mode never returns SUCCESS or FINDINGS
+- Absence of source code → always INCOMPLETE → CI gates are safe
 
-**Enterprise CI/CD recommendation:**  
-Provide `--src` explicitly for deterministic, reproducible builds.
+**Enterprise CI/CD recommendation:**
+Provide `--src <path>` explicitly for deterministic, reproducible builds and full detection.
 
 ---
 
-## 11. Expansion Philosophy
+## 11. Post-Authentication Scope Enforcement
+
+VERAX is **explicitly designed for pre-authentication flows only.**
+
+The Vision contract and all guarantees apply ONLY to:
+- Public landing pages
+- Signup forms
+- Login forms
+- Password reset flows
+- Public navigation
+
+The Vision contract does **NOT** apply to:
+- Post-login authenticated flows
+- Role-based access control
+- Permission-gated features
+- Internal dashboards
+- Authenticated API responses
+
+### How Post-Auth Mode Works
+
+If you attempt to use authentication flags (`--cookies`, `--auth-token`, etc.):
+
+1. **Pre-condition:** Requires explicit `--force-post-auth` flag
+   - This is intentional: we want to avoid accidental authenticated testing
+   - Without `--force-post-auth`, auth flags are rejected
+
+2. **Execution:** VERAX runs observation with auth context
+   - Interactions may execute in authenticated state
+   - But detection logic does NOT validate them as in-scope
+
+3. **Verdict:** ALWAYS INCOMPLETE
+   - Result is marked INCOMPLETE by contract
+   - Evidence is not trusted for authenticated flows
+   - Exit code: 30 (INCOMPLETE)
+
+4. **Output:** Clear warning
+
+```
+⚠️  WARNING: Running in EXPERIMENTAL post-auth mode
+    • Authenticated flows are OUT OF SCOPE per Vision.md
+    • This result MUST NOT be trusted
+    • VERAX is designed for pre-authentication user journeys only
+```
+
+### Why This Design?
+
+Post-authentication flows have **different trust requirements**:
+- Promises depend on backend state, not just frontend code
+- Silent failures mean something different (permission denied, invalid state, etc.)
+- Evidence must include backend contract validation, not just UI observation
+
+Supporting post-auth flows would require a different product. VERAX explicitly does not attempt this.
+
+### Example: Using POST-AUTH Mode
+
+```bash
+# ✗ This fails without --force-post-auth:
+$ verax run --url https://app.example.com --cookies "session=xyz" 
+# Error: Auth flags require --force-post-auth
+
+# ✓ This runs in LIMITED/experimental mode:
+$ verax run --url https://app.example.com --cookies "session=xyz" --force-post-auth
+
+# Output:
+# ⚠️  WARNING: Running in EXPERIMENTAL post-auth mode
+# ... observation runs ...
+# RESULT INCOMPLETE
+# REASON Authenticated flows are OUT OF SCOPE per Vision.md
+# Exit code: 30
+
+# This prevents CI from treating authenticated flows as trusted
+```
+
+---
+
+## 12. Expansion Philosophy
 
 VERAX will expand its scope **only when guarantees can be preserved**.
 
@@ -264,7 +412,7 @@ Nothing is added implicitly.
 
 ---
 
-## 12. The Core Principle
+## 13. The Core Principle
 
 > **If VERAX cannot prove it,  
 > VERAX will not claim it.**
@@ -273,7 +421,7 @@ This principle overrides all others.
 
 ---
 
-## Final Statement
+## 14. Final Statement
 
 VERAX is not built to test everything.
 

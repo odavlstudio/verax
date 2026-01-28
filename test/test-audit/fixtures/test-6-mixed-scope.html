@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test 6: Mixed Scope - Text + Spinner</title>
+</head>
+<body>
+  <h1>Test 6: Mixed Scope - Text Feedback + Spinner</h1>
+  <p>This tests whether VERAX correctly handles mixed feedback: TEXT (in-scope) + SPINNER (out-of-scope).</p>
+  
+  <button id="mixed-btn">Process (Text + Spinner)</button>
+  <div id="spinner" style="display: none;">Loading...</div>
+  <div id="feedback" aria-live="polite" role="alert"></div>
+
+  <script>
+    document.getElementById('mixed-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      // Show both spinner AND text feedback
+      document.getElementById('spinner').style.display = 'block';
+      
+      setTimeout(() => {
+        document.getElementById('feedback').textContent = 'Processing complete';
+        document.getElementById('spinner').style.display = 'none';
+      }, 200);
+    });
+  </script>
+</body>
+</html>

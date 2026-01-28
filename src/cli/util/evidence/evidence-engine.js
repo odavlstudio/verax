@@ -41,13 +41,17 @@ export class EvidenceBundle {
       meaningfulUIChange: false,
     };
     this.files = [];
-    this.correlatedRequests = []; // Network requests correlated to this action    this.routeData = {
+    this.correlatedRequests = []; // Network requests correlated to this action
+    this.routeData = {
       before: null,
       after: null,
       transitions: [],
       signatureChanged: false
-    };    this.outcomeWatcher = null;    this.mutationSummary = null;
-    this.mutationAnalysis = null;    this.interactionIntentRecord = null;
+    };
+    this.outcomeWatcher = null;
+    this.mutationSummary = null;
+    this.mutationAnalysis = null;
+    this.interactionIntentRecord = null;
     this.interactionIntentClassification = null;
     this.interactionAcknowledgment = null;
   }
@@ -99,14 +103,16 @@ export class EvidenceBundle {
     // Navigation change (legacy URL comparison)
     if (urlBefore && urlAfter && urlBefore !== urlAfter) {
       this.signals.navigationChanged = true;
-    }    if (routeData) {
+    }
+    if (routeData) {
       this.routeData = routeData;
       if (routeData.signatureChanged || routeData.transitions.length > 0) {
         this.signals.routeChanged = true;
         // If route changed via History API or signature, count as navigation
         this.signals.navigationChanged = true;
       }
-    }    if (phase2Data?.outcomeWatcher) {
+    }
+    if (phase2Data?.outcomeWatcher) {
       this.outcomeWatcher = phase2Data.outcomeWatcher;
       if (phase2Data.outcomeWatcher.acknowledged) {
         this.signals.outcomeAcknowledged = true;
@@ -115,7 +121,8 @@ export class EvidenceBundle {
           (phase2Data.outcomeWatcher.latencyBucket === '6-10s' || phase2Data.outcomeWatcher.latencyBucket === '>10s')) {
         this.signals.delayedAcknowledgment = true;
       }
-    }    if (phase2Data?.mutationSummary && phase2Data?.mutationAnalysis) {
+    }
+    if (phase2Data?.mutationSummary && phase2Data?.mutationAnalysis) {
       this.mutationSummary = phase2Data.mutationSummary;
       this.mutationAnalysis = phase2Data.mutationAnalysis;
       
@@ -134,6 +141,13 @@ export class EvidenceBundle {
       // Track meaningful changes separately
       if (this.domDiff.isMeaningful) {
         this.signals.meaningfulDomChange = true;
+      }
+      
+      // TRUST FIX 1: Text content changes in aria-live regions are user-visible feedback
+      // If meaningful changes include text content updates (detected by detectTextContentChanges),
+      // mark as feedback seen
+      if (this.domDiff.contentChanged && this.domDiff.contentChanged.length > 0) {
+        this.signals.feedbackSeen = true;
       }
       
       // Check for feedback elements visibility change

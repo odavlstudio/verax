@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 6: aria-invalid</title>
+</head>
+<body>
+    <h1>Scenario 6: Form Validation (aria-invalid - In-Scope)</h1>
+    
+    <form>
+        <input id="email-input" type="email" aria-invalid="false" />
+        <button id="validate-btn" type="button">Validate</button>
+        <div id="error-msg"></div>
+    </form>
+
+    <script>
+        document.getElementById('validate-btn').addEventListener('click', () => {
+            const input = document.getElementById('email-input');
+            const isValid = input.value.includes('@');
+            
+            if (!isValid) {
+                input.setAttribute('aria-invalid', 'true');
+                document.getElementById('error-msg').textContent = 'Invalid email address';
+            } else {
+                input.setAttribute('aria-invalid', 'false');
+                document.getElementById('error-msg').textContent = '';
+            }
+        });
+
+        // VERAX promise: "Click validate-btn may change aria-invalid and error message"
+        // USER PERCEPTION: "Form shows validation feedback (red border, error message)"
+        // TRUST QUESTION: Does VERAX correctly detect aria-invalid changes?
+    </script>
+</body>
+</html>

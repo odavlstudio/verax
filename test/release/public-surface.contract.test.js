@@ -26,18 +26,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, '../../');
 
 test('PUBLIC SURFACE CONTRACT: Only documented commands exposed', async (suite) => {
-  // Contract: Public commands are exactly these (includes latest additions)
+  // Contract: Public commands are exactly these (documented in help, not frozen)
+  // Note: diagnose, explain, stability, stability-run, triage, clean, gate are FROZEN
+  // (not public) - they reject with exit 64 and freeze notice
   const PUBLIC_COMMANDS = [
     'run',
     'inspect',
     'doctor',
-    'diagnose',
-    'explain',
-    'stability',
-    'stability-run',
-    'triage',
-    'clean',
-    'gate',
   ];
   
   // Contract: These commands were removed in Stage 5 (not part of VERAX 1.0 vision)

@@ -5,7 +5,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'fs';
 import { join, resolve } from 'path';
 import { tmpdir } from 'os';
 import { loadPolicy, validatePolicy, isIgnored, findDowngradeRule, applyPolicy, filterSuppressed, countNonSuppressedFindings } from '../src/cli/util/policy/policy-loader.js';

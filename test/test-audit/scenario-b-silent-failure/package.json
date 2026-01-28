@@ -1,0 +1,5 @@
+{
+  "name": "scenario-b-silent-failure",
+  "version": "1.0.0",
+  "description": "True Silent Failure - Promise + Action + NO Acknowledgment"
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test 3: Out-of-Scope - Spinner (aria-hidden)</title>
+</head>
+<body>
+  <h1>Test 3: Out-of-Scope Detection - Spinner with aria-hidden</h1>
+  <p>This tests whether VERAX correctly marks spinner visibility as OUT-OF-SCOPE and does NOT report a false positive.</p>
+  
+  <button id="load-btn">Load Data (Shows Spinner)</button>
+  <div id="spinner" style="display: none;" aria-hidden="true" role="status">
+    <span>Loading...</span>
+  </div>
+  <div id="content">Initial content</div>
+
+  <script>
+    document.getElementById('load-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      // PROMISE: Button click → load data (vague promise in code)
+      // IMPLEMENTATION: Shows spinner via display:none/block + aria-hidden
+      // VERAX SHOULD: Mark this as out-of-scope (visual-only feedback)
+      const spinner = document.getElementById('spinner');
+      spinner.style.display = 'block';
+      spinner.setAttribute('aria-hidden', 'false');
+      
+      setTimeout(() => {
+        spinner.style.display = 'none';
+        spinner.setAttribute('aria-hidden', 'true');
+        document.getElementById('content').textContent = 'Data loaded';
+      }, 500);
+    });
+  </script>
+</body>
+</html>

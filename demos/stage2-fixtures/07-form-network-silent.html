@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage 2 - Form with Network Promise but No Feedback</title>
+</head>
+<body>
+    <h1>True Silent Failure: Network Promise with No Feedback</h1>
+    <p>Submit the form below. A network request will be made, but NO feedback is shown.</p>
+    
+    <form id="submit-form">
+        <input type="text" id="name-input" placeholder="Enter name" required style="padding: 8px; margin-right: 10px;">
+        <button type="submit">Submit Form</button>
+    </form>
+    
+    <script>
+        document.getElementById('submit-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Make a network request (silent promise)
+            fetch('/api/submit', {
+                method: 'POST',
+                body: JSON.stringify({ name: document.getElementById('name-input').value })
+            }).catch(() => {
+                // Silently catch errors, no user feedback
+                console.log('Request failed silently');
+            });
+            
+            // NO FEEDBACK shown to user - this is a silent failure
+            console.log('Form submitted, request in flight');
+        });
+    </script>
+</body>
+</html>

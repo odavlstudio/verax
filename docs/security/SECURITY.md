@@ -363,7 +363,7 @@ If a patched version introduces regression:
 1. Identify the problematic commit
 2. Revert changes or patch locally
 3. Test regression fix
-4. Release patch version (e.g., 0.5.1 → 0.5.2)
+4. Release patch version (e.g., 0.4.5 → 0.4.6)
 5. Document root cause in release notes
 
 ---
@@ -389,6 +389,6 @@ If a patched version introduces regression:
 ---
 
 **Last Updated:** Gate ENTERPRISE Implementation  
-**Effective:** Version 0.5.1+  
+**Effective:** Version 0.4.5+  
 **Next Review:** Quarterly or upon security event  
 **Status:** Approved for organizational use

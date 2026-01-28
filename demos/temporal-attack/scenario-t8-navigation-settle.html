@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>T8: Navigation Settling</title>
+</head>
+<body>
+  <h1>Temporal Attack T8: Navigation Settle</h1>
+  <p>USER SEES: Message after page interaction settles (700ms)</p>
+  <button id="action-btn">Navigate</button>
+  <div id="feedback"></div>
+
+  <script>
+    // Auto-trigger on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const feedback = document.getElementById('feedback');
+      
+      // Simulate navigation-like delay (after animations, network idle)
+      setTimeout(() => {
+        feedback.textContent = 'Navigation complete - Dashboard loaded';
+      }, 700);
+    });
+  </script>
+</body>
+</html>

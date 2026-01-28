@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test 2: Attribute-Based Feedback (In-Scope)</title>
+</head>
+<body>
+  <h1>Test 2: Attribute-Based Feedback</h1>
+  <p>This tests whether VERAX correctly detects SUCCESS when button click changes aria-invalid or disabled attributes.</p>
+  
+  <form>
+    <input type="email" id="email-field" aria-invalid="false" required>
+    <button id="validate-btn">Validate</button>
+  </form>
+  <div id="status"></div>
+
+  <script>
+    document.getElementById('validate-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      // PROMISE: Form validation feedback via aria-invalid
+      // IMPLEMENTATION: Sets aria-invalid to true and displays text
+      const field = document.getElementById('email-field');
+      const email = field.value;
+      
+      if (!email.includes('@')) {
+        field.setAttribute('aria-invalid', 'true');
+        document.getElementById('status').textContent = 'Invalid email format';
+      } else {
+        field.setAttribute('aria-invalid', 'false');
+        document.getElementById('status').textContent = 'Email is valid';
+      }
+    });
+  </script>
+</body>
+</html>

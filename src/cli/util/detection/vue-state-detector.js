@@ -70,14 +70,14 @@ const traverse = _traverse.default || _traverse;
       }
       
       // Extract v-model="variable" patterns
-      const vModelPattern = /v-model(?::[a-z-]+)?\s*=\s*["\']([a-zA-Z_$][a-zA-Z0-9_$]*)["\']|v-model="([a-zA-Z_$][a-zA-Z0-9_$]*)"/g;
+      const vModelPattern = /v-model(?::[a-z-]+)?\s*=\s*["']([a-zA-Z_$][a-zA-Z0-9_$]*)["']|v-model="([a-zA-Z_$][a-zA-Z0-9_$]*)"/g;
       while ((match = vModelPattern.exec(templateContent)) !== null) {
         const varName = match[1] || match[2];
         if (varName) templateVars.add(varName);
       }
       
       // Extract :value and similar bindings
-      const bindingPattern = /:\w+\s*=\s*["\']([a-zA-Z_$][a-zA-Z0-9_$]*)["\']|:\w+="([a-zA-Z_$][a-zA-Z0-9_$]*)"/g;
+      const bindingPattern = /:\w+\s*=\s*["']([a-zA-Z_$][a-zA-Z0-9_$]*)["']|:\w+="([a-zA-Z_$][a-zA-Z0-9_$]*)"/g;
       while ((match = bindingPattern.exec(templateContent)) !== null) {
         const varName = match[1] || match[2];
         if (varName) templateVars.add(varName);

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 12: Class Change</title>
+    <style>
+        .error { color: red; border: 1px solid red; }
+        .success { color: green; border: 1px solid green; }
+    </style>
+</head>
+<body>
+    <h1>Scenario 12: Class Change (Bootstrap-Like - Out-of-Scope)</h1>
+    
+    <button id="submit-btn">Submit Form</button>
+    <div id="form-status"></div>
+
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', () => {
+            const status = document.getElementById('form-status');
+            status.textContent = 'Form validation result';
+            
+            // Only class changes, no text about validity
+            Math.random() > 0.5 
+                ? status.classList.add('success')
+                : status.classList.add('error');
+        });
+
+        // VERAX promise: "Click submit-btn shows validation result"
+        // USER PERCEPTION: "I see the form status change color (visual feedback)"
+        // TRUST QUESTION: DANGEROUS - Does VERAX report SILENT_FAILURE because it can't see color?
+        // (The text is there, so it shouldn't fail on text detection)
+    </script>
+</body>
+</html>

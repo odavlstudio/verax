@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Silent Failure - Button Promise Broken</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    .container { border: 1px solid #ccc; padding: 20px; max-width: 400px; }
+    button { padding: 10px 20px; background: green; color: white; cursor: pointer; }
+    #status { margin-top: 20px; padding: 10px; display: none; }
+    .pending { background: #fff3cd; }
+    #counter { font-weight: bold; margin: 20px 0; font-size: 24px; }
+  </style>
+</head>
+<body>
+  <h1>Silent Failure Test - THE SILENT KILLER</h1>
+  <p>This button PROMISES to increment the counter, but silently fails.</p>
+  <p style="color: red; font-weight: bold;">⚠️ The button shows loading state but the counter never actually updates.</p>
+  
+  <div class="container">
+    <p>Counter (should increment on button click):</p>
+    <div id="counter">0</div>
+    
+    <button id="incrementBtn">Increment Counter</button>
+    
+    <div id="status" class="pending">
+      <p>Incrementing...</p>
+    </div>
+  </div>
+
+  <script>
+    let counter = 0;
+    
+    document.getElementById('incrementBtn').addEventListener('click', function() {
+      // BUG: We SHOW loading state (promise of action)
+      const statusDiv = document.getElementById('status');
+      statusDiv.style.display = 'block';
+      this.disabled = true;
+      this.textContent = 'Loading...';
+      
+      // But we NEVER actually update the counter
+      // We pretend to make a request, but don't update DOM
+      setTimeout(() => {
+        // SILENT FAILURE: We remove the loading state but DON'T update counter
+        statusDiv.style.display = 'none';
+        this.disabled = false;
+        this.textContent = 'Increment Counter';
+        
+        // BUG: The following line is commented out/missing:
+        // counter++;
+        // document.getElementById('counter').textContent = counter;
+        
+        // User sees the loading animation finished, assumes it worked, but nothing changed
+      }, 1500);
+    });
+  </script>
+</body>
+</html>

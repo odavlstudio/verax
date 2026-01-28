@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 9: Delayed Feedback</title>
+</head>
+<body>
+    <h1>Scenario 9: Delayed Text Feedback (setTimeout)</h1>
+    
+    <button id="async-btn">Start Async Operation</button>
+    <div id="result-area"></div>
+
+    <script>
+        document.getElementById('async-btn').addEventListener('click', () => {
+            // Simulate delay (e.g., debounce, API call, animation)
+            setTimeout(() => {
+                document.getElementById('result-area').textContent = 'Operation completed at ' + new Date().toLocaleTimeString();
+            }, 800);  // 800ms delay
+        });
+
+        // VERAX promise: "Click async-btn produces text in result-area"
+        // USER PERCEPTION: "I wait a bit, then I see the result"
+        // TRUST QUESTION: Does VERAX's observation window catch the delayed feedback?
+        // Or does it report SILENT_FAILURE incorrectly?
+    </script>
+</body>
+</html>

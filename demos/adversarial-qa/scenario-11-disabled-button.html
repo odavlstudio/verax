@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 11: disabled Attribute</title>
+</head>
+<body>
+    <h1>Scenario 11: Button Disabled State (In-Scope)</h1>
+    
+    <button id="submit-btn">Submit</button>
+    <div id="feedback"></div>
+
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', () => {
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            document.getElementById('feedback').textContent = 'Request sent at ' + new Date().toLocaleTimeString();
+        });
+
+        // VERAX promise: "Click submit-btn disables button and shows feedback"
+        // USER PERCEPTION: "Button becomes disabled and grayed out, message appears"
+        // TRUST QUESTION: Does VERAX correctly detect disabled attribute change?
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage 2 - Aria Invalid Attribute</title>
+</head>
+<body>
+    <h1>In-Scope: aria-invalid Attribute Toggle</h1>
+    <p>Type in the input below and click validate to toggle aria-invalid state.</p>
+    
+    <input id="email-input" type="email" placeholder="Enter email" style="padding: 8px; margin-right: 10px;">
+    <button id="validate-btn">Validate</button>
+    
+    <script>
+        document.getElementById('validate-btn').addEventListener('click', function() {
+            const input = document.getElementById('email-input');
+            const value = input.value;
+            
+            if (!value.includes('@')) {
+                input.setAttribute('aria-invalid', 'true');
+                console.log('Input marked as invalid');
+            } else {
+                input.setAttribute('aria-invalid', 'false');
+                console.log('Input marked as valid');
+            }
+        });
+    </script>
+</body>
+</html>

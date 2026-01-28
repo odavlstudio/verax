@@ -35,6 +35,8 @@ async function detectFindings(learnData, observeData, _projectRoot, _onProgress)
       SUSPECTED: validatedFindings.filter(f => f.status === 'SUSPECTED').length,
       INFORMATIONAL: validatedFindings.filter(f => f.status === 'INFORMATIONAL').length,
     },
+    // SCOPE AWARENESS v1.0: Count out-of-scope feedback
+    outOfScope: validatedFindings.filter(f => f.enrichment?.scopeClassification === 'out-of-scope').length,
     enforcement: {
       dropped,
       downgraded

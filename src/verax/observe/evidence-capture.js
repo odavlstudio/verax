@@ -7,9 +7,15 @@ import { defaultSecurityPolicy } from '../core/evidence-security-policy.js';
  * GATE 4: Apply deterministic screenshot redaction.
  * Masks sensitive fields (password, email, tel, text) before screenshot is written to disk.
  * Uses Playwright locator masking to blur fields without modifying layout.
+ * 
+ * Redaction is controlled by the VERAX_REDACT environment variable:
+ * - VERAX_REDACT=true (default): Redaction enabled
+ * - VERAX_REDACT=false: Redaction disabled (only in testing)
  */
 async function redactScreenshot(page, _options = {}) {
-  if (!defaultSecurityPolicy.screenshotRedaction.enabled) {
+  // Check environment variable configuration: defaults to true (redaction enabled)
+  const redactEnabled = process.env.VERAX_REDACT !== 'false' && defaultSecurityPolicy.screenshotRedaction.enabled;
+  if (!redactEnabled) {
     return;  // No redaction needed
   }
 

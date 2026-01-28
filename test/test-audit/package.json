@@ -1,0 +1,6 @@
+{
+  "name": "verax-audit-fixtures",
+  "version": "1.0.0",
+  "description": "Test fixtures for VERAX external audit",
+  "type": "module"
+}

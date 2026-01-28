@@ -29,7 +29,6 @@ import { isFirstRun } from './util/support/first-run-detection.js';
 import { VERSION, getVersionString, getVersionInfo } from '../version.js';
 
 const FROZEN_COMMANDS = new Set([
-  'doctor',
   'diagnose',
   'explain',
   'stability',
@@ -51,6 +50,11 @@ async function loadRunCommand() {
 async function loadInspectCommand() {
   const mod = await import('./commands/inspect.js');
   return mod.inspectCommand;
+}
+
+async function loadDoctorCommand() {
+  const mod = await import('../verax/cli/doctor.js');
+  return mod;
 }
 
 // Read package.json for version
@@ -160,6 +164,17 @@ async function main() {
     } else if (command === 'inspect') {
       commandExecuted = true;
       outcomePayload = await handleInspectCommand(args, { debug });
+    } else if (command === 'doctor') {
+      commandExecuted = true;
+      const json = args.includes('--json');
+      const extraFlags = args.slice(1).filter((flag) => flag !== '--json');
+      if (extraFlags.length > 0) {
+        throw new UsageError(`Unknown flag(s): ${extraFlags.join(', ')}`);
+      }
+      const { runDoctor, printDoctorResults } = await loadDoctorCommand();
+      const result = await runDoctor({ projectRoot: process.cwd(), json });
+      printDoctorResults(result, json);
+      process.exit(EXIT_CODES.SUCCESS);
     } else if (command === 'help' || command === '--help' || command === '-h') {
       commandExecuted = true;
       const topic = args[1];
@@ -218,6 +233,7 @@ VERAX — Silent failure detection for websites
 USAGE:
   verax run --url <url> [options]              Run scan on a URL
   verax inspect <runPath> [--json]             Inspect an existing run
+  verax doctor [--json]                        Diagnose local environment
 
 OPTIONS:
   --url <url>                    Target URL to scan
@@ -509,6 +525,13 @@ async function handleRunCommand(args, { debug = false } = {}) {
     reason: 'Run completed',
     action: 'Review artifacts',
   });
+
+  // TRUST FIX 2: Ensure outcome exitCode matches result exitCode (single source of truth)
+  // If result has an outcome, the outcome's exitCode is authoritative
+  // If building fallback outcome, use result.exitCode
+  if (result?.outcome && result?.exitCode !== undefined && result.outcome.exitCode !== result.exitCode) {
+    console.error(`[WARN] Exit code mismatch: outcome=${result.outcome.exitCode}, result=${result.exitCode}. Using outcome exitCode.`);
+  }
 
   return { outcome, emit: true, json };
 

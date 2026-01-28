@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage 2 - CSS-Only Opacity Change (Out of Scope)</title>
+</head>
+<body>
+    <h1>Out-of-Scope: CSS-Only Opacity Change</h1>
+    <p>This test verifies that VERAX does NOT report a silent failure for CSS-only visual changes.</p>
+    
+    <button id="fade-btn">Fade Button</button>
+    <div id="fade-region" style="margin-top: 20px; opacity: 1; transition: opacity 0.3s;">
+        This region will fade but has NO semantic feedback
+    </div>
+    
+    <script>
+        document.getElementById('fade-btn').addEventListener('click', function() {
+            const region = document.getElementById('fade-region');
+            region.style.opacity = region.style.opacity == 1 ? 0.3 : 1;
+            console.log('Opacity changed only');
+        });
+    </script>
+</body>
+</html>

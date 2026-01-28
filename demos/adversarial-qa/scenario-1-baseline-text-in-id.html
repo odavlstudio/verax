@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 1: Baseline Text in ID</title>
+</head>
+<body>
+    <h1>Scenario 1: Baseline Text Feedback (Should PASS)</h1>
+    
+    <button id="ping-btn">Send Ping</button>
+    <div id="pong-result"></div>
+
+    <script>
+        document.getElementById('ping-btn').addEventListener('click', () => {
+            // Genuine text feedback in id element
+            document.getElementById('pong-result').textContent = 'Ping acknowledged at ' + new Date().toLocaleTimeString();
+        });
+
+        // VERAX promise: "Click ping-btn produces text in pong-result"
+    </script>
+</body>
+</html>

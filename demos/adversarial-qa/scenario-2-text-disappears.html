@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 2: Text Disappears</title>
+</head>
+<body>
+    <h1>Scenario 2: Ephemeral Text Feedback (Appears then Disappears)</h1>
+    
+    <button id="flash-btn">Show Flash Message</button>
+    <div id="flash-message"></div>
+
+    <script>
+        document.getElementById('flash-btn').addEventListener('click', () => {
+            // Text appears briefly then disappears
+            const msg = document.getElementById('flash-message');
+            msg.textContent = 'Message appeared!';
+            setTimeout(() => {
+                msg.textContent = '';  // Clear after 1.5s
+            }, 1500);
+        });
+
+        // VERAX promise: "Click flash-btn produces feedback in flash-message"
+        // USER PERCEPTION: "I see the message, even though it disappears"
+        // TRUST QUESTION: Does VERAX correctly capture the text before it vanishes?
+    </script>
+</body>
+</html>

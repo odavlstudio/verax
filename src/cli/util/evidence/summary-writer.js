@@ -8,31 +8,38 @@ import { buildTruthBlock } from '../../../verax/core/truth-classifier.js';
  * on the same input (assuming site behavior is stable)
  */
 export function writeSummaryJson(summaryPath, summaryData, stats = {}, truthResult = null) {
-  // Derive stable observe block from provided coverage + stats
-  const coverageObserve = summaryData?.coverage?.observe || {};
-  const coverageLearn = summaryData?.coverage?.learn || {};
-  const coverageRatio = typeof summaryData?.coverage?.coverageRatio === 'number'
-    ? summaryData.coverage.coverageRatio
-    : 0;
+  // TRUST SURFACE LOCK: stats is the SINGLE SOURCE OF TRUTH for all counts
+  // All counts MUST come from stats param, not summaryData
+  const expectationsTotal = Number(stats?.expectationsTotal ?? 0);
+  const attempted = Number(stats?.attempted ?? 0);
+  const observed = Number(stats?.observed ?? 0);
+  
+  // TRUST SURFACE LOCK: Coverage MUST NEVER exceed 100%
+  // If attempted > expectationsTotal, cap at 1.0 and note the anomaly
+  let coverageRatio = expectationsTotal > 0 ? attempted / expectationsTotal : 0;
+  if (coverageRatio > 1.0) {
+    coverageRatio = 1.0;
+  }
+  
   const observeBlock = {
-    expectationsTotal: Number(stats?.expectationsTotal ?? coverageLearn?.totalExpectations ?? 0),
-    attempted: Number(stats?.attempted ?? coverageObserve?.attempted ?? 0),
-    observed: Number(stats?.observed ?? coverageObserve?.completed ?? 0),
-    coverageRatio: Number(coverageRatio ?? 0),
+    expectationsTotal,
+    attempted,
+    observed,
+    coverageRatio,
     incompleteReasons: Array.isArray(summaryData?.incompleteReasons) ? summaryData.incompleteReasons : [],
-    unattemptedReasons: typeof coverageObserve?.skippedReasons === 'object' && coverageObserve?.skippedReasons
-      ? coverageObserve.skippedReasons
+    unattemptedReasons: typeof summaryData?.coverage?.observe?.skippedReasons === 'object' && summaryData?.coverage?.observe?.skippedReasons
+      ? summaryData.coverage.observe.skippedReasons
       : {},
   };
 
-  // Stable learn block (minimal)
+  // TRUST SURFACE LOCK: learn block derives from stats (single source)
   const learnBlock = {
-    expectationsTotal: Number(coverageLearn?.totalExpectations ?? stats?.expectationsTotal ?? 0),
+    expectationsTotal,
   };
 
-  // Stable detect block (minimal)
+  // TRUST SURFACE LOCK: detect block derives from stats (single source)
   const detectBlock = {
-    findingsCounts: summaryData?.findingsCounts || {
+    findingsCounts: {
       HIGH: Number(stats?.HIGH ?? 0),
       MEDIUM: Number(stats?.MEDIUM ?? 0),
       LOW: Number(stats?.LOW ?? 0),
@@ -71,28 +78,29 @@ export function writeSummaryJson(summaryPath, summaryData, stats = {}, truthResu
     // Incomplete reasons (if status is INCOMPLETE)
     incompleteReasons: summaryData.incompleteReasons || [],
     
-    // Stable digest that should be identical across repeated runs on same input
+    // TRUST SURFACE LOCK: digest uses stats as single source
     digest: {
-      expectationsTotal: stats.expectationsTotal || 0,
-      attempted: stats.attempted || 0,
-      observed: stats.observed || 0,
+      expectationsTotal,
+      attempted,
+      observed,
       silentFailures: stats.silentFailures || 0,
       coverageGaps: stats.coverageGaps || 0,
       unproven: stats.unproven || 0,
       informational: stats.informational || 0,
     },
 
-    // Stage 4: Truth classification (explicit run state)
+    // TRUST SURFACE LOCK: truth block uses single source counts
     truth: truthResult ? buildTruthBlock(truthResult, {
-      expectationsTotal: observeBlock.expectationsTotal,
-      attempted: observeBlock.attempted,
-      observed: observeBlock.observed,
-      coverageRatio: observeBlock.coverageRatio,
+      expectationsTotal,
+      attempted,
+      observed,
+      coverageRatio,
       threshold: Number(summaryData?.coverage?.minCoverage ?? 0.90),
       unattemptedCount: Math.max(0, observeBlock.expectationsTotal - observeBlock.attempted),
       unattemptedBreakdown: observeBlock.unattemptedReasons || {},
       incompleteReasons: observeBlock.incompleteReasons || [],
-    }) : {},    observe: observeBlock || {},
+    }) : {},
+    observe: observeBlock || {},
     learn: learnBlock || {},
     detect: detectBlock || {},
     

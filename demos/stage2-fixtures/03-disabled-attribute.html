@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage 2 - Disabled Attribute Toggle</title>
+</head>
+<body>
+    <h1>In-Scope: disabled Attribute Toggle</h1>
+    <p>Click the button below to disable a submit button, showing loading state.</p>
+    
+    <button id="action-btn">Process Request</button>
+    <button id="submit-btn" style="margin-left: 10px;">Submit</button>
+    
+    <script>
+        document.getElementById('action-btn').addEventListener('click', function() {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            console.log('Submit button disabled');
+            
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

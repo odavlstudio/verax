@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>T7: Multiple Changes Before Settle</title>
+</head>
+<body>
+  <h1>Temporal Attack T7: Multiple Changes</h1>
+  <p>USER SEES: Loading → Processing → Success (3 text changes)</p>
+  <button id="action-btn">Process</button>
+  <div id="feedback"></div>
+
+  <script>
+    // Auto-trigger on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const feedback = document.getElementById('feedback');
+      
+      // Multiple rapid changes
+      feedback.textContent = 'Loading...';
+      
+      setTimeout(() => {
+        feedback.textContent = 'Processing request...';
+      }, 200);
+      
+      setTimeout(() => {
+        feedback.textContent = 'Request completed successfully';
+      }, 600);
+    });
+  </script>
+</body>
+</html>

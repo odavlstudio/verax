@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>T1: Brief Flash (100ms)</title>
+</head>
+<body>
+  <h1>Temporal Attack T1: Brief Flash</h1>
+  <p>USER SEES: Success message appears for 100ms then disappears</p>
+  <button id="action-btn">Submit</button>
+  <div id="feedback"></div>
+
+  <script>
+    // Auto-trigger on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const feedback = document.getElementById('feedback');
+      
+      // Flash message for 100ms
+      feedback.textContent = 'Success! Form submitted';
+      
+      setTimeout(() => {
+        feedback.textContent = '';
+      }, 100);
+    });
+  </script>
+</body>
+</html>

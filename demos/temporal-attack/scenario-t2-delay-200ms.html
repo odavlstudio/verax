@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>T2: Delayed 200ms</title>
+</head>
+<body>
+  <h1>Temporal Attack T2: 200ms Delay</h1>
+  <p>USER SEES: Success message appears after 200ms</p>
+  <button id="action-btn">Submit</button>
+  <div id="feedback"></div>
+
+  <script>
+    // Auto-trigger on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const feedback = document.getElementById('feedback');
+      
+      // Delay feedback by 200ms
+      setTimeout(() => {
+        feedback.textContent = 'Request processed successfully';
+      }, 200);
+    });
+  </script>
+</body>
+</html>

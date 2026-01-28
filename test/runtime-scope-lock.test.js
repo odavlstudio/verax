@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import { strict as assert } from 'assert';
 import { PageFrontier } from '../src/verax/observe/page-reachability-tracker.js';
 import { ScopePolicy } from '../src/verax/core/scope-policy.js';
+import { getTimeProvider } from '../src/cli/util/support/time-provider.js';
 
 /**
  * RUNTIME SCOPE LOCK TESTS
@@ -19,7 +20,7 @@ describe('Runtime Scope Lock - PageFrontier Integration', () => {
     maxUniqueUrls: 100,
     maxExpectations: 100
   };
-  const startTime = Date.now();
+  const startTime = getTimeProvider().now();
 
   // Test 1: Auth URLs not enqueued at runtime
   it('should skip auth URLs at runtime with scope-policy', () => {

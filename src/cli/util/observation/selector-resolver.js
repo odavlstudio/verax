@@ -52,7 +52,8 @@ export async function resolveSelector(page, promise) {
 async function trySelectorVariants(page, baseSelector) {
   const variants = [
     baseSelector,
-    baseSelector.replace(/button:contains/, 'button:has-text'),
+    // Fix: Replace :contains() with Playwright-compatible :has-text()
+    baseSelector.replace(/button:contains\(([^)]+)\)/, 'button:has-text($1)'),
     baseSelector.replace(/"/g, "'"),
   ];
   
@@ -83,39 +84,47 @@ async function resolveButtonSelector(page, promise) {
     if (result.found) return result;
   }
   
-  // Try all button variants
-  const selectors = [
-    'button[onClick]',
-    'button',
-    '[role="button"][onClick]',
-    '[role="button"]',
-  ];
+  // Extract expected button text from promise
+  const buttonText = promise.promise?.value || promise.value || null;
   
-  for (const selector of selectors) {
+  // P0 FIX: If we have button text, ONLY match by text - never fall back to generic selector
+  if (buttonText) {
     try {
-      const count = await page.locator(selector).count();
+      // Try exact text match with button element
+      const textSelector = `button:has-text("${buttonText}")`;
+      const count = await page.locator(textSelector).count();
       if (count === 1) {
-        return { found: true, selector };
+        return { found: true, selector: textSelector };
       }
-      if (count > 0) {
-        // Multiple buttons - try to narrow down by content
-        const buttons = await page.locator(selector).all();
+      if (count > 1) {
+        // Multiple buttons with same text - try to disambiguate with id or data-testid
+        const buttons = await page.locator(textSelector).all();
         for (const btn of buttons) {
-          const text = await btn.textContent();
-          if (text && (text.includes('Save') || text.includes('Submit') || text.includes('Click'))) {
-            const specific = `${selector}:has-text("${text.trim()}")`;
-            const count = await page.locator(specific).count();
-            if (count === 1) {
-              return { found: true, selector: specific };
-            }
+          const id = await btn.getAttribute('id');
+          const testId = await btn.getAttribute('data-testid');
+          if (id) {
+            return { found: true, selector: `button#${id}:has-text("${buttonText}")` };
+          }
+          if (testId) {
+            return { found: true, selector: `button[data-testid="${testId}"]:has-text("${buttonText}")` };
           }
         }
+        return { found: false, selector: textSelector, reason: 'ambiguous-selector' };
+      }
+      
+      // Try with role="button"
+      const roleSelector = `[role="button"]:has-text("${buttonText}")`;
+      const roleCount = await page.locator(roleSelector).count();
+      if (roleCount === 1) {
+        return { found: true, selector: roleSelector };
       }
     } catch (e) {
-      // Try next
+      // Fall through to not-found
     }
   }
   
+  // P0 FIX: NEVER fall back to generic 'button' selector without disambiguation
+  // If we can't find the specific button, mark as not-found (incomplete) rather than clicking wrong button
   return { found: false, selector: null, reason: 'not-found' };
 }
 

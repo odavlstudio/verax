@@ -66,7 +66,7 @@ test('SCOPE ENFORCEMENT | --auth-mode strict without --force-post-auth throws US
   assert.match(result.stderr, /OUT OF SCOPE/, 'Should reject non-auto auth mode');
 });
 
-test('SCOPE ENFORCEMENT | --force-post-auth prints loud warnings', (t) => {
+test('SCOPE ENFORCEMENT | --force-post-auth prints loud warnings', (_t) => {
   // Note: This test will fail in actual runtime because server isn't running
   // We're verifying the warning is printed before server connection
   const result = runVeraxSync([
@@ -88,7 +88,7 @@ test('SCOPE ENFORCEMENT | --force-post-auth prints loud warnings', (t) => {
     'Should disclaim trust guarantees');
 });
 
-test('SCOPE ENFORCEMENT | post-auth mode forces INCOMPLETE result', async (t) => {
+test('SCOPE ENFORCEMENT | post-auth mode forces INCOMPLETE result', async (_t) => {
   // Static enforcement check to avoid needing a live server; this asserts the
   // contract in the code path that writes final artifacts.
   
@@ -110,7 +110,7 @@ test('SCOPE ENFORCEMENT | post-auth mode forces INCOMPLETE result', async (t) =>
   assert.match(postAuthBlock[0], /recommendedAction/, 'Should include remediation guidance');
 });
 
-test('SCOPE ENFORCEMENT | Vision.md documents pre-auth scope', async (t) => {
+test('SCOPE ENFORCEMENT | Vision.md documents pre-auth scope', async (_t) => {
   const visionPath = resolve(ROOT, 'docs/VISION.md');
   const { readFileSync } = await import('fs');
   const vision = readFileSync(visionPath, 'utf-8');

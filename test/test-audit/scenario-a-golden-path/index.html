@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCENARIO A - Golden Path (aria-live feedback)</title>
+</head>
+<body>
+    <h1>SCENARIO A: Golden Path - aria-live Text Feedback</h1>
+    <p>Promise: Click button to get feedback. Action: User clicks. Outcome: Text appears in aria-live region.</p>
+    
+    <button id="submit-btn">Submit Form</button>
+    <div id="feedback-region" aria-live="polite" style="margin-top: 20px; padding: 10px; border: 1px solid green;">
+        Waiting for action...
+    </div>
+    
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', function() {
+            const feedback = document.getElementById('feedback-region');
+            feedback.textContent = 'Form submitted successfully!';
+            console.log('Button clicked, feedback updated');
+        });
+    </script>
+</body>
+</html>

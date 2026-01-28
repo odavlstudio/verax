@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test 7: Delayed Feedback (Timing Test)</title>
+</head>
+<body>
+  <h1>Test 7: Delayed Feedback</h1>
+  <p>This tests whether VERAX correctly detects delayed text feedback (e.g., after API call simulation).</p>
+  
+  <button id="delayed-btn">Submit (500ms delay)</button>
+  <div id="delayed-feedback" aria-live="polite" role="alert"></div>
+
+  <script>
+    document.getElementById('delayed-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      // PROMISE: Click → feedback
+      // IMPLEMENTATION: Feedback appears after 500ms delay (simulating API)
+      // VERAX SHOULD: Still detect this if observation window is long enough
+      setTimeout(() => {
+        document.getElementById('delayed-feedback').textContent = 'Success after delay';
+      }, 500);
+    });
+  </script>
+</body>
+</html>

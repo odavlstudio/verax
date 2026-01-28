@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 8: aria-hidden (Out-of-Scope)</title>
+</head>
+<body>
+    <h1>Scenario 8: Menu Toggle (aria-hidden - Out-of-Scope)</h1>
+    
+    <button id="menu-btn" aria-expanded="false">Menu</button>
+    <ul id="menu" aria-hidden="true">
+        <li>Option 1</li>
+        <li>Option 2</li>
+    </ul>
+
+    <script>
+        document.getElementById('menu-btn').addEventListener('click', () => {
+            const menu = document.getElementById('menu');
+            const isHidden = menu.getAttribute('aria-hidden') === 'true';
+            
+            if (isHidden) {
+                menu.setAttribute('aria-hidden', 'false');
+                document.getElementById('menu-btn').setAttribute('aria-expanded', 'true');
+            } else {
+                menu.setAttribute('aria-hidden', 'true');
+                document.getElementById('menu-btn').setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // VERAX promise: "Click menu-btn toggles menu"
+        // USER PERCEPTION: "I see the menu appear/disappear visually and structurally"
+        // TRUST QUESTION: DANGEROUS - Does VERAX report SILENT_FAILURE because it can't see aria-hidden?
+        // Or correctly classify as OUT-OF-SCOPE with explanation?
+    </script>
+</body>
+</html>

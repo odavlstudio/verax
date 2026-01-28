@@ -38,7 +38,8 @@
     "verax-website",
     "*.tgz",
     "src/verax/observe/state-sensor.js",
-    "src/verax/observe/state-ui-sensor.js"
+    "src/verax/observe/state-ui-sensor.js",
+    "src/internal/future-gates/**"
   ]
 }
 

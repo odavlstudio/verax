@@ -42,7 +42,7 @@ import { evaluateFrameworkSupport } from '../../verax/core/framework-support.js'
 import { mapFailureReasons } from '../../verax/core/failures/failure-mode-matrix.js';
 import { classifyRunTruth, buildTruthBlock, formatTruthAsText } from '../../verax/core/truth-classifier.js';
 import { VERSION } from '../../version.js';
-import { logV1RuntimeSeal, printV1RuntimeSummary } from '../../verax/core/v1-runtime-seal.js';
+import { logV1RuntimeSeal, printV1RuntimeSummary } from '../../internal/future-gates/v1-runtime-seal.js';
 import { loadEnterprisePolicy, isRedactionDisabled } from '../config/enterprise-policy.js';
 import { createRunManifest } from '../util/support/run-manifest.js';
 
@@ -1097,7 +1097,7 @@ export async function runCommand(options) {
     explainExpectations = false,
     dryLearn = false,
     sourceMode = 'provided', // 'provided' | 'auto-detected' | 'not-detected'
-    forcePostAuth = false, // SCOPE ENFORCEMENT: post-auth acknowledgement
+    forcePostAuth: _forcePostAuth = false, // SCOPE ENFORCEMENT: post-auth acknowledgement
     hasAuthFlags = false, // SCOPE ENFORCEMENT: auth flags provided
   } = options;
 
@@ -1112,7 +1112,10 @@ export async function runCommand(options) {
   };
   
   validateUrl(url);
-  const { projectRoot, srcPath, missing } = resolveAndValidateSrcPath(src, true);
+  // If source was explicitly provided via --src flag, it MUST exist (no allowMissing)
+  // If source was auto-detected or not-detected, allow missing (limited mode)
+  const allowMissing = sourceMode !== 'provided';
+  const { projectRoot, srcPath, missing } = resolveAndValidateSrcPath(src, allowMissing);
   const isLimitedMode = sourceMode === 'not-detected' || missing;
   
   // Load enterprise policy (GATE ENTERPRISE)
@@ -1239,7 +1242,8 @@ export async function runCommand(options) {
 
     if (expectations.length === 0) {
       throw new UsageError('No observable user-facing promises were found in the provided source.\nVERAX requires frontend code with navigation, forms, or interactive UI.');
-    }    // Skip in test mode or when json output is requested
+    }
+    // Skip in test mode or when json output is requested
     if (!json && !process.env.VERAX_TEST_MODE) {
       try {
         const alignmentResult = await checkExpectationAlignment(expectations, url);

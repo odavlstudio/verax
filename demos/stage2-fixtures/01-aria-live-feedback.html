@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage 2 - Aria Live Text Update</title>
+</head>
+<body>
+    <h1>In-Scope: aria-live Text Update</h1>
+    <p>Click the button below to update the aria-live region with feedback text.</p>
+    
+    <button id="submit-btn">Submit Form</button>
+    <div id="feedback-region" aria-live="polite" style="margin-top: 20px; padding: 10px; border: 1px solid green;">
+        Waiting for action...
+    </div>
+    
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', function() {
+            const feedback = document.getElementById('feedback-region');
+            feedback.textContent = 'Form submitted successfully!';
+            console.log('Button clicked, feedback updated');
+        });
+    </script>
+</body>
+</html>

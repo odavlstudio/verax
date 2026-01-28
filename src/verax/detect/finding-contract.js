@@ -172,6 +172,11 @@ export function canonicalizeFinding(rawFinding) {
   if (rawFinding.enrichment?.promise_source !== undefined) enrichment.promise_source = rawFinding.enrichment.promise_source;
   if (rawFinding.enrichment?.file !== undefined) enrichment.file = rawFinding.enrichment.file;
   if (rawFinding.enrichment?.line !== undefined) enrichment.line = rawFinding.enrichment.line;
+  // SCOPE AWARENESS v1.0: Include scope classification and explanation
+  if (rawFinding.scopeClassification !== undefined) enrichment.scopeClassification = rawFinding.scopeClassification;
+  if (rawFinding.outOfScopeExplanation !== undefined) enrichment.outOfScopeExplanation = rawFinding.outOfScopeExplanation;
+  if (rawFinding.enrichment?.scopeClassification !== undefined) enrichment.scopeClassification = rawFinding.enrichment.scopeClassification;
+  if (rawFinding.enrichment?.outOfScopeExplanation !== undefined) enrichment.outOfScopeExplanation = rawFinding.enrichment.outOfScopeExplanation;
 
   // Create canonical finding
   const canonical = {

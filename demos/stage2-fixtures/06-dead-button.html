@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage 2 - Dead Button (Silent Failure)</title>
+</head>
+<body>
+    <h1>True Silent Failure: Dead Button</h1>
+    <p>Click the button below, but it has NO event handler - no feedback expected per Vision.</p>
+    
+    <button id="dead-btn">Submit Request (No Handler)</button>
+    <p id="result" style="margin-top: 20px; color: #666;">No action taken when button clicked</p>
+    
+    <script>
+        // Intentionally NO click handler - button does nothing
+        console.log('Page loaded: Button has no handler');
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 4: aria-live Region</title>
+</head>
+<body>
+    <h1>Scenario 4: ARIA Live Region Update (In-Scope)</h1>
+    
+    <button id="notify-btn">Send Notification</button>
+    <div id="live-region" aria-live="polite" aria-atomic="true"></div>
+
+    <script>
+        document.getElementById('notify-btn').addEventListener('click', () => {
+            // Text in aria-live region - should be in-scope
+            document.getElementById('live-region').textContent = 'Notification: Operation completed at ' + new Date().toLocaleTimeString();
+        });
+
+        // VERAX promise: "Click notify-btn produces text in aria-live region"
+        // USER PERCEPTION: "I see the notification in the live region (screen reader also announces it)"
+        // TRUST QUESTION: Does VERAX treat aria-live regions correctly?
+    </script>
+</body>
+</html>

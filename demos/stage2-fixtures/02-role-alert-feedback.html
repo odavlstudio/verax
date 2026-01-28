@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage 2 - Role Alert Text Update</title>
+</head>
+<body>
+    <h1>In-Scope: role="alert" Text Update</h1>
+    <p>Click the button below to update the alert region with error text.</p>
+    
+    <button id="validate-btn">Validate Input</button>
+    <div id="alert-region" role="alert" style="margin-top: 20px; padding: 10px; border: 1px solid red; display: none;">
+        Error: This field is required
+    </div>
+    
+    <script>
+        document.getElementById('validate-btn').addEventListener('click', function() {
+            const alert = document.getElementById('alert-region');
+            alert.style.display = 'block';
+            alert.textContent = 'Error: Invalid email format';
+            console.log('Validation button clicked, alert shown');
+        });
+    </script>
+</body>
+</html>

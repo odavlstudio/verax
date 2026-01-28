@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>T3: Delayed 500ms</title>
+</head>
+<body>
+  <h1>Temporal Attack T3: 500ms Delay</h1>
+  <p>USER SEES: Success message appears after 500ms</p>
+  <button id="action-btn">Load Data</button>
+  <div id="feedback"></div>
+
+  <script>
+    // Auto-trigger on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const feedback = document.getElementById('feedback');
+      
+      // Delay feedback by 500ms (common API response time)
+      setTimeout(() => {
+        feedback.textContent = 'Data loaded: 42 records found';
+      }, 500);
+    });
+  </script>
+</body>
+</html>

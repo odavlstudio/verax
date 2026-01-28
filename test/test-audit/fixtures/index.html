@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>VERAX Audit Test Suite</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.6; margin: 20px; }
+    .test { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+    a { color: blue; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>VERAX Audit Test Suite</h1>
+  <p>Collection of test pages to verify VERAX detection accuracy and scope handling.</p>
+  
+  <div class="test">
+    <h2>Test 1: Text-Based Feedback (In-Scope)</h2>
+    <p>Button click produces text in aria-live region</p>
+    <p><strong>Expected:</strong> PASS (no findings)</p>
+    <a href="test-1-text-feedback.html">Run Test 1</a>
+  </div>
+
+  <div class="test">
+    <h2>Test 2: Attribute-Based Feedback (In-Scope)</h2>
+    <p>Form validation changes aria-invalid attribute</p>
+    <p><strong>Expected:</strong> PASS (no findings)</p>
+    <a href="test-2-attribute-feedback.html">Run Test 2</a>
+  </div>
+
+  <div class="test">
+    <h2>Test 3: Out-of-Scope - Spinner</h2>
+    <p>Button click toggles spinner visibility via display:none</p>
+    <p><strong>Expected:</strong> PASS or INCOMPLETE (visual-only feedback is out-of-scope)</p>
+    <a href="test-3-out-of-scope-spinner.html">Run Test 3</a>
+  </div>
+
+  <div class="test">
+    <h2>Test 4: Navigation Promise</h2>
+    <p>Link click triggers navigation</p>
+    <p><strong>Expected:</strong> PASS (no findings)</p>
+    <a href="test-4-navigation.html">Run Test 4</a>
+  </div>
+
+  <div class="test">
+    <h2>Test 5: Silent Failure - Dead Button</h2>
+    <p>Button with no JavaScript handler</p>
+    <p><strong>Expected:</strong> FINDINGS (confirmed silent failure)</p>
+    <a href="test-5-silent-failure.html">Run Test 5</a>
+  </div>
+
+  <div class="test">
+    <h2>Test 6: Mixed Scope - Text + Spinner</h2>
+    <p>Button provides both text feedback AND spinner</p>
+    <p><strong>Expected:</strong> PASS (text feedback is enough to disprove silence)</p>
+    <a href="test-6-mixed-scope.html">Run Test 6</a>
+  </div>
+
+  <div class="test">
+    <h2>Test 7: Delayed Feedback</h2>
+    <p>Text feedback appears after 500ms delay</p>
+    <p><strong>Expected:</strong> PASS if observation window is sufficient</p>
+    <a href="test-7-delayed-feedback.html">Run Test 7</a>
+  </div>
+</body>
+</html>

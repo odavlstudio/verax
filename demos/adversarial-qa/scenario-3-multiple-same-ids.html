@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adversarial QA Scenario 3: Multiple Same IDs</title>
+</head>
+<body>
+    <h1>Scenario 3: Ambiguous Selector - Multiple Elements with Same ID</h1>
+    
+    <button id="update-btn">Update Status</button>
+    
+    <!-- ANTIPATTERN: Multiple elements with same ID (invalid HTML but happens in real codebases) -->
+    <div id="status">Status 1</div>
+    <div id="status">Status 2</div>
+    <div id="status">Status 3</div>
+
+    <script>
+        document.getElementById('update-btn').addEventListener('click', () => {
+            // querySelector gets FIRST matching element
+            document.getElementById('status').textContent = 'Updated at ' + new Date().toLocaleTimeString();
+        });
+
+        // VERAX promise: "Click update-btn changes element with id=status"
+        // USER PERCEPTION: "I see one of the status divs change"
+        // TRUST QUESTION: Does VERAX know which one actually changed? Does it matter?
+    </script>
+</body>
+</html>

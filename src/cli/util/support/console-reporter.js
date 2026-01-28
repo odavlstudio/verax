@@ -6,7 +6,7 @@
  * - ✔ VERAX finished
  * - ✔ 14 interactions tested
  * - ✖ 3 user problems found (2 HIGH, 1 MEDIUM)
- * - → Open .verax/SUMMARY.md
+ * - → Open .verax/verax-summary.md
  */
 
 /**
@@ -30,13 +30,13 @@ export function formatConsoleOutput(stats) {
   const failuresStr = `${silentFailures} silent failure${silentFailures !== 1 ? 's' : ''}`;
   lines.push(`✓ Scan complete — ${flowsStr} checked, ${failuresStr} found`);
   
-  // Line 2: Point to SUMMARY.md
-  lines.push(`→ See ${outDir}/SUMMARY.md for details`);
+  // Line 2: Point to verax-summary.md
+  lines.push(`→ See ${outDir}/verax-summary.md for details`);
   
   // Line 3: Mention output directory
   lines.push('');
   lines.push(`Output saved to ${outDir}/`);
-  lines.push(`  • SUMMARY.md — Human-readable findings`);
+  lines.push(`  • verax-summary.md — Human-readable findings`);
   lines.push(`  • REPORT.json — Machine-readable results`);
   
   return lines.join('\n');
