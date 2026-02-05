@@ -105,7 +105,7 @@ if (test('META.json schema: required fields present', () => {
     assert(typeof meta.timestamp === 'string', 'Missing or invalid timestamp');
     assert(typeof meta.url === 'string', 'Missing or invalid url');
     assert(typeof meta.src === 'string', 'Missing or invalid src');
-    assert(['COMPLETE', 'INCOMPLETE', 'FAILED'].includes(meta.status), 'Invalid status');
+    assert(['SUCCESS', 'FINDINGS', 'INCOMPLETE'].includes(meta.status), 'Invalid status');
     assert(typeof meta.veraxVersion === 'string', 'Missing veraxVersion');
     assert(typeof meta.stats === 'object', 'Missing stats object');
   }

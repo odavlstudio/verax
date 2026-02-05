@@ -67,11 +67,10 @@ export async function test_cliRunCreatesArtifacts() {
       30000
     );
 
-    // Exit code should be 1 because the fixture contains silent failures
-    // that are now detected by the real detection engine
-    if (result.exitCode !== 1) {
+    // Exit code should be 20 because the fixture contains findings
+    if (result.exitCode !== 20) {
       throw new Error(
-        `Expected exit code 1 (actionable findings detected), got ${result.exitCode}\nstdout: ${result.stdout}\nstderr: ${result.stderr}`
+        `Expected exit code 20 (FINDINGS), got ${result.exitCode}\nstdout: ${result.stdout}\nstderr: ${result.stderr}`
       );
     }
 
@@ -117,7 +116,7 @@ export async function test_cliRunCreatesArtifacts() {
 
     // Verify run.status.json is valid and readable
     const statusJson = JSON.parse(readFileSync(resolvePath(runPath, 'run.status.json'), 'utf-8'));
-    if (statusJson.status !== 'COMPLETE' && statusJson.status !== 'INCOMPLETE') {
+    if (!['SUCCESS', 'FINDINGS', 'INCOMPLETE'].includes(statusJson.status)) {
       throw new Error(`Invalid run status: ${statusJson.status}`);
     }
 
@@ -244,15 +243,13 @@ export async function test_incompleteReturnsExit30() {
  * Test 5: CRITICAL REGRESSION GUARD - Watchdog Exit Code Safety
  * 
  * REQUIREMENT: When watchdog timeout fires, the process MUST exit 30 (INCOMPLETE),
- * not 0 (success) or 40 (infra error).
+ * not 0 (success) or any other non-INCOMPLETE contract code.
  * 
  * Exit codes must follow Stage 7 semantics:
- * - 0 = SUCCESS (no actionable findings)
- * - 10 = NEEDS_REVIEW (suspected findings)
- * - 20 = FAILURE_CONFIRMED (confirmed findings)
- * - 30 = FAILURE_INCOMPLETE (timeout or interrupted)
- * - 40 = INFRA_FAILURE (crash)
- * - 50 = EVIDENCE_LAW_VIOLATION
+ * - 0  = SUCCESS
+ * - 20 = FINDINGS
+ * - 30 = INCOMPLETE
+ * - 50 = INVARIANT_VIOLATION
  * - 64 = USAGE_ERROR
  * 
  * This test verifies the fix: watchdog must exit 30, not 0 or 40.
@@ -267,10 +264,10 @@ export async function test_regressionWatchdogFalseGreen() {
       2000  // short timeout, but still reasonable for test harness startup
     );
 
-    // If the run completes normally (exit 0/10/20), that's OK - no timeout occurred
-    if (result.exitCode === 0 || result.exitCode === 10 || result.exitCode === 20 || result.exitCode === null) {
-      return { passed: true, note: 'Run completed normally without timeout' };
-    }
+     // If the run completes normally (exit 0/20), that's OK - no timeout occurred
+     if (result.exitCode === 0 || result.exitCode === 20 || result.exitCode === null) {
+       return { passed: true, note: 'Run completed normally without timeout' };
+     }
 
     // Exit code 30 is the CORRECT behavior for watchdog timeout (INCOMPLETE)
     if (result.exitCode === 30) {
@@ -295,17 +292,17 @@ export async function test_regressionWatchdogFalseGreen() {
       return { passed: true, note: 'Exit code 30 (INCOMPLETE) for timeout' };
     }
 
-    // Exit code 40 is infra/crash behavior - should not happen for watchdog timeouts
-    if (result.exitCode === 40) {
+    // Exit code 50 is invariant/internal error - should not happen for watchdog timeouts
+    if (result.exitCode === 50) {
       throw new Error(
-        'REGRESSION DETECTED: Watchdog exited 40 instead of 30. ' +
-        'Exit code 40 is reserved for infra crashes, not timeouts. ' +
+        'REGRESSION DETECTED: Watchdog exited 50 instead of 30. ' +
+        'Exit code 50 is reserved for invariants/internal errors, not timeouts. ' +
         'Watchdog must exit 30 for INCOMPLETE runs.'
       );
     }
 
     throw new Error(
-      `Unexpected exit code: ${result.exitCode}. Expected 0, 10, 20, or 30.\nstderr: ${result.stderr}`
+      `Unexpected exit code: ${result.exitCode}. Expected 0, 20, 30, 50, or 64.\nstderr: ${result.stderr}`
     );
   } finally {
     await close();

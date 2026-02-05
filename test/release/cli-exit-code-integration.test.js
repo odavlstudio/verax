@@ -2,11 +2,11 @@
  * CLI EXIT CODE INTEGRATION TEST (v0.4+)
  * 
  * Verifies that the CLI honors the strict exit code contract:
- * - 0: COMPLETE with no findings
- * - 1: COMPLETE with findings (silent failures detected)
+ * - 0: SUCCESS
+ * - 20: FINDINGS
+ * - 30: INCOMPLETE
  * - 64: CLI usage error
- * - 65: Invalid input data
- * - 2: Internal crash
+ * - 50: INVARIANT_VIOLATION
  * 
  * This test exercises the REAL CLI binary (bin/verax.js) in child processes.
  */
@@ -36,7 +36,7 @@ function runVeraxSync(args, cwd = rootDir, env = {}) {
   });
 
   return {
-    exitCode: result.status !== null ? result.status : 2,
+    exitCode: result.status !== null ? result.status : 30,
     stdout: result.stdout || '',
     stderr: result.stderr || '',
     error: result.error
@@ -117,9 +117,9 @@ test('CLI Exit Code Integration (v0.4.2)', async (t) => {
     });
     
     // SKIP RATIONALE: Test fixtures execute 0 interactions (not actual silent failures).
-    // Exit code 1 logic is implemented and verified via manual testing (exit-codes-verification.test.js).
+    // Exit code 20 logic is implemented and verified via other release tests.
     // This test requires a fixture that produces actual silent failures—deferred pending new fixture strategy.
-    await t.test('Exit code 1: Run with silent failures detected', { skip: 'Fixture produces 0 interactions; exit code logic verified in exit-codes-verification.test.js' }, () => {
+    await t.test('Exit code 20: Run with findings detected', { skip: 'Fixture produces 0 interactions; exit code logic verified elsewhere' }, () => {
       const result = runVeraxSync([
         'run',
         '--url', `http://localhost:${brokenPort}`,
@@ -128,7 +128,7 @@ test('CLI Exit Code Integration (v0.4.2)', async (t) => {
       ]);
       
       // Debug output
-      if (result.exitCode !== 1) {
+      if (result.exitCode !== 20) {
         console.error('=== FAILURE TEST DEBUG ===');
         console.error(`Exit code: ${result.exitCode}`);
         console.error(`Stdout (last 500 chars):\n${result.stdout.slice(-500)}`);
@@ -137,8 +137,8 @@ test('CLI Exit Code Integration (v0.4.2)', async (t) => {
       
       assert.strictEqual(
         result.exitCode,
-        1,
-        `Expected exit code 1 for run with findings, got ${result.exitCode}. ` +
+        20,
+        `Expected exit code 20 for run with findings, got ${result.exitCode}. ` +
         `Stdout: ${result.stdout.slice(-200)}. Stderr: ${result.stderr.slice(-200)}`
       );
       

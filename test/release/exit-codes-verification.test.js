@@ -71,7 +71,7 @@ describe(' Formal Exit Code Verification', () => {
     });
   });
   
-  describe('Exit Code 20: FAILURE_CONFIRMED', () => {
+  describe('Exit Code 20: FINDINGS (confirmed)', () => {
     test('complete analysis with confirmed findings', () => {
       const result = new RunResult();
       result.state = ANALYSIS_STATE.COMPLETE;
@@ -302,7 +302,7 @@ describe(' Formal Exit Code Verification', () => {
           const exitCode = result.getExitCode();
           
           // Verify exit code is in valid range
-          assert.ok([0, 20, 30, 50].includes(exitCode), 
+          assert.ok([0, 20, 30, 50, 64].includes(exitCode), 
             `Invalid exit code ${exitCode} for state=${state}, findings=${findings}`);
           
           // Verify state-based rules

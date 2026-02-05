@@ -1,128 +1,79 @@
-# VERAX CI Integration — Quick Start
+# VERAX CI Integration — Quick Start (Pilot)
 
-## GitHub Actions Badge
-
-Add this badge to your README.md:
-
-```markdown
-[![VERAX Silent Failure Detection](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/verax.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/verax.yml)
-```
-
-Replace `YOUR_ORG/YOUR_REPO` with your repository path.
-
-## Copy-Paste Workflow
+Minimal workflow that:
+1) installs dependencies
+2) installs Playwright Chromium
+3) runs `verax run`
+4) bundles artifacts
+5) uploads the bundle
 
 Create `.github/workflows/verax.yml`:
 
 ```yaml
-name: VERAX Silent Failure Detection
+name: VERAX (Pilot)
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  verax-scan:
-    name: Scan for Silent Failures
-    runs-on: ubuntu-latest
-    
+  verax:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      
-      - name: Install VERAX
-        run: npm install -g @veraxhq/verax
-      
-      - name: Run VERAX scan
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Install Playwright Chromium (Linux)
+        if: runner.os == 'Linux'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright Chromium (non-Linux)
+        if: runner.os != 'Linux'
+        run: npx playwright install chromium
+
+      - name: Run VERAX
+        env:
+          VERAX_URL: https://your-site.example
+        run: npx verax run --url ${{ env.VERAX_URL }} --out .verax --src . --ci-mode strict --min-coverage 0.90
+
+      - name: Bundle artifacts (always, Linux)
+        if: runner.os == 'Linux' && always()
+        shell: bash
         run: |
-          verax run https://your-app-url.com \
-            --ci-mode=strict \
-            --min-coverage=0.90
+          RUN_DIR=$(node --input-type=module -e "import { findLatestRun } from './node_modules/@veraxhq/verax/src/cli/util/ci/artifact-pack.js'; console.log(findLatestRun('.verax/runs') || '')" 2>/dev/null)
+          if [ -n \"$RUN_DIR\" ]; then
+            npx verax bundle \"$RUN_DIR\" .verax/artifact-bundle
+          fi
+
+      - name: Bundle artifacts (always, Windows)
+        if: runner.os == 'Windows' && always()
+        shell: pwsh
+        run: |
+          $runDir = node --input-type=module -e "import { findLatestRun } from './node_modules/@veraxhq/verax/src/cli/util/ci/artifact-pack.js'; console.log(findLatestRun('.verax/runs') || '')" 2>$null
+          if ($runDir) {
+            npx verax bundle $runDir .verax/artifact-bundle
+          }
+
+      - name: Upload bundle (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verax-bundle-${{ matrix.os }}
+          path: .verax/artifact-bundle/
+          retention-days: 7
+          if-no-files-found: ignore
 ```
 
-## Exit Code Reference
-
-| Exit Code | Meaning | CI Behavior |
-|-----------|---------|-------------|
-| 0 | SUCCESS — No issues detected | ✅ Pass |
-| 10 | NEEDS_REVIEW — Suspected findings only | ✅ Pass (warning) |
-| 20 | FAILURE_CONFIRMED — Confirmed silent failures | ❌ Fail |
-| 30 | FAILURE_INCOMPLETE — Coverage/validation incomplete | ❌ Fail |
-| 40 | INFRA_FAILURE — Runtime error | ❌ Fail |
-| 50 | EVIDENCE_VIOLATION — Corrupted artifacts | ❌ Fail |
-| 64 | USAGE_ERROR — Invalid command/flags | ❌ Fail |
-
-## Advanced Configuration
-
-### Custom Coverage Threshold
-
-```yaml
-- name: Run VERAX scan (relaxed coverage)
-  run: verax run https://your-app.com --ci-mode=balanced --min-coverage=0.70
-```
-
-### Upload Artifacts on Failure
-
-```yaml
-- name: Upload VERAX artifacts on failure
-  if: failure()
-  uses: actions/upload-artifact@v4
-  with:
-    name: verax-artifacts-${{ github.run_id }}
-    path: .verax/
-    retention-days: 7
-```
-
-### Scan with Authentication
-
-```yaml
-- name: Run VERAX scan (authenticated)
-  env:
-    AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-  run: |
-    verax run https://your-app.com \
-      --ci-mode=strict \
-      --auth-header="Authorization: Bearer $AUTH_TOKEN"
-```
-
-## CI Mode Behavior
-
-VERAX automatically detects CI environments and applies strict defaults:
-
-- **First-run relaxed defaults are DISABLED** in CI
-- Coverage threshold: 0.90 (unless explicitly overridden)
-- CI mode: `strict` (recommended for gating)
-- All runs treated as non-first-run for determinism
-
-## Local vs CI
-
-| Setting | Local First Run | Local Subsequent | CI (Any Run) |
-|---------|----------------|------------------|--------------|
-| Min Coverage | 0.50 | 0.90 | 0.90 |
-| CI Mode | advisory | balanced | strict |
-| First-Run Messages | Yes | No | No |
-
-## Troubleshooting
-
-**Exit 30 (INCOMPLETE)**: Increase timeout or reduce coverage threshold:
-```yaml
-run: verax run URL --min-coverage=0.80
-```
-
-**Exit 40 (INFRA_FAILURE)**: Check Node.js version (18+ required) and network connectivity.
-
-**Exit 50 (EVIDENCE_VIOLATION)**: Re-run scan — likely transient issue.
-
-**Exit 64 (USAGE_ERROR)**: Check command syntax — `--url` is required.
-
-## No Secrets Required
-
-VERAX runs read-only scans and requires NO secrets by default. Add authentication only if scanning protected routes.
+Exit code contract (unchanged): `0` SUCCESS, `20` FINDINGS, `30` INCOMPLETE, `50` INVARIANT_VIOLATION, `64` USAGE_ERROR.

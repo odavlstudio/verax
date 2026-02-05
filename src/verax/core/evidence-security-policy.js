@@ -427,11 +427,9 @@ export function createSecurityPolicyFromCli(cliOptions = {}) {
   
   // Print warning if redaction disabled
   if (redactionMode === REDACTION_MODE.DISABLED) {
-    console.warn('⚠️  WARNING: --no-redaction flag detected.');
-    console.warn('   VERAX will NOT redact sensitive data from screenshots, traces, or logs.');
-    console.warn('   Artifacts may contain passwords, emails, tokens, and other credentials.');
-    console.warn('   Only use this flag in secure, isolated testing environments.');
-    console.warn('   See: https://verax.dev/security for more information.\n');
+    console.warn('WARNING: --no-redaction disables redaction.');
+    console.warn('Evidence artifacts may contain sensitive data (passwords, emails, tokens).');
+    console.warn('Use only in a secure environment, and review artifacts before sharing.\n');
   }
 
   return new EvidenceSecurityPolicy({

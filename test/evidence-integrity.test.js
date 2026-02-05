@@ -153,7 +153,7 @@ test('readCompletionSentinel parses sentinel file correctly', t => {
 test('validateJsonFile succeeds for valid JSON', t => {
   setupTestDir();
   const filePath = resolve(tmpDir, 'valid.json');
-  const data = { runId: 'abc123', status: 'COMPLETE' };
+  const data = { runId: 'abc123', status: 'SUCCESS' };
   
   atomicWriteJsonSync(filePath, data);
   
@@ -220,7 +220,7 @@ test('validateRunDirectory passes for complete run', t => {
   mkdirSync(runDir, { recursive: true });
   
   // Write required artifacts
-  atomicWriteJsonSync(resolve(runDir, 'summary.json'), { runId: 'test', status: 'COMPLETE', startedAt: '2024-01-01T00:00:00Z' });
+  atomicWriteJsonSync(resolve(runDir, 'summary.json'), { runId: 'test', status: 'SUCCESS', startedAt: '2024-01-01T00:00:00Z' });
   atomicWriteJsonSync(resolve(runDir, 'findings.json'), { findings: [], detectedAt: '2024-01-01T00:00:00Z' });
   
   // Write sentinel
@@ -240,7 +240,7 @@ test('validateRunDirectory detects missing sentinel', t => {
   mkdirSync(runDir, { recursive: true });
   
   // Write artifacts but NOT sentinel
-  atomicWriteJsonSync(resolve(runDir, 'summary.json'), { runId: 'test', status: 'COMPLETE', startedAt: '2024-01-01T00:00:00Z' });
+  atomicWriteJsonSync(resolve(runDir, 'summary.json'), { runId: 'test', status: 'SUCCESS', startedAt: '2024-01-01T00:00:00Z' });
   atomicWriteJsonSync(resolve(runDir, 'findings.json'), { findings: [], detectedAt: '2024-01-01T00:00:00Z' });
   
   const result = validateRunDirectory(runDir);
@@ -273,7 +273,7 @@ test('determineRunStatus returns INCOMPLETE for missing sentinel', t => {
   const result = new ValidationResult();
   result.addError('Run completion sentinel missing (.run-complete)', {});
   
-  const status = determineRunStatus(result, 'COMPLETE');
+  const status = determineRunStatus(result, 'SUCCESS');
   t.is(status, 'INCOMPLETE', 'Status determined as INCOMPLETE');
   
   cleanupTestDir();
@@ -284,7 +284,7 @@ test('determineRunStatus returns FAIL_DATA for corrupted files', t => {
   const result = new ValidationResult();
   result.addCorruptedFile('/path/to/findings.json', 'JSON syntax error');
   
-  const status = determineRunStatus(result, 'COMPLETE');
+  const status = determineRunStatus(result, 'SUCCESS');
   t.is(status, 'FAIL_DATA', 'Status determined as FAIL_DATA');
   
   cleanupTestDir();
@@ -295,8 +295,8 @@ test('determineRunStatus preserves status for valid run', t => {
   const result = new ValidationResult();
   result.valid = true;
   
-  const status = determineRunStatus(result, 'COMPLETE');
-  t.is(status, 'COMPLETE', 'Valid run status preserved');
+  const status = determineRunStatus(result, 'SUCCESS');
+  t.is(status, 'SUCCESS', 'Valid run status preserved');
   
   cleanupTestDir();
 });

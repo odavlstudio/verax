@@ -1,27 +1,26 @@
 /**
- * STAGE 5.6: CI Semantics
- * 
- * Integrates execution tracking and coverage enforcement with CI exit codes.
- * 
- * EXIT CODE HIERARCHY (from STAGE 4):
- * 50 - Evidence law violation (highest priority)
- * 40 - Infrastructure failure
- * 30 - Failure misleading (includes coverage failure)
- * 20 - Failure silent
- * 10 - Needs review
- * 0  - Success (lowest priority)
+ * CI Semantics (Contract-Aligned)
+ *
+ * Integrates execution tracking + coverage enforcement and produces only the
+ * official VERAX exit codes:
+ * - 0  SUCCESS
+ * - 20 FINDINGS
+ * - 30 INCOMPLETE
+ * - 50 INVARIANT_VIOLATION
+ * - 64 USAGE_ERROR
  */
 
 import { enforceCoverage, mergeCoverageAndJudgmentExitCode } from './coverage-enforcement.js';
 import { enforceExecutionJudgmentConsistency, formatConsistencySummary } from './execution-judgment-consistency.js';
 import { determineExitCode } from './exit-code-mapper.js';
+import { EXIT_CODES } from '../shared/exit-codes.js';
 
 /**
  * Run result with execution tracking
  * 
  * @typedef {Object} ExecutionRunResult
- * @property {number} exitCode - CI exit code
- * @property {string} status - 'SUCCESS', 'FAILURE', 'NEEDS_REVIEW', 'EVIDENCE_VIOLATION'
+ * @property {number} exitCode - Exit code (official contract only)
+ * @property {string} status - Truth vocabulary ('SUCCESS' | 'FINDINGS' | 'INCOMPLETE')
  * @property {Array<Object>} judgments - Judgments
  * @property {Array<Object>} executionRecords - Execution records
  * @property {Object} coverageEnforcement - Coverage enforcement result
@@ -50,7 +49,7 @@ export function determineRunOutcome(judgments, executionRecords, options = {}) {
   const strictCoverage = options.strictCoverage ?? false;
   const enforceConsistency = options.enforceConsistency ?? true;
 
-  let exitCode = 0;
+  /** @type {number} */ let exitCode = EXIT_CODES.SUCCESS;
   let status = 'SUCCESS';
   const summaryParts = [];
 
@@ -82,13 +81,13 @@ export function determineRunOutcome(judgments, executionRecords, options = {}) {
     }
   }
 
-  // STEP 2: Enforce coverage (exit 30)
+  // STEP 2: Enforce coverage (INCOMPLETE on failure)
   const coverageEnforcement = enforceCoverage(executionRecords, {
     minCoverage,
     strict: strictCoverage,
   });
 
-  const coverageExitCode = coverageEnforcement.passed ? 0 : 30;
+  const coverageExitCode = coverageEnforcement.passed ? EXIT_CODES.SUCCESS : EXIT_CODES.INCOMPLETE;
   
   summaryParts.push(coverageEnforcement.summary);
 
@@ -96,38 +95,17 @@ export function determineRunOutcome(judgments, executionRecords, options = {}) {
   const judgmentExitCode = determineExitCode(judgments);
 
   // STEP 4: Decide final exit code
-  // Evidence law violation can take precedence, but some tests require
-  // coverage/judgment semantics to dominate in specific scenarios.
   if (evidenceViolationDetected) {
-    // Count violation types to resolve precedence nuances
-    const violationTypes = (consistencyValidation?.violations || []).map(v => v.type);
-    const execWithoutJudgmentCount = violationTypes.filter(t => t === 'execution_without_judgment').length;
-
-    // If judgment indicates FAILURE (>=20), prefer judgment
-    if (judgmentExitCode >= 20) {
-      exitCode = judgmentExitCode;
-    } else {
-      // PASS/NEEDS_REVIEW with consistency violations
-      // Special-case: single missing judgment without explicit minCoverage → evidence violation (50)
-      const usedDefaultThreshold = options.minCoverage === undefined;
-      const attemptedNotObserved = coverageEnforcement?.coverageTruth?.attemptedNotObserved ?? 0;
-
-      if (usedDefaultThreshold && execWithoutJudgmentCount === 1 && attemptedNotObserved === 1) {
-        exitCode = 50;
-      } else {
-        // Prefer coverage failure over evidence violation in other PASS/NEEDS_REVIEW scenarios
-        exitCode = coverageExitCode === 30 ? 30 : judgmentExitCode;
-      }
-    }
-  } else if (coverageExitCode === 30) {
+    exitCode = EXIT_CODES.INVARIANT_VIOLATION;
+  } else if (coverageExitCode === EXIT_CODES.INCOMPLETE) {
     // Coverage failure should override PASS or NEEDS_REVIEW, but merging rules differ
     const usedDefaultThreshold = options.minCoverage === undefined;
     if (usedDefaultThreshold) {
       // Default threshold → take worse of coverage and judgment
       exitCode = mergeCoverageAndJudgmentExitCode(judgmentExitCode, coverageExitCode);
     } else {
-      // Explicit threshold → prefer judgment failure when present, else coverage
-      exitCode = (judgmentExitCode >= 20) ? judgmentExitCode : 30;
+      // Explicit threshold → prefer FINDINGS when present, else INCOMPLETE
+      exitCode = judgmentExitCode === EXIT_CODES.FINDINGS ? judgmentExitCode : EXIT_CODES.INCOMPLETE;
     }
   } else {
     // No coverage failure → use judgment exit code
@@ -135,12 +113,12 @@ export function determineRunOutcome(judgments, executionRecords, options = {}) {
   }
 
   // Determine status
-  if (exitCode === 0) {
+  if (exitCode === EXIT_CODES.SUCCESS) {
     status = 'SUCCESS';
-  } else if (exitCode === 10) {
-    status = 'NEEDS_REVIEW';
-  } else if (exitCode >= 20) {
-    status = (evidenceViolationDetected && exitCode === 50) ? 'EVIDENCE_VIOLATION' : 'FAILURE';
+  } else if (exitCode === EXIT_CODES.FINDINGS) {
+    status = 'FINDINGS';
+  } else {
+    status = 'INCOMPLETE';
   }
 
   // Add judgment summary
@@ -184,7 +162,7 @@ export function createExecutionSummary(runResult) {
  * @returns {boolean}
  */
 export function isRunSuccessful(runResult) {
-  return runResult.exitCode === 0;
+  return runResult.exitCode === EXIT_CODES.SUCCESS;
 }
 
 /**
@@ -194,12 +172,12 @@ export function isRunSuccessful(runResult) {
  * @returns {string|null}
  */
 export function getFailureReason(runResult) {
-  if (runResult.exitCode === 0) {
+  if (runResult.exitCode === EXIT_CODES.SUCCESS) {
     return null;
   }
 
-  if (runResult.exitCode === 50) {
-    return 'Evidence law violation: Execution-judgment consistency failure';
+  if (runResult.exitCode === EXIT_CODES.INVARIANT_VIOLATION) {
+    return 'Invariant violation: Execution-judgment consistency failure';
   }
 
   if (!runResult.coverageEnforcement?.passed) {
@@ -213,14 +191,6 @@ export function getFailureReason(runResult) {
 
   if (failureJudgments.length > 0) {
     return `${failureJudgments.length} failure judgment(s) detected`;
-  }
-
-  const reviewJudgments = runResult.judgments.filter(
-    j => j.judgment === 'NEEDS_REVIEW'
-  );
-
-  if (reviewJudgments.length > 0) {
-    return `${reviewJudgments.length} judgment(s) need review`;
   }
 
   return 'Unknown failure reason';

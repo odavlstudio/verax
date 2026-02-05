@@ -5,7 +5,7 @@
  * 1. Summary says X findings => findings.json contains X
  * 2. Evidence references in findings must point to existing files
  * 3. If evidence files missing for CONFIRMED finding => downgrade or drop
- * 4. Corruption/missing evidence => mark run INCOMPLETE and signal exit 66
+ * 4. Corruption/missing evidence => mark run INCOMPLETE and signal exit 30
  * 
  * Pure validator (no I/O mutations), returns integrity report.
  */

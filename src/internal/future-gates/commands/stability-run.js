@@ -7,7 +7,7 @@ Purpose: Execute multiple VERAX runs and generate batch stability report.
 Required: --url <url>, --repeat <N>
 Optional: --mode ci|standard, --json
 Outputs: Exactly one RESULT/REASON/ACTION block (JSON or text) plus batch report artifacts.
-Exit Codes: 0 SUCCESS | 40 INFRA_FAILURE | 64 USAGE_ERROR
+Exit Codes: 0 SUCCESS | 20 FINDINGS | 30 INCOMPLETE | 50 INVARIANT_VIOLATION | 64 USAGE_ERROR
 Forbidden: reusing runs; multiple RESULT blocks; interactive prompts; batch size < 2.
 */
 

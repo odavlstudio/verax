@@ -9,6 +9,7 @@ import { readdirSync, statSync, readFileSync, writeFileSync, copyFileSync, mkdir
 import { join, relative, basename } from 'path';
 import { existsSync } from 'fs';
 import { getTimeProvider } from '../support/time-provider.js';
+import { writeAndVerifyBundleIntegrityManifest } from '../bundles/bundle-integrity.js';
 
 /**
  * Find latest run directory
@@ -19,27 +20,64 @@ export function findLatestRun(runsDir) {
   if (!existsSync(runsDir)) {
     return null;
   }
-  
-  // Check for latest.txt first (deterministic)
-  const latestFile = join(runsDir, 'latest.txt');
-  if (existsSync(latestFile)) {
-    const latestRunId = String(readFileSync(latestFile, 'utf-8')).trim();
-    const latestRunDir = join(runsDir, latestRunId);
-    if (existsSync(latestRunDir) && statSync(latestRunDir).isDirectory()) {
-      return latestRunDir;
+
+  // Current layout: runs/<scanId>/<runId>/...
+  // Resolve latest run deterministically across scan directories.
+  /** @type {Array<{ scanId: string; runId: string; runDir: string }>} */
+  const candidates = [];
+
+  const scanDirs = readdirSync(runsDir)
+    .sort((a, b) => a.localeCompare(b, 'en'))
+    .filter((name) => {
+      const p = join(runsDir, name);
+      return statSync(p).isDirectory();
+    });
+
+  for (const scanId of scanDirs) {
+    const scanDir = join(runsDir, scanId);
+    const latestJson = join(scanDir, 'latest.json');
+
+    // Prefer scan-scoped latest.json if present
+    if (existsSync(latestJson)) {
+      try {
+        const pointer = JSON.parse(String(readFileSync(latestJson, 'utf-8')));
+        const runId = String(pointer?.runId || '').trim();
+        if (runId) {
+          const runDir = join(scanDir, runId);
+          if (existsSync(runDir) && statSync(runDir).isDirectory()) {
+            candidates.push({ scanId, runId, runDir });
+            continue;
+          }
+        }
+      } catch {
+        // ignore and fall back to directory scan
+      }
+    }
+
+    // Fallback: pick newest run directory by name (runId has ISO prefix)
+    const runDirs = readdirSync(scanDir)
+      .sort((a, b) => a.localeCompare(b, 'en'))
+      .filter((name) => {
+        const p = join(scanDir, name);
+        return statSync(p).isDirectory() && name !== 'latest.json';
+      });
+
+    if (runDirs.length > 0) {
+      const runId = runDirs[runDirs.length - 1];
+      candidates.push({ scanId, runId, runDir: join(scanDir, runId) });
     }
   }
-  
-  // Fallback: find newest directory by name (ISO 8601 timestamp prefix)
-  const entries = readdirSync(runsDir)
-    .sort((a, b) => a.localeCompare(b, 'en'))
-    .filter(name => {
-      const path = join(runsDir, name);
-      return statSync(path).isDirectory() && name !== 'latest.txt';
-    })
-    .reverse(); // Newest first (lexicographic sort of ISO timestamps)
-  
-  return entries.length > 0 ? join(runsDir, entries[0]) : null;
+
+  if (candidates.length === 0) return null;
+
+  // Deterministic: newest by runId lexicographic, tie-break by scanId.
+  candidates.sort((a, b) => {
+    const r = a.runId.localeCompare(b.runId, 'en');
+    if (r !== 0) return r;
+    return a.scanId.localeCompare(b.scanId, 'en');
+  });
+
+  return candidates[candidates.length - 1].runDir;
 }
 
 /**
@@ -86,7 +124,7 @@ export function createManifest(runDir, files) {
   
   // Try to read run metadata
   let runMeta = null;
-  const runMetaPath = join(runDir, 'run-meta.json');
+  const runMetaPath = join(runDir, 'run.meta.json');
   if (existsSync(runMetaPath)) {
     try {
       runMeta = JSON.parse(String(readFileSync(runMetaPath, 'utf-8')));
@@ -152,6 +190,12 @@ export function packArtifacts(runDir, bundleDir) {
   const manifest = createManifest(runDir, files);
   const manifestPath = join(bundleDir, 'manifest.json');
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+  // Phase 5: Cryptographic integrity manifest for the bundle root (anti-tamper)
+  writeAndVerifyBundleIntegrityManifest(bundleDir, {
+    bundleId: manifest.runId,
+    toolVersion: manifest.veraxVersion || 'unknown',
+  });
   
   return {
     success: true,

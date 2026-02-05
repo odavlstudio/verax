@@ -95,7 +95,7 @@ test('100% coverage, zero failures, high threshold → SUCCESS HIGH', () => {
   assert.strictEqual(result.truthState, 'SUCCESS');
   assert.strictEqual(result.confidence, 'HIGH');
   assert.match(result.reason, /10.*10.*(zero failures|no silent failures)/i);
-  assert.match(result.whatThisMeans, /every public flow/i);
+  assert.match(result.whatThisMeans, /(covered public flows|public flows were exercised)/i);
 });
 
 test('95% coverage, zero failures, 90% threshold SUCCESS HIGH', () => {
@@ -407,7 +407,7 @@ test('formatTruthAsText uses confidence level', () => {
   });
 
   const text = formatTruthAsText(result);
-  assert.match(text, /trustworthy|conditional/i);
+  assert.match(text, /Confidence:\s*(HIGH|MEDIUM|LOW|UNKNOWN)/i);
 });
 
 test('buildTruthBlock produces JSON-serializable object', () => {

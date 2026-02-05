@@ -13,6 +13,7 @@
  */
 
 import { getTimeProvider } from '../support/time-provider.js';
+import { normalizeTruthState, TRUTH_STATES } from '../../../verax/shared/truth-states.js';
 
 /**
  * Generate comprehensive human summary
@@ -48,7 +49,7 @@ export function generateHumanSummary(context = {}) {
   lines.push('');
   
   // Status badge
-  const status = summary.status || 'UNKNOWN';
+  const status = normalizeTruthState(summary.status, TRUTH_STATES.INCOMPLETE);
   const statusEmoji = getStatusEmoji(status);
   const seal = summary.productionSeal ? ' 🔒' : '';
   lines.push(`## Status: ${statusEmoji} ${status}${seal}`);
@@ -144,8 +145,8 @@ export function generateHumanSummary(context = {}) {
     lines.push('');
     lines.push('🔒 This execution meets PRODUCTION_GRADE criteria:');
     lines.push('  - Coverage ≥ minimum threshold');
-    lines.push('  - No evidence law violations');
-    lines.push('  - Determinism verified');
+    lines.push('  - No confirmed silent failures');
+    lines.push('  - Evidence digest present (counts are explicit)');
     lines.push('');
   }
   
@@ -163,11 +164,9 @@ export function generateHumanSummary(context = {}) {
  */
 function getStatusEmoji(status) {
   const emojis = {
-    'COMPLETE': '✅',
+    'SUCCESS': '✅',
+    'FINDINGS': '❌',
     'INCOMPLETE': '⚠️',
-    'FAILED': '❌',
-    'TIMEOUT': '⏱️',
-    'RUNNING': '⏳',
   };
   return emojis[status] || '❓';
 }
@@ -313,10 +312,6 @@ function generateRecommendedActions(context = {}) {
     actions.push('Complete the flow execution (was interrupted)');
   }
   
-  if (status === 'TIMEOUT') {
-    actions.push('Increase timeout or optimize slow interactions');
-  }
-  
   if (findings && findings.length > 0) {
     const silentFailures = findings.filter(f => f.type === 'SILENT_FAILURE');
     if (silentFailures.length > 0) {
@@ -339,8 +334,8 @@ function generateRecommendedActions(context = {}) {
     actions.push(`Verify ${digest.unproven} unproven expectations with additional assertions`);
   }
   
-  if (actions.length === 0 && status === 'COMPLETE') {
-    actions.push('Flow is healthy. Consider running again to verify determinism.');
+  if (actions.length === 0 && status === 'SUCCESS') {
+    actions.push('Flow looks healthy in covered flows. Consider rerunning to compare results (site state/environment can change).');
   }
   
   return actions;

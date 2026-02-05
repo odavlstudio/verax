@@ -8,7 +8,7 @@
  * 3. npm pack succeeds
  * 4. Tarball can be installed
  * 5. npx <tarball> --version works
- * 6. npx <tarball> doctor --json works
+ * 6. npx <tarball> readiness --json works (pilot surface)
  * 7. Demo scan produces expected artifacts:
  *    - learn.json has >=1 expectation
  *    - findings.json has >=1 finding
@@ -23,6 +23,29 @@ import { readFileSync, existsSync, readdirSync, rmSync, mkdirSync } from 'fs';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { startFixtureServer } from '../test/helpers/fixture-server.helper.js';
+
+function extractRunDirFromScanOutput(stdout) {
+  const text = String(stdout || '');
+  const lines = text.split(/\r?\n/).map((l) => String(l).trim()).filter(Boolean);
+
+  // Prefer explicit "Artifacts:" path.
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i];
+    const m = line.match(/Artifacts:\s*(.+)$/i);
+    if (m && m[1]) return m[1].trim();
+  }
+
+  // Fallback: ACTION line often includes "Summary: <runDir>\\summary.json"
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i];
+    const m = line.match(/Summary:\s*(.+summary\.json)\s*$/i);
+    if (m && m[1]) {
+      return dirname(m[1].trim());
+    }
+  }
+
+  return null;
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -97,11 +120,7 @@ function runCommandWithTimeout(command, args, options = {}, timeoutMs = 60000) {
       if (!resolved) {
         resolved = true;
         clearTimeout(timeout);
-        if (code === 0) {
-          resolve({ stdout, stderr, code });
-        } else {
-          reject(new Error(`Command exited with code ${code}: ${command} ${args.join(' ')}\nStdout: ${stdout}\nStderr: ${stderr}`));
-        }
+        resolve({ stdout, stderr, code: code ?? 0 });
       }
     });
 
@@ -195,8 +214,11 @@ async function main() {
     }
     mkdirSync(tempDir, { recursive: true });
 
-    // Run npm pack
-    const packOutput = runCommand('npm pack', { cwd: projectRoot });
+    // Run npm pack (skip postpack cleanup so tarball remains on disk for verification)
+    const packOutput = runCommand('npm pack', {
+      cwd: projectRoot,
+      env: { ...process.env, VERAX_SKIP_POSTPACK_CLEANUP: '1' },
+    });
     const tarballName = packOutput.split('\n').pop().trim();
     const tarballPath = resolve(projectRoot, tarballName);
 
@@ -235,26 +257,8 @@ async function main() {
     console.log(`✅ Version correct: ${versionOutput}`);
     console.log('');
 
-    // Step 4: Test doctor --json (with smoke mode to avoid CI timeout)
-    console.log('Step 4: Testing verax doctor --json...');
-    const doctorEnv = { ...process.env, VERAX_DOCTOR_SMOKE_TIMEOUT_MS: '1' };
-    const doctorOutput = runCommand('npx verax doctor --json', { cwd: installDir, env: doctorEnv });
-    
-    let doctorJson;
-    try {
-      doctorJson = JSON.parse(doctorOutput);
-      if (!Array.isArray(doctorJson.checks)) {
-        throw new Error('doctor output missing checks array');
-      }
-    } catch (e) {
-      throw new Error(`Doctor JSON parse error: ${e.message}\nOutput: ${doctorOutput}`);
-    }
-    
-    console.log(`✅ Doctor output valid JSON with ${doctorJson.checks.length} checks`);
-    console.log('');
-
-    // Step 5: Run demo scan
-    console.log('Step 5: Running demo scan (static HTML)...');
+    // Step 4: Start fixture server (reused for readiness + scan)
+    console.log('Step 4: Starting local fixture server...');
     const fixtureDir = resolve(projectRoot, 'test', 'fixtures', 'static-buttons');
     
     if (!existsSync(fixtureDir)) {
@@ -268,39 +272,64 @@ async function main() {
     console.log(`   Server running at: ${serverUrl}`);
     
     try {
+      // Step 5: Test readiness --json (pilot surface)
+      console.log('');
+      console.log('Step 5: Testing verax readiness --json...');
+      const readinessOutput = runCommand(`npx verax readiness --url ${serverUrl} --json`, { cwd: installDir });
+
+      let readinessJson;
+      try {
+        readinessJson = JSON.parse(readinessOutput);
+        if (!readinessJson || typeof readinessJson.readinessLevel !== 'string') {
+          throw new Error('readiness output missing readinessLevel');
+        }
+        if (!Number.isFinite(readinessJson.estimatedValuePercent)) {
+          throw new Error('readiness output missing estimatedValuePercent');
+        }
+      } catch (e) {
+        throw new Error(`Readiness JSON parse error: ${e.message}\nOutput: ${readinessOutput}`);
+      }
+
+      console.log(`✅ Readiness output valid JSON (${readinessJson.readinessLevel}, ~${readinessJson.estimatedValuePercent}%)`);
+      console.log('');
+
+      // Step 6: Run demo scan
+      console.log('Step 6: Running demo scan (static HTML)...');
+
       // Run scan with timeout (3 minutes max)
-      // Use fixture directory directly (no need to copy)
+      // Run from installDir so we validate the packed tarball, while scanning the fixture site and writing artifacts into the fixture directory.
       const scanResult = await runCommandWithTimeout(
         'npx',
-        ['verax', 'run', '--url', serverUrl, '--src', '.', '--out', '.verax'],
-        { cwd: fixtureDir },
+        ['verax', 'run', '--url', serverUrl, '--src', fixtureDir, '--out', resolve(fixtureDir, '.verax')],
+        { cwd: installDir },
         180000 // 3 minutes
       );
+
+      // Findings (20) and Incomplete (30) are valid product outcomes.
+      // Release verification cares about: no hang, correct artifacts, and stable contracts.
+      if (![0, 20, 30].includes(scanResult.code)) {
+        throw new Error(
+          `Scan exited with unexpected code ${scanResult.code} (expected 0, 20, or 30)\n` +
+          `Stdout: ${scanResult.stdout}\n` +
+          `Stderr: ${scanResult.stderr}`
+        );
+      }
 
       console.log(`✅ Scan completed successfully`);
       console.log(`   Exit code: ${scanResult.code}`);
       console.log('');
 
-      // Step 6: Verify artifacts
-      console.log('Step 6: Verifying artifacts...');
+      // Step 7: Verify artifacts
+      console.log('Step 7: Verifying artifacts...');
       
-      // Find run directory (in fixture directory)
-      const veraxDir = resolve(fixtureDir, '.verax');
-      if (!existsSync(veraxDir)) {
-        throw new Error(`.verax directory not found: ${veraxDir}`);
+      const runDir = extractRunDirFromScanOutput(scanResult.stdout);
+      if (!runDir) {
+        throw new Error('Failed to determine run directory from scan output');
+      }
+      if (!existsSync(runDir)) {
+        throw new Error(`Run directory not found: ${runDir}`);
       }
 
-      const runsDir = resolve(veraxDir, 'runs');
-      if (!existsSync(runsDir)) {
-        throw new Error(`runs directory not found: ${runsDir}`);
-      }
-
-      const runs = readdirSync(runsDir);
-      if (runs.length === 0) {
-        throw new Error(`No run directories found in: ${runsDir}`);
-      }
-
-      const runDir = resolve(runsDir, runs[0]);
       console.log(`   Run directory: ${runDir}`);
 
       // Verify learn.json or expectations.json (either format is acceptable)
@@ -359,9 +388,9 @@ async function main() {
       await fixtureServer.close();
     }
 
-    // Step 7: Cleanup
+    // Step 8: Cleanup
     console.log('');
-    console.log('Step 7: Cleanup...');
+    console.log('Step 8: Cleanup...');
     rmSync(tempDir, { recursive: true, force: true });
     rmSync(tarballPath, { force: true });
     console.log('✅ Cleanup complete');

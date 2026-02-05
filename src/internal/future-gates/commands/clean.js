@@ -7,7 +7,7 @@ Purpose: Clean up old run artifacts with retention policies (defaults to dry-run
 Required: none
 Optional: --keep-last <N>, --older-than <days>, --allow-delete-confirmed, --no-dry-run, --json
 Outputs: Exactly one RESULT/REASON/ACTION block (JSON or text) summarizing cleanup.
-Exit Codes: 0 SUCCESS | 40 INFRA_FAILURE | 64 USAGE_ERROR
+Exit Codes: 0 SUCCESS | 20 FINDINGS | 30 INCOMPLETE | 50 INVARIANT_VIOLATION | 64 USAGE_ERROR
 Forbidden: deletion without explicit flags; multiple RESULT blocks; interactive prompts.
 */
 

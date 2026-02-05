@@ -18,7 +18,8 @@ export function writeInitialArtifacts(paths, runId, projectRoot, url, src, srcPa
   atomicWriteJson(paths.runStatusJson, {
     contractVersion: 1,
     artifactVersions: getArtifactVersions(),
-    status: 'RUNNING',
+    status: 'INCOMPLETE',
+    lifecycle: 'RUNNING',
     runId,
     startedAt,
   });

@@ -8,7 +8,7 @@
  * and ensures consistent, predictable CLI surface for users and CI systems.
  *
  * INVARIANTS:
- * - Only run, inspect, doctor are exposed as top-level commands
+ * - Only run, bundle, readiness, capability-bundle, version, help are exposed as top-level commands
  * - help and --help/--version are supported
  * - No other commands appear in --help output
  * - Internal commands in src/cli/commands/internal/ are not discoverable
@@ -27,12 +27,26 @@ const projectRoot = resolve(__dirname, '../../');
 
 test('PUBLIC SURFACE CONTRACT: Only documented commands exposed', async (suite) => {
   // Contract: Public commands are exactly these (documented in help, not frozen)
-  // Note: diagnose, explain, stability, stability-run, triage, clean, gate are FROZEN
-  // (not public) - they reject with exit 64 and freeze notice
   const PUBLIC_COMMANDS = [
     'run',
-    'inspect',
+    'bundle',
+    'readiness',
+    'capability-bundle',
+    'version',
+    'help',
+  ];
+
+  const OUT_OF_SCOPE_COMMANDS = [
     'doctor',
+    'inspect',
+    'pilot',
+    'diagnose',
+    'explain',
+    'stability',
+    'stability-run',
+    'triage',
+    'clean',
+    'gate',
   ];
   
   // Contract: These commands were removed in Stage 5 (not part of VERAX 1.0 vision)
@@ -61,11 +75,27 @@ test('PUBLIC SURFACE CONTRACT: Only documented commands exposed', async (suite) 
       );
     }
 
+    // Verify out-of-scope commands do NOT appear in help
+    for (const cmd of OUT_OF_SCOPE_COMMANDS) {
+      assert(
+        !helpOutput.includes(`verax ${cmd}`),
+        `Help output must NOT mention out-of-scope command '${cmd}'`
+      );
+    }
+
     // Verify removed commands do NOT appear in help (Stage 5 cleanup)
     for (const cmd of REMOVED_COMMANDS) {
       assert(
         !helpOutput.includes(`verax ${cmd}`),
         `Help output must NOT mention removed command '${cmd}'`
+      );
+    }
+
+    // Help must not reference repo-only documentation paths.
+    for (const forbidden of ['docs/', 'docs\\', 'VISION.md', 'RULEBOOK.md', 'reports/']) {
+      assert(
+        !helpOutput.includes(forbidden),
+        `Help output must NOT reference missing doc path '${forbidden}'`
       );
     }
   });
@@ -76,18 +106,15 @@ test('PUBLIC SURFACE CONTRACT: Only documented commands exposed', async (suite) 
       encoding: 'utf-8',
     });
 
+    const expected = "Command 'unknown' is out of scope for VERAX 0.4.9 pilot surface. Supported: run, bundle, readiness, capability-bundle, version, help.";
+
     assert.equal(
       result.status,
       64,
       'Unknown command should exit with code 64 (UsageError)'
     );
-    assert(
-      result.stderr.includes('Interactive mode is disabled') ||
-      result.stderr.includes('Error') ||
-      result.stdout.includes('Interactive mode is disabled') ||
-      result.stdout.includes('Error'),
-      'Should show error message for unknown command'
-    );
+    assert.equal(result.stderr.trim(), expected, 'Unknown command must emit pilot-scope out-of-scope message to stderr');
+    assert.equal((result.stdout || '').trim(), '', 'Unknown command must not emit contract output to stdout');
   });
 
   await suite.test('internal commands were removed in Stage 5', () => {
@@ -117,12 +144,8 @@ test('PUBLIC SURFACE CONTRACT: Only documented commands exposed', async (suite) 
       'entry.js must have loadRunCommand'
     );
     assert(
-      entryCode.includes("loadInspectCommand()"),
-      'entry.js must have loadInspectCommand'
-    );
-    assert(
-      entryCode.includes("loadDoctorCommand()"),
-      'entry.js must have loadDoctorCommand'
+      entryCode.includes("loadBundleCommand()"),
+      'entry.js must have loadBundleCommand'
     );
 
     // Verify no loading of removed commands (Stage 5 cleanup)
@@ -146,7 +169,7 @@ test('PUBLIC SURFACE CONTRACT: Only documented commands exposed', async (suite) 
     }
   });
 
-  await suite.test('run, inspect, doctor handle invalid args gracefully', () => {
+  await suite.test('run and bundle handle invalid args gracefully', () => {
     // run without --url should fail with UsageError (64)
     const runResult = spawnSync('node', ['bin/verax.js', 'run'], {
       cwd: projectRoot,
@@ -158,27 +181,32 @@ test('PUBLIC SURFACE CONTRACT: Only documented commands exposed', async (suite) 
       'run without --url must exit 64'
     );
 
-    // inspect without path should fail with UsageError (64)
-    const inspectResult = spawnSync('node', ['bin/verax.js', 'inspect'], {
+    // bundle without args should fail with UsageError (64)
+    const bundleResult = spawnSync('node', ['bin/verax.js', 'bundle'], {
       cwd: projectRoot,
       encoding: 'utf-8',
     });
     assert.equal(
-      inspectResult.status,
+      bundleResult.status,
       64,
-      'inspect without path must exit 64'
+      'bundle without args must exit 64'
     );
+  });
 
-    // doctor with unknown flag should fail with UsageError (64)
-    const doctorResult = spawnSync('node', ['bin/verax.js', 'doctor', '--unknown'], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-    });
-    assert.equal(
-      doctorResult.status,
-      64,
-      'doctor with invalid flag must exit 64'
-    );
+  await suite.test('out-of-scope commands reject with pilot-scope message', () => {
+    const expected = (cmd) =>
+      `Command '${cmd}' is out of scope for VERAX 0.4.9 pilot surface. Supported: run, bundle, readiness, capability-bundle, version, help.`;
+
+    for (const cmd of ['doctor', 'inspect', 'pilot', 'diagnose']) {
+      const result = spawnSync('node', ['bin/verax.js', cmd], {
+        cwd: projectRoot,
+        encoding: 'utf-8',
+      });
+
+      assert.equal(result.status, 64, `${cmd} must exit 64`);
+      assert.equal((result.stdout || '').trim(), '', `${cmd} must not emit contract output to stdout`);
+      assert.equal((result.stderr || '').trim(), expected(cmd), `${cmd} must emit out-of-scope message to stderr`);
+    }
   });
 
   await suite.test('help command works correctly', () => {
@@ -192,6 +220,32 @@ test('PUBLIC SURFACE CONTRACT: Only documented commands exposed', async (suite) 
       result.stdout.includes('verax run'),
       'help output must document run command'
     );
+    assert(
+      result.stdout.includes('verax bundle'),
+      'help output must document bundle command'
+    );
+    assert(
+      result.stdout.includes('verax readiness'),
+      'help output must document readiness command'
+    );
+    assert(
+      result.stdout.includes('Pilot-only'),
+      'help output must mark pilot-only commands'
+    );
+    assert(
+      result.stdout.includes('verax capability-bundle'),
+      'help output must document capability-bundle command'
+    );
+    assert(
+      result.stdout.includes('verax version'),
+      'help output must document version command'
+    );
+    assert(
+      result.stdout.includes('verax help'),
+      'help output must document help command'
+    );
+    assert.equal(result.stdout.includes('verax doctor'), false, 'help output must not document doctor command');
+    assert.equal(result.stdout.includes('verax inspect'), false, 'help output must not document inspect command');
   });
 
   await suite.test('version command works correctly', () => {

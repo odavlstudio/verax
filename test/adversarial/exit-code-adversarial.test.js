@@ -5,10 +5,10 @@
  * 
  * Attacks:
  * 1. Never allow exit 0 for INCOMPLETE runs (timeout, budget, crash)
- * 2. Never allow exit 1 for FAILED runs (internal errors)
- * 3. Ensure 66 is ONLY for INCOMPLETE, never false negatives
- * 4. Ensure 2 is ONLY for FAILED, never false positives
- * 5. Ensure 64/65 cannot be bypassed by invalid flags or input
+ * 2. Ensure exit codes stay within the official set
+ * 3. Ensure 30 is ONLY for INCOMPLETE, never false negatives
+ * 4. Ensure 50 is ONLY for INVARIANT_VIOLATION, never false positives
+ * 5. Ensure 64 cannot be bypassed by invalid flags or input
  * 6. Ensure exit code matches status deterministically
  */
 
@@ -72,10 +72,10 @@ if (test('ATTACK 1a: Missing --url is exit 64 (not 2)', () => {
   assert(exitCode === 64, `Expected 64, got ${exitCode}`);
 })) passed++; else failed++;
 
-// ATTACK 2: Bad URL MUST be exit 65, never 2 or 0
-if (test('ATTACK 2a: Bad URL format is exit 65 (not 2)', () => {
+// ATTACK 2: Bad URL MUST be INCOMPLETE (exit 30), never 50 or 0
+if (test('ATTACK 2a: Bad URL format is exit 30 (INCOMPLETE)', () => {
   const { exitCode } = runVerax('run --url "not-a-url"', { expectFail: true });
-  assert(exitCode === 65, `Expected 65, got ${exitCode}`);
+  assert(exitCode === 30, `Expected 30, got ${exitCode}`);
 })) passed++; else failed++;
 
 // ATTACK 3: Invalid flag MUST be exit 64, never 2
@@ -96,10 +96,10 @@ if (test('ATTACK 5a: Unknown command is exit 64', () => {
   assert(exitCode === 64, `Expected 64, got ${exitCode}`);
 })) passed++; else failed++;
 
-// ATTACK 6: Missing source directory MUST be exit 65, never 2
-if (test('ATTACK 6a: Missing source directory is exit 65', () => {
+// ATTACK 6: Missing source directory MUST be invariant violation (exit 50)
+if (test('ATTACK 6a: Missing source directory is exit 50', () => {
   const { exitCode } = runVerax('run --url http://localhost:3000 --src /nonexistent', { expectFail: true });
-  assert(exitCode === 65, `Expected 65, got ${exitCode}`);
+  assert(exitCode === 50, `Expected 50, got ${exitCode}`);
 })) passed++; else failed++;
 
 // ATTACK 7: Inspect with missing path MUST be exit 64
@@ -108,10 +108,10 @@ if (test('ATTACK 7a: Inspect with no path is exit 64', () => {
   assert(exitCode === 64, `Expected 64, got ${exitCode}`);
 })) passed++; else failed++;
 
-// ATTACK 8: Inspect with nonexistent path MUST be exit 65
-if (test('ATTACK 8a: Inspect with nonexistent path is exit 65', () => {
+// ATTACK 8: Inspect with nonexistent path MUST be invariant violation (exit 50)
+if (test('ATTACK 8a: Inspect with nonexistent path is exit 50', () => {
   const { exitCode } = runVerax('inspect /nonexistent/run', { expectFail: true });
-  assert(exitCode === 65, `Expected 65, got ${exitCode}`);
+  assert(exitCode === 50, `Expected 50, got ${exitCode}`);
 })) passed++; else failed++;
 
 // ATTACK 9: Doctor with invalid flag MUST be exit 64
@@ -149,14 +149,14 @@ if (test('ATTACK 14a: Flag order does not affect parsing', () => {
   const { exitCode: code1 } = runVerax('run --url "bad" --src .', { expectFail: true });
   const { exitCode: code2 } = runVerax('run --src . --url "bad"', { expectFail: true });
   assert(code1 === code2, `Different exits for same args: ${code1} vs ${code2}`);
-  assert(code1 === 65, `Expected 65, got ${code1}`);
+  assert(code1 === 30, `Expected 30, got ${code1}`);
 })) passed++; else failed++;
 
 // ATTACK 15: Duplicate flags should be rejected
 if (test('ATTACK 15a: Duplicate --url flags rejected', () => {
   const { exitCode } = runVerax('run --url http://localhost:3000 --url http://other.com --src .', { expectFail: true });
   // This should either take the last one and fail gracefully, or reject
-  assert([64, 65].includes(exitCode), `Expected 64 or 65, got ${exitCode}`);
+  assert(exitCode === 30, `Expected 30, got ${exitCode}`);
 })) passed++; else failed++;
 
 // ATTACK 16: Exit code contract is deterministic (same input = same exit)

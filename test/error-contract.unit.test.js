@@ -84,8 +84,8 @@ test('exitCodeForError returns correct codes', () => {
   const bug = veraxBug('BUG_TEST', 'msg');
   const usage = veraxOperational('USAGE_INVALID_FLAG', 'msg');
   
-  assert.strictEqual(exitCodeForError(operational), 65);
-  assert.strictEqual(exitCodeForError(bug), 2);
+  assert.strictEqual(exitCodeForError(operational), 50);
+  assert.strictEqual(exitCodeForError(bug), 50);
   assert.strictEqual(exitCodeForError(usage), 64);
 });
 

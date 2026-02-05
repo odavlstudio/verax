@@ -7,7 +7,7 @@ Purpose: Generate post-hoc explanation for a specific finding (WHY did it exist)
 Required: <runId> <findingId>
 Optional: --json
 Outputs: Exactly one RESULT/REASON/ACTION block (JSON or text) plus explain/<findingId>.json artifact.
-Exit Codes: 0 SUCCESS | 50 EVIDENCE_VIOLATION | 40 INFRA_FAILURE | 64 USAGE_ERROR
+Exit Codes: 0 SUCCESS | 20 FINDINGS | 30 INCOMPLETE | 50 INVARIANT_VIOLATION | 64 USAGE_ERROR
 Forbidden: run artifact mutation outside explain/ directory; multiple RESULT blocks; interactive prompts.
 */
 
@@ -66,7 +66,7 @@ export async function explainCommand(options) {
     };
   } catch (error) {
     if (error instanceof DataError) {
-      throw error; // Let caller handle with exit code 65
+      throw error; // Let caller handle with exit code 50 (DataError → INVARIANT_VIOLATION)
     }
     throw error;
   }

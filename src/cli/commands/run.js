@@ -6,11 +6,9 @@ Optional: --src, --out, --json, --debug/--verbose, --auth-storage, --auth-cookie
 Outputs: Artifacts at <out>/runs/<scanId>/<runId>; exactly one RESULT/REASON/ACTION block (text or JSON) plus optional progress JSON when --json is set.
 Exit Codes:
 - 0  SUCCESS
-- 10 NEEDS_REVIEW (suspected findings only)
-- 20 FAILURE_CONFIRMED (confirmed findings)
-- 30 FAILURE_INCOMPLETE (coverage/validation incomplete)
-- 40 INFRA_FAILURE (runtime error)
-- 50 EVIDENCE_LAW_VIOLATION (corrupted/missing artifacts)
+- 20 FINDINGS
+- 30 INCOMPLETE
+- 50 INVARIANT_VIOLATION
 - 64 USAGE_ERROR
 Forbidden: interactive prompts; multiple RESULT/REASON/ACTION blocks; non-deterministic logs without --debug; accepting unsupported flags; silent exits without contract output.
 */
@@ -41,10 +39,17 @@ import { printSummary } from '../run/output-summary.js';
 import { evaluateFrameworkSupport } from '../../verax/core/framework-support.js';
 import { mapFailureReasons } from '../../verax/core/failures/failure-mode-matrix.js';
 import { classifyRunTruth, buildTruthBlock, formatTruthAsText } from '../../verax/core/truth-classifier.js';
+import { TRUTH_STATES } from '../../verax/shared/truth-states.js';
 import { VERSION } from '../../version.js';
 import { logV1RuntimeSeal, printV1RuntimeSummary } from '../../internal/future-gates/v1-runtime-seal.js';
 import { loadEnterprisePolicy, isRedactionDisabled } from '../config/enterprise-policy.js';
 import { createRunManifest } from '../util/support/run-manifest.js';
+import {
+  DEFAULT_SCOPE_LINE,
+  RESULTS_INTERPRETATION,
+  INCOMPLETE_SAFETY_LINE,
+  POST_AUTH_DISCLAIMER_LINE,
+} from '../config/pilot-messages.js';
 
 /**
  * TIMEOUT COORDINATION DOCUMENTATION
@@ -108,19 +113,15 @@ function printRunSummary({
   const thresholdPct = Math.round((minCoverage ?? 0.9) * 1000) / 10;
 
   lines.push('VERAX Run Summary');
-  lines.push('• Scope: Pre-login pages only (no auth, no dynamic routes)');
-  lines.push(`• Tested: ${attempted}/${expectationsTotal} user actions (${coveragePct}%), need ${thresholdPct}% ${coverageOk ? '✓' : '✗'}`);
-  lines.push(`• Evidence: ${observed}/${attempted} actions had proof of what happened`);
+  lines.push(`• ${DEFAULT_SCOPE_LINE}`);
+  lines.push(`• Coverage: ${attempted}/${expectationsTotal} actions attempted (${coveragePct}%). Threshold: ${thresholdPct}%.`);
+  lines.push(`• Evidence: ${observed}/${attempted} actions produced evidence`);
   const confirmedLabel = confirmedTotal > 0
     ? `${confirmedTotal} confirmed finding${confirmedTotal === 1 ? '' : 's'}`
     : 'No confirmed findings';
   lines.push(`• Findings: ${confirmedLabel}`);
 
-  const verdictMeaning = {
-    FINDINGS: 'Silent failures detected with evidence',
-    INCOMPLETE: 'Observation unfinished; treat as unsafe',
-    SUCCESS: 'No silent failures observed in covered flows',
-  }[status] || 'Run completed';
+  const verdictMeaning = RESULTS_INTERPRETATION[status] || RESULTS_INTERPRETATION.INCOMPLETE;
 
   lines.push(`• Result: ${status} — ${verdictMeaning}`);
 
@@ -128,22 +129,22 @@ function printRunSummary({
     const reasons = (incompleteReasons && incompleteReasons.length > 0)
       ? incompleteReasons.slice(0, 3).join(', ')
       : (!coverageOk ? 'coverage below threshold' : 'observation stopped early');
-    lines.push('• ⚠ INCOMPLETE IS NOT SAFE. Findings (if any) are real; absence of findings is meaningless.');
+    lines.push(`• Safety: ${INCOMPLETE_SAFETY_LINE}`);
     lines.push(`• Why incomplete: ${reasons}`);
-    lines.push('• Next: start with simpler pages, fix the URL if needed, or lower the coverage requirement (--min-coverage 0.5).');
+    lines.push('• Next: expand coverage or reduce scope, then rerun with the same inputs.');
   } else if (status === 'FINDINGS') {
     const topFindings = (findings || []).slice(0, 3);
     const label = topFindings.length > 0
       ? topFindings.map((f, idx) => f?.id || f?.findingId || `finding-${idx + 1}`).join(', ')
       : 'listed in findings.json';
-    lines.push(`• Next: inspect evidence with "verax inspect ${paths?.baseDir || '.verax/runs/latest'}"`);
+    lines.push(`• Next: review findings.json and evidence in ${paths?.baseDir || '.verax/runs/latest'}`);
     lines.push(`• Top findings: ${label}`);
   } else {
-    lines.push('• Next: add this check to CI. Remember: this only tests what it saw, not your whole app.');
+    lines.push('• Next: keep this in CI and expand coverage for critical public flows.');
   }
 
   if (isFirstRun) {
-    lines.push('• First run safety: coverage shortfalls may be downgraded to NEEDS_REVIEW to aid onboarding.');
+    lines.push('• First run safety: partial coverage is marked INCOMPLETE and should not be treated as safe.');
   }
 
   lines.push(`• Artifacts: ${paths ? paths.baseDir : '.verax/runs/latest'}`);
@@ -319,7 +320,8 @@ async function runDiscoveryPhase(context) {
   atomicWriteJson(paths.runStatusJson, {
     contractVersion: 1,
     artifactVersions: getArtifactVersions(),
-    status: 'RUNNING',
+    status: 'INCOMPLETE',
+    lifecycle: 'RUNNING',
     scanId: paths.scanId,
     runId,
     startedAt,
@@ -418,6 +420,7 @@ async function runObservePhase(context) {
     budget,
     authConfig = {},
     bootstrapBrowser = false,
+    runtimeNavDiscovery = false,
   } = context;
   
   // Observe phase with timeout
@@ -483,6 +486,7 @@ async function runObservePhase(context) {
               },
               {
                 authConfig,
+                runtimeNavigation: { enabled: runtimeNavDiscovery === true },
               }
             ),
             'Observe'
@@ -619,6 +623,8 @@ async function runArtifactWritePhase(context) {
     isLimitedMode, // Zero-config: LIMITED mode tracking
     sourceMode, // Zero-config: source detection mode
     hasAuthFlags, // SCOPE ENFORCEMENT: post-auth mode tracking
+    runtimeNavDiscovery = false,
+    alignmentPreflight = false,
   } = context;
 
   const debugLogs = Boolean(verbose);
@@ -633,14 +639,16 @@ async function runArtifactWritePhase(context) {
   
   const completedAt = getTimeProvider().iso();
   
-  // Determine run status from observation phase (will adjust after coverage)
-  let runStatus = observeData?.status === 'INCOMPLETE' ? 'INCOMPLETE' : 'COMPLETE';
+  // Determine initial run truth status from observation phase (may be downgraded later).
+  // Truth vocabulary lock: SUCCESS | FINDINGS | INCOMPLETE only.
+  let runStatus = observeData?.status === 'INCOMPLETE' ? 'INCOMPLETE' : 'SUCCESS';
   
   // Write completed status
   atomicWriteJson(paths.runStatusJson, {
     contractVersion: 1,
     artifactVersions: getArtifactVersions(),
     status: runStatus,
+    lifecycle: 'FINALIZING',
     runId,
     scanId: paths.scanId,
     startedAt,
@@ -676,10 +684,10 @@ async function runArtifactWritePhase(context) {
   const actualFindings = detectData?.findings || [];
   /** @type {{ HIGH: number; MEDIUM: number; LOW: number; UNKNOWN: number }} */
   const findingsCounts = {
-    HIGH: actualFindings.filter(f => f.severity === 'HIGH' && f.status === 'CONFIRMED').length,
-    MEDIUM: actualFindings.filter(f => f.severity === 'MEDIUM' && f.status === 'CONFIRMED').length,
-    LOW: actualFindings.filter(f => f.severity === 'LOW' && f.status === 'CONFIRMED').length,
-    UNKNOWN: actualFindings.filter(f => f.severity === 'UNKNOWN' && f.status === 'CONFIRMED').length,
+    HIGH: actualFindings.filter(f => f.severity === 'HIGH').length,
+    MEDIUM: actualFindings.filter(f => f.severity === 'MEDIUM').length,
+    LOW: actualFindings.filter(f => f.severity === 'LOW').length,
+    UNKNOWN: actualFindings.filter(f => f.severity === 'UNKNOWN').length,
   };
   
   const summaryData = {
@@ -690,7 +698,22 @@ async function runArtifactWritePhase(context) {
     completedAt,
     command: 'run',
     url,
-    notes: runStatus === 'INCOMPLETE' ? 'Run incomplete (timeout or observation limit)' : 'Run completed successfully',
+    veraxVersion: getVersion(),
+    nodeVersion: process.version,
+    platform: process.platform,
+    cwd: projectRoot,
+    notes:
+      'Read-only by design (mutating HTTP methods are blocked). ' +
+      'Advisory for covered public flows; may still trigger normal page activity (GET requests, client-side state changes). ' +
+      'Structural determinism only: normalized artifacts are stable, but results may differ across environments or changing site state. ' +
+      `Pilot defaults: runtime navigation discovery=${runtimeNavDiscovery ? 'on' : 'off'}, alignment preflight=${alignmentPreflight ? 'on' : 'off'}.`,
+    runtimeNavigation: {
+      enabled: runtimeNavDiscovery === true,
+      discoveredCount: observeData?.runtime?.discoveredCount ?? 0,
+      executedCount: observeData?.runtime?.executedCount ?? 0,
+      maxTargets: observeData?.runtime?.maxTargets ?? (runtimeNavDiscovery ? 25 : 0),
+      allowCrossOrigin: observeData?.runtime?.allowCrossOrigin ?? false,
+    },
     metrics,
     findingsCounts,
     incompleteReasons: observeData?.stability?.incompleteReasons || [],
@@ -836,12 +859,10 @@ async function runArtifactWritePhase(context) {
   // Finalization attempted sentinel
   writeRunFinalized(paths.baseDir);
   
-  // Write completion sentinel early if coverage and initial status look complete
-  // This avoids false INCOMPLETE due to missing sentinel in validation
-  const coverageOkEarly = !(expectationsTotal > 0 && coverageRatio < (minCoverage ?? 0.90));
-  if (runStatus === 'COMPLETE' && coverageOkEarly) {
-    writeCompletionSentinel(paths.baseDir);
-  }
+  // Run completion sentinel (authoritative "finalization completed" marker).
+  // This must be written for ALL final truth states (SUCCESS/FINDINGS/INCOMPLETE) once all required
+  // artifacts are present. Validation relies on it.
+  writeCompletionSentinel(paths.baseDir);
 
   const validation = validateRunDirectory(paths.baseDir);
   const validatedStatus = determineRunStatus(validation, runStatus);
@@ -851,7 +872,7 @@ async function runArtifactWritePhase(context) {
   }
   
   // CRITICAL FIX: Recompute truthResult after validation using actual findings count
-  const totalConfirmedFindings = findingsCounts.HIGH + findingsCounts.MEDIUM + findingsCounts.LOW + findingsCounts.UNKNOWN;
+  const totalConfirmedFindings = actualFindings.filter((f) => f?.status === 'CONFIRMED').length;
   const finalTruthResult = classifyRunTruth(
     {
       expectationsTotal,
@@ -859,7 +880,7 @@ async function runArtifactWritePhase(context) {
       observed: completed,
       silentFailures: totalConfirmedFindings,
       coverageRatio,
-      hasInfraFailure: validatedStatus === 'FAIL_DATA',
+      hasInfraFailure: Boolean(validation && Array.isArray(validation.corruptedFiles) && validation.corruptedFiles.length > 0),
       isIncomplete: runStatus === 'INCOMPLETE' || validatedStatus === 'INCOMPLETE',
       incompleteReasons: summaryData.incompleteReasons || [],
     },
@@ -891,13 +912,12 @@ async function runArtifactWritePhase(context) {
     // Override truth state
     finalTruthResult.truthState = 'INCOMPLETE';
     finalTruthResult.confidence = 'LOW';
-    finalTruthResult.reason = 'No source code detected; runtime-only observation is insufficient for trust';
-    finalTruthResult.whatThisMeans = 
-      'VERAX ran in LIMITED mode because no source code was detected. ' +
-      'Analysis was restricted to runtime observation only, which cannot provide the evidence guarantees required for a trusted result. ' +
-      '⚠️ THIS RESULT MUST NOT BE TREATED AS SAFE.';
-    finalTruthResult.recommendedAction = 
-      'Provide --src <path> explicitly to enable full source-based analysis and achieve trusted results.';
+    finalTruthResult.reason = 'Source code not detected';
+    finalTruthResult.whatThisMeans =
+      'VERAX could not detect matching source code, so the run is INCOMPLETE. ' +
+      INCOMPLETE_SAFETY_LINE;
+    finalTruthResult.recommendedAction =
+      'Provide --src <path> pointing at your frontend source, then rerun.';
   }
   
   // SCOPE ENFORCEMENT: Post-auth mode ALWAYS results in INCOMPLETE (Vision.md contract)
@@ -910,13 +930,11 @@ async function runArtifactWritePhase(context) {
     // Override truth state
     finalTruthResult.truthState = 'INCOMPLETE';
     finalTruthResult.confidence = 'LOW';
-    finalTruthResult.reason = 'Authenticated flows are OUT OF SCOPE per Vision.md';
-    finalTruthResult.whatThisMeans = 
-      'VERAX was run with authentication flags, but authenticated/post-login flows are explicitly OUT OF SCOPE. ' +
-      'The Vision contract guarantees ONLY apply to public, pre-authentication flows. ' +
-      '⚠️ THIS RESULT IS EXPERIMENTAL AND MUST NOT BE TRUSTED.';
-    finalTruthResult.recommendedAction = 
-      'Remove authentication and test public flows only. VERAX is designed for pre-auth user journeys.';
+    finalTruthResult.reason = 'Post-login flows are out of scope for this pilot';
+    finalTruthResult.whatThisMeans =
+      `${POST_AUTH_DISCLAIMER_LINE} ${INCOMPLETE_SAFETY_LINE}`;
+    finalTruthResult.recommendedAction =
+      'Remove auth flags and test public flows only.';
   }
 
   const finalReasons = mapFailureReasons(finalIncompleteReasons);
@@ -938,14 +956,16 @@ async function runArtifactWritePhase(context) {
   
   // Write final consistent state to all artifacts
   // IMPORTANT: Always update run.status.json to reflect final truth state for artifact consistency
-  if (validatedStatus !== determineRunStatus(validation, 'COMPLETE') || finalTruthResult.truthState !== truthResult.truthState) {
+  if (!validation.valid || finalTruthResult.truthState !== truthResult.truthState) {
     const adjustedSummary = {
       ...summaryData,
       status: finalTruthResult.truthState,
       findingsCounts,
       incompleteReasons: finalIncompleteReasons,
       reasons: finalReasons,
-      notes: finalTruthResult.truthState === 'INCOMPLETE' ? 'Artifact validation failed; run marked incomplete' : summaryData.notes,
+      notes: finalTruthResult.truthState === 'INCOMPLETE'
+        ? `Artifact validation failed; run marked incomplete. ${summaryData.notes}`
+        : summaryData.notes,
       redactionStatus: {
         enabled: !isRedactionDisabled(enterprisePolicy),
         disabledExplicitly: isRedactionDisabled(enterprisePolicy),
@@ -955,11 +975,11 @@ async function runArtifactWritePhase(context) {
   }
   
   // Ensure run.status.json always matches the final truth state from summary
-  // This prevents artifact disagreement where summary says INCOMPLETE but run.status says COMPLETE
   atomicWriteJson(paths.runStatusJson, {
     contractVersion: 1,
     artifactVersions: getArtifactVersions(),
     status: finalTruthResult.truthState,
+    lifecycle: 'FINAL',
     scanId: paths.scanId,
     runId,
     startedAt,
@@ -1038,7 +1058,7 @@ async function runArtifactWritePhase(context) {
   }
   
   // Determine exit code strictly from final truth (single source)
-  let exitCode = validationExitCode(validation); // 0, 30, or 50
+  /** @type {number} */ let exitCode = validationExitCode(validation); // official contract codes only
   if (exitCode === 0) {
     if (finalTruthResult.truthState === 'SUCCESS') {
       exitCode = EXIT_CODES.SUCCESS;
@@ -1087,6 +1107,8 @@ export async function runCommand(options) {
     json = false,
     verbose = false,
     debug = false,
+    runtimeNavDiscovery = false,
+    alignmentPreflight = false,
     retainRuns = 10,
     noRetention = false,
     minCoverage = 0.90,
@@ -1149,10 +1171,12 @@ export async function runCommand(options) {
   
   // Warn if redaction is explicitly disabled
   if (isRedactionDisabled(enterprisePolicy)) {
-    const warningMsg = '⚠️  WARNING: Redaction is explicitly disabled. Secrets and sensitive data may be captured in artifacts.\n' +
-                       'Rotate any exposed credentials immediately.\n' +
-                       'For production use, redaction should remain enabled (default).';
-    console.error(warningMsg);
+    if (debugLogs && !json) {
+      const warningMsg =
+        'WARNING: Redaction is explicitly disabled. Evidence artifacts may contain sensitive data.\n' +
+        'Review artifacts before sharing. Keep redaction enabled by default.';
+      console.error(warningMsg);
+    }
   }
   
   const events = new RunEventEmitter();
@@ -1243,8 +1267,9 @@ export async function runCommand(options) {
     if (expectations.length === 0) {
       throw new UsageError('No observable user-facing promises were found in the provided source.\nVERAX requires frontend code with navigation, forms, or interactive UI.');
     }
-    // Skip in test mode or when json output is requested
-    if (!json && !process.env.VERAX_TEST_MODE) {
+    // PILOT-SAFE DEFAULT: Alignment preflight is opt-in because it launches an
+    // additional browser and may navigate outside local network constraints.
+    if (alignmentPreflight && !json && !process.env.VERAX_TEST_MODE) {
       try {
         const alignmentResult = await checkExpectationAlignment(expectations, url);
         if (!alignmentResult.aligned) {
@@ -1300,6 +1325,7 @@ export async function runCommand(options) {
       budget,
       authConfig: mergedAuthConfig,
       bootstrapBrowser: state.bootstrapBrowser,
+      runtimeNavDiscovery,
     });
     
     const detectData = await runDetectPhase({
@@ -1345,6 +1371,8 @@ export async function runCommand(options) {
       isLimitedMode, // Zero-config: pass LIMITED mode flag
       sourceMode, // Zero-config: pass source detection mode
       hasAuthFlags, // SCOPE ENFORCEMENT: pass post-auth flag
+      runtimeNavDiscovery,
+      alignmentPreflight,
     });
     const { exitCode: computedExitCode, validation, completedAt, metrics, findingsCounts, digest, truth } = artifactResult;
 
@@ -1356,10 +1384,9 @@ export async function runCommand(options) {
     const coverageOk = !(expectationsTotal > 0 && coverageRatio < (minCoverage ?? 0.90));
     const hasConfirmed = Number(detectData?.stats?.byStatus?.CONFIRMED || 0) > 0;
     const hasSuspected = Number(detectData?.stats?.byStatus?.SUSPECTED || 0) > 0;
-    const safeFindingsCounts = findingsCounts || { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 };
-    const confirmedTotal = Number(safeFindingsCounts.HIGH || 0) + Number(safeFindingsCounts.MEDIUM || 0) + Number(safeFindingsCounts.LOW || 0);
+    const confirmedTotal = Number(detectData?.stats?.byStatus?.CONFIRMED || 0);
 
-    let exitCode = computedExitCode ?? EXIT_CODES.SUCCESS;
+    /** @type {number} */ let exitCode = computedExitCode ?? EXIT_CODES.SUCCESS;
     let reason = 'Run completed with no actionable findings';
     let action = `Review artifacts at ${paths.baseDir}`;
 
@@ -1385,8 +1412,7 @@ export async function runCommand(options) {
         action = `Address findings and rerun. Summary: ${paths.summaryJson}`;
       } else if (isIncomplete && isFirstRun) {
         // STAGE 7.1: Guard coverage failures on first run
-        // Evidence violations (50) and infra failures (40) remain fatal
-        // Coverage/observation failures downgrade to NEEDS_REVIEW (10) on first run
+        // Invariant violations (50) remain fatal; first runs report INCOMPLETE for coverage/observation gaps
         exitCode = EXIT_CODES.INCOMPLETE;
         reason = truth?.reason || `Run incomplete: observation incomplete`;
         action = `For stricter validation, rerun with: verax run ${url} --min-coverage 0.90 --ci-mode balanced`;
@@ -1408,7 +1434,7 @@ export async function runCommand(options) {
         exitCode = EXIT_CODES.SUCCESS;
         reason = `Run complete: no silent user-facing failures detected in covered public flows${firstRunContext}`;
         action = isFirstRun 
-          ? `Next steps: Review artifacts at ${paths.baseDir}, run 'verax inspect' for detailed analysis, or add authentication if needed.`
+          ? `Next steps: Review artifacts at ${paths.baseDir}. Expand coverage for critical flows and rerun when site state or environment changes.`
           : `Proceed. Summary: ${paths.summaryJson}`;
       }
     }
@@ -1431,7 +1457,7 @@ export async function runCommand(options) {
     // Print run summary block (human-readable DX improvement)
     if (!json) {
       printRunSummary({
-        status: truth?.truthState || 'SUCCESS',
+        status: truth?.truthState || TRUTH_STATES.INCOMPLETE,
         attempted: observeData.stats?.attempted || 0,
         observed: observeData.stats?.observed || 0,
         expectationsTotal,

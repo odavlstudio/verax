@@ -4,7 +4,7 @@
  * PRODUCTION_GRADE seal is deterministically applied when:
  * 1. Coverage ratio ≥ minimum threshold (typically 0.9 = 90%)
  * 2. No evidence law violations
- * 3. Determinism verified (no timeout/incomplete status)
+ * 3. Evidence is complete enough to grade (digest/counts present)
  * 
  * The seal is explicit in summary.json and human summary markdown.
  * It provides confidence that the flow has been thoroughly tested.
@@ -51,9 +51,8 @@ export function computeProductionSeal(context = {}) {
  * @returns {boolean}
  */
 function checkStatusCondition(status) {
-  // Only COMPLETE status gets production seal
-  // INCOMPLETE or TIMEOUT disqualifies
-  return status === 'COMPLETE';
+  // Only SUCCESS status gets production seal
+  return status === 'SUCCESS';
 }
 
 /**
@@ -130,11 +129,11 @@ export function explainProductionSeal(context = {}) {
   let allPass = true;
   
   // Status check
-  if (status !== 'COMPLETE') {
-    reasons.push(`Status is '${status}', not 'COMPLETE'`);
+  if (status !== 'SUCCESS') {
+    reasons.push(`Status is '${status}', not 'SUCCESS'`);
     allPass = false;
   } else {
-    reasons.push(`✓ Status: COMPLETE`);
+    reasons.push(`✓ Status: SUCCESS`);
   }
   
   // Coverage check

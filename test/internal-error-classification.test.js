@@ -114,10 +114,10 @@ test('Internal Error Classification — ENTERPRISE SEMANTICS', async (t) => {
     assert.strictEqual(interactions.length, 3, 'All three interactions present');
   });
 
-  // TEST 6: Exit code signal for internal errors (Stage 7: infra failure = 40)
-  await t.test('exit code 40 should signal internal errors (documented)', async () => {
-    const EXIT_CODE_INTERNAL_ERROR = 40;
-    assert.strictEqual(EXIT_CODE_INTERNAL_ERROR, 40);
+  // TEST 6: Exit code signal for internal errors (Stage 7: invariant violation = 50)
+  await t.test('exit code 50 signals internal errors (documented)', async () => {
+    const EXIT_CODE_INTERNAL_ERROR = 50;
+    assert.strictEqual(EXIT_CODE_INTERNAL_ERROR, 50);
   });
 });
 

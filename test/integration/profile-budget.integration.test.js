@@ -34,8 +34,8 @@ test('Profile Budget: Profile loading works and validates', () => {
       timeout: 10000,
     });
     
-    // Should fail to connect but profile should be accepted (exit 65 for connection error or null for timeout)
-    assert.ok(result1.status === 65 || result1.status === 66 || result1.status === null, `Expected exit 65/66/null, got ${result1.status}`);
+    // Should fail to connect but profile should be accepted (exit 30 for observation failure or null for timeout)
+    assert.ok(result1.status === 30 || result1.status === null, `Expected exit 30/null, got ${result1.status}`);
     
     // Invalid profile
     const result2 = spawnSync('node', [veraxBin, 'run', '--url', 'http://localhost:9999', '--src', projectRoot, '--profile', 'invalid', '--out', dir], {

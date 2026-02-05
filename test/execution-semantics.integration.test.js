@@ -521,7 +521,7 @@ describe('STAGE 5.6: CI Semantics', () => {
     const result = determineRunOutcome(judgments, records, { minCoverage: 0.9 });
 
     assert.equal(result.exitCode, 30);
-    assert.equal(result.status, 'FAILURE');
+    assert.equal(result.status, 'INCOMPLETE');
     assert.equal(isRunSuccessful(result), false);
     assert.ok(getFailureReason(result).includes('below threshold'));
   });
@@ -540,7 +540,7 @@ describe('STAGE 5.6: CI Semantics', () => {
     const result = determineRunOutcome(judgments, records);
 
     assert.equal(result.exitCode, 50); // Evidence violation, not coverage failure
-    assert.equal(result.status, 'EVIDENCE_VIOLATION');
+    assert.equal(result.status, 'INCOMPLETE');
   });
 
   it('should integrate with STAGE 4 judgment exit codes', () => {
@@ -555,12 +555,12 @@ describe('STAGE 5.6: CI Semantics', () => {
     const result = determineRunOutcome(judgments, records, { minCoverage: 0.5 });
 
     assert.equal(result.exitCode, 20); // FAILURE_SILENT from judgment
-    assert.equal(result.status, 'FAILURE');
+    assert.equal(result.status, 'FINDINGS');
   });
 
   it('should take higher exit code when both coverage and judgment fail', () => {
     const judgments = [
-      { promiseId: 'p1', judgment: 'NEEDS_REVIEW' }, // Exit 10
+      { promiseId: 'p1', judgment: 'NEEDS_REVIEW' }, // Exit 30 (INCOMPLETE)
     ];
 
     const records = [
@@ -571,7 +571,7 @@ describe('STAGE 5.6: CI Semantics', () => {
 
     const result = determineRunOutcome(judgments, records, { minCoverage: 0.9 });
 
-    assert.equal(result.exitCode, 30); // Coverage exit 30 > judgment exit 10
+    assert.equal(result.exitCode, 30); // Coverage exit 30 > judgment exit 30
   });
 });
 

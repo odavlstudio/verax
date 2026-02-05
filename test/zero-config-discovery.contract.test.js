@@ -6,7 +6,7 @@
  * - Honest extraction outcomes (EXTRACTED/EMPTY/AMBIGUOUS)
  * - Function reference assumption removal
  * - Deterministic monorepo resolution
- * - Exit code 65 enforcement for EMPTY and AMBIGUOUS
+ * - Exit code 64 enforcement for EMPTY and AMBIGUOUS
  * 
  * All tests use local fixtures with no external network.
  */
@@ -217,9 +217,9 @@ test('Source Discovery - Deterministic Scoring', async (t) => {
   });
 });
 
-// === EXIT CODE 65 ENFORCEMENT TESTS ===
-
-test('Exit Code 65 - EMPTY Outcome', async (t) => {
+// === EXIT CODE 64 ENFORCEMENT TESTS ===
+ 
+test('Exit Code 64 - EMPTY Outcome', async (t) => {
   const fixturePath = resolve('./test/fixtures/truly-empty-fixture');
   
   // Mock a simple project profile for the fixture
@@ -241,17 +241,17 @@ test('Exit Code 65 - EMPTY Outcome', async (t) => {
   await t.test('EMPTY outcome means NO browser should launch', async () => {
     const result = await extractExpectations(projectProfile, fixturePath);
     
-    // The run command must check learnOutcome === 'EMPTY' and exit 65 BEFORE observeExpectations is called
+    // The run command must check learnOutcome === 'EMPTY' and exit 64 BEFORE observeExpectations is called
     // This test verifies the extraction produces EMPTY so the run command can check it
     assert.equal(result.learnOutcome, 'EMPTY', 'Extraction produces EMPTY for truly-empty fixture');
   });
 });
 
-test('Exit Code 65 - EMPTY outcome prevents observe phase', async (t) => {
+test('Exit Code 64 - EMPTY outcome prevents observe phase', async (t) => {
   // AMBIGUOUS outcome comes from source-discovery module during extraction and
   // would be triggered by a fixture with ambiguous app roots. Until such a
   // fixture exists, this test documents the enforced behavior for EMPTY
-  // outcomes that must block browser launch with exit 65.
+  // outcomes that must block browser launch with exit 64.
   
   await t.test('EMPTY outcome should be caught before Observe phase', async () => {
     const fixturePath = resolve('./test/fixtures/truly-empty-fixture');

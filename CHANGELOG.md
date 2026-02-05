@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.9] - 2026-02-05 (patch)
+
+### Pilot (purpose)
+
+This release is cut for pilot usage: run a read-only scan of a public (pre-login) URL, generate evidence-backed artifacts, and bundle them for sharing/CI.
+
+### Pilot (guarantees)
+
+- Public CLI surface is frozen to: `run`, `bundle`, `readiness`, `capability-bundle`, `version`, `help` (plus `--help/-h`, `--version/-v` fast exits).
+- Exit codes remain stable: `0` SUCCESS, `20` FINDINGS, `30` INCOMPLETE, `50` INVARIANT_VIOLATION, `64` USAGE_ERROR.
+- Truth vocabulary remains stable in user-facing outputs and `summary.json`: `SUCCESS`, `FINDINGS`, `INCOMPLETE`.
+- Bundles include an integrity manifest (`integrity.manifest.json`) to detect missing/tampered files.
+
+### Pilot (explicitly out of scope)
+
+- Post-auth / authenticated scanning unless explicitly forced; pilots are intended for public, pre-login flows by default.
+- Business logic correctness validation (e.g., pricing/math/permissions).
+- Security vulnerability scanning and compliance judgments.
+- Monitoring/analytics and performance benchmarking.
+
+### Breaking Changes
+
+- None.
+
+### Improvements
+
+- Pilot surface commands are locked and contract-tested (see `verax --help` for the frozen list).
+- Pilot-only diagnostics: `readiness` (no scan) and `capability-bundle` (safe-to-share bundle).
+- Bundling validates required run artifacts and includes integrity metadata.
+
+### Fixes
+
+- `scripts/verify-release.js` now keeps the packed tarball for verification (postpack cleanup is skipped only for the verifier).
+- `verax bundle` no longer fails on valid runs due to summary/findings count drift.
+
+### Guarantees
+
+- Exit codes and truth vocabulary remain stable (0/20/30/50/64; SUCCESS/FINDINGS/INCOMPLETE).
+- Public CLI surface remains frozen to the pilot commands listed above.
+
 ## [0.4.6] - 2026-01-28 (patch)
 
 ### Breaking Changes
@@ -33,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Guarantees (unchanged)
 
-- CLI commands and exit codes remain stable (0/10/20/30/40/50/64).
+- CLI commands and exit codes remain stable (0/20/30/50/64).
 - Artifact schemas unchanged: `summary.json`, `findings.json`, `observe.json`.
 - Deterministic, read-only, zero-config behavior preserved.
 - No code changes; documentation-only release.
@@ -57,35 +97,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Guarantees (unchanged)
 
-- CLI commands and exit codes remain stable (0/10/20/30/40/50/64).
+- CLI commands and exit codes remain stable (0/20/30/50/64).
 - Artifact schemas unchanged: `summary.json`, `findings.json`, `observe.json`.
 - Deterministic, read-only, zero-config behavior preserved.
-
-## [0.5.0] - 2026-01-24 (minor)
-
-### Breaking Changes
-
-- None.
-
-### Improvements
-
-- `verax version` now reports stability, compatibility guarantees, and versioning law from the single source of truth (`src/version.js`).
-- Pre-publish validation blocks releases without version bumps, semantic changelog entries, passing tests, or clean git state.
-- README surfaces stability/npm badges and upgrade safety rules at the top for quick risk assessment.
-- Deprecation framework wired for CLI flags with policy-first warnings and test coverage.
-
-### Fixes
-
-- Reinforced `src/version.js` as the only version source and synchronized package metadata.
-- Changelog validation now enforces required fields, types, and semver-aligned release types.
-
-### Guarantees (unchanged)
-
-- CLI contract and exit codes remain stable (0/10/20/30/40/50/64).
-- Artifact schema unchanged: `summary.json`, `findings.json`, `observe.json`.
-- Deterministic behavior preserved: same inputs produce identical outputs.
-- Read-only safety remains: scans never modify the application under test.
-- Zero-config defaults still work without user configuration.
 
 ## [0.4.2] - 2026-01-24 (minor)
 
@@ -95,19 +109,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
-- Standardized CLI exit codes (0/10/20/30/40/50/64) for Stage 7.0 contract hardening.
+- Standardized CLI exit codes (0/20/30/50/64) for Stage 7.0 contract hardening.
 - Zero-config first-run experience with automatic discovery defaults.
 - GitHub Actions workflow wired with exit code mapping for CI trust signals.
 
 ### Fixes
 
-- Normalized exit code 65 to 50 (EVIDENCE_VIOLATION) across commands.
+- Normalized non-contract exit codes to 50 (INVARIANT_VIOLATION) across commands.
 - First-run detection now checks both `.verax/runs/` and `.verax/scans/` directories.
 - CI environments (`CI=true`) disable relaxed first-run defaults.
 
 ### Guarantees (unchanged)
 
-- Exit codes 0/10/20/30/40/50/64 remain stable.
+- Exit codes 0/20/30/50/64 remain stable.
 - Artifact schemas unchanged: `summary.json`, `findings.json`, `observe.json`.
 - Deterministic behavior preserved.
 - Read-only, zero-config defaults remain intact.
@@ -155,9 +169,9 @@ None. Exit codes, JSON artifacts, and CLI interface remain compatible with v0.3.
 
 - **Exit Code Policy (CRITICAL)**: `verax run` now returns correct exit codes for CI/CD integration:
   - Exit 0: Run completed successfully with no silent failures detected
-  - Exit 1: Run completed successfully but silent failures were detected
-  - Exit 66: Run incomplete due to timeout or partial observation
-  - Exit 2, 64, 65: Unchanged (crash, usage error, invalid data)
+  - Exit 20: Run completed but findings were detected
+  - Exit 30: Run incomplete due to timeout or partial observation
+  - Exit 50, 64: Unchanged (invariant violation, usage error)
 - Timeout status changed from 'FAILED' to 'INCOMPLETE' for proper exit code handling
 
 ## [0.3.0] - 2026-01-13 (minor)

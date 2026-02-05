@@ -50,9 +50,9 @@ test('CLI Error Handling Contract - Exit Codes', async (t) => {
     assert.match(result.stderr, /url|require|argument/i, 'error should mention missing url');
   });
 
-  await t.test('inspect non-existent path exits with 65 (data error)', () => {
+  await t.test('inspect non-existent path exits with 50 (invariant violation)', () => {
     const result = runVerax(['inspect', '/nonexistent/path']);
-    assert.strictEqual(result.exitCode, 65, 'nonexistent path should exit 65');
+    assert.strictEqual(result.exitCode, 50, 'nonexistent path should exit 50');
     assert.match(result.stderr, /not found|does not exist|error/i, 'error should indicate missing path');
   });
 
@@ -93,7 +93,7 @@ test('CLI Error Handling Contract - Consistency', async (t) => {
     assert.strictEqual(runVerax(['run']).exitCode, 64);
     assert.strictEqual(runVerax(['unknown']).exitCode, 64);
     
-    // Data errors should exit 65
-    assert.strictEqual(runVerax(['inspect', '/nonexistent']).exitCode, 65);
+    // Data/invariant violations should exit 50
+    assert.strictEqual(runVerax(['inspect', '/nonexistent']).exitCode, 50);
   });
 });

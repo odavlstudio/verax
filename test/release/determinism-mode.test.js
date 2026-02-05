@@ -51,7 +51,7 @@ test('Determinism - deterministic fixture run results should be DETERMINISTIC', 
     };
     
     const runStatus = {
-      status: 'COMPLETE',
+      status: 'SUCCESS',
       runId: 'test-run-1',
     };
     

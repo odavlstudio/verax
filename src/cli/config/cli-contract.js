@@ -9,6 +9,7 @@
 import { UsageError, DataError, CLIError } from '../util/support/errors.js';
 import { formatErrorForHumans } from '../util/support/error-contract.js';
 import { formatTruthAsText } from '../../verax/core/truth-classifier.js';
+import { EXIT_CODES as OFFICIAL_EXIT_CODES } from '../../verax/shared/exit-codes.js';
 
 /**
  * @typedef {object} OutcomeParams
@@ -24,13 +25,7 @@ import { formatTruthAsText } from '../../verax/core/truth-classifier.js';
  * @property {boolean} [isFirstRun]
  */
 
-export const EXIT_CODES = {
-  SUCCESS: 0,
-  FINDINGS: 20,
-  INCOMPLETE: 30,
-  INVARIANT_VIOLATION: 50,
-  USAGE_ERROR: 64,
-};
+export const EXIT_CODES = OFFICIAL_EXIT_CODES;
 
 const RESULT_LABELS = {
   [EXIT_CODES.SUCCESS]: 'SUCCESS',

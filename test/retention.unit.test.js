@@ -59,7 +59,7 @@ function createTestRunsDir() {
 function createRunDir(runsDir, runId) {
   const runPath = join(runsDir, runId);
   mkdirSync(runPath, { recursive: true });
-  writeFileSync(join(runPath, 'run.status.json'), JSON.stringify({ runId, status: 'COMPLETE' }));
+  writeFileSync(join(runPath, 'run.status.json'), JSON.stringify({ runId, status: 'SUCCESS' }));
   return runPath;
 }
 

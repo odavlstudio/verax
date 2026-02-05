@@ -6,11 +6,12 @@
  * ENFORCEMENT RULES:
  * - Default minCoverage: 0.9 (90%)
  * - Coverage < minCoverage → INCOMPLETE state overrides PASS
- * - Coverage failure maps to exit code 30 (FAILURE_MISLEADING)
+ * - Coverage failure maps to exit code 30 (INCOMPLETE)
  * - Legal skips (auth_required, infra_failure) do not count against coverage
  */
 
 import { calculateCoverageTruth, getCoverageStatus, formatCoverageSummary } from './coverage-truth.js';
+import { EXIT_CODES } from '../shared/exit-codes.js';
 
 /**
  * Default minimum coverage threshold
@@ -121,18 +122,18 @@ export function shouldOverrideJudgments(enforcementResult, judgments) {
  */
 export function getCoverageExitCode(enforcementResult) {
   if (enforcementResult.passed) {
-    return 0; // No coverage issues
+    return EXIT_CODES.SUCCESS; // No coverage issues
   }
 
   if (enforcementResult.status === 'FAIL') {
-    return 30; // FAILURE_MISLEADING - coverage too low to trust results
+    return EXIT_CODES.INCOMPLETE; // coverage too low to trust results
   }
 
   if (enforcementResult.status === 'INCOMPLETE') {
-    return 30; // FAILURE_MISLEADING - no promises found
+    return EXIT_CODES.INCOMPLETE; // no promises found / incomplete
   }
 
-  return 0;
+  return EXIT_CODES.SUCCESS;
 }
 
 /**

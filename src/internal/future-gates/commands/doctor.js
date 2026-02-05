@@ -7,7 +7,7 @@ Purpose: Diagnose local environment for VERAX prerequisites (Node.js, Playwright
 Required: none
 Optional: --json
 Outputs: Exactly one RESULT/REASON/ACTION block (JSON or text) summarizing checks.
-Exit Codes: 0 SUCCESS | 40 INFRA_FAILURE | 64 USAGE_ERROR
+Exit Codes: 0 SUCCESS | 20 FINDINGS | 30 INCOMPLETE | 50 INVARIANT_VIOLATION | 64 USAGE_ERROR
 Forbidden: throwing on check failures; multiple RESULT blocks; unsupported flags.
 */
 
@@ -195,8 +195,7 @@ export async function doctorCommand(options = {}) {
   }
 
   const ok = checks.every((c) => c.status === 'pass');
-  const failingChecks = checks.filter((c) => c.status === 'fail').map((c) => c.name);
-  const exitCode = ok ? 0 : (failingChecks.includes('Headless smoke test') ? 66 : 65);
+  const exitCode = ok ? _EXIT_CODES.SUCCESS : _EXIT_CODES.INCOMPLETE;
 
   if (json) {
     const report = {

@@ -22,7 +22,7 @@ function getVersion() {
  * @param {string} failureInfo.url - Target URL
  * @param {string} failureInfo.src - Source directory
  * @param {string} failureInfo.state - ANALYSIS_FAILED or ANALYSIS_INCOMPLETE
- * @param {number} failureInfo.exitCode - Exit code (2 for FAILED, 66 for INCOMPLETE)
+ * @param {number} failureInfo.exitCode - Exit code (official contract only: 20/30/50/64)
  * @param {Error} failureInfo.primaryError - The error that caused failure
  * @param {string} failureInfo.phase - Phase where failure occurred
  * @param {string[]} failureInfo.notes - Additional context notes

@@ -35,11 +35,11 @@ describe('Stage 6C: CI stability & flake immunity', () => {
     rmSync(evidenceDir, { recursive: true, force: true });
   });
 
-  test('transient error retried once then succeeds → COMPLETE with retries recorded', async () => {
+  test('transient error retried once then succeeds → SUCCESS with retries recorded', async () => {
     process.env.VERAX_TEST_OBS_PATTERN = 'transient-pass';
     const result = await observeExpectations([makeExpectation('retry-pass')], 'http://example.com', evidenceDir);
 
-    assert.strictEqual(result.status, 'COMPLETE');
+    assert.strictEqual(result.status, 'SUCCESS');
     assert.strictEqual(result.stability.retries.attempted, 1);
     assert.strictEqual(result.stability.retries.succeeded, 1);
     assert.strictEqual(result.stability.retries.exhausted, 0);

@@ -24,7 +24,7 @@ describe('Decision Snapshot Artifact', () => {
     });
 
     const snapshot = readSnapshot(snapshotPath);
-    assert.strictEqual(snapshot.outcome, 'CLEAN');
+    assert.strictEqual(snapshot.outcome, 'SUCCESS');
     assert.strictEqual(snapshot.exitCode, 0);
     assert.strictEqual(snapshot.runPath, 'runs/run_clean');
     assert.strictEqual(snapshot.counts.silentFailures, 0);
@@ -45,7 +45,7 @@ describe('Decision Snapshot Artifact', () => {
     const snapshot = createDecisionSnapshot({
       runId: 'run_findings',
       outDir: '/tmp/verax',
-      exitCode: 1,
+      exitCode: 20,
       counts: {},
       findings,
     });
@@ -63,7 +63,7 @@ describe('Decision Snapshot Artifact', () => {
     const input = {
       runId: 'run_repeat',
       outDir: '/tmp/verax',
-      exitCode: 66,
+      exitCode: 30,
       counts: {
         expectationsTotal: 5,
         attempted: 5,

@@ -3,9 +3,9 @@
  * VERAX CLI Entry Point (Stage 7 Contract)
  * Commands handled here:
  * - verax run
- * - verax inspect
- * - verax gate
-// eslint-disable-next-line no-unused-vars
+ * - verax bundle
+ * - verax readiness (pilot-only)
+ * - verax capability-bundle (pilot-only)
  * - verax version (fast exit)
  * - verax help (fast exit)
  *
@@ -26,17 +26,51 @@ import { EXIT_CODES, emitOutcome, outcomeFromError, buildOutcome } from './confi
 import { enforceReadOnlyOperation } from '../verax/core/product-contract.js';
 import { buildAuthConfig } from './util/auth/auth-config.js';
 import { isFirstRun } from './util/support/first-run-detection.js';
+import { runPreflight } from './util/preflight/run-preflight.js';
 import { VERSION, getVersionString, getVersionInfo } from '../version.js';
+import {
+  PRODUCT_ONE_LINER,
+  DEFAULT_SCOPE_LINE,
+  POST_AUTH_DISCLAIMER_LINE,
+  NOT_THIS_TOOL_LINES,
+  RESULTS_INTERPRETATION,
+  ARTIFACTS_LINE,
+} from './config/pilot-messages.js';
 
-const FROZEN_COMMANDS = new Set([
-  'diagnose',
-  'explain',
-  'stability',
-  'stability-run',
-  'triage',
-  'clean',
-  'gate',
-]);
+const PILOT_SURFACE_VERSION = VERSION;
+const PILOT_COMMAND_SPECS = [
+  {
+    name: 'run',
+    usage: 'run --url <url> [options]',
+    description: 'Run scan on a URL',
+  },
+  {
+    name: 'bundle',
+    usage: 'bundle <runDir> <bundleDir>',
+    description: 'Pack run artifacts into a bundle directory',
+  },
+  {
+    name: 'readiness',
+    usage: 'readiness --url <url> [options]',
+    description: 'Pilot-only: diagnostic applicability check (no scan)',
+  },
+  {
+    name: 'capability-bundle',
+    usage: 'capability-bundle --url <url> [--out <path>] [options]',
+    description: 'Pilot-only: generate a diagnostic bundle (safe to share)',
+  },
+  {
+    name: 'version',
+    usage: 'version',
+    description: 'Show version and compatibility info',
+  },
+  {
+    name: 'help',
+    usage: 'help',
+    description: 'Show this help',
+  },
+];
+const PILOT_SUPPORTED_COMMANDS = PILOT_COMMAND_SPECS.map((spec) => spec.name);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -47,14 +81,19 @@ async function loadRunCommand() {
   return mod.runCommand;
 }
 
-async function loadInspectCommand() {
-  const mod = await import('./commands/inspect.js');
-  return mod.inspectCommand;
+async function loadBundleCommand() {
+  const mod = await import('./commands/bundle.js');
+  return mod.bundleCommand;
 }
 
-async function loadDoctorCommand() {
-  const mod = await import('../verax/cli/doctor.js');
-  return mod;
+async function loadReadinessCommand() {
+  const mod = await import('./commands/readiness.js');
+  return mod.readinessCommand;
+}
+
+async function loadCapabilityBundleCommand() {
+  const mod = await import('./commands/capability-bundle.js');
+  return mod.capabilityBundleCommand;
 }
 
 // Read package.json for version
@@ -149,10 +188,6 @@ async function main() {
   }
 
   const command = args[0];
-  if (FROZEN_COMMANDS.has(command)) {
-    console.error('This command is frozen and not part of VERAX Vision 1.0 guarantees.');
-    process.exit(EXIT_CODES.USAGE_ERROR);
-  }
   
   try {
     let outcomePayload = null;
@@ -161,20 +196,15 @@ async function main() {
     if (command === 'run') {
       commandExecuted = true;
       outcomePayload = await handleRunCommand(args, { debug });
-    } else if (command === 'inspect') {
+    } else if (command === 'bundle') {
       commandExecuted = true;
-      outcomePayload = await handleInspectCommand(args, { debug });
-    } else if (command === 'doctor') {
+      outcomePayload = await handleBundleCommand(args, { debug });
+    } else if (command === 'readiness') {
       commandExecuted = true;
-      const json = args.includes('--json');
-      const extraFlags = args.slice(1).filter((flag) => flag !== '--json');
-      if (extraFlags.length > 0) {
-        throw new UsageError(`Unknown flag(s): ${extraFlags.join(', ')}`);
-      }
-      const { runDoctor, printDoctorResults } = await loadDoctorCommand();
-      const result = await runDoctor({ projectRoot: process.cwd(), json });
-      printDoctorResults(result, json);
-      process.exit(EXIT_CODES.SUCCESS);
+      outcomePayload = await handleReadinessCommand(args);
+    } else if (command === 'capability-bundle') {
+      commandExecuted = true;
+      outcomePayload = await handleCapabilityBundleCommand(args);
     } else if (command === 'help' || command === '--help' || command === '-h') {
       commandExecuted = true;
       const topic = args[1];
@@ -187,8 +217,7 @@ async function main() {
       commandExecuted = true;
       outcomePayload = await handleVersionCommand(args, { debug });
     } else {
-      // Interactive mode removed
-      throw new UsageError('Interactive mode is disabled. Use: verax run --url <url>');
+      outcomePayload = outOfScopeCommand(command);
     }
 
     if (outcomePayload) {
@@ -215,6 +244,20 @@ async function main() {
   }
 }
 
+function outOfScopeCommand(cmd) {
+  const message = `Command '${cmd}' is out of scope for VERAX ${PILOT_SURFACE_VERSION} pilot surface. Supported: ${PILOT_SUPPORTED_COMMANDS.join(', ')}.`;
+  process.stderr.write(`${message}\n`);
+
+  const outcome = buildOutcome({
+    command: cmd || 'verax',
+    exitCode: EXIT_CODES.USAGE_ERROR,
+    reason: message,
+    action: `Supported: ${PILOT_SUPPORTED_COMMANDS.join(', ')}`,
+  });
+
+  return { outcome, emit: false, json: false };
+}
+
 function showHelp({ debug: _debug = false, usageError = false } = {}) {
     /*
     Command: verax help
@@ -226,33 +269,71 @@ function showHelp({ debug: _debug = false, usageError = false } = {}) {
   Forbidden: interactive prompts, multiple RESULT blocks.
   */
   const version = getVersion();
-  const helpText = `
-verax ${version}
-VERAX — Silent failure detection for websites
+  const usageLines = PILOT_COMMAND_SPECS
+    .map(({ usage, description }) => {
+      const left = `  verax ${usage}`;
+      return `${left.padEnd(44)} ${description}`;
+    })
+    .join('\n');
+  const resultsBlock = `RESULTS:
+  SUCCESS     ${RESULTS_INTERPRETATION.SUCCESS}
+  FINDINGS    ${RESULTS_INTERPRETATION.FINDINGS}
+  INCOMPLETE  ${RESULTS_INTERPRETATION.INCOMPLETE}
+`;
 
-USAGE:
-  verax run --url <url> [options]              Run scan on a URL
-  verax inspect <runPath> [--json]             Inspect an existing run
-  verax doctor [--json]                        Diagnose local environment
-
-OPTIONS:
-  --url <url>                    Target URL to scan
-  --src <path>                   Source directory (optional, auto-detected if omitted)
-                                 Auto-detection searches: ., ./src, ./app, ./frontend
-                                 If not found: runs in LIMITED mode (result: INCOMPLETE)
+  const optionsBlock = _debug
+    ? `OPTIONS:
+  --url <url>                    Target URL to scan (required)
+  --src <path>                   Source directory (recommended; auto-detected if omitted)
   --out <path>                   Output directory for artifacts (default: .verax)
-  --json                         Output as JSON lines (progress events)
+  --json                         JSON lines output (progress events + final outcome)
   --debug/--verbose              Verbose output
-  --explain-expectations         Print top 10 extracted expectations before observing
+  --runtime-nav-discovery        Opt-in: discover additional navigation targets at runtime
+  --alignment-preflight          Opt-in: preflight check that source and URL likely match
   --auth-storage <path>          Playwright storage state JSON file (cookies/localStorage)
   --auth-cookie <cookie>         Authentication cookies (repeatable)
   --auth-header <header>         Authentication header (repeatable)
   --auth-mode <mode>             Auth mode: auto (default), strict, or off
-  --force-post-auth              Required to use auth flags (post-auth is OUT OF SCOPE)
+  --force-post-auth              Required to use auth flags (post-login is out of scope)
   --retain-runs <number>         Number of recent runs to keep (default: 10, 0=none)
-  --no-retention                 Disable automatic run cleanup (keeps all runs)
-  --min-coverage <0-1>           Minimum observation coverage ratio (default: 0.90)
-  --ci-mode <balanced|strict>    Exit code policy for run (default: balanced)
+  --no-retention                 Disable automatic run pruning (keeps all runs)
+  --min-coverage <0-1>           Minimum coverage threshold (default: 0.90)
+  --ci-mode <balanced|strict>    Exit-code policy (default: balanced)
+
+PILOT-ONLY (diagnostic) COMMAND FLAGS:
+  readiness --timeout-ms <ms>        Timeout for initial HTML fetch
+  readiness --json                  Emit a single JSON object (no streaming)
+  capability-bundle --out <path>     Output directory root (default: .verax)
+  capability-bundle --timeout-ms <ms> Timeout for initial HTML fetch
+  capability-bundle --zip            Also write a small zip next to the folder
+`
+    : `OPTIONS:
+  --url <url>     Target URL to scan (required)
+  --src <path>    Source directory (recommended; auto-detected if omitted)
+  --out <path>    Output directory for artifacts (default: .verax)
+  --json          JSON lines output (machine-readable)
+  --verbose       Show advanced options
+
+PILOT-ONLY (diagnostic):
+  verax readiness --url <url> [--timeout-ms <ms>] [--json]
+  verax capability-bundle --url <url> [--out <path>] [--timeout-ms <ms>] [--zip]
+`;
+
+  const helpText = `
+verax ${version}
+${PRODUCT_ONE_LINER}
+${DEFAULT_SCOPE_LINE}
+${ARTIFACTS_LINE}
+
+USAGE:
+${usageLines}
+
+${optionsBlock}
+${resultsBlock}
+NOTES:
+  - ${NOT_THIS_TOOL_LINES[0]}
+  - ${NOT_THIS_TOOL_LINES[1]}
+  - ${POST_AUTH_DISCLAIMER_LINE}
 `;
 
   // Always print help text to stdout
@@ -271,30 +352,27 @@ OPTIONS:
 
 function showResultsHelp() {
   const text = `
-VERAX Results and Pipeline (plain language)
+VERAX — Results (pilot)
 
-Pipeline:
-  Learn   - reads your source code to extract navigation, forms, and feedback promises (requires --src)
-  Observe - plays those interactions in a real browser (pre-auth only; dynamic routes skipped)
-  Detect  - compares promises vs observed reality and flags silent failures with evidence
+What VERAX does:
+  ${PRODUCT_ONE_LINER}
+  ${DEFAULT_SCOPE_LINE}
 
-Verdicts:
-  SUCCESS     - No silent failures seen in the covered flows. Not a guarantee of correctness.
-  FINDINGS    - Silent failures detected with evidence. Treat as real user risks until disproven.
-  INCOMPLETE  - Observation unfinished or coverage below threshold. ⚠ NOT SAFE to treat as clean.
+How to read results:
+  SUCCESS     ${RESULTS_INTERPRETATION.SUCCESS}
+  FINDINGS    ${RESULTS_INTERPRETATION.FINDINGS}
+  INCOMPLETE  ${RESULTS_INTERPRETATION.INCOMPLETE}
 
-Artifacts:
-  .verax/runs/<scan>/<run>/summary.json   - verdict, coverage, counts
-  .../findings.json                       - list of findings with evidence pointers
-  .../learn.json                          - promises extracted from source
-  .../coverage.json                       - attempted vs unattempted expectations
+Artifacts (the product):
+  summary.json    verdict + coverage + counts
+  findings.json   findings with evidence pointers
+  evidence/       screenshots, traces, and supporting files
 
-Next steps per verdict:
-  SUCCESS    - keep as advisory gate; expand coverage for critical flows
-  FINDINGS   - run "verax inspect <run>" to open evidence; fix or accept risk explicitly
-  INCOMPLETE - rerun with reachable URL, reduce scope, or increase --min-coverage / timeout budget
+Next step:
+  Open the run directory under .verax/runs/ (or --out) and review summary.json and findings.json.
 
-Remember: VERAX needs the matching source code. Without it, promises are empty and results will be INCOMPLETE.
+Scope note:
+  ${POST_AUTH_DISCLAIMER_LINE}
 `;
 
   console.log(text);
@@ -337,6 +415,76 @@ function parseMultipleArgs(args, name) {
 // Each handler: parses args, validates, calls command, exits
 // ============================================================================
 
+async function handleBundleCommand(args, { debug: _debug = false } = {}) {
+  const allowedFlags = new Set(['--debug', '--verbose']);
+  const unknownFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
+  if (unknownFlags.length > 0) {
+    throw new UsageError(`Unsupported flag(s) for bundle: ${unknownFlags.join(', ')}`);
+  }
+
+  const positional = args.slice(1).filter((a) => !a.startsWith('-'));
+  if (positional.length !== 2) {
+    throw new UsageError('bundle requires <runDir> <bundleDir>');
+  }
+
+  const [runDir, bundleDir] = positional;
+
+  const bundleCommand = await loadBundleCommand();
+  const { outcome } = await bundleCommand(runDir, bundleDir);
+
+  return { outcome, emit: true, json: false };
+}
+
+async function handleReadinessCommand(args) {
+  const allowedFlags = new Set(['--url', '--json', '--timeout-ms', '--debug', '--verbose']);
+  const unknownFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
+  if (unknownFlags.length > 0) {
+    console.log(`Unsupported flag(s) for readiness: ${unknownFlags.join(', ')}`);
+  }
+
+  const readinessCommand = await loadReadinessCommand();
+  const result = await readinessCommand(args);
+  if (result?.json && result?.payload) {
+    console.log(JSON.stringify(result.payload, null, 2));
+  } else if (result?.text) {
+    process.stdout.write(result.text);
+  }
+
+  const outcome = buildOutcome({
+    command: 'readiness',
+    exitCode: EXIT_CODES.SUCCESS,
+    result: 'READINESS',
+    reason: 'Diagnostic readiness report generated',
+    action: 'Use this to decide if a pilot makes sense',
+  });
+
+  return { outcome, emit: false, json: false };
+}
+
+async function handleCapabilityBundleCommand(args) {
+  const allowedFlags = new Set(['--url', '--out', '--zip', '--timeout-ms', '--debug', '--verbose']);
+  const unknownFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
+  if (unknownFlags.length > 0) {
+    console.log(`Unsupported flag(s) for capability-bundle: ${unknownFlags.join(', ')}`);
+  }
+
+  const capabilityBundleCommand = await loadCapabilityBundleCommand();
+  const result = await capabilityBundleCommand(args);
+  if (result?.text) {
+    process.stdout.write(result.text);
+  }
+
+  const outcome = buildOutcome({
+    command: 'capability-bundle',
+    exitCode: EXIT_CODES.SUCCESS,
+    result: 'CAPABILITY_BUNDLE',
+    reason: 'Diagnostic capability bundle generated',
+    action: 'Share the bundle with VERAX support if needed',
+  });
+
+  return { outcome, emit: false, json: false };
+}
+
 async function handleRunCommand(args, { debug = false } = {}) {
   const allowedFlags = new Set([
     '--url',
@@ -345,6 +493,8 @@ async function handleRunCommand(args, { debug = false } = {}) {
     '--json',
     '--debug',
     '--verbose',
+    '--runtime-nav-discovery',
+    '--alignment-preflight',
     '--auth-storage',
     '--auth-cookie',
     '--auth-header',
@@ -373,6 +523,8 @@ async function handleRunCommand(args, { debug = false } = {}) {
   const bootstrapBrowser = args.includes('--bootstrap-browser') || process.env.VERAX_BOOTSTRAP_BROWSER === '1';
   const explainExpectations = args.includes('--explain-expectations');
   const dryLearn = args.includes('--dry-learn');
+  const runtimeNavDiscovery = args.includes('--runtime-nav-discovery');
+  const alignmentPreflight = args.includes('--alignment-preflight');
 
   // Propagate debug intent to internals that honor VERAX_DEBUG
   if (debugFlag && !process.env.VERAX_DEBUG) {
@@ -395,17 +547,17 @@ async function handleRunCommand(args, { debug = false } = {}) {
     if (autoResult.discovered && autoResult.srcPath) {
       src = autoResult.srcPath;
       sourceMode = 'auto-detected';
-      if (!json) {
-        console.log(`✓ Source: auto-detected from ${autoResult.srcPath}`);
+      if (!json && debugFlag) {
+        console.log(`Source: auto-detected (${autoResult.srcPath})`);
       }
     } else {
       src = projectRoot; // Fallback to cwd for LIMITED mode
       sourceMode = 'not-detected';
-      if (!json) {
-        console.log('⚠️  Source: not detected (limited runtime-only mode)');
-        console.log('    Analysis will be limited to runtime observation.');
-        console.log('    Result will be marked INCOMPLETE.');
-        console.log('    Provide --src <path> for full source-based analysis.\n');
+      if (!json && debugFlag) {
+        console.log('Source: not detected (limited runtime-only mode)');
+        console.log('Analysis will be limited to runtime observation.');
+        console.log('Result will be marked INCOMPLETE.');
+        console.log('Provide --src <path> for full source-based analysis.\n');
       }
     }
   }
@@ -419,15 +571,13 @@ async function handleRunCommand(args, { debug = false } = {}) {
   const authMode = parseArg(args, '--auth-mode') || 'auto';
   const forcePostAuth = args.includes('--force-post-auth');
   
-  // SCOPE BOUNDARY ENFORCEMENT: Vision.md explicitly states "Authenticated / post-login flows" are OUT OF SCOPE
-  // If user provides auth flags, require explicit --force-post-auth acknowledgement
+  // SCOPE BOUNDARY ENFORCEMENT: post-login flows are out of scope for the pilot surface.
+  // If user provides auth flags, require explicit --force-post-auth acknowledgement.
   const hasAuthFlags = authStorage || (authCookiesArgs && authCookiesArgs.length > 0) || (authHeadersArgs && authHeadersArgs.length > 0) || authMode !== 'auto';
   if (hasAuthFlags && !forcePostAuth) {
     throw new UsageError(
-      'Authentication flags detected, but authenticated flows are OUT OF SCOPE per Vision.md.\n' +
-      'VERAX is designed for pre-authentication, public flows only.\n' +
-      'If you understand the risks and limitations, add --force-post-auth to proceed.\n' +
-      '⚠️  WARNING: Results with authentication are EXPERIMENTAL and will always be marked INCOMPLETE.'
+      `Authentication flags require --force-post-auth.\n${POST_AUTH_DISCLAIMER_LINE}\n` +
+      'Results with authentication are always marked INCOMPLETE.'
     );
   }
   
@@ -443,14 +593,10 @@ async function handleRunCommand(args, { debug = false } = {}) {
     throw new UsageError(authErrors.join('; '));
   }
   
-  // Print loud warning if using post-auth mode
-  if (hasAuthFlags && forcePostAuth) {
-    if (!json) {
-      console.log('⚠️  WARNING: Running in EXPERIMENTAL post-auth mode');
-      console.log('    • Authenticated flows are OUT OF SCOPE per Vision.md');
-      console.log('    • Result will be marked INCOMPLETE');
-      console.log('    • Trust guarantees do NOT apply to post-auth analysis\n');
-    }
+  // Do not emit extra console output in normal mode; any post-auth notice is in help/usage text.
+  if (hasAuthFlags && forcePostAuth && !json && debugFlag) {
+    console.log(`Scope note: ${POST_AUTH_DISCLAIMER_LINE}`);
+    console.log('Result will be marked INCOMPLETE.\n');
   }
   
   const retainRunsArg = parseArg(args, '--retain-runs');
@@ -497,6 +643,14 @@ async function handleRunCommand(args, { debug = false } = {}) {
     }
   }
 
+  // PHASE 4: Preflight (fast, deterministic). Must run BEFORE run directories/phases begin.
+  try {
+    await runPreflight({ outPath });
+  } catch (preflightError) {
+    const outcome = outcomeFromError(preflightError, { command: 'run' });
+    return { outcome, emit: true, json };
+  }
+
   const runCommand = await loadRunCommand();
   const result = await runCommand({ 
     url,
@@ -505,6 +659,8 @@ async function handleRunCommand(args, { debug = false } = {}) {
     json,
     verbose: verboseFlag,
     debug: debugFlag,
+    runtimeNavDiscovery,
+    alignmentPreflight,
     authConfig,
     retainRuns,
     noRetention,
@@ -530,34 +686,14 @@ async function handleRunCommand(args, { debug = false } = {}) {
   // If result has an outcome, the outcome's exitCode is authoritative
   // If building fallback outcome, use result.exitCode
   if (result?.outcome && result?.exitCode !== undefined && result.outcome.exitCode !== result.exitCode) {
-    console.error(`[WARN] Exit code mismatch: outcome=${result.outcome.exitCode}, result=${result.exitCode}. Using outcome exitCode.`);
+    if (debugFlag || verboseFlag) {
+      console.error(
+        `[WARN] Exit code mismatch: outcome=${result.outcome.exitCode}, result=${result.exitCode}. Using outcome exitCode.`
+      );
+    }
   }
 
   return { outcome, emit: true, json };
-
-}
-
-async function handleInspectCommand(args, { debug = false } = {}) {
-  if (args.length < 2) {
-    throw new UsageError('inspect command requires a run path argument');
-  }
-
-  const allowedFlags = new Set(['--json']);
-  const unknownFlags = args.slice(2).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
-  if (unknownFlags.length > 0) {
-    throw new UsageError(`Unsupported flag(s) for inspect: ${unknownFlags.join(', ')}`);
-  }
-  
-  const runPath = args[1];
-  const json = args.includes('--json');
-  
-  const inspectCommand = await loadInspectCommand();
-  const { outcome, jsonPayload } = await inspectCommand(runPath, { json, debug });
-
-  if (json) {
-    return { outcome, emit: true, json: true, jsonOutput: true, jsonPayload };
-  }
-  return { outcome, emit: true, json: false };
 
 }
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * RunResult - Central Truth Tracking for VERAX
  * 
  * Single source of truth for analysis state, completeness, and skip reasons.
@@ -43,12 +43,14 @@ export class RunResult {
     this.findingsCount = 0;
     
     // Skip journal: { [reason: string]: number }
-    this.skipReasons = {};    this.skipExamples = {}; // { [reason]: ["exp_1", "exp_2", ...] }
+    this.skipReasons = {};
+    this.skipExamples = {}; // { [reason]: ["exp_1", "exp_2", ...] }
     
     // Per-expectation accounting (PHASE 2 PURIFICATION)
     // Tracks which expectations were analyzed vs skipped with specific reasons
     this.analyzedExpectations = new Set(); // Set<expectationId>
-    this.skippedExpectations = new Map(); // Map<expectationId, skipReason>    this.determinism = {
+    this.skippedExpectations = new Map(); // Map<expectationId, skipReason>
+    this.determinism = {
       level: 'DETERMINISTIC', // DETERMINISTIC | CONTROLLED_NON_DETERMINISTIC | NON_DETERMINISTIC
       reproducible: true,
       factors: [], // Array of factor codes (e.g., NETWORK_TIMING, ASYNC_DOM)
@@ -116,12 +118,14 @@ export class RunResult {
     const normalizedReason = validateSkipReason(reason);
     
     this.skipReasons[normalizedReason] = (this.skipReasons[normalizedReason] || 0) + count;
-    this.expectationsSkipped += count;    if (expectationIds && Array.isArray(expectationIds)) {
+    this.expectationsSkipped += count;
+    if (expectationIds && Array.isArray(expectationIds)) {
       for (const id of expectationIds) {
         if (id) {
           this.skippedExpectations.set(id, normalizedReason);
         }
-      }      if (!this.skipExamples[normalizedReason]) {
+      }
+      if (!this.skipExamples[normalizedReason]) {
         this.skipExamples[normalizedReason] = [];
       }
       for (const id of expectationIds) {
@@ -149,7 +153,8 @@ export class RunResult {
     
     this.recordSkip(reason, 1);
     this.budget[`${phase}Exceeded`] = true;
-    this.warnings.push(`${phase} phase timed out`);    this.recordDeterminismFactor('TIMEOUT_RISK', `${phase} phase reached timeout threshold`);
+    this.warnings.push(`${phase} phase timed out`);
+    this.recordDeterminismFactor('TIMEOUT_RISK', `${phase} phase reached timeout threshold`);
   }
   
   /**
@@ -273,7 +278,8 @@ export class RunResult {
       }
       
       const baselineRunId = runs[0].dir;
-      const baselineRunDir = join(runsDir, baselineRunId);      const { enforcePoisonCheckBeforeRead, verifyArtifactsBeforeRead } = await import('../observation/trust-integration-hooks.js');
+      const baselineRunDir = join(runsDir, baselineRunId);
+      const { enforcePoisonCheckBeforeRead, verifyArtifactsBeforeRead } = await import('../observation/trust-integration-hooks.js');
 
       // Enforce poison marker strictly; integrity check is advisory to keep comparison usable in tests
       try {
@@ -288,7 +294,8 @@ export class RunResult {
       const artifactVerification = verifyArtifactsBeforeRead(baselineRunDir);
       if (artifactVerification && artifactVerification.ok === false) {
         this.determinism.notes.push(`Comparison warning: ${artifactVerification.error || 'baseline integrity manifest missing'}`);
-      }      // Prefer on-disk summaries when present; otherwise use provided findings data
+      }
+      // Prefer on-disk summaries when present; otherwise use provided findings data
       const baselineSummaryPath = join(baselineRunDir, 'summary.json');
       if (!existsSync(baselineSummaryPath)) {
         this.determinism.notes.push(`Cannot compare: baseline summary missing at ${baselineSummaryPath}`);
@@ -614,10 +621,17 @@ export class RunResult {
     lines.push('═══════════════════════════════════════════════════════');
     lines.push('VERAX RESULT');
     lines.push('═══════════════════════════════════════════════════════');
-    lines.push('');    const stateDisplay = state === ANALYSIS_STATE.COMPLETE ? 'COMPLETE' : 
-                        state === ANALYSIS_STATE.INCOMPLETE ? 'INCOMPLETE' :
-                        'FAILED';
-    lines.push(`State: ${stateDisplay}`);    const coverage = this.getCompletenessRatio();
+    lines.push('');
+    lines.push(
+      `Truth: ${
+        this.getExitCode() === EXIT_CODES.SUCCESS
+          ? 'SUCCESS'
+          : this.getExitCode() === EXIT_CODES.FINDINGS
+            ? 'FINDINGS'
+            : 'INCOMPLETE'
+      }`
+    );
+    const coverage = this.getCompletenessRatio();
     const coverageText = `${this.expectationsAnalyzed}/${this.expectationsDiscovered} expectations analyzed (${(coverage * 100).toFixed(1)}%)`;
     
     // Contract v1: Partial coverage note
@@ -625,7 +639,8 @@ export class RunResult {
       lines.push(`Coverage: PARTIAL (${coverageText})`);
     } else {
       lines.push(`Coverage: ${coverageText}`);
-    }    if (this.expectationsSkipped > 0) {
+    }
+    if (this.expectationsSkipped > 0) {
       lines.push(`Skipped: ${this.expectationsSkipped}`);
       
       // Show first 2 skip reasons with example expectations
@@ -644,13 +659,11 @@ export class RunResult {
       if (sortedReasons.length > 2) {
         lines.push(`  └─ ... and ${sortedReasons.length - 2} more skip reasons`);
       }
-    }    lines.push(`Findings: ${this.findingsCount}`);    if (state !== ANALYSIS_STATE.COMPLETE) {
+    }
+    lines.push(`Findings: ${this.findingsCount}`);
+    if (this.getExitCode() !== EXIT_CODES.SUCCESS && this.getExitCode() !== EXIT_CODES.FINDINGS) {
       lines.push('');
-      if (state === ANALYSIS_STATE.INCOMPLETE) {
-        lines.push('⚠️  RESULTS ARE INCOMPLETE');
-      } else {
-        lines.push('❌ ANALYSIS FAILED');
-      }
+      lines.push('⚠️  RESULTS ARE INCOMPLETE');
       
       if (this.warnings.length > 0) {
         lines.push('');
@@ -659,7 +672,8 @@ export class RunResult {
           lines.push(`  • ${warning}`);
         }
       }
-    }    if (this.expectationsDiscovered === 0 && state === ANALYSIS_STATE.COMPLETE) {
+    }
+    if (this.expectationsDiscovered === 0 && state === ANALYSIS_STATE.COMPLETE) {
       lines.push('');
       lines.push('ℹ️  NO EXPECTATIONS FOUND');
       lines.push('  The source code does not contain detectable expectations.');
@@ -676,7 +690,8 @@ export class RunResult {
       if (this.contractViolations.dropped.length > 5) {
         lines.push(`  ... and ${this.contractViolations.dropped.length - 5} more`);
       }
-    }    lines.push('');
+    }
+    lines.push('');
     lines.push('Determinism:');
     lines.push(`  Level: ${this.determinism.level}`);
     lines.push(`  Reproducible: ${this.determinism.reproducible ? 'YES' : 'NO'}`);
@@ -684,7 +699,8 @@ export class RunResult {
       lines.push(`  Factors: ${this.determinism.factors.join(', ')}`);
     } else {
       lines.push(`  Factors: NONE`);
-    }    if (this.determinism.level === 'NON_DETERMINISTIC') {
+    }
+    if (this.determinism.level === 'NON_DETERMINISTIC') {
       lines.push('');
       lines.push(`⚠️  Results may differ between runs due to: ${this.determinism.factors.join(', ')}`);
     }
@@ -736,7 +752,8 @@ export class RunResult {
         phase: Object.keys(this.skipReasons).find(r => r.startsWith('TIMEOUT')) ? 'unknown' : null,
       },
       warnings: this.warnings || [],
-      notes: this.notes || [],      determinism: {
+      notes: this.notes || [],
+      determinism: {
         level: this.determinism.level,
         reproducible: this.determinism.reproducible,
         factors: [...this.determinism.factors],
@@ -746,6 +763,4 @@ export class RunResult {
     };
   }
 }
-
-
 

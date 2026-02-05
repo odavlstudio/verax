@@ -1,4 +1,4 @@
-name: VERAX Silent Failure Detection
+name: VERAX (Pilot)
 
 on:
   pull_request:
@@ -8,9 +8,13 @@ on:
       - main
 
 jobs:
-  verax-scan:
-    name: Scan for Silent Failures
-    runs-on: ubuntu-latest
+  verax:
+    name: VERAX
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     
     steps:
       - name: Checkout code
@@ -20,83 +24,47 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
       
-      - name: Install VERAX
-        run: npm install -g @veraxhq/verax
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium (Linux)
+        if: runner.os == 'Linux'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright Chromium (non-Linux)
+        if: runner.os != 'Linux'
+        run: npx playwright install chromium
       
       - name: Run VERAX scan
-        id: verax
-        run: |
-          # Determine URL to scan
-          if [ -n "${{ github.event.pull_request.html_url }}" ]; then
-            URL="${{ github.event.pull_request.html_url }}"
-          else
-            URL="https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}"
-          fi
-          
-          # Run VERAX with strict CI settings
-          set +e
-          verax run "$URL" --ci-mode=strict --min-coverage=0.90
-          EXIT_CODE=$?
-          set -e
-          
-          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
-          
-          # Exit code mapping for CI:
-          # 0  = SUCCESS → pass job
-          # 10 = NEEDS_REVIEW (suspected findings) → pass job with warning
-          # 20 = FAILURE_CONFIRMED → fail job
-          # 30 = FAILURE_INCOMPLETE → fail job
-          # 40 = INFRA_FAILURE → fail job
-          # 50 = EVIDENCE_VIOLATION → fail job
-          # 64 = USAGE_ERROR → fail job
-          
-          if [ $EXIT_CODE -eq 0 ] || [ $EXIT_CODE -eq 10 ]; then
-            echo "✅ VERAX scan completed (exit $EXIT_CODE)"
-            exit 0
-          else
-            echo "❌ VERAX scan failed (exit $EXIT_CODE)"
-            exit $EXIT_CODE
-          fi
+        env:
+          VERAX_URL: https://your-site.example
+        run: npx verax run --url ${{ env.VERAX_URL }} --out .verax --src . --ci-mode strict --min-coverage 0.90
       
-      - name: Upload VERAX artifacts on failure
-        if: failure() && steps.verax.outputs.exit_code >= 20
+      - name: Bundle artifacts (always, Linux)
+        if: runner.os == 'Linux' && always()
+        shell: bash
+        run: |
+          RUN_DIR=$(node --input-type=module -e "import { findLatestRun } from './node_modules/@veraxhq/verax/src/cli/util/ci/artifact-pack.js'; console.log(findLatestRun('.verax/runs') || '')" 2>/dev/null)
+          if [ -n "$RUN_DIR" ]; then
+            npx verax bundle "$RUN_DIR" .verax/artifact-bundle
+          fi
+
+      - name: Bundle artifacts (always, Windows)
+        if: runner.os == 'Windows' && always()
+        shell: pwsh
+        run: |
+          $runDir = node --input-type=module -e "import { findLatestRun } from './node_modules/@veraxhq/verax/src/cli/util/ci/artifact-pack.js'; console.log(findLatestRun('.verax/runs') || '')" 2>$null
+          if ($runDir) {
+            npx verax bundle $runDir .verax/artifact-bundle
+          }
+
+      - name: Upload VERAX bundle (always)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: verax-artifacts-${{ github.run_id }}
-          path: .verax/
+          name: verax-bundle-${{ matrix.os }}
+          path: .verax/artifact-bundle/
           retention-days: 7
-          if-no-files-found: warn
-      
-      - name: Comment on PR with results
-        if: github.event_name == 'pull_request' && steps.verax.outputs.exit_code != ''
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const exitCode = parseInt('${{ steps.verax.outputs.exit_code }}');
-            let message = '';
-            let emoji = '';
-            
-            if (exitCode === 0) {
-              emoji = '✅';
-              message = 'VERAX scan completed successfully. No silent failures detected.';
-            } else if (exitCode === 10) {
-              emoji = '⚠️';
-              message = 'VERAX scan found suspected issues that need review. Check the artifacts for details.';
-            } else if (exitCode === 20) {
-              emoji = '❌';
-              message = 'VERAX scan detected confirmed silent failures. Review required before merging.';
-            } else if (exitCode === 30) {
-              emoji = '⚠️';
-              message = 'VERAX scan incomplete. Coverage or observation thresholds not met.';
-            } else if (exitCode >= 40) {
-              emoji = '💥';
-              message = 'VERAX scan encountered an error. Check the workflow logs for details.';
-            }
-            
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `${emoji} **VERAX Silent Failure Detection**\n\n${message}\n\n**Exit Code:** ${exitCode}\n\nView artifacts: [verax-artifacts-${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`
-            });
+          if-no-files-found: ignore

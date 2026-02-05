@@ -23,13 +23,14 @@ function runFrozen(command) {
 }
 
 test('frozen commands exit with 64 and freeze notice', () => {
-  // Test with an actually frozen command (diagnose is frozen, doctor is public)
+  // Stage 1 pilot surface: frozen/legacy commands are out of scope and must be hidden
   const { exitCode, stdout, stderr } = runFrozen('diagnose');
-  const output = `${stdout}\n${stderr}`;
 
   assert.strictEqual(exitCode, 64, 'Frozen command must exit with 64 (USAGE_ERROR)');
-  assert.ok(
-    output.includes('This command is frozen and not part of VERAX Vision 1.0 guarantees.'),
-    'Frozen command must emit the freeze notice'
+  assert.strictEqual(stdout.trim(), '', 'Out-of-scope command must not emit contract output to stdout');
+  assert.strictEqual(
+    stderr.trim(),
+    "Command 'diagnose' is out of scope for VERAX 0.4.9 pilot surface. Supported: run, bundle, readiness, capability-bundle, version, help.",
+    'Frozen command must emit pilot-scope out-of-scope message'
   );
 });

@@ -1,8 +1,8 @@
 /**
- * Doctor Command Termination Test
- * 
- * Regression test to ensure `verax doctor --json` terminates cleanly
- * and does not hang due to leaked browser processes or intervals.
+ * Out-of-Scope Command Termination Test
+ *
+ * Stage 1 Freeze & Prune: out-of-scope commands must fail fast (exit 64)
+ * with a single-line stderr message and no contract output.
  */
 
 import { describe, test } from 'node:test';
@@ -58,8 +58,8 @@ function runCliWithTimeout(command, args, timeoutMs = 5000, env = {}) {
   });
 }
 
-describe('Doctor Command Termination', () => {
-  test('doctor --json exits within 5 seconds with fast smoke test', async () => {
+describe('Out-of-scope command termination', () => {
+  test('doctor --json fails fast with pilot-scope message', async () => {
     const result = await runCliWithTimeout(
       process.execPath,
       [veraxBin, 'doctor', '--json'],
@@ -67,26 +67,18 @@ describe('Doctor Command Termination', () => {
       { VERAX_DOCTOR_SMOKE_TIMEOUT_MS: '3000' }
     );
     
-    assert.strictEqual(result.code, 0, `doctor exited with code ${result.code}`);
+    assert.strictEqual(result.code, 64, `doctor exited with code ${result.code}`);
     assert.ok(!result.signal, `doctor killed by signal ${result.signal}`);
     
-    // Verify valid JSON output
-    const output = result.stdout.trim();
-    assert.ok(output, 'doctor produced output');
-    
-    let parsed;
-    try {
-      parsed = JSON.parse(output);
-    } catch (e) {
-      throw new Error(`doctor output is not valid JSON: ${e.message}\nOutput: ${output.slice(0, 500)}`);
-    }
-    
-    assert.ok(parsed.checks, 'doctor JSON contains checks array');
-    assert.ok(Array.isArray(parsed.checks), 'checks is an array');
-    assert.ok(parsed.checks.length >= 4, `Expected at least 4 checks, got ${parsed.checks.length}`);
+    assert.strictEqual(result.stdout.trim(), '', 'out-of-scope command must not emit stdout');
+    assert.strictEqual(
+      result.stderr.trim(),
+      "Command 'doctor' is out of scope for VERAX 0.4.9 pilot surface. Supported: run, bundle, readiness, capability-bundle, version, help.",
+      'out-of-scope command must emit pilot-scope message to stderr'
+    );
   });
   
-  test('doctor (human mode) exits within 5 seconds with fast smoke test', async () => {
+  test('doctor (human mode) fails fast with pilot-scope message', async () => {
     const result = await runCliWithTimeout(
       process.execPath,
       [veraxBin, 'doctor'],
@@ -94,12 +86,15 @@ describe('Doctor Command Termination', () => {
       { VERAX_DOCTOR_SMOKE_TIMEOUT_MS: '3000' }
     );
     
-    assert.strictEqual(result.code, 0, `doctor exited with code ${result.code}`);
+    assert.strictEqual(result.code, 64, `doctor exited with code ${result.code}`);
     assert.ok(!result.signal, `doctor killed by signal ${result.signal}`);
     
-    const output = result.stdout;
-    assert.ok(output.includes('VERAX Doctor'), 'doctor output contains header');
-    assert.ok(output.includes('Node.js version'), 'doctor output contains checks');
+    assert.strictEqual(result.stdout.trim(), '', 'out-of-scope command must not emit stdout');
+    assert.strictEqual(
+      result.stderr.trim(),
+      "Command 'doctor' is out of scope for VERAX 0.4.9 pilot surface. Supported: run, bundle, readiness, capability-bundle, version, help.",
+      'out-of-scope command must emit pilot-scope message to stderr'
+    );
   });
 });
 

@@ -1,6 +1,29 @@
 {
   "versions": [
     {
+      "version": "0.4.9",
+      "date": "2026-02-05",
+      "type": "patch",
+
+      "breakingChanges": [],
+
+      "improvements": [
+        "Pilot surface commands are locked and contract-tested (run, bundle, readiness, capability-bundle, version, help)",
+        "Pilot-only diagnostics: readiness (no scan) and capability-bundle (safe-to-share bundle)",
+        "Bundling validates required run artifacts and includes integrity metadata"
+      ],
+
+      "fixes": [
+        "verify-release now preserves the packed tarball during verification (postpack cleanup is skipped only for the verifier)",
+        "bundle no longer fails on valid runs due to summary/findings count drift"
+      ],
+
+      "guarantees": [
+        "Exit codes and truth vocabulary remain stable (0/20/30/50/64; SUCCESS/FINDINGS/INCOMPLETE)",
+        "Public CLI surface remains frozen to the pilot commands listed above"
+      ]
+    },
+    {
       "version": "0.4.6",
       "date": "2026-01-28",
       "type": "patch",
@@ -28,7 +51,7 @@
       ],
 
       "guarantees": [
-        "CLI commands and exit codes remain stable (0/10/20/30/40/50/64)",
+        "CLI commands and exit codes remain stable (0/20/30/50/64)",
         "Artifact schemas unchanged: summary.json, findings.json, observe.json",
         "Deterministic, read-only, zero-config behavior preserved"
       ],

@@ -5,7 +5,7 @@ import { tmpdir } from 'os';
 import { resolve } from 'path';
 import { scanRepoForSourceCandidates, selectBestDefaultSrc } from '../../src/cli/util/config/project-shape.js';
 import { resolveDefaultSrc } from '../../src/cli/util/config/src-resolver.js';
-import { DataError } from '../../src/cli/util/support/errors.js';
+import { UsageError } from '../../src/cli/util/support/errors.js';
 
 function makeTempDir(name) {
   const dir = mkdtempSync(resolve(tmpdir(), name));
@@ -73,7 +73,7 @@ test('Project Shape: root src preferred when single', () => {
   } finally { cleanup(root); }
 });
 
-test('Src Resolver: ambiguity throws DataError with exit 50', () => {
+test('Src Resolver: ambiguity throws UsageError with exit 64', () => {
   const root = makeTempDir('verax_shape_');
   try {
     setupMonorepoAmbiguous(root);
@@ -82,8 +82,8 @@ test('Src Resolver: ambiguity throws DataError with exit 50', () => {
       resolveDefaultSrc(root, null);
     } catch (e) {
       threw = true;
-      assert.ok(e instanceof DataError);
-      assert.strictEqual(e.exitCode, 50);
+      assert.ok(e instanceof UsageError);
+      assert.strictEqual(e.exitCode, 64);
       assert.ok(String(e.message).includes('Ambiguous'));
       assert.ok(String(e.message).includes('apps/app1'));
       assert.ok(String(e.message).includes('apps/app2'));

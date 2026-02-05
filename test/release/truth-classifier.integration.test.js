@@ -47,7 +47,7 @@ test('truth block is properly nested in summary.json structure', (_t) => {
   const summaryLike = {
     contractVersion: '1',
     runId: 'test-run-123',
-    status: 'COMPLETE',
+    status: 'SUCCESS',
     digest: {
       expectationsTotal: 0,
       attempted: 0,
@@ -70,7 +70,7 @@ test('all truth states are serializable', (_t) => {
   const scenarios = [
     { name: 'SUCCESS', result: { truthState: 'SUCCESS', confidence: 'HIGH' } },
     { name: 'INCOMPLETE', result: { truthState: 'INCOMPLETE', confidence: 'MEDIUM' } },
-    { name: 'FAILURE', result: { truthState: 'FAILURE', confidence: 'HIGH' } },
+    { name: 'FINDINGS', result: { truthState: 'FINDINGS', confidence: 'HIGH' } },
   ];
 
   for (const scenario of scenarios) {
@@ -87,6 +87,7 @@ test('all truth states are serializable', (_t) => {
     const parsed = JSON.parse(json);
 
     assert.strictEqual(parsed.truthState, scenario.result.truthState, `${scenario.name} serializes correctly`);
+    assert(['SUCCESS', 'FINDINGS', 'INCOMPLETE'].includes(parsed.truthState), 'truthState is within official vocabulary');
   }
 });
 

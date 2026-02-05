@@ -41,8 +41,8 @@ let passed = 0;
 let failed = 0;
 
 // Test 1: CLI contract exposes exit code 30 for incomplete
-if (test('FAILURE_INCOMPLETE equals 30', () => {
-  assert(EXIT_CODES.FAILURE_INCOMPLETE === 30, `Expected FAILURE_INCOMPLETE to be 30, got ${EXIT_CODES.FAILURE_INCOMPLETE}`);
+if (test('INCOMPLETE equals 30', () => {
+  assert(EXIT_CODES.INCOMPLETE === 30, `Expected INCOMPLETE to be 30, got ${EXIT_CODES.INCOMPLETE}`);
 })) passed++; else failed++;
 
 // Test 2: Timeout handler writes INCOMPLETE metadata
@@ -55,10 +55,10 @@ if (test('Timeout handler writes INCOMPLETE status', () => {
 
 // Test 3: Exit code catalog is unique and includes 30
 if (test('Exit code 30 is unique among codes', () => {
-  const codes = [EXIT_CODES.SUCCESS, EXIT_CODES.NEEDS_REVIEW, EXIT_CODES.FAILURE_CONFIRMED, EXIT_CODES.FAILURE_INCOMPLETE, EXIT_CODES.INFRA_FAILURE, EXIT_CODES.EVIDENCE_VIOLATION, EXIT_CODES.USAGE_ERROR];
+  const codes = [EXIT_CODES.SUCCESS, EXIT_CODES.FINDINGS, EXIT_CODES.INCOMPLETE, EXIT_CODES.INVARIANT_VIOLATION, EXIT_CODES.USAGE_ERROR];
   const unique = new Set(codes);
   assert(unique.size === codes.length, 'All exit codes must be unique');
-  assert(codes.includes(30), 'Should include FAILURE_INCOMPLETE (30)');
+  assert(codes.includes(30), 'Should include INCOMPLETE (30)');
 })) passed++; else failed++;
 
 // Test 4: Verify incomplete scenario produces correct artifacts structure
@@ -84,13 +84,13 @@ if (test('Incomplete scenario artifact structure is valid', () => {
 })) passed++; else failed++;
 
 // Test 5: Verify INCOMPLETE is distinct from FAILED
-if (test('INCOMPLETE status is distinct from FAILED', () => {
+if (test('INCOMPLETE truth is distinct from SUCCESS and FINDINGS', () => {
   const incomplete = 'INCOMPLETE';
-  const failed = 'FAILED';
-  const complete = 'COMPLETE';
+  const success = 'SUCCESS';
+  const findings = 'FINDINGS';
   
-  assert(incomplete !== failed, 'INCOMPLETE should not equal FAILED');
-  assert(incomplete !== complete, 'INCOMPLETE should not equal COMPLETE');
+  assert(incomplete !== success, 'INCOMPLETE should not equal SUCCESS');
+  assert(incomplete !== findings, 'INCOMPLETE should not equal FINDINGS');
   
   // Verify semantic meaning
   assert(incomplete.includes('INCOMPLETE'), 'Status should indicate incompleteness');
@@ -98,10 +98,11 @@ if (test('INCOMPLETE status is distinct from FAILED', () => {
 
 // Test 6: Verify exit code 30 is distinct from all other codes
 if (test('Exit code 30 is distinct from other exit codes', () => {
-  assert(EXIT_CODES.FAILURE_INCOMPLETE === 30, 'Incomplete should be 30');
-  assert(EXIT_CODES.FAILURE_INCOMPLETE !== EXIT_CODES.SUCCESS, 'Should not equal success (0)');
-  assert(EXIT_CODES.FAILURE_INCOMPLETE !== EXIT_CODES.NEEDS_REVIEW, 'Should not equal needs review (10)');
-  assert(EXIT_CODES.FAILURE_INCOMPLETE !== EXIT_CODES.FAILURE_CONFIRMED, 'Should not equal confirmed failure (20)');
+  assert(EXIT_CODES.INCOMPLETE === 30, 'INCOMPLETE should be 30');
+  assert(EXIT_CODES.INCOMPLETE !== EXIT_CODES.SUCCESS, 'Should not equal SUCCESS (0)');
+  assert(EXIT_CODES.INCOMPLETE !== EXIT_CODES.FINDINGS, 'Should not equal FINDINGS (20)');
+  assert(EXIT_CODES.INCOMPLETE !== EXIT_CODES.INVARIANT_VIOLATION, 'Should not equal INVARIANT_VIOLATION (50)');
+  assert(EXIT_CODES.INCOMPLETE !== EXIT_CODES.USAGE_ERROR, 'Should not equal USAGE_ERROR (64)');
 })) passed++; else failed++;
 
 console.log(`\n═══════════════════════════════════════════════════════════`);
@@ -116,7 +117,7 @@ if (failed > 0) {
   console.log('');
   console.log('✅ Exit code 30 implementation verified');
   console.log('✅ Artifact structure supports INCOMPLETE status');
-  console.log('✅ Distinct from FAILED and COMPLETE statuses');
+  console.log('✅ Distinct from SUCCESS and FINDINGS truth states');
   process.exit(0);
 }
 

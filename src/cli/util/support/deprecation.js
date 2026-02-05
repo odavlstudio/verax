@@ -18,7 +18,7 @@ const SHOWN_WARNINGS = new Set();
  * @param {Object} options - Deprecation details
  * @param {string} options.feature - Name of deprecated feature (e.g., '--profile')
  * @param {string} options.since - Version when deprecated (e.g., '0.4.0')
- * @param {string} options.removeIn - Version when it will be removed (e.g., '0.5.0')
+ * @param {string} options.removeIn - Version when it will be removed (e.g., '0.4.9')
  * @param {string} [options.replacement] - Recommended alternative
  * @param {string} [options.reason] - Why it was deprecated
  */
@@ -102,7 +102,7 @@ export const DEPRECATED_FLAGS = {
   // Example: if we were deprecating --profile
   // '--profile': {
   //   since: '0.4.0',
-  //   removeIn: '0.5.0',
+  //   removeIn: '0.4.9',
   //   replacement: '--ci-mode',
   //   reason: 'Replaced with more explicit --ci-mode flag',
   //   hasValue: true,

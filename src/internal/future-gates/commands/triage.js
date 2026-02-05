@@ -7,7 +7,7 @@ Purpose: Generate incident triage report from existing run artifacts.
 Required: <runId>
 Optional: --json
 Outputs: Exactly one RESULT/REASON/ACTION block (JSON or text) plus triage.json artifact.
-Exit Codes: 0 SUCCESS | 50 EVIDENCE_VIOLATION | 40 INFRA_FAILURE | 64 USAGE_ERROR
+Exit Codes: 0 SUCCESS | 20 FINDINGS | 30 INCOMPLETE | 50 INVARIANT_VIOLATION | 64 USAGE_ERROR
 Forbidden: run artifact mutation outside triage.json; multiple RESULT blocks; interactive prompts.
 */
 

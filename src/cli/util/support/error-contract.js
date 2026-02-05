@@ -15,6 +15,8 @@
  * - JSON output must be deterministic for testing
  */
 
+import { EXIT_CODES } from '../../../verax/shared/exit-codes.js';
+
 export class VeraxError extends Error {
   constructor(options = {}) {
     const {
@@ -164,19 +166,19 @@ export function isOperationalError(err) {
  * @returns {number}
  */
 export function exitCodeForError(err) {
-  if (!err) return 2; // Internal crash
+  if (!err) return EXIT_CODES.INVARIANT_VIOLATION;
 
   if (err instanceof VeraxError) {
-    // Operational errors → exit 65 (invalid input/data)
+    // Operational errors → usage/data categories
     if (err.isOperational) {
       // Some codes map to specific exit codes
-      if (err.code.startsWith('USAGE_')) return 64;
-      return 65;
+      if (err.code.startsWith('USAGE_')) return EXIT_CODES.USAGE_ERROR;
+      return EXIT_CODES.INVARIANT_VIOLATION;
     }
-    // Bugs → exit 2 (internal crash)
-    return 2;
+    // Bugs → invariant violation (internal crash)
+    return EXIT_CODES.INVARIANT_VIOLATION;
   }
 
-  // Unknown errors → exit 2
-  return 2;
+  // Unknown errors → invariant violation
+  return EXIT_CODES.INVARIANT_VIOLATION;
 }

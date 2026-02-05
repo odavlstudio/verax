@@ -1,5 +1,5 @@
 import { atomicWriteJson } from '../support/atomic-write.js';
-import { ARTIFACT_REGISTRY } from '../../../verax/core/artifacts/registry.js';
+import { ARTIFACT_REGISTRY, getRunArtifactContract } from '../../../verax/core/artifacts/registry.js';
 import { buildTruthBlock } from '../../../verax/core/truth-classifier.js';
 
 /**
@@ -118,6 +118,10 @@ export function writeSummaryJson(summaryPath, summaryData, stats = {}, truthResu
       platform: summaryData.platform || null,
       cwd: summaryData.cwd || null,
     },
+
+    // Artifact contract visibility (single source of truth).
+    // Values are run-dir-relative paths; directories include a trailing slash.
+    artifactsContract: getRunArtifactContract(),
 
     // Stage 6.6: Product Seal (deterministic)
     productionSeal: computeProductionSeal(summaryData, stats),

@@ -14,7 +14,7 @@ test('deprecation warning: emits warning with all fields', () => {
     deprecationWarning({
       feature: '--test-flag',
       since: '0.4.0',
-      removeIn: '0.5.0',
+      removeIn: '0.4.9',
       replacement: '--new-flag',
       reason: 'Better naming',
     });
@@ -22,7 +22,7 @@ test('deprecation warning: emits warning with all fields', () => {
     assert.ok(captured.includes('DEPRECATION WARNING'));
     assert.ok(captured.includes('--test-flag'));
     assert.ok(captured.includes('v0.4.0'));
-    assert.ok(captured.includes('v0.5.0'));
+    assert.ok(captured.includes('v0.4.9'));
     assert.ok(captured.includes('--new-flag'));
     assert.ok(captured.includes('Better naming'));
   } finally {
@@ -41,19 +41,19 @@ test('deprecation warning: only shown once per feature', () => {
     deprecationWarning({
       feature: '--duplicate-test',
       since: '0.4.0',
-      removeIn: '0.5.0',
+      removeIn: '0.4.9',
     });
     
     deprecationWarning({
       feature: '--duplicate-test',
       since: '0.4.0',
-      removeIn: '0.5.0',
+      removeIn: '0.4.9',
     });
     
     deprecationWarning({
       feature: '--duplicate-test',
       since: '0.4.0',
-      removeIn: '0.5.0',
+      removeIn: '0.4.9',
     });
     
     assert.strictEqual(callCount, 1, 'Warning should only be shown once');
@@ -73,12 +73,12 @@ test('deprecation warning: works without optional fields', () => {
     deprecationWarning({
       feature: '--minimal',
       since: '0.4.0',
-      removeIn: '0.5.0',
+      removeIn: '0.4.9',
     });
     
     assert.ok(captured.includes('--minimal'));
     assert.ok(captured.includes('v0.4.0'));
-    assert.ok(captured.includes('v0.5.0'));
+    assert.ok(captured.includes('v0.4.9'));
   } finally {
     console.warn = originalWarn;
   }
@@ -96,7 +96,7 @@ test('checkDeprecatedFlags: warns when deprecated flag present', () => {
     const deprecatedFlags = {
       '--old-flag': {
         since: '0.4.0',
-        removeIn: '0.5.0',
+        removeIn: '0.4.9',
         replacement: '--new-flag',
         hasValue: true,
         removeNow: false,
@@ -174,13 +174,13 @@ test('checkDeprecatedFlags: handles multiple deprecated flags', () => {
     const deprecatedFlags = {
       '--old1': {
         since: '0.4.0',
-        removeIn: '0.5.0',
+        removeIn: '0.4.9',
         hasValue: false,
         removeNow: false,
       },
       '--old2': {
         since: '0.4.0',
-        removeIn: '0.5.0',
+        removeIn: '0.4.9',
         hasValue: true,
         removeNow: false,
       },
@@ -206,7 +206,7 @@ test('checkDeprecatedFlags: no warnings when no deprecated flags used', () => {
     const deprecatedFlags = {
       '--old-flag': {
         since: '0.4.0',
-        removeIn: '0.5.0',
+        removeIn: '0.4.9',
       },
     };
     
@@ -230,7 +230,7 @@ test('deprecation policy: warnings are non-fatal', () => {
     deprecationWarning({
       feature: '--test',
       since: '0.4.0',
-      removeIn: '0.5.0',
+      removeIn: '0.4.9',
     });
     
     // Execution continues

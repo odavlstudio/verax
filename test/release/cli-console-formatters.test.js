@@ -22,7 +22,7 @@ const cleanDecision = {
 
 const findingsDecision = {
   outcome: 'FINDINGS',
-  exitCode: 1,
+  exitCode: 20,
   runId: 'run_findings',
   runPath: 'runs/run_findings',
   counts: {

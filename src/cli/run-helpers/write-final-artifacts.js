@@ -27,11 +27,15 @@ export function writeFinalArtifacts(
 ) {
   const timeProvider = getTimeProvider();
   const completedAt = timeProvider.iso();
+  const silentFailures = Number(detectData?.stats?.silentFailures ?? 0);
+  const isIncomplete = observeData?.status === 'INCOMPLETE';
+  const finalStatus = isIncomplete ? 'INCOMPLETE' : (silentFailures > 0 ? 'FINDINGS' : 'SUCCESS');
   
   atomicWriteJson(paths.runStatusJson, {
     contractVersion: 1,
     artifactVersions: getArtifactVersions(),
-    status: 'COMPLETE',
+    status: finalStatus,
+    lifecycle: 'FINAL',
     runId,
     startedAt,
     completedAt,
@@ -69,12 +73,12 @@ export function writeFinalArtifacts(
 
   writeSummaryJson(paths.summaryJson, {
     runId,
-    status: 'COMPLETE',
+    status: finalStatus,
     startedAt,
     completedAt,
     command: 'run',
     url,
-    notes: 'Run completed successfully',
+    notes: finalStatus === 'INCOMPLETE' ? 'Run incomplete' : 'Run completed',
     metrics,
     findingsCounts,
     runtimeNavigation: observeData?.runtime || null,
@@ -82,7 +86,7 @@ export function writeFinalArtifacts(
     expectationsTotal: expectations.length,
     attempted: observeData.stats?.attempted || 0,
     observed: observeData.stats?.observed || 0,
-    silentFailures: detectData.stats?.silentFailures || 0,
+    silentFailures: silentFailures,
     coverageGaps: detectData.stats?.coverageGaps || 0,
     unproven: detectData.stats?.unproven || 0,
     informational: detectData.stats?.informational || 0,

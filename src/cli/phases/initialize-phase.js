@@ -51,7 +51,8 @@ export async function initializePhase(params) {
   atomicWriteJson(paths.runStatusJson, {
     contractVersion: 1,
     artifactVersions: getArtifactVersions(),
-    status: 'RUNNING',
+    status: 'INCOMPLETE',
+    lifecycle: 'RUNNING',
     runId,
     startedAt,
   });

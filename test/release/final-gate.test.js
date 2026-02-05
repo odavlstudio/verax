@@ -2,7 +2,7 @@
  * Final Gate Test - Installability & CLI Surface
  * 
  * This test ensures VERAX is actually installable and the CLI is executable.
- * It validates the CLI surface only (--version, --help, doctor --json).
+ * It validates the CLI surface only (--version, --help, pilot-scope routing).
  * Full integration tests with Playwright belong in verify-release.js.
  * 
  * Note: These tests are legitimately slow (~15s) due to npm pack/install.
@@ -152,25 +152,26 @@ describe('Final Gate: VERAX Installability & CLI', () => {
     // Test --help
     const helpResult = await runCommand('node', [cliPath, '--help'], extractedRoot, 10000);
     assert.strictEqual(helpResult.code, 0, `verax --help should succeed: ${helpResult.stderr}`);
-    assert.ok(helpResult.stdout.includes('run'), 'help should mention "run" command');
-    assert.ok(helpResult.stdout.includes('doctor'), 'help should mention "doctor" command');
-    assert.ok(helpResult.stdout.includes('inspect'), 'help should mention "inspect" command');
+    assert.ok(helpResult.stdout.includes('verax run'), 'help should mention "run" command');
+    assert.ok(helpResult.stdout.includes('verax bundle'), 'help should mention "bundle" command');
+    assert.ok(helpResult.stdout.includes('verax version'), 'help should mention "version" command');
+    assert.ok(helpResult.stdout.includes('verax help'), 'help should mention "help" command');
+    assert.strictEqual(helpResult.stdout.includes('verax doctor'), false, 'help must NOT mention "doctor" command');
+    assert.strictEqual(helpResult.stdout.includes('verax inspect'), false, 'help must NOT mention "inspect" command');
 
-    // Test doctor --json
-    const doctorResult = await runCommand('node', [cliPath, 'doctor', '--json'], tempDir, 30000);
-    assert.strictEqual(doctorResult.code, 0, `verax doctor --json should succeed: ${doctorResult.stderr}`);
-    
-    try {
-      const doctorJson = JSON.parse(doctorResult.stdout);
-      assert.ok(typeof doctorJson === 'object', 'doctor --json should output JSON object');
-      assert.ok('ok' in doctorJson, 'doctor output should have "ok" field');
-      assert.ok(Array.isArray(doctorJson.checks), 'doctor output should have "checks" array');
-      assert.ok(doctorJson.checks.length > 0, 'doctor should report checks');
-      assert.ok(doctorJson.checks[0].name, 'doctor checks should have "name" field');
-      assert.ok(typeof doctorJson.checks[0].status === 'string', 'doctor checks should have "status" field');
-    } catch (e) {
-      assert.fail(`doctor --json should output valid JSON: ${doctorResult.stdout}`);
-    }
+    // Test bundle command is reachable (usage error without args)
+    const bundleResult = await runCommand('node', [cliPath, 'bundle'], extractedRoot, 10000);
+    assert.strictEqual(bundleResult.code, 64, `verax bundle (no args) should exit 64: ${bundleResult.stderr}`);
+
+    // Test out-of-scope command rejection
+    const doctorResult = await runCommand('node', [cliPath, 'doctor', '--json'], extractedRoot, 10000);
+    assert.strictEqual(doctorResult.code, 64, `verax doctor should be out of scope: ${doctorResult.stderr}`);
+    assert.strictEqual(doctorResult.stdout.trim(), '', 'out-of-scope command must not emit stdout');
+    assert.strictEqual(
+      doctorResult.stderr.trim(),
+      "Command 'doctor' is out of scope for VERAX 0.4.9 pilot surface. Supported: run, bundle, readiness, capability-bundle, version, help.",
+      'out-of-scope command must emit pilot-scope message to stderr'
+    );
   });
 });
 

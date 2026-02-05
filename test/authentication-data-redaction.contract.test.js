@@ -60,7 +60,7 @@ test('auth artifacts and summary never contain raw secrets', () => {
   const summaryPath = join(dir, 'summary.json');
   writeSummaryJson(summaryPath, {
     runId: 'run1',
-    status: 'COMPLETE',
+    status: 'SUCCESS',
     startedAt: 'now',
     completedAt: 'now',
     command: 'run',
@@ -130,7 +130,7 @@ test('network artifacts and traces never contain raw secrets', () => {
   const tracesPath = join(dir, 'traces.jsonl');
   writeSummaryJson(join(dir, 'summary.json'), {
     runId: 'run1',
-    status: 'COMPLETE',
+    status: 'SUCCESS',
     startedAt: 'now',
     completedAt: 'now',
     command: 'run',

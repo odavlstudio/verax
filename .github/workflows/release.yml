@@ -97,7 +97,7 @@ jobs:
       - name: Pack tarball
         id: pack
         run: |
-          npm pack
+          VERAX_SKIP_POSTPACK_CLEANUP=1 npm pack
           TARBALL=$(ls veraxhq-verax-*.tgz | head -1)
           echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
           echo "✅ Packed: $TARBALL"
@@ -111,9 +111,9 @@ jobs:
           echo "Testing: npx $TARBALL --version"
           npx "$TARBALL" --version || exit 1
           
-          # Test doctor
-          echo "Testing: npx $TARBALL doctor"
-          npx "$TARBALL" doctor || exit 1
+          # Test help (pilot surface: no internal/experimental commands exposed)
+          echo "Testing: npx $TARBALL help"
+          npx "$TARBALL" help || exit 1
           
           echo "✅ Smoke tests passed"
 

@@ -26,13 +26,16 @@ export function finalizePhase(params) {
   
   const completedAt = getTimeProvider().iso();
   
-  // Determine run status: if observeData shows INCOMPLETE, use that status
-  const runStatus = observeData?.status === 'INCOMPLETE' ? 'INCOMPLETE' : 'COMPLETE';
+  // Determine run truth status (official vocabulary only)
+  const observedIncomplete = observeData?.status === 'INCOMPLETE';
+  const silentFailures = Number(detectData?.stats?.silentFailures ?? 0);
+  const runStatus = observedIncomplete ? 'INCOMPLETE' : (silentFailures > 0 ? 'FINDINGS' : 'SUCCESS');
   
   atomicWriteJson(paths.runStatusJson, {
     contractVersion: 1,
     artifactVersions: getArtifactVersions(),
     status: runStatus,
+    lifecycle: 'FINAL',
     runId,
     startedAt,
     completedAt,
@@ -85,7 +88,7 @@ export function finalizePhase(params) {
     completedAt,
     command: 'run',
     url,
-    notes: runStatus === 'INCOMPLETE' ? 'Run incomplete: observation timeout or sensor failure' : 'Run completed successfully',
+    notes: runStatus === 'INCOMPLETE' ? 'Run incomplete' : 'Run completed',
     metrics,
     findingsCounts,
     incompleteReasons: observeData?.stability?.incompleteReasons || [],

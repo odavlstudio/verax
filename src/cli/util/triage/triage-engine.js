@@ -9,6 +9,7 @@ import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 import { DataError } from '../support/errors.js';
 import { getTimeProvider } from '../support/time-provider.js';
+import { normalizeTruthState, TRUTH_STATES } from '../../../verax/shared/truth-states.js';
 
 /**
  * Generate triage report from run artifacts
@@ -102,12 +103,14 @@ function extractFailureContext({ runId, summary, findings, traces, expectations,
     }
   }
 
-  const state = summary.analysis?.state || summary.status || 'UNKNOWN';
-  const analysisComplete = summary.analysis?.analysisComplete ?? (state === 'ANALYSIS_COMPLETE');
+  const truthState = normalizeTruthState(summary.status, TRUTH_STATES.INCOMPLETE);
+  const analysisState = typeof summary.analysis?.state === 'string' ? summary.analysis.state : null;
+  const analysisComplete = summary.analysis?.analysisComplete ?? (analysisState === 'ANALYSIS_COMPLETE');
   const notes = collectNotes(summary, diagnostics);
 
   const status = {
-    state,
+    truthState,
+    analysisState,
     analysisComplete,
     exitCode: summary.meta?.exitCode ?? null,
     failures: extractFailures(summary, diagnostics),
@@ -150,8 +153,8 @@ function collectNotes(summary, diagnostics) {
 
 function extractFailures(summary, diagnostics) {
   const failures = [];
-  if (summary.status === 'FAILED' || summary.analysis?.state === 'FAILED') {
-    failures.push('run_failed');
+  if (summary.status === 'INCOMPLETE') {
+    failures.push('run_incomplete');
   }
   if (diagnostics?.toolHealth?.status === 'FAILED') {
     failures.push('tool_health_failed');

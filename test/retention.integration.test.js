@@ -28,7 +28,7 @@ try {
     const runPath = join(runsDir, runId);
     mkdirSync(runPath, { recursive: true });
     writeFileSync(join(runPath, 'run.status.json'), JSON.stringify({
-      status: 'COMPLETE',
+      status: 'SUCCESS',
       runId
     }));
   }

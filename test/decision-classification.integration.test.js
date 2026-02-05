@@ -260,93 +260,93 @@ describe('STAGE 4.5: Exit Code Contract', () => {
     assert.equal(exitCode, EXIT_CODES.SUCCESS);
   });
 
-  it('returns 10 for NEEDS_REVIEW only', () => {
+  it('returns 30 for NEEDS_REVIEW only (ambiguity → INCOMPLETE)', () => {
     const judgments = [
       { judgment: JUDGMENT_TYPES.NEEDS_REVIEW },
     ];
 
     const exitCode = determineExitCode(judgments);
-    assert.equal(exitCode, EXIT_CODES.NEEDS_REVIEW);
+    assert.equal(exitCode, EXIT_CODES.INCOMPLETE);
   });
 
-  it('returns 20 for FAILURE_SILENT present', () => {
+  it('returns 20 for FAILURE_SILENT present (→ FINDINGS)', () => {
     const judgments = [
       { judgment: JUDGMENT_TYPES.PASS },
       { judgment: JUDGMENT_TYPES.FAILURE_SILENT },
     ];
 
     const exitCode = determineExitCode(judgments);
-    assert.equal(exitCode, EXIT_CODES.FAILURE_SILENT);
+    assert.equal(exitCode, EXIT_CODES.FINDINGS);
   });
 
-  it('returns 30 for FAILURE_MISLEADING present', () => {
+  it('returns 20 for FAILURE_MISLEADING present (→ FINDINGS)', () => {
     const judgments = [
       { judgment: JUDGMENT_TYPES.PASS },
       { judgment: JUDGMENT_TYPES.FAILURE_MISLEADING },
     ];
 
     const exitCode = determineExitCode(judgments);
-    assert.equal(exitCode, EXIT_CODES.FAILURE_MISLEADING);
+    assert.equal(exitCode, EXIT_CODES.FINDINGS);
   });
 
-  it('returns 30 for both MISLEADING and SILENT (MISLEADING has priority)', () => {
+  it('returns 20 for both MISLEADING and SILENT (any failure → FINDINGS)', () => {
     const judgments = [
       { judgment: JUDGMENT_TYPES.FAILURE_SILENT },
       { judgment: JUDGMENT_TYPES.FAILURE_MISLEADING },
     ];
 
     const exitCode = determineExitCode(judgments);
-    assert.equal(exitCode, EXIT_CODES.FAILURE_MISLEADING);
+    assert.equal(exitCode, EXIT_CODES.FINDINGS);
   });
 
-  it('returns 40 for infra failure', () => {
+  it('returns 30 for infra failure (→ INCOMPLETE)', () => {
     const exitCode = determineExitCode([], { infraFailure: true });
-    assert.equal(exitCode, EXIT_CODES.INFRA_FAILURE);
+    assert.equal(exitCode, EXIT_CODES.INCOMPLETE);
   });
 
-  it('returns 50 for evidence law violation', () => {
+  it('returns 50 for evidence law violation (→ INVARIANT_VIOLATION)', () => {
     const exitCode = determineExitCode([], { evidenceLawViolated: true });
-    assert.equal(exitCode, EXIT_CODES.EVIDENCE_LAW_VIOLATED);
+    assert.equal(exitCode, EXIT_CODES.INVARIANT_VIOLATION);
   });
 
-  it('respects precedence: 50 > 40 > 30 > 20 > 10 > 0', () => {
-    // Evidence law > infra
+  it('respects precedence: 50 > 30 > 20 > 0', () => {
+    // Evidence/invariant > infra
     assert.equal(
       determineExitCode([], { evidenceLawViolated: true, infraFailure: true }),
-      EXIT_CODES.EVIDENCE_LAW_VIOLATED
+      EXIT_CODES.INVARIANT_VIOLATION
     );
 
-    // Infra > misleading
+    // Infra/incomplete > findings
     assert.equal(
       determineExitCode([{ judgment: JUDGMENT_TYPES.FAILURE_MISLEADING }], { infraFailure: true }),
-      EXIT_CODES.INFRA_FAILURE
+      EXIT_CODES.INCOMPLETE
     );
 
-    // Misleading > silent
+    // Misleading/silent → FINDINGS
     assert.equal(
       determineExitCode([
         { judgment: JUDGMENT_TYPES.FAILURE_SILENT },
         { judgment: JUDGMENT_TYPES.FAILURE_MISLEADING },
       ]),
-      EXIT_CODES.FAILURE_MISLEADING
+      EXIT_CODES.FINDINGS
     );
 
-    // Silent > review
+    // Findings > ambiguity
     assert.equal(
       determineExitCode([
         { judgment: JUDGMENT_TYPES.NEEDS_REVIEW },
         { judgment: JUDGMENT_TYPES.FAILURE_SILENT },
       ]),
-      EXIT_CODES.FAILURE_SILENT
+      EXIT_CODES.FINDINGS
     );
 
-    // Review > success
+    // Ambiguity > success
     assert.equal(
       determineExitCode([
         { judgment: JUDGMENT_TYPES.PASS },
         { judgment: JUDGMENT_TYPES.NEEDS_REVIEW },
       ]),
-      EXIT_CODES.NEEDS_REVIEW
+      EXIT_CODES.INCOMPLETE
     );
   });
 
@@ -574,7 +574,7 @@ describe('STAGE 4: End-to-End Integration', () => {
 
     // 6. Determine exit code
     const exitCode = determineExitCode([judgment]);
-    assert.equal(exitCode, EXIT_CODES.FAILURE_SILENT);
+    assert.equal(exitCode, EXIT_CODES.FINDINGS);
 
     // 7. Verify determinism
     assert.doesNotThrow(() => {
@@ -613,8 +613,8 @@ describe('STAGE 4: End-to-End Integration', () => {
     const snapshot = createJudgmentSnapshot(sorted);
     assert.equal(snapshot.totalCount, 3);
 
-    // Determine exit code (FAILURE_MISLEADING has highest priority)
+    // Determine exit code (any failure → FINDINGS)
     const exitCode = determineExitCode(sorted);
-    assert.equal(exitCode, EXIT_CODES.FAILURE_MISLEADING);
+    assert.equal(exitCode, EXIT_CODES.FINDINGS);
   });
 });

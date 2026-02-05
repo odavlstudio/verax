@@ -4,9 +4,8 @@
  * 
  * Validates the precedence hierarchy (Stage 7):
  * 1. INCOMPLETE (30) overrides all other outcomes
- * 2. FAILURE_CONFIRMED (20) when complete with confirmed findings
- * 3. NEEDS_REVIEW (10) when complete with suspected findings only
- * 4. OK (0) when complete with no actionable findings
+ * 2. FINDINGS (20) when complete with any findings
+ * 3. SUCCESS (0) when complete with no actionable findings
  * 
  * This test ensures the exit code logic in run.js follows the contract.
  */
@@ -29,20 +28,14 @@ describe('Exit Code Precedence Contract', () => {
     if (observeData?.status === 'INCOMPLETE') {
       exitCode = 30;
     } else if (detectData?.findings && detectData.findings.length > 0) {
-      const confirmed = detectData.findings.filter(f => f.status === 'CONFIRMED');
-      const suspected = detectData.findings.filter(f => f.status === 'SUSPECTED');
-      if (confirmed.length > 0) {
-        exitCode = 20;
-      } else if (suspected.length > 0) {
-        exitCode = 10;
-      }
+      exitCode = 20;
     }
     
     assert.strictEqual(exitCode, 30, 'INCOMPLETE must yield exit code 30 even with findings');
   });
   
-  test('COMPLETE with confirmed findings must yield exit code 20', () => {
-    const observeData = { status: 'COMPLETE' };
+  test('SUCCESS observation with findings must yield exit code 20', () => {
+    const observeData = { status: 'SUCCESS' };
     const detectData = {
       findings: [
         { status: 'CONFIRMED', impact: 'HIGH' },
@@ -54,20 +47,14 @@ describe('Exit Code Precedence Contract', () => {
     if (observeData?.status === 'INCOMPLETE') {
       exitCode = 30;
     } else if (detectData?.findings && detectData.findings.length > 0) {
-      const confirmed = detectData.findings.filter(f => f.status === 'CONFIRMED');
-      const suspected = detectData.findings.filter(f => f.status === 'SUSPECTED');
-      if (confirmed.length > 0) {
-        exitCode = 20;
-      } else if (suspected.length > 0) {
-        exitCode = 10;
-      }
+      exitCode = 20;
     }
     
-    assert.strictEqual(exitCode, 20, 'COMPLETE with confirmed findings must yield exit code 20');
+    assert.strictEqual(exitCode, 20, 'SUCCESS observation with findings must yield exit code 20');
   });
   
   test('COMPLETE with only INFORMATIONAL findings must yield exit code 0', () => {
-    const observeData = { status: 'COMPLETE' };
+    const observeData = { status: 'SUCCESS' };
     const detectData = {
       findings: [
         { status: 'INFORMATIONAL', impact: 'LOW' }
@@ -78,33 +65,23 @@ describe('Exit Code Precedence Contract', () => {
     if (observeData?.status === 'INCOMPLETE') {
       exitCode = 30;
     } else if (detectData?.findings && detectData.findings.length > 0) {
-      const confirmed = detectData.findings.filter(f => f.status === 'CONFIRMED');
-      const suspected = detectData.findings.filter(f => f.status === 'SUSPECTED');
-      if (confirmed.length > 0) {
-        exitCode = 20;
-      } else if (suspected.length > 0) {
-        exitCode = 10;
-      }
+      const actionable = detectData.findings.some((f) => f.status !== 'INFORMATIONAL');
+      exitCode = actionable ? 20 : 0;
     }
     
     assert.strictEqual(exitCode, 0, 'COMPLETE with only INFORMATIONAL findings must yield exit code 0');
   });
   
   test('COMPLETE with no findings must yield exit code 0', () => {
-    const observeData = { status: 'COMPLETE' };
+    const observeData = { status: 'SUCCESS' };
     const detectData = { findings: [] };
     
     let exitCode = 0;
     if (observeData?.status === 'INCOMPLETE') {
       exitCode = 30;
     } else if (detectData?.findings && detectData.findings.length > 0) {
-      const confirmed = detectData.findings.filter(f => f.status === 'CONFIRMED');
-      const suspected = detectData.findings.filter(f => f.status === 'SUSPECTED');
-      if (confirmed.length > 0) {
-        exitCode = 20;
-      } else if (suspected.length > 0) {
-        exitCode = 10;
-      }
+      const actionable = detectData.findings.some((f) => f.status !== 'INFORMATIONAL');
+      exitCode = actionable ? 20 : 0;
     }
     
     assert.strictEqual(exitCode, 0, 'COMPLETE with no findings must yield exit code 0');
@@ -117,20 +94,14 @@ describe('Exit Code Precedence Contract', () => {
     let exitCode = computeExitCode(observeData, detectData);
     assert.strictEqual(exitCode, 30, 'INCOMPLETE with findings must be 30');
     
-    // Test case 2: COMPLETE with confirmed findings should be 20
-    observeData = { status: 'COMPLETE' };
+    // Test case 2: SUCCESS observation with confirmed findings should be 20
+    observeData = { status: 'SUCCESS' };
     detectData = { findings: [{ status: 'CONFIRMED' }] };
     exitCode = computeExitCode(observeData, detectData);
     assert.strictEqual(exitCode, 20, 'COMPLETE with confirmed findings must be 20');
     
-    // Test case 3: COMPLETE with suspected findings should be 10
-    observeData = { status: 'COMPLETE' };
-    detectData = { findings: [{ status: 'SUSPECTED' }] };
-    exitCode = computeExitCode(observeData, detectData);
-    assert.strictEqual(exitCode, 10, 'COMPLETE with suspected findings must be 10');
-    
-    // Test case 4: COMPLETE without findings should be 0
-    observeData = { status: 'COMPLETE' };
+    // Test case 3: SUCCESS observation without findings should be 0
+    observeData = { status: 'SUCCESS' };
     detectData = { findings: [] };
     exitCode = computeExitCode(observeData, detectData);
     assert.strictEqual(exitCode, 0, 'COMPLETE without findings must be 0');
@@ -142,13 +113,8 @@ function computeExitCode(observeData, detectData) {
   if (observeData?.status === 'INCOMPLETE') {
     exitCode = 30;
   } else if (detectData?.findings && detectData.findings.length > 0) {
-    const confirmed = detectData.findings.filter(f => f.status === 'CONFIRMED');
-    const suspected = detectData.findings.filter(f => f.status === 'SUSPECTED');
-    if (confirmed.length > 0) {
-      exitCode = 20;
-    } else if (suspected.length > 0) {
-      exitCode = 10;
-    }
+    const actionable = detectData.findings.some((f) => f.status !== 'INFORMATIONAL');
+    exitCode = actionable ? 20 : 0;
   }
   return exitCode;
 }

@@ -23,11 +23,9 @@ export function formatResultLine(summary, findings = []) {
   const seal = summary?.productionSeal ? ' [PRODUCTION_GRADE]' : '';
   
   const resultMap = {
-    'COMPLETE': `✅ COMPLETE: Flow executed successfully with ${findingCount} finding(s)${seal}`,
-    'INCOMPLETE': `⚠️  INCOMPLETE: Flow was interrupted`,
-    'FAILED': `❌ FAILED: ${findingCount} critical issue(s) detected${seal}`,
-    'TIMEOUT': `⏱️  TIMEOUT: Execution exceeded time limit`,
-    'RUNNING': `⏳ RUNNING: Execution in progress`,
+    'SUCCESS': `✅ SUCCESS: No findings detected in covered flows${seal}`,
+    'FINDINGS': `❌ FINDINGS: ${findingCount} finding(s) detected${seal}`,
+    'INCOMPLETE': `⚠️  INCOMPLETE: Run did not complete`,
   };
   
   return resultMap[status] || `❓ UNKNOWN: ${status}`;
@@ -47,26 +45,17 @@ export function formatReasonLine(summary, findings = [], coverage = {}) {
   const coverageRatio = coverage?.coverageRatio || 0;
   
   // Build reason based on status and findings
-  if (status === 'COMPLETE' && findingCount === 0) {
+  if (status === 'SUCCESS' && findingCount === 0) {
     return `REASON: All expectations met. Coverage: ${(coverageRatio * 100).toFixed(1)}%`;
   }
   
-  if (status === 'COMPLETE' && findingCount > 0) {
+  if (status === 'FINDINGS' && findingCount > 0) {
     const highCount = findings.filter(f => f.confidence?.severity === 'HIGH').length;
     return `REASON: ${findingCount} finding(s) detected (${highCount} high severity). Coverage: ${(coverageRatio * 100).toFixed(1)}%`;
   }
   
   if (status === 'INCOMPLETE') {
     const reason = summary?.incompleteReasons?.[0] || 'Flow was not completed';
-    return `REASON: ${reason}`;
-  }
-  
-  if (status === 'TIMEOUT') {
-    return `REASON: Execution exceeded timeout limit. Increase timeout or optimize slow interactions.`;
-  }
-  
-  if (status === 'FAILED') {
-    const reason = summary?.notes || `${findingCount} critical issue(s) blocked completion`;
     return `REASON: ${reason}`;
   }
   
@@ -86,8 +75,8 @@ export function formatActionLine(summary, findings = [], coverage = {}) {
   const findingCount = findings?.length || 0;
   const coverageRatio = coverage?.coverageRatio || 0;
   
-  if (status === 'COMPLETE' && findingCount === 0 && coverageRatio > 0.9) {
-    return `ACTION: Flow is healthy. Run again to verify determinism. 🚀`;
+  if (status === 'SUCCESS' && findingCount === 0 && coverageRatio > 0.9) {
+    return `ACTION: Flow looks healthy in covered flows. Consider rerunning to compare results (site state/environment can change).`;
   }
   
   if (findingCount > 0) {
@@ -99,7 +88,7 @@ export function formatActionLine(summary, findings = [], coverage = {}) {
     }
     
     if (highCount > 0) {
-      return `ACTION: Review ${highCount} high-severity issues. Run 'verax inspect' for details.`;
+      return `ACTION: Review ${highCount} high-severity issues. See findings.json and evidence in the run directory.`;
     }
     
     return `ACTION: Review findings and update expectations if needed.`;
@@ -109,15 +98,7 @@ export function formatActionLine(summary, findings = [], coverage = {}) {
     return `ACTION: Complete the flow execution or increase timeout.`;
   }
   
-  if (status === 'TIMEOUT') {
-    return `ACTION: Increase timeout or optimize slow interactions.`;
-  }
-  
-  if (status === 'FAILED') {
-    return `ACTION: Fix errors and rerun. Check logs for details.`;
-  }
-  
-  return `ACTION: Review run details with 'verax inspect'.`;
+  return `ACTION: Review run artifacts (summary.json, findings.json) in the run directory.`;
 }
 
 /**
@@ -160,16 +141,14 @@ export function formatCliOutput(context = {}) {
  * @returns {string}
  */
 export function formatStatusOneLiner(summary = {}, findings = []) {
-  const status = summary.status || 'UNKNOWN';
+  const status = ['SUCCESS', 'FINDINGS', 'INCOMPLETE'].includes(summary.status) ? summary.status : 'INCOMPLETE';
   const findingCount = findings?.length || 0;
   const seal = summary.productionSeal ? '🔒' : '';
   
   const emoji = {
-    'COMPLETE': '✅',
+    'SUCCESS': '✅',
+    'FINDINGS': '❌',
     'INCOMPLETE': '⚠️',
-    'FAILED': '❌',
-    'TIMEOUT': '⏱️',
-    'RUNNING': '⏳',
   }[status] || '❓';
   
   return `${emoji} ${status} (${findingCount} findings)${seal ? ' ' + seal : ''}`;
@@ -286,14 +265,11 @@ export function formatTiming(startedAt, completedAt) {
  */
 export function formatExitCodeExplanation(exitCode) {
   const explanations = {
-    0: 'Success',
-    1: 'General error',
-    2: 'Internal crash',
-    64: 'Invalid CLI usage',
-    65: 'Invalid input data',
-    66: 'Input file not found',
-    67: 'Internal software error',
-    70: 'Software error',
+    0: 'SUCCESS',
+    20: 'FINDINGS',
+    30: 'INCOMPLETE',
+    50: 'INVARIANT_VIOLATION',
+    64: 'USAGE_ERROR',
   };
   
   return explanations[exitCode] || `Exit code ${exitCode}`;

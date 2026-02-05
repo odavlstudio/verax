@@ -2,6 +2,7 @@ import { createHash } from 'crypto';
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, relative } from 'path';
 import { atomicWriteJson } from '../support/atomic-write.js';
+import { getTimeProvider } from '../support/time-provider.js';
 
 export const MANIFEST_FILENAME = 'integrity.manifest.json';
 export const MANIFEST_VERSION = '6B-1';
@@ -69,6 +70,7 @@ export function generateRunIntegrityManifest(runDir, { runId = null, toolVersion
   const errors = [];
   const artifactEntries = [];
   const artifactPaths = listArtifacts(runDir);
+  const timeProvider = getTimeProvider();
 
   for (const relPath of artifactPaths) {
     const filePath = join(runDir, relPath);
@@ -89,6 +91,7 @@ export function generateRunIntegrityManifest(runDir, { runId = null, toolVersion
 
   const manifest = {
     manifestVersion: MANIFEST_VERSION,
+    generatedAt: timeProvider.iso(),
     runId,
     toolVersion,
     artifactCount: artifactEntries.length,

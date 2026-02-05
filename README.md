@@ -1,297 +1,67 @@
 # VERAX
 
-A deterministic CLI for detecting silent user failures in public web flows.
+Evidence-backed detection of silent user-facing failures in covered public flows.
+Default scope: public, pre-login flows only (read-only).
+Not a test runner. Not monitoring. Not analytics.
+Not a business-logic correctness checker. Not a security scanner.
 
-Catch buttons and forms that do nothing. No AI. No guessing. Just evidence.
+## 5-minute pilot (copy/paste)
 
-Silent failure detection for public user flows (pre-authentication only).
+1) Install (project-local)
 
-## The Problem
+`npm i -D @veraxhq/verax`
 
-Silent user failures don't crash your app — they quietly make users leave.
+2) Install Playwright Chromium (required for `verax run`)
 
-Common examples:
-- A button looks clickable but does nothing
-- A form submits with no confirmation
-- A link is clicked but navigation never happens
-- Validation triggers, but feedback isn't shown
+- Linux CI: `npx playwright install --with-deps chromium`
+- macOS/Windows: `npx playwright install chromium`
 
-Your logs are clean. Your tests pass. Monitoring shows nothing. From the user's perspective, the promise was broken.
+Not needed for `verax readiness` / `verax capability-bundle`.
 
-VERAX reveals these gaps with reproducible evidence.
+3) Readiness check (diagnostic-only; always exit 0)
 
-## How It Works
+`npx verax readiness --url https://your-site.example`
 
-VERAX compares what your code *promises* with what users actually *experience*.
+4) Capability bundle (diagnostic-only; safe to share)
 
-1. **Learn Promises** — Parse source code to extract user-visible promises (navigation, forms, feedback signals)
-2. **Observe Behavior** — Execute real interactions in a real browser (clicks, submits, typing)
-3. **Detect Gaps** — Compare promised outcomes vs observed results
-4. **Report Findings** — Produce evidence: screenshots, DOM diffs, network traces
+`npx verax capability-bundle --url https://your-site.example --out .verax`
 
-Result: You see exactly where users get stuck, with reproducible proof.
+Artifacts: `.verax/capability-bundles/<timestamp>/` (includes `integrity.manifest.json`).
 
-## Quick Start
+5) Run (with `--src`)
 
-### Prerequisites
+`npx verax run --url https://your-site.example --src .`
 
-- Node.js 18+
-- Playwright (auto-installed)
-- Your application running and accessible at a URL
-- Repository root directory with source code
+6) Run (without `--src`)
 
-### Option 1: Try the Built-In Demo
+`npx verax run --url https://your-site.example`
 
-```bash
-git clone https://github.com/odavlstudio/verax.git
-cd verax
-npm install
+7) Bundle a run directory (for upload/sharing)
 
-npm run demo         # Terminal 1: starts demo at http://127.0.0.1:4000
-npm run verax:demo   # Terminal 2: runs VERAX against demo
-```
+`npx verax bundle <runDir> <bundleDir>`
 
-### Option 2: Run on Your Own Site
+Example:
 
-```bash
-npm install -g @veraxhq/verax
-verax run --url http://localhost:3000 --src ./
-```
+`npx verax bundle .verax/runs/<scanId>/<runId> .verax/artifact-bundle`
 
-Replace `http://localhost:3000` with your actual development URL.
+## How to read results
 
-If your source code is in a subdirectory:
-```bash
-verax run --url http://localhost:3000 --src ./client
-```
+- `SUCCESS`: No evidence-backed failures were found in the covered scope.
+- `FINDINGS`: Evidence-backed failures were found; review `findings.json` and `evidence/`.
+- `INCOMPLETE`: Coverage was partial. **THIS RESULT MUST NOT BE TREATED AS SAFE.**
 
-## Understanding Results
+## Artifacts (where the output lives)
 
-VERAX returns one of five outcomes:
+By default, VERAX writes run directories under `.verax/runs/` (or `--out`).
 
-### ✅ SUCCESS (exit code 0)
+Primary artifacts:
 
-All observable public flows were tested. No silent failures detected within scope.
+- `summary.json`: truth state + coverage summary.
+- `findings.json`: findings with pointers to supporting evidence.
+- `evidence/`: screenshots, traces, and supporting files.
 
-**What this means:**
-- No evidence of silent failures was found
-- Tested flows behaved as promised
+## Troubleshooting (common infra)
 
-**What this does NOT mean:**
-- All flows in your app were tested (only discoverable ones)
-- Your app is bug-free
-- All possible issues were caught
-
-### 🔍 FINDINGS (exit code 20)
-
-One or more silent failures were confirmed with evidence.
-
-Each finding includes:
-- The promised behavior (from code)
-- What actually happened (from browser)
-- Before/after screenshots
-- DOM and network evidence
-
-### ⚠️ INCOMPLETE (exit code 30)
-
-The run could not be trusted. One or more preconditions failed.
-
-**Common causes and how to fix:**
-
-| Cause | Fix |
-|-------|-----|
-| Source code not detected | Verify `--src` path contains `.js`, `.jsx`, or `.tsx` files |
-| Coverage below threshold | VERAX found fewer interactive elements than expected |
-| Observation timeout | Website was too slow; try `--timeout 60000` |
-| Authenticated flows detected | Scope is pre-auth only; use public flows |
-| Browser/Playwright error | Run `verax doctor` for diagnostics |
-
-**Important:** Do not ignore INCOMPLETE. Investigate and fix the cause before continuing.
-
-### 🚫 USAGE_ERROR (exit code 64)
-
-Invalid CLI usage (missing `--url`, unknown flags, etc.).
-
-### 🔴 INVARIANT_VIOLATION (exit code 50)
-
-Internal error or artifact corruption. Always investigate.
-
-## Source Code Detection
-
-VERAX requires source code to extract promises.
-
-**Detected file types:**
-- React/JSX (`.js`, `.jsx`, `.tsx` files with React code)
-- Next.js (`app/` or `pages/` directories)
-- Static HTML (`.html` files)
-- Vue 3, Angular, SvelteKit (partial support — see below)
-
-### When Source Code is Not Detected
-
-If VERAX cannot find source code at your `--src` path:
-- Result: INCOMPLETE (exit code 30)
-- Reason: Promises cannot be extracted without source code
-- This is intentional: runtime-only observation would be unreliable
-
-**To debug:**
-```bash
-verax run --url http://localhost:3000 --src ./ --debug
-```
-
-The `--debug` flag shows what VERAX found in your source directory.
-
-## Artifacts & Inspection
-
-After each run, VERAX generates artifacts with evidence.
-
-**Artifacts are located in:**
-```
-.verax/runs/20260128-143052-run-abc123/
-```
-
-The full artifact path is printed in terminal output when the run completes.
-
-**To inspect results:**
-```bash
-verax inspect .verax/runs/20260128-143052-run-abc123/
-```
-
-**Contents:**
-- `verax-summary.md` — Human-readable summary
-- `summary.json` — Verdict, coverage counts
-- `findings.json` — Detailed evidence
-- `evidence/` — Screenshots, DOM diffs, traces
-
-**Example terminal output:**
-```
-[VERAX] Reading source code...
-[VERAX] Found 8 interactive elements
-[VERAX] Starting browser observations...
-[VERAX] Run complete: SUCCESS (0 silent failures detected)
-
-Artifacts available in: .verax/runs/20260128-143052-run-abc123/
-Next: verax inspect .verax/runs/20260128-143052-run-abc123/
-```
-
-## Detection Scope
-
-### ✅ What VERAX Detects
-
-**Navigation**
-- Link clicks → route/URL changes
-
-**Forms**
-- Submissions with user-visible feedback
-- Validation messages
-- Feedback signals: `aria-live`, `role="alert"`, `role="status"`, stable text nodes
-- Attributes: `disabled`, `aria-invalid`, `data-loading`
-
-**Observable Outcomes**
-- DOM changes
-- Network activity correlated to actions
-- Navigation events
-
-### ❌ Out of Scope (By Design)
-
-- Visual-only changes (spinners, colors, animations) → Use visual regression tools
-- Ambiguous ARIA attributes (`aria-expanded`, etc.)
-- Transient flashes < 100ms
-- Authenticated flows
-- Backend-dependent dynamic routes
-
-## CLI Reference
-
-### verax run
-
-```bash
-verax run --url <url> [options]
-```
-
-**Options:**
-- `--url <url>` (required) — Your application URL
-- `--src <path>` — Source directory (recommended for full detection)
-- `--out <path>` — Output directory (default: `.verax`)
-- `--min-coverage <0.0-1.0>` — Coverage threshold (default: 0.50 first run, 0.90 after)
-- `--force-post-auth` — Experimental (always returns INCOMPLETE)
-- `--timeout <ms>` — Observation timeout
-- `--debug` — Show detection details
-- `--json` — Output JSON
-
-### verax inspect
-
-```bash
-verax inspect <path/to/run>
-```
-
-Displays findings in terminal.
-
-### verax doctor
-
-```bash
-verax doctor [--json]
-```
-
-Checks Node.js, Playwright, and file permissions.
-
-## Supported Frameworks
-
-### Full Support
-
-- React
-- Next.js
-- Static HTML
-
-### Partial Support
-
-Framework detection is less reliable; may produce fewer findings.
-
-- **Vue 3** — Custom v-model patterns may not be detected
-- **Angular** — Detection limited to `routerLink` and standard forms
-- **SvelteKit** — Client-side only; server-side rendering not supported
-
-**Recommendation:** Test on a known user flow first to verify detection works for your setup.
-
-## Guarantees & Limitations
-
-### Guarantees
-
-- **Read-only** — VERAX never modifies your application
-- **Deterministic** — Same inputs produce identical outputs
-- **Evidence-backed** — All findings include reproducible proof
-- **Conservative** — Uncertainty results in INCOMPLETE, not false positives
-
-### Limitations
-
-- Pre-authentication flows only
-- Public flows only
-- Not a test framework
-- Not runtime monitoring
-- Visual regressions not detected
-
-## Installation
-
-```bash
-npm install -g @veraxhq/verax
-```
-
-### Requirements
-
-- Node.js 18 or higher
-- Playwright (auto-installed)
-
-## CI/CD Integration
-
-```bash
-verax run --url https://staging.example.com --src ./
-
-case $? in
-  0)  echo "✓ No silent failures"; exit 0 ;;
-  20) echo "✗ Silent failures detected"; exit 1 ;;
-  30) echo "⚠ Incomplete coverage"; exit 1 ;;
-  *)  echo "✗ VERAX error"; exit 1 ;;
-esac
-```
-
-## License
-
-MIT © VERAX
+- `Playwright cannot be imported.` → `npm i -D @veraxhq/verax` (or `npm i` if already installed).
+- `Chromium could not be launched / browser missing.` → `npx playwright install chromium` (Linux CI: add `--with-deps`).
+- `--out is not writable / invalid.` → pick a writable path, e.g. `--out ./verax-out`.

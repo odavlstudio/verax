@@ -5,12 +5,11 @@
  * Any violation of these rules is a breaking change.
  * 
  * EXIT CODE CONTRACT:
- * - 0: Clean (coverage OK, artifacts valid)
- * - 10: Suspected-only findings (balanced mode)
- * - 20: Confirmed findings present
- * - 30: Incomplete run (coverage failed OR sentinel/required artifacts missing)
- * - 40: Infra/runtime failure (environment/crash before observation)
- * - 64: Usage error (missing --url, invalid args)
+ * - 0:  SUCCESS
+ * - 20: FINDINGS
+ * - 30: INCOMPLETE
+ * - 50: INVARIANT_VIOLATION
+ * - 64: USAGE_ERROR
  */
 
 import test from 'node:test';
@@ -49,7 +48,7 @@ test('Exit 0: COMPLETE with zero findings', () => {
   });
 
   assert.strictEqual(decision.exitCode, EXIT_CODES.SUCCESS, 'Zero findings must exit 0');
-  assert.strictEqual(decision.outcome, 'PASS');
+  assert.strictEqual(decision.outcome, 'SUCCESS');
 });
 
 test('Exit 20: CONFIRMED findings present in balanced/strict modes', () => {
@@ -62,7 +61,7 @@ test('Exit 20: CONFIRMED findings present in balanced/strict modes', () => {
   });
 
   assert.strictEqual(decision.exitCode, EXIT_CODES.FINDINGS, 'Findings must yield exit 20');
-  assert.strictEqual(decision.outcome, 'FAILURE_CONFIRMED');
+  assert.strictEqual(decision.outcome, 'FINDINGS');
 });
 
 test('Exit 64: Usage error (missing --url)', () => {
@@ -72,7 +71,8 @@ test('Exit 64: Usage error (missing --url)', () => {
 
 test('Exit 50: Data error (non-existent directory)', () => {
   const nonExistentPath = resolve(tmpdir(), 'verax-nonexistent-' + getTimeProvider().now());
-  const exitCode = runVerax(`inspect "${nonExistentPath}"`, 50);
+  const bundleDir = resolve(tmpdir(), 'verax-bundle-' + getTimeProvider().now());
+  const exitCode = runVerax(`bundle "${nonExistentPath}" "${bundleDir}"`, 50);
   assert.strictEqual(exitCode, 50, 'Non-existent path must exit 50');
 });
 
@@ -89,7 +89,7 @@ test('Exit 30: INCOMPLETE run (observation timeout)', () => {
   assert.strictEqual(decision.outcome, 'INCOMPLETE');
 });
 
-test('Exit 40: Internal crash (not timeout)', () => {
+test('Exit 50: INVARIANT_VIOLATION (internal crash / invariant)', () => {
   const decision = computeGateDecision({
     runExitCode: EXIT_CODES.INVARIANT_VIOLATION,
     findingsCounts: { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 },
@@ -102,7 +102,7 @@ test('Exit 40: Internal crash (not timeout)', () => {
   assert.strictEqual(decision.outcome, 'INVARIANT_VIOLATION');
 });
 
-test('Exit code precedence: INCOMPLETE (30) overrides findings (10/20)', () => {
+test('Exit code precedence: INCOMPLETE (30) overrides findings (20)', () => {
   const decision = computeGateDecision({
     runExitCode: EXIT_CODES.INCOMPLETE,
     findingsCounts: { HIGH: 2, MEDIUM: 1, LOW: 0, UNKNOWN: 0 },
@@ -114,7 +114,7 @@ test('Exit code precedence: INCOMPLETE (30) overrides findings (10/20)', () => {
   assert.strictEqual(decision.exitCode, EXIT_CODES.INCOMPLETE, 'Incomplete status must override findings');
 });
 
-test('Exit code precedence: Infra failure (40) overrides all', () => {
+test('Exit code precedence: INVARIANT_VIOLATION (50) overrides all', () => {
   const decision = computeGateDecision({
     runExitCode: EXIT_CODES.INVARIANT_VIOLATION,
     findingsCounts: { HIGH: 5, MEDIUM: 0, LOW: 0, UNKNOWN: 0 },

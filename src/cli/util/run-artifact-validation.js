@@ -13,6 +13,8 @@
 import { existsSync, readFileSync, statSync } from 'fs';
 import { basename, resolve } from 'path';
 import { getTimeProvider } from './support/time-provider.js';
+import { getRunArtifactDefinitions, ARTIFACT_REGISTRY } from '../../verax/core/artifacts/registry.js';
+import { EXIT_CODES } from '../../verax/shared/exit-codes.js';
 
 /**
  * Validation result object
@@ -23,7 +25,9 @@ export class ValidationResult {
     this.errors = [];
     this.warnings = [];
     this.missingFiles = [];
+    this.missingOptionalFiles = [];
     this.corruptedFiles = [];
+    this.corruptedOptionalFiles = [];
   }
 
   addError(message, context = {}) {
@@ -35,14 +39,22 @@ export class ValidationResult {
     this.warnings.push({ message, context, timestamp: getTimeProvider().now() });
   }
 
-  addMissingFile(filePath) {
-    this.valid = false;
-    this.missingFiles.push(filePath);
+  addMissingFile(filePath, { required = true } = {}) {
+    if (required) {
+      this.valid = false;
+      this.missingFiles.push(filePath);
+      return;
+    }
+    this.missingOptionalFiles.push(filePath);
   }
 
-  addCorruptedFile(filePath, reason) {
-    this.valid = false;
-    this.corruptedFiles.push({ filePath, reason });
+  addCorruptedFile(filePath, reason, { required = true } = {}) {
+    if (required) {
+      this.valid = false;
+      this.corruptedFiles.push({ filePath, reason });
+      return;
+    }
+    this.corruptedOptionalFiles.push({ filePath, reason });
   }
 
   getSummary() {
@@ -51,7 +63,9 @@ export class ValidationResult {
       errorCount: this.errors.length,
       warningCount: this.warnings.length,
       missingFileCount: this.missingFiles.length,
+      missingOptionalFileCount: this.missingOptionalFiles.length,
       corruptedFileCount: this.corruptedFiles.length,
+      corruptedOptionalFileCount: this.corruptedOptionalFiles.length,
     };
   }
 }
@@ -66,14 +80,21 @@ export class ValidationResult {
  * @param {string} filePath - Path to JSON file
  * @param {Array<string>} [requiredFields] - Array of required top-level field names
  * @param {ValidationResult} result - Accumulator for errors
+ * @param {{ required?: boolean }} [options] - Whether this artifact is required
  * @returns {Object|null} Parsed JSON or null if invalid
  */
-export function validateJsonFile(filePath, requiredFields = [], result = null) {
+export function validateJsonFile(filePath, requiredFields = [], result = null, options = {}) {
   const r = result || new ValidationResult();
+  const required = options?.required !== false;
 
   // Check existence
   if (!existsSync(filePath)) {
-    r.addMissingFile(filePath);
+    r.addMissingFile(filePath, { required });
+    if (!required) {
+      r.addWarning(`Optional artifact missing: ${filePath}`);
+    } else {
+      r.addError(`Required artifact missing: ${basename(filePath)}`, { filePath });
+    }
     return null;
   }
 
@@ -81,7 +102,13 @@ export function validateJsonFile(filePath, requiredFields = [], result = null) {
   try {
     const stats = statSync(filePath);
     if (stats.size === 0) {
-      r.addCorruptedFile(filePath, 'File is empty (zero bytes)');
+      const reason = 'File is empty (zero bytes)';
+      r.addCorruptedFile(filePath, reason, { required });
+      if (!required) {
+        r.addWarning(`Optional artifact corrupted: ${filePath}`, { reason });
+      } else {
+        r.addError(`Required artifact corrupted: ${basename(filePath)}`, { filePath, reason });
+      }
       return null;
     }
   } catch (error) {
@@ -98,7 +125,12 @@ export function validateJsonFile(filePath, requiredFields = [], result = null) {
     const reason = error instanceof SyntaxError
       ? `JSON syntax error: ${error.message}`
       : `Failed to read file: ${error.message}`;
-    r.addCorruptedFile(filePath, reason);
+    r.addCorruptedFile(filePath, reason, { required });
+    if (!required) {
+      r.addWarning(`Optional artifact corrupted: ${filePath}`, { reason });
+    } else {
+      r.addError(`Required artifact corrupted: ${basename(filePath)}`, { filePath, reason });
+    }
     return null;
   }
 
@@ -115,6 +147,74 @@ export function validateJsonFile(filePath, requiredFields = [], result = null) {
   }
 
   return parsed;
+}
+
+function ensureArtifactFile(def, runDir, result) {
+  const fullPath = resolve(runDir, def.filename);
+  const required = def.required === true || def.status === 'REQUIRED';
+
+  if (!existsSync(fullPath)) {
+    result.addMissingFile(fullPath, { required });
+    if (!required) {
+      result.addWarning(`Optional artifact missing: ${def.filename}`);
+    } else {
+      result.addError(`Required artifact missing: ${def.filename}`);
+    }
+    return { ok: false, path: fullPath };
+  }
+
+  try {
+    const stats = statSync(fullPath);
+    if (!stats.isFile()) {
+      const msg = `Expected file but found non-file: ${def.filename}`;
+      if (required) result.addError(msg, { path: fullPath });
+      else result.addWarning(msg, { path: fullPath });
+      return { ok: false, path: fullPath };
+    }
+    if (stats.size === 0) {
+      const msg = `Artifact is empty (zero bytes): ${def.filename}`;
+      result.addCorruptedFile(fullPath, msg, { required });
+      if (required) result.addError(msg, { path: fullPath });
+      else result.addWarning(msg, { path: fullPath });
+      return { ok: false, path: fullPath };
+    }
+  } catch (e) {
+    const msg = `Failed to stat artifact: ${def.filename}`;
+    if (required) result.addError(msg, { path: fullPath, error: e?.message });
+    else result.addWarning(msg, { path: fullPath, error: e?.message });
+    return { ok: false, path: fullPath };
+  }
+
+  return { ok: true, path: fullPath };
+}
+
+function ensureArtifactDirectory(def, runDir, result) {
+  const fullPath = resolve(runDir, def.filename);
+  const required = def.required === true || def.status === 'REQUIRED';
+
+  if (!existsSync(fullPath)) {
+    result.addMissingFile(fullPath, { required });
+    if (required) result.addError(`Required artifact directory missing: ${def.filename}`, { path: fullPath });
+    else result.addWarning(`Optional artifact directory missing: ${def.filename}`, { path: fullPath });
+    return { ok: false, path: fullPath };
+  }
+
+  try {
+    const stats = statSync(fullPath);
+    if (!stats.isDirectory()) {
+      const msg = `Expected directory but found non-directory: ${def.filename}`;
+      if (required) result.addError(msg, { path: fullPath });
+      else result.addWarning(msg, { path: fullPath });
+      return { ok: false, path: fullPath };
+    }
+  } catch (e) {
+    const msg = `Failed to stat artifact directory: ${def.filename}`;
+    if (required) result.addError(msg, { path: fullPath, error: e?.message });
+    else result.addWarning(msg, { path: fullPath, error: e?.message });
+    return { ok: false, path: fullPath };
+  }
+
+  return { ok: true, path: fullPath };
 }
 
 /**
@@ -145,30 +245,48 @@ export function validateRunDirectory(runDir) {
 
   const runIdFromDir = basename(runDir);
 
-  // Check completion sentinel (critical for deterministic INCOMPLETE classification)
-  const sentinelPath = resolve(runDir, '.run-complete');
-  if (!existsSync(sentinelPath)) {
-    result.addError('Run completion sentinel missing (.run-complete)', {
-      runDir,
-      diagnosis: 'This run appears incomplete or crashed during finalization',
-    });
-  }
-  // Started and finalized sentinels are advisory markers for lifecycle checks
-  const startedPath = resolve(runDir, '.run-started');
-  const finalizedPath = resolve(runDir, '.run-finalized');
-  if (!existsSync(startedPath)) {
-    result.addWarning('Run start sentinel missing (.run-started)', { runDir });
-  }
-  if (!existsSync(finalizedPath)) {
-    result.addWarning('Run finalization sentinel missing (.run-finalized)', { runDir });
-  }
+  // === Authoritative contract checks (single source of truth) ===
+  // Only validate artifacts that are in the `verax run` contract scope.
+  const defs = getRunArtifactDefinitions();
 
-  // Validate summary.json (REQUIRED)
-  const summaryPath = resolve(runDir, 'summary.json');
-  const summary = validateJsonFile(summaryPath, ['runId', 'status', 'startedAt'], result);
-  
-  if (!summary) {
-    result.addError('Critical artifact missing or corrupted: summary.json');
+  /** @type {Record<string, string[]>} */
+  const requiredFieldsByKey = {
+    runStatus: ['status', 'runId', 'startedAt'],
+    runMeta: ['contractVersion', 'veraxVersion', 'startedAt'],
+    summary: ['runId', 'status', 'startedAt'],
+    findings: ['findings', 'stats'],
+    learn: ['contractVersion', 'expectations', 'stats', 'skipped'],
+    observe: ['observations', 'stats'],
+    project: ['contractVersion', 'framework', 'sourceRoot'],
+    judgments: ['contractVersion'],
+    coverage: ['contractVersion'],
+    runManifest: ['runId', 'scanId', 'config', 'policy'],
+    // run.digest.json is best-effort and not schema-stable; validate parse only.
+    runDigest: [],
+  };
+
+  let summary = null;
+  let findings = null;
+  let runStatus = null;
+
+  for (const def of defs) {
+    const required = def.required === true || def.status === 'REQUIRED';
+
+    if (def.type === 'directory') {
+      ensureArtifactDirectory(def, runDir, result);
+      continue;
+    }
+
+    if (def.filename.endsWith('.json')) {
+      const requiredFields = requiredFieldsByKey[def.key] || (required ? ['contractVersion'] : []);
+      const parsed = validateJsonFile(resolve(runDir, def.filename), requiredFields, result, { required });
+      if (def.key === 'summary') summary = parsed;
+      if (def.key === 'findings') findings = parsed;
+      if (def.key === 'runStatus') runStatus = parsed;
+      continue;
+    }
+
+    ensureArtifactFile(def, runDir, result);
   }
 
   if (summary && summary.runId && summary.runId !== runIdFromDir) {
@@ -178,50 +296,7 @@ export function validateRunDirectory(runDir) {
     });
   }
 
-  // Validate findings.json (REQUIRED)
-  const findingsPath = resolve(runDir, 'findings.json');
-  const findings = validateJsonFile(findingsPath, ['findings', 'stats'], result);
-  
-  if (!findings) {
-    result.addError('Critical artifact missing or corrupted: findings.json');
-  }
-
-  // Validate observe.json (critical observation trace)
-  const observePath = resolve(runDir, 'observe.json');
-  const observe = validateJsonFile(observePath, ['observations', 'stats'], result);
-  if (!observe) {
-    result.addError('Critical artifact missing or corrupted: observe.json');
-  }
-
-  // Validate run.meta.json
-  const runMetaPath = resolve(runDir, 'run.meta.json');
-  const runMeta = validateJsonFile(runMetaPath, ['contractVersion', 'veraxVersion', 'startedAt'], result);
-  if (!runMeta) {
-    result.addError('Critical artifact missing or corrupted: run.meta.json');
-  }
-
-  // Validate Output Contract 2.0 artifacts when present
-  const judgmentsPath = resolve(runDir, 'judgments.json');
-  const coveragePath = resolve(runDir, 'coverage.json');
-  let _judgments = null;
-  let _coverage = null;
-  if (existsSync(judgmentsPath)) {
-    _judgments = validateJsonFile(judgmentsPath, ['judgments', 'counts'], result);
-  } else {
-    result.addWarning('Optional artifact missing: judgments.json (Stage 6)');
-  }
-  if (existsSync(coveragePath)) {
-    _coverage = validateJsonFile(coveragePath, ['total', 'observed', 'coverageRatio', 'threshold'], result);
-  } else {
-    result.addWarning('Optional artifact missing: coverage.json (Stage 6)');
-  }
-
-  // Validate run.status.json
-  const runStatusPath = resolve(runDir, 'run.status.json');
-  const runStatus = validateJsonFile(runStatusPath, ['status', 'runId', 'startedAt'], result);
-  if (!runStatus) {
-    result.addError('Critical artifact missing or corrupted: run.status.json');
-  }
+  // (parsed above for invariants)
 
   if (runStatus && runStatus.runId && runStatus.runId !== runIdFromDir) {
     result.addError('run.status.json runId does not match run directory name', {
@@ -259,27 +334,19 @@ export function validateRunDirectory(runDir) {
     }
   }
 
-  // Check evidence directory exists
-  const evidenceDir = resolve(runDir, 'evidence');
-  if (!existsSync(evidenceDir)) {
-    result.addWarning('Evidence directory missing (expected for runs with observations)', { evidenceDir });
-  }
-
-  // Optional: Validate traces.jsonl if it exists
-  const tracesPath = resolve(runDir, 'traces.jsonl');
+  // Validate traces.jsonl (REQUIRED) format: warn for invalid JSON lines, error only if missing/empty.
+  const tracesPath = resolve(runDir, ARTIFACT_REGISTRY.traces.filename);
   if (existsSync(tracesPath)) {
     try {
       const content = /** @type {string} */ (readFileSync(tracesPath, 'utf-8'));
       const trimmed = content.trim();
       if (trimmed.length === 0) {
-        result.addWarning('traces.jsonl is empty', { tracesPath });
+        result.addError('traces.jsonl is empty', { tracesPath });
       } else {
         const lines = trimmed.split('\n');
-        
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
-          if (!line) continue; // Skip empty lines
-          
+          if (!line) continue;
           try {
             JSON.parse(line);
           } catch (error) {
@@ -303,14 +370,15 @@ export function validateRunDirectory(runDir) {
  * 
  * @param {ValidationResult} validation - Validation result
  * @param {string} [existingStatus] - Status from summary if available
- * @returns {string} Run status: 'COMPLETE', 'INCOMPLETE', or 'FAIL_DATA'
- */
+ * @returns {string} Run status: 'SUCCESS' | 'FINDINGS' | 'INCOMPLETE'
+  */
 export function determineRunStatus(validation, existingStatus = null) {
   if (!validation || !validation.valid) {
-    // Vision 1.0: never emit legacy FAIL_DATA status
     return 'INCOMPLETE';
   }
-  return existingStatus || 'COMPLETE';
+  const allowed = new Set(['SUCCESS', 'FINDINGS', 'INCOMPLETE']);
+  if (typeof existingStatus === 'string' && allowed.has(existingStatus)) return existingStatus;
+  return 'SUCCESS';
 }
 
 function sumFindingsCounts(findingsCounts) {
@@ -328,11 +396,11 @@ export function validationExitCode(validation) {
   if (!validation || !validation.valid) {
     // Corrupted artifacts → 50; otherwise INCOMPLETE → 30
     if (validation && Array.isArray(validation.corruptedFiles) && validation.corruptedFiles.length > 0) {
-      return 50;
+      return EXIT_CODES.INVARIANT_VIOLATION;
     }
-    return 30;
+    return EXIT_CODES.INCOMPLETE;
   }
-  return 0;
+  return EXIT_CODES.SUCCESS;
 }
 
 /**

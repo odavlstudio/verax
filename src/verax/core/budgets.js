@@ -4,7 +4,7 @@
  * Explicit limits to prevent runaway execution in large repositories.
  * All limits are configurable via environment variables.
  * 
- * When exceeded → mark run INCOMPLETE (exit 66) with reason.
+ * When exceeded → mark run INCOMPLETE (exit 30) with reason.
  * No guessing. Fail safely.
  */
 

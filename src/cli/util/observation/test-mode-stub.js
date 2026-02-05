@@ -47,7 +47,7 @@ export function createTestModeStub(expectations, url) {
     }
   };
   
-  let status = 'COMPLETE';
+  let status = 'SUCCESS';
   
   // Apply test patterns
   if (testPattern === 'transient-pass') {

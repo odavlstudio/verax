@@ -201,7 +201,7 @@ However, DOM diff analysis shows:
 
 **Expected Mapping (Vision 1.0):**
 - 0 → PASS/WEAK_PASS only
-- 10 → NEEDS_REVIEW only  
+- 30 → INCOMPLETE only  
 - 20 → FAILURE_SILENT present ← **CORRECT** (this is what we got)
 - 30 → FAILURE_MISLEADING present
 - 40+ → Infrastructure failure
@@ -293,7 +293,7 @@ Minor observations (not deviations):
 
 3. **Conservative Confidence**: SUSPECTED findings are not over-claimed. CONFIRMED findings are accurate (form submission bug is real and code is present). Vision 1.0 scope is respected.
 
-4. **No Silent Successes or Missed Failures**: The intentionally broken signup form is correctly flagged (exit 20, FAILURE_SILENT). No false negatives that would undermine trust.
+4. **No Silent Successes or Missed Failures**: The intentionally broken signup form is correctly flagged (exit 20, FINDINGS). No false negatives that would undermine trust.
 
 5. **Exit Code Integrity**: Proper signal (20 for failures) enables CI/CD integration. Contract clearly defined and honored.
 

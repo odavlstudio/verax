@@ -113,7 +113,7 @@ function validateSummaryJson(filePath) {
     }
     
     // Validate status
-    const validStatuses = ['RUNNING', 'COMPLETE', 'INCOMPLETE', 'FAILED', 'TIMEOUT'];
+    const validStatuses = ['SUCCESS', 'FINDINGS', 'INCOMPLETE'];
     if (!validStatuses.includes(data.status)) {
       return {
         code: CONTRACT_VIOLATION_CODES.INVALID_SUMMARY,

@@ -7,14 +7,12 @@ Purpose: Execute a VERAX run and emit a deterministic release gate decision.
 Required: --url <url>
 Optional: --src, --out, --json, --debug/--verbose, --auth-storage, --auth-cookie, --auth-header, --auth-mode, --fail-on-incomplete.
 Outputs: gate.json alongside run artifacts plus exactly one RESULT/REASON/ACTION block (JSON or text) summarizing the gate decision.
-Exit Codes:
-- 0  SUCCESS (gate pass)
-- 10 NEEDS_REVIEW
-- 20 FAILURE_CONFIRMED
-- 30 FAILURE_INCOMPLETE
-- 40 INFRA_FAILURE
-- 50 EVIDENCE_LAW_VIOLATION
-- 64 USAGE_ERROR
+ Exit Codes:
+ - 0  SUCCESS (gate pass)
+ - 20 FINDINGS
+ - 30 INCOMPLETE
+ - 50 INVARIANT_VIOLATION
+ - 64 USAGE_ERROR
 Forbidden: duplicate RESULT blocks; silent gate report omissions; unsupported flags; partial run reuse or missing gate.json.
 */
 

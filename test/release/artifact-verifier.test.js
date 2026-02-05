@@ -34,7 +34,8 @@ function createValidRunDir(baseDir) {
       confidenceReport: 1,
       determinismContract: 1
     },
-    status: 'COMPLETE',
+    status: 'SUCCESS',
+    lifecycle: 'FINAL',
     runId: 'test123',
     startedAt: '2024-01-01T00:00:00.000Z',
     completedAt: '2024-01-01T00:01:00.000Z'
@@ -54,7 +55,9 @@ function createValidRunDir(baseDir) {
     contractVersion: 1,
     artifactVersions: {},
     runId: 'test123',
-    timestamp: '2024-01-01T00:01:00.000Z',
+    status: 'SUCCESS',
+    startedAt: '2024-01-01T00:00:00.000Z',
+    completedAt: '2024-01-01T00:01:00.000Z',
     url: 'http://example.com'
   }, null, 2));
   
@@ -178,6 +181,30 @@ function createValidRunDir(baseDir) {
     artifactVersions: {},
     judgments: []
   }, null, 2));
+
+  // Create run completion sentinel (required)
+  writeFileSync(join(runDir, ARTIFACT_REGISTRY.runCompleteSentinel.filename), 'complete\n');
+
+  // Create silence.report.json (required)
+  writeFileSync(join(runDir, ARTIFACT_REGISTRY.silenceReport.filename), JSON.stringify({
+    schemaVersion: 1,
+    contractVersion: 1,
+    runId: 'test123',
+    totalSilences: 0,
+    byType: {
+      NO_EXPECTATION: 0,
+      POLICY_BLOCKED: 0,
+      AUTH_REQUIRED: 0,
+      NETWORK_BLOCKED: 0,
+      TIMEOUT: 0,
+      DOM_NOT_FOUND: 0,
+      AMBIGUOUS_MATCH: 0,
+      RUNTIME_ERROR: 0,
+    },
+    entries: [],
+    source: { origin: 'unified-pipeline', explicit: true },
+    generatedAt: '2024-01-01T00:01:00.000Z',
+  }, null, 2));
   
   // Create evidence directory
   mkdirSync(join(runDir, ARTIFACT_REGISTRY.evidence.filename), { recursive: true });
@@ -190,6 +217,10 @@ test('fully valid run → VALID', () => {
   const runDir = createValidRunDir(baseDir);
   
   const verdict = verifyRun(runDir);
+  
+  if (!verdict.ok) {
+    console.error('VERDICT:', JSON.stringify(verdict, null, 2));
+  }
   
   assert.strictEqual(verdict.ok, true, 'Verdict should be ok');
   assert.strictEqual(verdict.errors.length, 0, 'Should have no errors');
@@ -314,7 +345,8 @@ test('only minor mismatch → VALID_WITH_WARNINGS', () => {
       evidence: 1,
       scanSummary: 999 // Minor mismatch - should be warning
     },
-    status: 'COMPLETE',
+    status: 'SUCCESS',
+    lifecycle: 'FINAL',
     runId: 'test123',
     startedAt: '2024-01-01T00:00:00.000Z',
     completedAt: '2024-01-01T00:01:00.000Z'
@@ -371,7 +403,7 @@ test('missing required fields in findings → INVALID', () => {
     'Should report missing required fields');
 });
 
-test('evidence directory missing → WARNING (non-blocking)', () => {
+test('evidence directory missing → INVALID (required)', () => {
   const baseDir = mkdtempSync(join(tmpdir(), 'verax-verifier-'));
   const runDir = createValidRunDir(baseDir);
   
@@ -380,9 +412,9 @@ test('evidence directory missing → WARNING (non-blocking)', () => {
   
   const verdict = verifyRun(runDir);
   
-  // Evidence directory is optional, so this should still be valid
-  assert.strictEqual(verdict.ok, true, 'Verdict should be ok (directories are optional)');
-  assert.ok(verdict.warnings.length > 0, 'Should have warnings about missing directory');
+  assert.strictEqual(verdict.ok, false, 'Verdict should not be ok (evidence directory is required)');
+  assert.ok(verdict.errors.length > 0, 'Should have errors about missing required artifacts');
+  assert.ok(verdict.missingArtifacts.some(a => a.filename === ARTIFACT_REGISTRY.evidence.filename), 'Should report evidence directory missing');
 });
 
 test('enforcement summary is computed correctly', () => {

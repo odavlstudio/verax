@@ -17,9 +17,10 @@ import { join } from 'node:path';
 import http from 'node:http';
 import { resolveRunDir } from '../src/cli/util/support/run-dir-resolver.js';
 import { getTimeProvider } from '../src/cli/util/support/time-provider.js';
-import { server, PORT as FIXTURE_PORT } from './fixtures/serve-fixtures.fixture.js';
+import { createFixtureServer } from './fixtures/serve-fixtures.fixture.js';
 
-const SERVER_URL = `http://127.0.0.1:${FIXTURE_PORT}`;
+let server;
+let SERVER_URL;
 
 async function waitForServerReady(url, timeoutMs = 5000) {
   const deadline = getTimeProvider().now() + timeoutMs;
@@ -44,13 +45,16 @@ async function waitForServerReady(url, timeoutMs = 5000) {
 }
 
 before(async () => {
+  server = createFixtureServer();
   await new Promise((resolveStart, rejectStart) => {
     try {
-      server.listen(FIXTURE_PORT, '127.0.0.1', () => resolveStart());
+      server.listen(0, '127.0.0.1', () => resolveStart());
     } catch (e) {
       rejectStart(e);
     }
   });
+  const port = server.address()?.port;
+  SERVER_URL = `http://127.0.0.1:${port}`;
   const ready = await waitForServerReady(SERVER_URL, 8000);
   assert.equal(ready, true, 'Fixture server should become ready');
 });

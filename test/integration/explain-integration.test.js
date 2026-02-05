@@ -9,7 +9,7 @@
  * - Triggers must include evaluated boolean conditions
  * - Evidence must reference at least one existing artifact path
  * - Output must be deterministic (same runId+findingId => same explanation)
- * - Error handling: exit 65 for missing runId or findingId
+ * - Error handling: exit 64 for missing runId or findingId
  */
 
 import { describe, it } from 'node:test';

@@ -145,7 +145,7 @@ export async function generateHumanSummary(projectDir, runId) {
       determinism: {
         verdict: determinismVerdict,
         message: determinismVerdict === 'DETERMINISTIC' 
-          ? 'Run was reproducible (same inputs = same outputs)'
+          ? 'Run outputs were consistent across repeated scans in this environment'
           : determinismVerdict === 'NON_DETERMINISTIC'
           ? 'Run was not reproducible (adaptive events detected)'
           : 'Determinism not evaluated'

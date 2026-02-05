@@ -137,13 +137,11 @@ export async function analyzeRun(projectRoot, runId, options = {}) {
  * Compute gate decision based on evidence.
  * 
  * DECISION ORDER (priority from highest to lowest):
- * 1. INFRA_FAILURE (40) - Tool crash/internal error
+ * 1. INVARIANT_VIOLATION (50) - Invariant/evidence violation
  * 2. USAGE_ERROR (64) - Usage errors
- * 3. EVIDENCE_VIOLATION (50) - Artifact validation failures
- * 4. INCOMPLETE (30) - Run incomplete with fail-on-incomplete=true
- * 5. FAILURE_CONFIRMED (20) - Actionable findings detected
- * 6. NEEDS_REVIEW (10) - Suspected only or fail-on-incomplete=false
- * 7. PASS (0) - All checks passed
+ * 3. INCOMPLETE (30) - Run incomplete with fail-on-incomplete=true
+ * 4. FINDINGS (20) - Findings detected
+ * 5. SUCCESS (0) - All checks passed
  * 
  * This is a pure function - no I/O, no side effects, deterministic output.
  * 
@@ -175,14 +173,6 @@ export function computeGateDecision(analysis) {
     };
   }
 
-  if (runExitCode === EXIT_CODES.INVARIANT_VIOLATION) {
-    return {
-      outcome: 'INVARIANT_VIOLATION',
-      reason: 'Artifacts failed validation',
-      exitCode: EXIT_CODES.INVARIANT_VIOLATION,
-    };
-  }
-
   if (runExitCode === EXIT_CODES.INCOMPLETE && failOnIncomplete) {
     return {
       outcome: 'INCOMPLETE',
@@ -199,7 +189,7 @@ export function computeGateDecision(analysis) {
 
   if (runExitCode === EXIT_CODES.FINDINGS || hasActionableFindings) {
     return {
-      outcome: 'FAILURE_CONFIRMED',
+      outcome: 'FINDINGS',
       reason: `Actionable findings detected: HIGH=${findingsCounts.HIGH || 0} MEDIUM=${findingsCounts.MEDIUM || 0} LOW=${findingsCounts.LOW || 0}`,
       exitCode: EXIT_CODES.FINDINGS,
     };
@@ -220,7 +210,7 @@ export function computeGateDecision(analysis) {
   // (Stability is advisory metric, not blocking)
 
   return {
-    outcome: 'PASS',
+    outcome: 'SUCCESS',
     reason: 'All gate checks passed',
     exitCode: EXIT_CODES.SUCCESS,
   };

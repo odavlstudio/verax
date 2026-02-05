@@ -22,7 +22,7 @@ function createMockRun(runDir, findings) {
 
   writeFileSync(resolve(runDir, 'summary.json'), JSON.stringify({
     runId: 'test-run',
-    status: 'COMPLETE',
+    status: (findings.findings?.length || 0) > 0 ? 'FINDINGS' : 'SUCCESS',
     findingsCounts: { HIGH: findings.findings?.length || 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 }
   }));
   writeFileSync(resolve(runDir, 'findings.json'), JSON.stringify(findings));

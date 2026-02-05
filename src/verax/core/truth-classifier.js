@@ -26,7 +26,7 @@
  * 3. WHETHER THIS RESULT IS SAFE TO TRUST
  *    - SUCCESS: All expectations attempted, zero findings, coverage ≥ threshold
  *    - INCOMPLETE: Partial coverage — MUST NOT be treated as safe
- *    - FAILURE: Confirmed findings OR infrastructure failure
+ *    - FINDINGS: Confirmed findings detected (action required)
  *    - Present in: summary.json.truth.truthState, CLI final line
  * 
  * 4. INCOMPLETE IS DANGEROUS (safety-critical)
@@ -48,9 +48,9 @@
  *      - "X of Y interactions were not exercised. Primary cause(s): timeout, budget."
  * 
  * 6. DETERMINISM
- *    - Identical input (same site state) → byte-for-byte identical output
- *    - All counts must be stable across repeated runs
- *    - All reason breakdowns must be deterministically ordered
+ *    - Same inputs + same environment + stable site state → identical normalized artifacts
+ *    - Some metadata may vary between runs (timestamps, run IDs)
+ *    - All counts and reason breakdowns must be deterministically ordered
  * 
  * 7. UNAMBIGUOUS STATES
  *    - SUCCESS: Zero ambiguity — safe to proceed
@@ -61,7 +61,7 @@
 
 /**
  * @typedef {Object} TruthResult
- * @property {string} truthState - "SUCCESS" | "INCOMPLETE" | "FAILURE"
+ * @property {string} truthState - "SUCCESS" | "FINDINGS" | "INCOMPLETE"
  * @property {string} confidence - "HIGH" | "MEDIUM" | "LOW"
  * @property {string} reason - Why this classification was chosen
  * @property {string} whatThisMeans - Plain English explanation for user
@@ -85,9 +85,8 @@
  *   - budget/time limits hit
  *   AND no infrastructure crash
  * 
- * FAILURE:
- *   - confirmed silent failures exist, OR
- *   - infrastructure failure (browser crash, invalid artifacts)
+ * FINDINGS:
+ *   - confirmed silent failures exist
  * 
  * Confidence (HIGH/MEDIUM/LOW):
  *   - HIGH: coverage >= threshold AND attempted === expectationsTotal
@@ -127,7 +126,7 @@ export function classifyRunTruth(runSummary, thresholds = {}) {
       reason: 'Observation infrastructure failure or incomplete run with zero attempts',
       whatThisMeans:
         'The browser observation infrastructure did not complete. ' +
-        'Results are partial and cannot be trusted. ⚠️ THIS RESULT MUST NOT BE TREATED AS SAFE.',
+        'Results are partial and cannot be trusted. THIS RESULT MUST NOT BE TREATED AS SAFE.',
       recommendedAction:
         'Check Playwright/Chromium setup and rerun with --debug. Ensure the target URL is reachable.',
     };
@@ -187,7 +186,7 @@ export function classifyRunTruth(runSummary, thresholds = {}) {
       whatThisMeans:
         'The run did not complete observation of all public flows. ' +
         'Results are partial and cannot rule out silent failures in untested areas. ' +
-        '⚠️ THIS RESULT MUST NOT BE TREATED AS SAFE.',
+        'THIS RESULT MUST NOT BE TREATED AS SAFE.',
       recommendedAction:
         'Increase --min-coverage threshold, extend budget, or investigate why observations were limited. ' +
         'Re-run to achieve full coverage before trusting results.',
@@ -204,8 +203,8 @@ export function classifyRunTruth(runSummary, thresholds = {}) {
       ? `All ${attempted}/${expectationsTotal} expectations attempted, zero failures`
       : `Coverage ${(coverageRatio * 100).toFixed(1)}% meets threshold (${(minCoverage * 100).toFixed(0)}%), no silent failures`;
     const whatThisMessage = isFull
-      ? 'Every public flow was tested in the real browser. No silent failures detected. Users should see working interactions.'
-      : 'Sufficient public flows were tested in the real browser with no silent failures detected. Users should see working interactions.';
+      ? 'Covered public flows were exercised in the real browser and no silent failures were observed in the attempted interactions.'
+      : 'Sufficient public flows were exercised in the real browser and no silent failures were observed in the attempted interactions.';
 
 
     return {
@@ -213,7 +212,8 @@ export function classifyRunTruth(runSummary, thresholds = {}) {
       confidence: 'HIGH',
       reason: reasonMessage,
       whatThisMeans: whatThisMessage,
-      recommendedAction: 'Results are trustworthy. Proceed with confidence.',
+      recommendedAction:
+        'Treat this as advisory for covered flows. Expand coverage for critical paths and rerun when site state or environment changes.',
     };
   }
 
@@ -243,7 +243,7 @@ export function classifyRunTruth(runSummary, thresholds = {}) {
       whatThisMeans:
         'The run did not complete observation of all public flows. ' +
         'Results are partial and cannot rule out silent failures in untested areas. ' +
-        '⚠️ THIS RESULT MUST NOT BE TREATED AS SAFE.',
+        'THIS RESULT MUST NOT BE TREATED AS SAFE.',
       recommendedAction:
         'Increase --min-coverage threshold, extend budget, or investigate why observations were limited. ' +
         'Re-run to achieve full coverage before trusting results.',
@@ -290,18 +290,18 @@ export function formatTruthAsText(truth) {
 
     const actionText = truth.action ?? truth.recommendedAction ?? '';
     return (
-      `⚠️ RESULT IS INCOMPLETE (${confidenceText} confidence). ${unattempted} of ${total} interactions were not exercised.` +
+      `INCOMPLETE (${confidenceText} confidence). Coverage was partial: ${unattempted} of ${total} interactions were not exercised.` +
       `${reasonsText} ` +
       `THIS RESULT MUST NOT BE TREATED AS SAFE. Partial coverage cannot rule out silent failures. ` +
       `${actionText}`
     );
   }
 
-  const confidence = truth.confidence === 'HIGH' ? 'trustworthy' : 'conditional';
+  const confidence = truth.confidence || 'UNKNOWN';
   const actionText = truth.action ?? truth.recommendedAction ?? '';
   return (
-    `[${truth.truthState}] ${truth.whatThisMeans} ` +
-    `(Confidence: ${confidence}.) ` +
+    `${truth.truthState}. ${truth.whatThisMeans} ` +
+    `Confidence: ${confidence}. ` +
     `${actionText}`
   );
 }

@@ -7,7 +7,7 @@ Purpose: Generate stability metrics for a single run from existing artifacts.
 Required: <runId>
 Optional: --json
 Outputs: Exactly one RESULT/REASON/ACTION block (JSON or text) plus stability.json artifact.
-Exit Codes: 0 SUCCESS | 50 EVIDENCE_VIOLATION | 40 INFRA_FAILURE | 64 USAGE_ERROR
+Exit Codes: 0 SUCCESS | 20 FINDINGS | 30 INCOMPLETE | 50 INVARIANT_VIOLATION | 64 USAGE_ERROR
 Forbidden: run artifact mutation outside stability.json; multiple RESULT blocks; interactive prompts.
 */
 
@@ -64,7 +64,7 @@ export async function stabilityCommand(options) {
     };
   } catch (error) {
     if (error instanceof DataError) {
-      throw error; // Let caller handle with exit code 65
+      throw error; // Let caller handle with exit code 50 (DataError → INVARIANT_VIOLATION)
     }
     throw error;
   }

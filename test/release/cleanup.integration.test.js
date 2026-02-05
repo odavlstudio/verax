@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, mkdirSync, rmSync, existsSync } from 'fs';
+import { writeFileSync, mkdirSync, rmSync, existsSync, mkdtempSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { getTimeProvider } from '../../src/cli/util/support/time-provider.js';
@@ -18,7 +18,7 @@ import {
   summarizeCleanup,
 } from '../../src/verax/cleanup-engine.js';
 
-function createTestRun(runsDir, runId, status = 'COMPLETED', findingsCounts = { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 }) {
+function createTestRun(runsDir, runId, status = 'SUCCESS', findingsCounts = { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 }) {
   const runDir = join(runsDir, runId);
   mkdirSync(runDir, { recursive: true });
 
@@ -78,12 +78,12 @@ test('[cleanup] loadRuns extracts metadata correctly', (t) => {
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'COMPLETED', { HIGH: 2, MEDIUM: 1, LOW: 0, UNKNOWN: 0 });
+  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'SUCCESS', { HIGH: 2, MEDIUM: 1, LOW: 0, UNKNOWN: 0 });
 
   const runs = loadRuns(runsDir);
 
   assert.equal(runs.length, 1);
-  assert.equal(runs[0].status, 'COMPLETED');
+  assert.equal(runs[0].status, 'SUCCESS');
   assert.equal(runs[0].hasConfirmedFindings, true, 'should detect confirmed findings');
   assert.deepEqual(runs[0].findingsCounts, { HIGH: 2, MEDIUM: 1, LOW: 0, UNKNOWN: 0 });
 });
@@ -105,7 +105,7 @@ test('[cleanup] classifyRun protects INCOMPLETE runs', () => {
 test('[cleanup] classifyRun protects CONFIRMED findings by default', () => {
   const run = {
     runId: '2025-01-10T10-00-00-000Z',
-    status: 'COMPLETED',
+    status: 'SUCCESS',
     hasConfirmedFindings: true,
   };
 
@@ -119,7 +119,7 @@ test('[cleanup] classifyRun protects CONFIRMED findings by default', () => {
 test('[cleanup] classifyRun allows deletion of CONFIRMED findings with explicit flag', () => {
   const run = {
     runId: '2025-01-10T10-00-00-000Z',
-    status: 'COMPLETED',
+    status: 'SUCCESS',
     hasConfirmedFindings: true,
   };
 
@@ -141,7 +141,7 @@ test('[cleanup] buildCleanupPlan respects keepLast retention', (t) => {
 
   // Create 5 runs
   for (let i = 0; i < 5; i++) {
-    createTestRun(runsDir, `2025-01-10T${String(10 + i).padStart(2, '0')}-00-00-000Z`, 'COMPLETED');
+    createTestRun(runsDir, `2025-01-10T${String(10 + i).padStart(2, '0')}-00-00-000Z`, 'SUCCESS');
   }
 
   const runs = loadRuns(runsDir);
@@ -185,8 +185,8 @@ test('[cleanup] buildCleanupPlan respects olderThanDays filter', (t) => {
   const oldRunId = old.replace(/:/g, '-').replace(/\.\d{3}Z$/, '-000Z');
   const recentRunId = recent.replace(/:/g, '-').replace(/\.\d{3}Z$/, '-000Z');
 
-  createTestRun(runsDir, oldRunId, 'COMPLETED');
-  createTestRun(runsDir, recentRunId, 'COMPLETED');
+  createTestRun(runsDir, oldRunId, 'SUCCESS');
+  createTestRun(runsDir, recentRunId, 'SUCCESS');
 
   const runs = loadRuns(runsDir);
   const plan = buildCleanupPlan(runs, { keepLast: 0, olderThanDays: 5 });
@@ -206,9 +206,9 @@ test('[cleanup] buildCleanupPlan protects INCOMPLETE runs', (t) => {
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'COMPLETED');
+  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'SUCCESS');
   createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'INCOMPLETE');
-  createTestRun(runsDir, '2025-01-10T12-00-00-000Z', 'COMPLETED');
+  createTestRun(runsDir, '2025-01-10T12-00-00-000Z', 'SUCCESS');
 
   const runs = loadRuns(runsDir);
   const plan = buildCleanupPlan(runs, { keepLast: 1 });
@@ -228,8 +228,8 @@ test('[cleanup] buildCleanupPlan protects CONFIRMED findings by default', (t) =>
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'COMPLETED', { HIGH: 1, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
-  createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'COMPLETED', { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
+  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'SUCCESS', { HIGH: 1, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
+  createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'SUCCESS', { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
 
   const runs = loadRuns(runsDir);
   const plan = buildCleanupPlan(runs, { keepLast: 1, allowDeleteConfirmed: false });
@@ -249,8 +249,8 @@ test('[cleanup] buildCleanupPlan allows deletion of CONFIRMED findings with flag
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'COMPLETED', { HIGH: 1, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
-  createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'COMPLETED', { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
+  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'SUCCESS', { HIGH: 1, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
+  createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'SUCCESS', { HIGH: 0, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
 
   const runs = loadRuns(runsDir);
   const plan = buildCleanupPlan(runs, { keepLast: 1, allowDeleteConfirmed: true });
@@ -269,8 +269,8 @@ test('[cleanup] executeCleanup in dry-run mode does not delete files', (t) => {
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  const runDir1 = createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'COMPLETED');
-  const runDir2 = createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'COMPLETED');
+  const runDir1 = createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'SUCCESS');
+  const runDir2 = createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'SUCCESS');
 
   const runs = loadRuns(runsDir);
   const plan = buildCleanupPlan(runs, { keepLast: 1 });
@@ -293,8 +293,8 @@ test('[cleanup] executeCleanup actually deletes files when dryRun=false', (t) =>
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  const runDir1 = createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'COMPLETED');
-  const runDir2 = createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'COMPLETED');
+  const runDir1 = createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'SUCCESS');
+  const runDir2 = createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'SUCCESS');
 
   const runs = loadRuns(runsDir);
   const plan = buildCleanupPlan(runs, { keepLast: 1 });
@@ -317,9 +317,9 @@ test('[cleanup] summarizeCleanup produces deterministic output', (t) => {
     rmSync(testDir, { recursive: true, force: true });
   });
 
-  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'COMPLETED');
+  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'SUCCESS');
   createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'INCOMPLETE');
-  createTestRun(runsDir, '2025-01-10T12-00-00-000Z', 'COMPLETED', { HIGH: 1, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
+  createTestRun(runsDir, '2025-01-10T12-00-00-000Z', 'SUCCESS', { HIGH: 1, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
 
   const runs = loadRuns(runsDir);
   const plan = buildCleanupPlan(runs, { keepLast: 1 });
@@ -342,7 +342,8 @@ test('[cleanup] summarizeCleanup produces deterministic output', (t) => {
 });
 
 test('[cleanup] determinism: multiple runs produce identical plans', (t) => {
-  const testDir = join(tmpdir(), `verax-test-determinism-${getTimeProvider().now()}`);
+  // Use mkdtemp to prevent cross-file collisions under deterministic VERAX_TEST_TIME.
+  const testDir = mkdtempSync(join(tmpdir(), `verax-test-determinism-${getTimeProvider().now()}-`));
   const runsDir = join(testDir, 'runs');
 
   mkdirSync(runsDir, { recursive: true });
@@ -352,10 +353,10 @@ test('[cleanup] determinism: multiple runs produce identical plans', (t) => {
   });
 
   // Create runs in random order
-  createTestRun(runsDir, '2025-01-10T15-00-00-000Z', 'COMPLETED');
-  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'COMPLETED');
+  createTestRun(runsDir, '2025-01-10T15-00-00-000Z', 'SUCCESS');
+  createTestRun(runsDir, '2025-01-10T10-00-00-000Z', 'SUCCESS');
   createTestRun(runsDir, '2025-01-10T12-00-00-000Z', 'INCOMPLETE');
-  createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'COMPLETED', { HIGH: 1, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
+  createTestRun(runsDir, '2025-01-10T11-00-00-000Z', 'SUCCESS', { HIGH: 1, MEDIUM: 0, LOW: 0, UNKNOWN: 0 });
 
   const runs1 = loadRuns(runsDir);
   const plan1 = buildCleanupPlan(runs1, { keepLast: 2 });

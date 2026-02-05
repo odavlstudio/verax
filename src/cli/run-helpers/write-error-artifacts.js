@@ -13,9 +13,8 @@ function getVersion() {
  * Writes error artifacts when run fails.
  */
 export function writeErrorArtifacts(paths, runId, startedAt, projectRoot, url, src, srcPath, error) {
-  const isIncomplete = error?.exitCode === 66;
-  const status = isIncomplete ? 'INCOMPLETE' : 'FAILED';
-  const incompleteReasons = isIncomplete ? [error.message || 'incomplete'] : [];
+  const status = 'INCOMPLETE';
+  const incompleteReasons = [error?.message || 'incomplete'];
   if (paths && runId && startedAt) {
     try {
       const timeProvider = getTimeProvider();
@@ -24,10 +23,11 @@ export function writeErrorArtifacts(paths, runId, startedAt, projectRoot, url, s
         contractVersion: 1,
         artifactVersions: getArtifactVersions(),
         status,
+        lifecycle: 'FINAL',
         runId,
         startedAt,
         failedAt,
-        error: error.message,
+        error: error?.message,
         incompleteReasons,
       });
       
@@ -54,7 +54,7 @@ export function writeErrorArtifacts(paths, runId, startedAt, projectRoot, url, s
           completedAt: failedAt,
           command: 'run',
           url,
-          notes: status === 'INCOMPLETE' ? `Run incomplete: ${error.message}` : `Run failed: ${error.message}`,
+          notes: `Run incomplete due to error: ${error?.message}`,
           incompleteReasons,
         }, {
           expectationsTotal: 0,

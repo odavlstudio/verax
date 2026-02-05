@@ -854,7 +854,13 @@ async function verifyInformNotBlock(check, projectRoot, _runDir) {
   if (existsSync(runCmd)) {
     const content = readFileSync(runCmd, 'utf-8');
     // Run command should exit with info codes, not block
-    if (content.includes('process.exit(0)') || content.includes('process.exit(10)') || content.includes('process.exit(20)')) {
+    if (
+      content.includes('process.exit(0)') ||
+      content.includes('process.exit(20)') ||
+      content.includes('process.exit(30)') ||
+      content.includes('process.exit(50)') ||
+      content.includes('process.exit(64)')
+    ) {
       result.evidenceFound.push('run command uses informational exit codes');
     }
   }

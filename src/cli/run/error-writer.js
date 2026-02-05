@@ -23,7 +23,7 @@ export async function handleRunError(error, state, events, getVersion) {
       atomicWriteJson(paths.runStatusJson, {
         contractVersion: 1,
         artifactVersions: getArtifactVersions(),
-        status: 'FAILED',
+        status: 'INCOMPLETE',
         scanId: paths.scanId,
         runId,
         startedAt,
@@ -52,12 +52,12 @@ export async function handleRunError(error, state, events, getVersion) {
         writeSummaryJson(paths.summaryJson, {
           runId,
           scanId: paths.scanId,
-          status: 'FAILED',
+          status: 'INCOMPLETE',
           startedAt,
           completedAt: failedAt,
           command: 'run',
           url,
-          notes: `Run failed: ${error.message}`,
+          notes: `Run incomplete due to error: ${error.message}`,
         }, {
           expectationsTotal: 0,
           attempted: 0,

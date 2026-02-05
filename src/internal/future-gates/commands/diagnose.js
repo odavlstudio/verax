@@ -7,7 +7,7 @@ Purpose: Generate post-hoc diagnostics for an existing run (explains HOW and WHY
 Required: <runId>
 Optional: --json
 Outputs: Exactly one RESULT/REASON/ACTION block (JSON or text) plus diagnostics.json artifact.
-Exit Codes: 0 SUCCESS | 50 EVIDENCE_VIOLATION | 40 INFRA_FAILURE | 64 USAGE_ERROR
+Exit Codes: 0 SUCCESS | 20 FINDINGS | 30 INCOMPLETE | 50 INVARIANT_VIOLATION | 64 USAGE_ERROR
 Forbidden: artifact mutation outside diagnostics.json; multiple RESULT blocks; interactive prompts.
 */
 

@@ -1,41 +1,22 @@
 /**
- * STAGE 4.5: CI Exit Code Contract 2.0
- * 
- * Exit codes based on judgment classifications.
- * 
- * EXIT CODES:
- * - 0  → PASS / WEAK_PASS only
- * - 10 → NEEDS_REVIEW only
- * - 20 → FAILURE_SILENT present
- * - 30 → FAILURE_MISLEADING present
- * - 40 → INFRA failure
- * - 50 → Evidence law violated
- * 
- * Precedence (highest first):
- * 50 > 40 > 30 > 20 > 10 > 0
- * 
- * NO ambiguity, NO exceptions.
+ * Exit Code Mapping (Official Contract)
+ *
+ * This maps internal judgment classifications to the official VERAX exit codes.
+ * User-facing exit codes MUST be one of:
+ * - 0  SUCCESS
+ * - 20 FINDINGS
+ * - 30 INCOMPLETE
+ * - 50 INVARIANT_VIOLATION
+ * - 64 USAGE_ERROR
  */
 
 import { JUDGMENT_TYPES } from './judgment-mapper.js';
+import { EXIT_CODES as OFFICIAL_EXIT_CODES } from '../shared/exit-codes.js';
 
 /**
  * Exit Codes
  */
-export const EXIT_CODES = {
-  SUCCESS: 0,
-  NEEDS_REVIEW: 10,
-  FAILURE_SILENT: 20,
-  FAILURE_MISLEADING: 30,
-  INFRA_FAILURE: 40,
-  EVIDENCE_LAW_VIOLATED: 50,
-  
-  // Legacy codes (for compatibility)
-  USAGE_ERROR: 64,
-  DATA_ERROR: 65,
-  INCOMPLETE: 66,
-  FAILED: 2,
-};
+export const EXIT_CODES = OFFICIAL_EXIT_CODES;
 
 /**
  * Determine exit code from judgments
@@ -47,18 +28,13 @@ export const EXIT_CODES = {
  * @returns {number} - Exit code
  */
 export function determineExitCode(judgments, runStatus = {}) {
-  // Evidence law violated (highest priority)
+  // Evidence law violated / invariant violated (highest priority)
   if (runStatus.evidenceLawViolated) {
-    return EXIT_CODES.EVIDENCE_LAW_VIOLATED;
+    return EXIT_CODES.INVARIANT_VIOLATION;
   }
 
-  // Infrastructure failure
-  if (runStatus.infraFailure || runStatus.status === 'FAILED') {
-    return EXIT_CODES.INFRA_FAILURE;
-  }
-
-  // Incomplete run
-  if (runStatus.status === 'INCOMPLETE') {
+  // Infrastructure failure and other non-findings runtime issues → INCOMPLETE
+  if (runStatus.infraFailure || runStatus.status === 'FAILED' || runStatus.status === 'INCOMPLETE') {
     return EXIT_CODES.INCOMPLETE;
   }
 
@@ -70,19 +46,14 @@ export function determineExitCode(judgments, runStatus = {}) {
   // Count judgment types
   const counts = countJudgmentTypes(judgments);
 
-  // FAILURE_MISLEADING present (highest severity failure)
-  if (counts.FAILURE_MISLEADING > 0) {
-    return EXIT_CODES.FAILURE_MISLEADING;
+  // Any confirmed silent/misleading failure judgments → FINDINGS
+  if (counts.FAILURE_MISLEADING > 0 || counts.FAILURE_SILENT > 0) {
+    return EXIT_CODES.FINDINGS;
   }
 
-  // FAILURE_SILENT present
-  if (counts.FAILURE_SILENT > 0) {
-    return EXIT_CODES.FAILURE_SILENT;
-  }
-
-  // NEEDS_REVIEW only
+  // Ambiguity is not a “finding” in the official truth vocabulary → INCOMPLETE
   if (counts.NEEDS_REVIEW > 0) {
-    return EXIT_CODES.NEEDS_REVIEW;
+    return EXIT_CODES.INCOMPLETE;
   }
 
   // Only PASS / WEAK_PASS
@@ -122,15 +93,10 @@ export function countJudgmentTypes(judgments) {
 export function getExitCodeName(exitCode) {
   const names = {
     [EXIT_CODES.SUCCESS]: 'SUCCESS',
-    [EXIT_CODES.NEEDS_REVIEW]: 'NEEDS_REVIEW',
-    [EXIT_CODES.FAILURE_SILENT]: 'FAILURE_SILENT',
-    [EXIT_CODES.FAILURE_MISLEADING]: 'FAILURE_MISLEADING',
-    [EXIT_CODES.INFRA_FAILURE]: 'INFRA_FAILURE',
-    [EXIT_CODES.EVIDENCE_LAW_VIOLATED]: 'EVIDENCE_LAW_VIOLATED',
-    [EXIT_CODES.USAGE_ERROR]: 'USAGE_ERROR',
-    [EXIT_CODES.DATA_ERROR]: 'DATA_ERROR',
+    [EXIT_CODES.FINDINGS]: 'FINDINGS',
     [EXIT_CODES.INCOMPLETE]: 'INCOMPLETE',
-    [EXIT_CODES.FAILED]: 'FAILED',
+    [EXIT_CODES.INVARIANT_VIOLATION]: 'INVARIANT_VIOLATION',
+    [EXIT_CODES.USAGE_ERROR]: 'USAGE_ERROR',
   };
 
   return names[exitCode] || `UNKNOWN(${exitCode})`;
@@ -144,16 +110,11 @@ export function getExitCodeName(exitCode) {
  */
 export function explainExitCode(exitCode) {
   const explanations = {
-    [EXIT_CODES.SUCCESS]: 'All promises fulfilled (PASS or WEAK_PASS)',
-    [EXIT_CODES.NEEDS_REVIEW]: 'Ambiguous outcomes require manual review',
-    [EXIT_CODES.FAILURE_SILENT]: 'Silent failures detected - promises not fulfilled',
-    [EXIT_CODES.FAILURE_MISLEADING]: 'Misleading outcomes detected - contradictory signals',
-    [EXIT_CODES.INFRA_FAILURE]: 'Infrastructure or tool failure',
-    [EXIT_CODES.EVIDENCE_LAW_VIOLATED]: 'Evidence law violated - invalid judgment',
-    [EXIT_CODES.USAGE_ERROR]: 'Usage error - invalid arguments',
-    [EXIT_CODES.DATA_ERROR]: 'Data error - invalid input',
-    [EXIT_CODES.INCOMPLETE]: 'Incomplete run - timeout or budget exceeded',
-    [EXIT_CODES.FAILED]: 'Run failed - internal error',
+    [EXIT_CODES.SUCCESS]: 'No findings detected',
+    [EXIT_CODES.FINDINGS]: 'Findings detected',
+    [EXIT_CODES.INCOMPLETE]: 'Run is incomplete or ambiguous',
+    [EXIT_CODES.INVARIANT_VIOLATION]: 'Invariant or evidence contract violation',
+    [EXIT_CODES.USAGE_ERROR]: 'Invalid CLI usage',
   };
 
   return explanations[exitCode] || 'Unknown exit code';
@@ -176,11 +137,7 @@ export function isSuccessExitCode(exitCode) {
  * @returns {boolean}
  */
 export function isFailureExitCode(exitCode) {
-  return exitCode === EXIT_CODES.FAILURE_SILENT || 
-         exitCode === EXIT_CODES.FAILURE_MISLEADING ||
-         exitCode === EXIT_CODES.INFRA_FAILURE ||
-         exitCode === EXIT_CODES.EVIDENCE_LAW_VIOLATED ||
-         exitCode === EXIT_CODES.FAILED;
+  return exitCode !== EXIT_CODES.SUCCESS;
 }
 
 /**
@@ -191,16 +148,11 @@ export function isFailureExitCode(exitCode) {
  */
 export function getRecommendedAction(exitCode) {
   const actions = {
-    [EXIT_CODES.SUCCESS]: 'No action needed - all checks passed',
-    [EXIT_CODES.NEEDS_REVIEW]: 'Review ambiguous findings manually',
-    [EXIT_CODES.FAILURE_SILENT]: 'Fix silent failures - promises not fulfilled',
-    [EXIT_CODES.FAILURE_MISLEADING]: 'Fix misleading outcomes - contradictory behavior',
-    [EXIT_CODES.INFRA_FAILURE]: 'Check infrastructure and tool configuration',
-    [EXIT_CODES.EVIDENCE_LAW_VIOLATED]: 'Fix evidence law violation - invalid judgment',
-    [EXIT_CODES.USAGE_ERROR]: 'Fix command usage',
-    [EXIT_CODES.DATA_ERROR]: 'Fix input data',
-    [EXIT_CODES.INCOMPLETE]: 'Increase budget or timeout',
-    [EXIT_CODES.FAILED]: 'Check logs for errors',
+    [EXIT_CODES.SUCCESS]: 'Proceed',
+    [EXIT_CODES.FINDINGS]: 'Address findings and rerun',
+    [EXIT_CODES.INCOMPLETE]: 'Increase coverage or rerun with higher budget',
+    [EXIT_CODES.INVARIANT_VIOLATION]: 'Repair or regenerate required artifacts',
+    [EXIT_CODES.USAGE_ERROR]: 'Fix CLI usage and retry',
   };
 
   return actions[exitCode] || 'Unknown action';

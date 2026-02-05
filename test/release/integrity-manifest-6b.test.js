@@ -12,7 +12,7 @@ import { inspectCommand } from '../../src/cli/commands/inspect.js';
 
 function createRunDir(name) {
   const dir = mkdtempSync(join(tmpdir(), `${name}-`));
-  writeFileSync(join(dir, 'summary.json'), JSON.stringify({ runId: name, status: 'COMPLETE' }));
+  writeFileSync(join(dir, 'summary.json'), JSON.stringify({ runId: name, status: 'SUCCESS' }));
   writeFileSync(join(dir, 'findings.json'), JSON.stringify({ findings: [] }));
   writeFileSync(join(dir, 'decision.json'), JSON.stringify({ runId: name, outcome: 'CLEAN', counts: {} }));
   mkdirSync(join(dir, 'evidence'), { recursive: true });

@@ -181,10 +181,12 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
     }
   };
   
-  let status = 'COMPLETE';
+  let status = 'SUCCESS';
 
   const runtimeNavConfig = _options.runtimeNavigation || {};
-  const runtimeNavEnabled = runtimeNavConfig.enabled !== false;
+  // PILOT-SAFE DEFAULT: runtime navigation discovery is opt-in.
+  // Enable only when explicitly requested via runtimeNavigation.enabled === true.
+  const runtimeNavEnabled = runtimeNavConfig.enabled === true;
   const runtimeNavMaxTargets = runtimeNavConfig.maxTargets || 25;
   const runtimeNavAllowCrossOrigin = runtimeNavConfig.allowCrossOrigin || false;
 

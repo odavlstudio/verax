@@ -3,13 +3,12 @@
 /**
  * EXIT CODES CONTRACT TEST
  * 
- * Verifies that verax run returns exit codes matching Enterprise Truth Spec:
- * - 0: COMPLETE + 0 findings
- * - 1: COMPLETE + ≥1 findings
- * - 66: INCOMPLETE (timeout, budget exceeded, browser crash)
- * - 65: INVALID INPUT (bad URL, missing src, no expectations)
- * - 64: USAGE ERROR (missing --url, invalid flags)
- * - 2: TOOL ERROR (internal crash, contract violation)
+ * Verifies that VERAX commands return ONLY the official exit codes:
+ * - 0  SUCCESS
+ * - 20 FINDINGS
+ * - 30 INCOMPLETE
+ * - 50 INVARIANT_VIOLATION
+ * - 64 USAGE_ERROR
  */
 
 import { execSync } from 'child_process';
@@ -64,14 +63,14 @@ if (test('Exit 64: invalid flag', () => {
   assert(exitCode === 64, `Expected 64, got ${exitCode}`);
 })) passed++; else failed++;
 
-if (test('Exit 65: bad URL (unreachable)', () => {
+if (test('Exit 30: unreachable URL yields INCOMPLETE', () => {
   const exitCode = runVerax('run --url http://127.0.0.1:59999 --src ./test/fixtures');
-  assert(exitCode === 65, `Expected 65, got ${exitCode}`);
+  assert(exitCode === 30, `Expected 30, got ${exitCode}`);
 })) passed++; else failed++;
 
-if (test('Exit 65: missing source directory', () => {
+if (test('Exit 50: missing source directory is invariant violation', () => {
   const exitCode = runVerax('run --url http://localhost:3000 --src /nonexistent/path');
-  assert(exitCode === 65, `Expected 65, got ${exitCode}`);
+  assert(exitCode === 50, `Expected 50, got ${exitCode}`);
 })) passed++; else failed++;
 
 if (test('Doctor always exits 0', () => {
@@ -86,9 +85,9 @@ if (test('Doctor exits 0 even with invalid flags', () => {
   assert(exitCode === 0, `Expected 0, got ${exitCode}`);
 })) passed++; else failed++;
 
-if (test('Inspect exits 64 with invalid path', () => {
+if (test('Inspect exits 50 with invalid path', () => {
   const exitCode = runVerax('inspect /nonexistent/run');
-  assert(exitCode === 64, `Expected 64, got ${exitCode}`);
+  assert(exitCode === 50, `Expected 50, got ${exitCode}`);
 })) passed++; else failed++;
 
 console.log(`\n═══════════════════════════════════════════════════════════`);

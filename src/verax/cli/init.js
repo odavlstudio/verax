@@ -102,26 +102,23 @@ jobs:
         run: |
           EXIT_CODE=\${{ steps.verax.exitcode }}
           if [ "$EXIT_CODE" == "" ]; then
-            EXIT_CODE=\${{ steps.verax.outcome == 'success' && 0 || 1 }}
+            EXIT_CODE=50
           fi
           
           if [ "$EXIT_CODE" == "0" ]; then
             echo "✅ VERAX: VERIFIED - Scan passed"
-          elif [ "$EXIT_CODE" == "1" ]; then
-            echo "⚠️ VERAX: NO_EXPECTATIONS_FOUND or MEDIUM/LOW findings"
-            echo "Gate passes (non-blocking)"
-          elif [ "$EXIT_CODE" == "2" ]; then
-            echo "❌ VERAX: HIGH severity findings detected"
-            echo "Gate fails (blocking)"
-            exit 2
-          elif [ "$EXIT_CODE" == "4" ]; then
-            echo "❌ VERAX: INVALID_CONTEXT - URL does not match project"
-            echo "Gate fails (blocking)"
-            exit 4
-          elif [ "$EXIT_CODE" == "3" ]; then
-            echo "❌ VERAX: FATAL error"
-            echo "Gate fails (blocking)"
-            exit 3
+          elif [ "$EXIT_CODE" == "20" ]; then
+            echo "❌ VERAX: FINDINGS detected"
+            exit 20
+          elif [ "$EXIT_CODE" == "30" ]; then
+            echo "❌ VERAX: INCOMPLETE run (insufficient evidence to trust result)"
+            exit 30
+          elif [ "$EXIT_CODE" == "50" ]; then
+            echo "❌ VERAX: INVARIANT_VIOLATION (evidence/contract violation)"
+            exit 50
+          elif [ "$EXIT_CODE" == "64" ]; then
+            echo "❌ VERAX: USAGE_ERROR (invalid CLI usage)"
+            exit 64
           else
             echo "❌ VERAX: Unexpected exit code $EXIT_CODE"
             exit $EXIT_CODE

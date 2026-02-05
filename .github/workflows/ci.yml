@@ -136,11 +136,12 @@ jobs:
       - name: Start fixture server
         id: fixture-server
         run: |
-          node test/helpers/fixture-server.js &
+          node test/infrastructure/fixture-server.js --root test/fixtures/static-site > fixture-server.json &
           SERVER_PID=$!
           echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
-          sleep 3
-          echo "url=http://127.0.0.1:8888" >> $GITHUB_OUTPUT
+          sleep 1
+          PORT=$(node -p "JSON.parse(require('fs').readFileSync('fixture-server.json','utf8')).port")
+          echo "url=http://127.0.0.1:${PORT}" >> $GITHUB_OUTPUT
 
       - name: Run VERAX self-scan
         id: verax

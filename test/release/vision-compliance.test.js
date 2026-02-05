@@ -216,7 +216,7 @@ test('NO INTERACTIVE | CLI entry.js rejects no-args with usage error', () => {
   );
   
   assert.ok(
-    /USAGE:|run --url|inspect|doctor/i.test(result.stdout || ''),
+    /USAGE:|run --url|verax bundle|verax version|verax help/i.test(result.stdout || ''),
     'help text must be shown on no-args call'
   );
 });

@@ -1,13 +1,12 @@
 import { relative, resolve } from 'path';
 import { atomicWriteJson } from './atomic-write.js';
 import { findingIdFromExpectationId } from './idgen.js';
+import { EXIT_CODES } from '../../../verax/shared/exit-codes.js';
 
 export const DECISION_OUTCOME = {
-  CLEAN: 'CLEAN',
+  SUCCESS: 'SUCCESS',
   FINDINGS: 'FINDINGS',
-  INCOMPLETE: 'INCOMPLETE',
-  INVALID_INPUT: 'INVALID_INPUT',
-  TOOL_ERROR: 'TOOL_ERROR'
+  INCOMPLETE: 'INCOMPLETE'
 };
 
 const STATUS_PRIORITY = {
@@ -37,55 +36,56 @@ function normalizeCounts(rawCounts = {}) {
 
 function outcomeFromExitCode(exitCode) {
   switch (exitCode) {
-    case 0:
-      return DECISION_OUTCOME.CLEAN;
-    case 1:
+    case EXIT_CODES.SUCCESS:
+      return DECISION_OUTCOME.SUCCESS;
+    case EXIT_CODES.FINDINGS:
       return DECISION_OUTCOME.FINDINGS;
-    case 66:
+    case EXIT_CODES.INCOMPLETE:
       return DECISION_OUTCOME.INCOMPLETE;
-    case 64:
-    case 65:
-      return DECISION_OUTCOME.INVALID_INPUT;
-    case 2:
+    case EXIT_CODES.INVARIANT_VIOLATION:
+    case EXIT_CODES.USAGE_ERROR:
     default:
-      return DECISION_OUTCOME.TOOL_ERROR;
+      return DECISION_OUTCOME.INCOMPLETE;
   }
 }
 
-function selectActions(outcome) {
-  if (outcome === DECISION_OUTCOME.CLEAN) {
+function selectActions(outcome, exitCode) {
+  if (outcome === DECISION_OUTCOME.SUCCESS) {
     return [
-      'Run completed with no silent failures recorded.',
-      'Counts captured in decision.json for traceability.',
-      'Re-run after code changes to confirm stability.'
+      'No findings were observed in the covered scope.',
+      'Keep this in CI and expand coverage for critical public flows.',
+      'Use summary.json and artifacts for traceability.'
     ];
   }
   if (outcome === DECISION_OUTCOME.FINDINGS) {
     return [
-      'Review decision.json then findings.json for details.',
-      'Address highest status and severity items first.',
-      'Re-run after fixes to confirm resolution.'
+      'Review findings.json and the evidence/ directory.',
+      'Fix or accept the risk explicitly, then rerun.',
+      'Use summary.json for a compact overview.'
     ];
   }
   if (outcome === DECISION_OUTCOME.INCOMPLETE) {
+    if (exitCode === EXIT_CODES.USAGE_ERROR) {
+      return [
+        'Run stopped due to invalid CLI usage.',
+        'Correct the command and retry.',
+        'Use verax --help for supported flags and required inputs.'
+      ];
+    }
+    if (exitCode === EXIT_CODES.INVARIANT_VIOLATION) {
+      return [
+        'Run hit an invariant or evidence contract violation.',
+        'Inspect summary.json and run.status.json in the run directory.',
+        'Re-run after resolving the underlying issue.'
+      ];
+    }
     return [
-      'Run marked incomplete; results are not final.',
-      'Check environment or doctor output for blockers.',
-      'Re-run with the same inputs after resolving issues.'
+      'Run is INCOMPLETE and unsafe to treat as clean.',
+      'Expand coverage or reduce scope, then rerun with the same inputs.',
+      'If findings exist, they are still actionable.'
     ];
   }
-  if (outcome === DECISION_OUTCOME.INVALID_INPUT) {
-    return [
-      'Run stopped due to invalid input or CLI usage.',
-      'Correct the arguments (url/src/out) and retry.',
-      'Use verax doctor if setup issues persist.'
-    ];
-  }
-  return [
-    'Tool error occurred during run.',
-    'Inspect run.status.json, logs, or stack trace.',
-    'Re-run after resolving the underlying error.'
-  ];
+  return [];
 }
 
 function normalizeRunPath(runDir, outDir, runId) {
@@ -199,7 +199,7 @@ export function createDecisionSnapshot(params) {
     runPath: normalizeRunPath(runDir, outDir, runId),
     counts,
     topFindings: normalizeTopFindings(params?.findings || []),
-    actions: selectActions(outcome)
+    actions: selectActions(outcome, exitCode)
   };
 }
 

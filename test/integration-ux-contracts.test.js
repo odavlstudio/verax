@@ -171,7 +171,7 @@ test('STAGE 6.3: Human summary generation', async (t) => {
         completedAt: '2026-01-24T10:01:00Z',
       },
       summary: {
-        status: 'COMPLETE',
+        status: 'SUCCESS',
         productionSeal: 'PRODUCTION_GRADE',
         digest: {
           expectationsTotal: 10,
@@ -190,7 +190,7 @@ test('STAGE 6.3: Human summary generation', async (t) => {
     
     assert(markdown.includes('VERAX Execution Summary'), 'should have header');
     assert(markdown.includes('run-2026-01-24-0001'), 'should include run name');
-    assert(markdown.includes('COMPLETE'), 'should show status');
+    assert(markdown.includes('SUCCESS'), 'should show status');
     assert(markdown.includes('PRODUCTION_GRADE'), 'should show seal');
     assert(markdown.includes('react'), 'should show framework');
     assert(!markdown.match(/undefined/), 'should not have undefined values');
@@ -210,7 +210,7 @@ test('STAGE 6.3: Human summary generation', async (t) => {
     
     const context = {
       meta: { url: 'https://myapp.com/login', startedAt: '2026-01-24T10:00:00Z', completedAt: '2026-01-24T10:01:00Z' },
-      summary: { status: 'COMPLETE', digest: { expectationsTotal: 1, observed: 0, silentFailures: 1 } },
+      summary: { status: 'SUCCESS', digest: { expectationsTotal: 1, observed: 0, silentFailures: 1 } },
       findings,
       coverage: { coverageRatio: 0.8 },
       projectProfile: {},
@@ -309,18 +309,18 @@ test('STAGE 6.4: Judgment generation and sorting', async (t) => {
 
 test('STAGE 6.5: CLI output formatting', async (t) => {
   await t.test('formats result line', async () => {
-    const summary = { status: 'COMPLETE' };
+    const summary = { status: 'SUCCESS' };
     const findings = [];
     
     const result = formatResultLine(summary, findings);
     
     assert(result.includes('✅'), 'should include checkmark emoji');
-    assert(result.includes('COMPLETE'), 'should show status');
+    assert(result.includes('SUCCESS'), 'should show status');
     assert(result.includes('finding'), 'should mention findings');
   });
   
   await t.test('formats reason line', async () => {
-    const summary = { status: 'COMPLETE', digest: { expectationsTotal: 5 } };
+    const summary = { status: 'SUCCESS', digest: { expectationsTotal: 5 } };
     const findings = [];
     const coverage = { coverageRatio: 0.95 };
     
@@ -332,7 +332,7 @@ test('STAGE 6.5: CLI output formatting', async (t) => {
   });
   
   await t.test('formats action line', async () => {
-    const summary = { status: 'COMPLETE' };
+    const summary = { status: 'SUCCESS' };
     const findings = [];
     const coverage = { coverageRatio: 0.95 };
     
@@ -344,7 +344,7 @@ test('STAGE 6.5: CLI output formatting', async (t) => {
   
   await t.test('formats complete CLI output with three lines', async () => {
     const context = {
-      summary: { status: 'COMPLETE' },
+      summary: { status: 'SUCCESS' },
       findings: [],
       coverage: { coverageRatio: 0.95 },
       displayRunName: 'run-2026-01-24-0001',
@@ -402,7 +402,7 @@ test('STAGE 6.5: CLI output formatting', async (t) => {
 test('STAGE 6.6: Product seal computation', async (t) => {
   await t.test('grants seal when all conditions met', async () => {
     const context = {
-      status: 'COMPLETE',
+      status: 'SUCCESS',
       coverage: { coverageRatio: 0.95 },
       findings: [],
       digest: { expectationsTotal: 10, observed: 10 },
@@ -428,7 +428,7 @@ test('STAGE 6.6: Product seal computation', async (t) => {
   
   await t.test('denies seal when coverage below threshold', async () => {
     const context = {
-      status: 'COMPLETE',
+      status: 'SUCCESS',
       coverage: { coverageRatio: 0.75 },
       findings: [],
       digest: { expectationsTotal: 10, observed: 10 },
@@ -442,7 +442,7 @@ test('STAGE 6.6: Product seal computation', async (t) => {
   
   await t.test('denies seal when silent failures exist', async () => {
     const context = {
-      status: 'COMPLETE',
+      status: 'SUCCESS',
       coverage: { coverageRatio: 0.95 },
       findings: [{ type: 'SILENT_FAILURE' }],
       digest: { expectationsTotal: 10, observed: 10 },
@@ -465,12 +465,12 @@ test('STAGE 6.6: Product seal computation', async (t) => {
     
     assert(!explanation.sealed, 'should not be sealed');
     assert(explanation.reasons.length > 0, 'should explain reasons');
-    assert(explanation.reasons.some(r => r.includes('COMPLETE')), 'should mention status');
+    assert(explanation.reasons.some(r => r.includes('SUCCESS')), 'should mention status');
   });
   
   await t.test('formats seal message for display', async () => {
     const context = {
-      status: 'COMPLETE',
+      status: 'SUCCESS',
       coverage: { coverageRatio: 0.95 },
       findings: [],
       digest: { expectationsTotal: 10, observed: 10 },
@@ -486,7 +486,7 @@ test('STAGE 6.6: Product seal computation', async (t) => {
   await t.test('validates seal consistency', async () => {
     const summary = { productionSeal: 'PRODUCTION_GRADE' };
     const context = {
-      status: 'COMPLETE',
+      status: 'SUCCESS',
       coverage: { coverageRatio: 0.95 },
       findings: [],
       digest: { expectationsTotal: 10, observed: 10 },

@@ -39,28 +39,29 @@ console.log('══════════════════════�
 let passed = 0;
 let failed = 0;
 
-// Test 1: CLI contract exposes FAILURE_INCOMPLETE = 30
-if (test('cli-contract.js exports exit code 30 for incomplete', () => {
-  const contractPath = join(process.cwd(), 'src', 'cli', 'config', 'cli-contract.js');
-  assert(existsSync(contractPath), 'cli-contract.js should exist');
-  const content = readFileSync(contractPath, 'utf-8');
-  assert(content.includes('FAILURE_INCOMPLETE') && content.includes('30'), 'FAILURE_INCOMPLETE should be 30');
+// Test 1: CLI contract exposes INCOMPLETE = 30
+if (test('shared exit codes define INCOMPLETE = 30', () => {
+  const sharedPath = join(process.cwd(), 'src', 'verax', 'shared', 'exit-codes.js');
+  assert(existsSync(sharedPath), 'shared exit-codes.js should exist');
+  const content = readFileSync(sharedPath, 'utf-8');
+  assert(content.includes('INCOMPLETE: 30'), 'EXIT_CODES.INCOMPLETE should be 30');
 })) passed++; else failed++;
 
-// Test 2: Global timeout path exits with FAILURE_INCOMPLETE (30)
-if (test('Global timeout emits exit code 30', () => {
+// Test 2: run.js uses EXIT_CODES.INCOMPLETE (30) for incomplete paths
+if (test('run.js references EXIT_CODES.INCOMPLETE', () => {
   const runPath = join(process.cwd(), 'src', 'cli', 'commands', 'run.js');
   const content = readFileSync(runPath, 'utf-8');
-  assert(content.includes('Global timeout exceeded'), 'Global timeout branch should exist');
-  assert(content.includes('EXIT_CODES.FAILURE_INCOMPLETE'), 'Global timeout should use FAILURE_INCOMPLETE');
+  assert(content.includes('EXIT_CODES.INCOMPLETE'), 'run.js should use EXIT_CODES.INCOMPLETE');
 })) passed++; else failed++;
 
-// Test 3: Learn phase timeout emits FAILURE_INCOMPLETE (30)
-if (test('Learn timeout emits exit code 30', () => {
+// Test 3: No legacy/non-contract exit code names remain in run pipeline
+if (test('No legacy/non-contract exit code names exist in run pipeline', () => {
   const runPath = join(process.cwd(), 'src', 'cli', 'commands', 'run.js');
   const content = readFileSync(runPath, 'utf-8');
-  assert(content.includes('Learn phase timeout'), 'Learn timeout branch should exist');
-  assert(content.includes('EXIT_CODES.FAILURE_INCOMPLETE'), 'Learn timeout should use FAILURE_INCOMPLETE');
+  assert(
+    !content.includes('INCOMPLETE_RUN') && !content.includes('INVALID_INPUT') && !content.includes('TOOL_ERROR'),
+    'run.js must not reference legacy/non-contract exit-code names'
+  );
 })) passed++; else failed++;
 
 // Test 4: Verify timeout writes status as INCOMPLETE

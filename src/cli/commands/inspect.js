@@ -4,7 +4,7 @@ Purpose: Validate and summarize an existing run directory without modifying arti
 Required: <runPath>
 Optional: --json
 Outputs: Exactly one RESULT/REASON/ACTION block (JSON or text) plus optional JSON payload of run metadata.
-Exit Codes: 0 SUCCESS | 50 EVIDENCE_LAW_VIOLATION | 40 INFRA_FAILURE | 64 USAGE_ERROR
+Exit Codes: 0 SUCCESS | 50 INVARIANT_VIOLATION | 64 USAGE_ERROR
 Forbidden: artifact mutation; multiple RESULT/REASON/ACTION blocks; unsupported flags; non-deterministic logs without --debug.
 */
 
@@ -13,6 +13,7 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 import { DataError, UsageError } from '../util/support/errors.js';
 import { MANIFEST_FILENAME, verifyRunIntegrityManifest } from '../util/evidence/integrity-manifest.js';
 import { buildOutcome, EXIT_CODES } from '../config/cli-contract.js';
+import { normalizeTruthState, TRUTH_STATES } from '../../verax/shared/truth-states.js';
 
 export async function inspectCommand(runPath, options = {}) {
   const { json: _json = false } = options;
@@ -114,9 +115,10 @@ export async function inspectCommand(runPath, options = {}) {
     }
   }
   
+  const truthStatus = normalizeTruthState(summary.status, TRUTH_STATES.INCOMPLETE);
   const output = {
     runId: summary.runId || 'unknown',
-    status: summary.status || 'unknown',
+    status: truthStatus,
     startedAt: summary.startedAt || null,
     completedAt: summary.completedAt || null,
     url: summary.url || null,
@@ -131,7 +133,7 @@ export async function inspectCommand(runPath, options = {}) {
   const exitCode = evidenceIssues ? EXIT_CODES.INVARIANT_VIOLATION : EXIT_CODES.SUCCESS;
   const reason = evidenceIssues
     ? 'Artifacts failed integrity validation'
-    : `Run ${output.status} with ${output.findingsCount} findings`;
+    : `Run ${truthStatus} with ${output.findingsCount} findings`;
   const action = evidenceIssues
     ? `Repair or regenerate run artifacts in ${fullPath}`
     : `Review findings in ${fullPath}`;
