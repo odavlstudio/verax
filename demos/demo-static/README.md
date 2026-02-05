@@ -93,4 +93,4 @@ VERAX automatically redacts:
 - JWT tokens and bearer tokens
 - Console logs with sensitive data
 
-All evidence files are safe to share in CI/CD logs.
+Evidence files are redacted by default; review before sharing outside your environment.

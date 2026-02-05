@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, rmSync, statSync, writeFileSync, unlinkSync, readdirSync } from 'fs';
 import { resolve, join } from 'path';
 import { UsageError } from '../support/errors.js';
+import { resolveVeraxOutDir } from '../support/default-output-dir.js';
 
 function parseNodeMajor(version) {
   const m = String(version || '').match(/^v?(\d+)\./);
@@ -42,7 +43,7 @@ function checkOutWritable(outPath) {
     if (!st.isDirectory()) {
       throw buildPrereqUsageError(
         `--out must be a directory path. Found a file at: ${absoluteOut}`,
-        'Choose a writable directory for --out (or omit it to use .verax).'
+        'Choose a writable directory for --out (or omit it to use the default output directory).'
       );
     }
   } else {
@@ -126,7 +127,7 @@ async function checkPlaywrightAndChromium({ testMode = false } = {}) {
   }
 
   // Keep it fast and deterministic: quick launch, immediate close, bounded timeout.
-  const timeoutMs = 900;
+  const timeoutMs = 5000;
   const launchPromise = chromium.launch({ headless: true });
   const timeoutPromise = new Promise((_, reject) =>
     setTimeout(() => reject(new Error('preflight_launch_timeout')), timeoutMs)
@@ -155,7 +156,9 @@ async function checkPlaywrightAndChromium({ testMode = false } = {}) {
 export async function runPreflight({ outPath } = /** @type {{ outPath?: string }} */ ({})) {
   checkNodeVersion();
 
-  const out = checkOutWritable(outPath || '.verax');
+  const projectRoot = resolve(process.cwd());
+  const defaultOut = resolveVeraxOutDir(projectRoot, outPath || null);
+  const out = checkOutWritable(defaultOut);
 
   try {
     const testMode = process.env.VERAX_TEST_MODE === '1';

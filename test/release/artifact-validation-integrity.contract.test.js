@@ -12,6 +12,7 @@ import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { getDefaultVeraxOutDir } from '../../src/cli/util/support/default-output-dir.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -37,7 +38,9 @@ test('Artifact Validation Integrity & Pipeline Integration', async (suite) => {
   });
 
   await suite.test('no .temp screenshot artifacts exist', () => {
-    const tempScreenshots = globSync(resolve(rootDir, 'tmp/**/*.png.temp'), { nodir: true });
+    const outDir = getDefaultVeraxOutDir(rootDir);
+    if (!existsSync(outDir)) return;
+    const tempScreenshots = globSync(resolve(outDir, '**/*.png.temp'), { nodir: true });
     assert.equal(tempScreenshots.length, 0, 'no leftover .temp screenshot files');
   });
 

@@ -33,5 +33,5 @@ export const RESULTS_INTERPRETATION = Object.freeze({
 
 export const INCOMPLETE_SAFETY_LINE = 'THIS RESULT MUST NOT BE TREATED AS SAFE.';
 
-export const ARTIFACTS_LINE = 'Artifacts are written under .verax/runs/ (or --out).';
-
+export const ARTIFACTS_LINE =
+  'Artifacts are written under the default output directory (or --out).';

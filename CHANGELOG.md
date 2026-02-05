@@ -32,7 +32,7 @@ This release is cut for pilot usage: run a read-only scan of a public (pre-login
 ### Improvements
 
 - Pilot surface commands are locked and contract-tested (see `verax --help` for the frozen list).
-- Pilot-only diagnostics: `readiness` (no scan) and `capability-bundle` (safe-to-share bundle).
+- Pilot-only diagnostics: `readiness` (no scan) and `capability-bundle` (diagnostic-only bundle with minimized data; supports `--anonymize-host`).
 - Bundling validates required run artifacts and includes integrity metadata.
 
 ### Fixes
@@ -132,14 +132,14 @@ Status: Beta
 
 ### Summary
 
-- Trust-Locked, deterministic, CI-safe public flow sanity guard
+- Trust-Locked, stable ordering, CI-safe public flow sanity guard
 - Evidence-backed findings only (no evidence → no finding)
 - Strict scope: pre-auth public flows; no business logic validation
 - 241 tests covering detection logic, exit codes, invariants
 
 ### Updates
 
-- README positioning locked to public-flow, CI-safe, deterministic scope
+- README positioning locked to public-flow, CI-safe, stable-ordering scope
 - CLI UX: clearer completion summary; lightweight progress indicator on long runs
 - Error messages standardized with `[ERROR]` prefix across CLI commands
 - CI adoption docs added: `docs/CI_INTEGRATION.md`

@@ -11,7 +11,7 @@ function getVersion() {
  * Extracted from runCommand Phase 2 (Initialization) for readability. No behavior change.
  * Writes initial run status and metadata artifacts.
  */
-export function writeInitialArtifacts(paths, runId, projectRoot, url, src, srcPath) {
+export function writeInitialArtifacts(paths, runId, projectRoot, url, src, srcPath, outDir = null) {
   const timeProvider = getTimeProvider();
   const startedAt = timeProvider.iso();
   
@@ -31,7 +31,7 @@ export function writeInitialArtifacts(paths, runId, projectRoot, url, src, srcPa
     platform: process.platform,
     cwd: projectRoot,
     command: 'run',
-    args: { url, src, out: '.verax' },
+    args: { url, src, out: outDir },
     url,
     src: srcPath,
     startedAt,

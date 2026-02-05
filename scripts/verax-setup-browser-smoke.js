@@ -1,5 +1,7 @@
 import { chromium } from 'playwright';
 import { observeExpectations } from '../src/cli/util/observation/observation-engine.js';
+import os from 'os';
+import { join } from 'path';
 
 async function main() {
   // Minimal call using the public observeExpectations API with a custom browserFactory
@@ -17,7 +19,7 @@ async function main() {
       id: 'exp_manual1'
     }
   ];
-  const res = await observeExpectations(expectations, url, './tmp', null, {
+  const res = await observeExpectations(expectations, url, join(os.tmpdir(), 'verax-smoke'), null, {
     browserFactory: (opts) => chromium.launch({ ...opts, headless: true, timeout: 45000 })
   });
   console.log(JSON.stringify({ status: res.status, stats: res.stats }));

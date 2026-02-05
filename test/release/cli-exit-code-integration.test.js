@@ -15,8 +15,9 @@ import { test } from 'node:test';
 import * as assert from 'node:assert';
 import { spawnSync } from 'child_process';
 import { dirname, resolve, join } from 'path';
-import { rmSync } from 'fs';
+import { rmSync, mkdtempSync } from 'fs';
 import { fileURLToPath } from 'url';
+import { tmpdir } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -86,7 +87,7 @@ test('CLI Exit Code Integration (v0.4.2)', async (t) => {
   // Use existing test fixtures from artifacts
   const navOkFixture = join(rootDir, 'test/fixtures/nav-ok');
   const flowBrokenFixture = join(rootDir, 'test/fixtures/flow-broken');
-  const outputDir = join(rootDir, 'tmp/exit-code-integration-test');
+  const outputDir = mkdtempSync(join(tmpdir(), 'verax-exit-code-integration-'));
   
   let okServer = null;
   let brokenServer = null;

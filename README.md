@@ -22,11 +22,14 @@ Not needed for `verax readiness` / `verax capability-bundle`.
 
 `npx verax readiness --url https://your-site.example`
 
-4) Capability bundle (diagnostic-only; safe to share)
+4) Capability bundle (diagnostic-only; minimized data)
 
 `npx verax capability-bundle --url https://your-site.example --out .verax`
 
 Artifacts: `.verax/capability-bundles/<timestamp>/` (includes `integrity.manifest.json`).
+
+Notes:
+- URLs stored in readiness/bundles are origin-only (`/`, no query/fragment). Use `--anonymize-host` to avoid storing hostnames (stores `originHash` only).
 
 5) Run (with `--src`)
 

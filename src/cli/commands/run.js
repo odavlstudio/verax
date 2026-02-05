@@ -15,7 +15,7 @@ Forbidden: interactive prompts; multiple RESULT/REASON/ACTION blocks; non-determ
 
 import { resolve } from 'path';
 import { readFileSync, existsSync } from 'fs';
-import { generateScanId, generateUniqueRunId } from '../util/support/run-id.js';
+import { generateRunId, generateScanId, generateUniqueRunId } from '../util/support/run-id.js';
 import { getRunPaths, ensureRunDirectories } from '../util/support/paths.js';
 import { atomicWriteJson, atomicWriteText } from '../util/support/atomic-write.js';
 import { RunEventEmitter } from '../util/support/events.js';
@@ -38,7 +38,7 @@ import { IncompleteError, UsageError } from '../util/support/errors.js';
 import { printSummary } from '../run/output-summary.js';
 import { evaluateFrameworkSupport } from '../../verax/core/framework-support.js';
 import { mapFailureReasons } from '../../verax/core/failures/failure-mode-matrix.js';
-import { classifyRunTruth, buildTruthBlock, formatTruthAsText } from '../../verax/core/truth-classifier.js';
+import { classifyRunTruth, buildTruthBlock, formatTruthAsText, summarizeCriticalSilences } from '../../verax/core/truth-classifier.js';
 import { TRUTH_STATES } from '../../verax/shared/truth-states.js';
 import { VERSION } from '../../version.js';
 import { logV1RuntimeSeal, printV1RuntimeSummary } from '../../internal/future-gates/v1-runtime-seal.js';
@@ -85,6 +85,7 @@ import { validateUrl, resolveAndValidateSrcPath } from '../run/validation-simple
 import { createTimeoutHandler } from '../run/timeout-handler.js';
 import { handleRunError } from '../run/error-writer.js';
 import { EXIT_CODES, buildOutcome, emitOutcome as _emitOutcome, outcomeFromError } from '../config/cli-contract.js';
+import { resolveVeraxOutDir } from '../util/support/default-output-dir.js';
 
 function getVersion() {
   return VERSION;
@@ -545,7 +546,7 @@ async function runObservePhase(context) {
  * Detect Phase: Analyze findings and detect silent failures with timeout
  */
 async function runDetectPhase(context) {
-  const { expectations, skipped, observeData, projectRoot, events, json, budget } = context;
+  const { expectations, skipped, observeData, projectRoot, events, json, budget, paths } = context;
   
   // Detect phase with timeout
   events.emit('phase:started', {
@@ -565,6 +566,7 @@ async function runDetectPhase(context) {
         observeData,
         projectRoot,
         events,
+        evidenceDir: paths?.evidenceDir,
       }),
       'Detect'
     );
@@ -740,6 +742,11 @@ async function runArtifactWritePhase(context) {
   if (expectationsTotal > 0 && coverageRatio < (minCoverage ?? 0.90)) {
     runStatus = 'INCOMPLETE';
   }
+
+  const criticalSilenceSummary = summarizeCriticalSilences(observeData?.observations);
+  if (criticalSilenceSummary.criticalSilenceCount > 0) {
+    runStatus = 'INCOMPLETE';
+  }
   const summaryStats = {
     expectationsTotal,
     attempted,
@@ -771,6 +778,7 @@ async function runArtifactWritePhase(context) {
       observed: completed,
       silentFailures: summaryStats.silentFailures,
       coverageRatio,
+      ...criticalSilenceSummary,
       hasInfraFailure: false,
       isIncomplete: runStatus === 'INCOMPLETE',
       incompleteReasons: summaryData.incompleteReasons || [],
@@ -785,10 +793,12 @@ async function runArtifactWritePhase(context) {
     if (coverageTooLow) reasons.add('coverage_below_threshold');
     if (attempted < expectationsTotal) reasons.add('partial_attempts');
     if (observeData?.status === 'INCOMPLETE') reasons.add('observation_incomplete');
+    if (criticalSilenceSummary.criticalSilenceCount > 0) reasons.add('critical_silence_detected');
     summaryData.incompleteReasons = Array.from(reasons);
     if (summaryData.incompleteReasons.length === 0) {
       summaryData.incompleteReasons = ['unknown_incompleteness'];
     }
+    summaryData.incompleteReasons.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
     summaryData.reasons = mapFailureReasons(summaryData.incompleteReasons);
   }
 
@@ -880,6 +890,7 @@ async function runArtifactWritePhase(context) {
       observed: completed,
       silentFailures: totalConfirmedFindings,
       coverageRatio,
+      ...criticalSilenceSummary,
       hasInfraFailure: Boolean(validation && Array.isArray(validation.corruptedFiles) && validation.corruptedFiles.length > 0),
       isIncomplete: runStatus === 'INCOMPLETE' || validatedStatus === 'INCOMPLETE',
       incompleteReasons: summaryData.incompleteReasons || [],
@@ -895,11 +906,13 @@ async function runArtifactWritePhase(context) {
     if (coverageTooLow) reasons.add('coverage_below_threshold');
     if (attempted < expectationsTotal) reasons.add('partial_attempts');
     if (observeData?.status === 'INCOMPLETE') reasons.add('observation_incomplete');
+    if (criticalSilenceSummary.criticalSilenceCount > 0) reasons.add('critical_silence_detected');
     if (!validation.valid) reasons.add('artifact_validation_failed');
     finalIncompleteReasons = Array.from(reasons);
     if (finalIncompleteReasons.length === 0) {
       finalIncompleteReasons = ['unknown_incompleteness'];
     }
+    finalIncompleteReasons.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   }
   
   // CRITICAL: LIMITED mode ALWAYS results in INCOMPLETE (zero-config safety)
@@ -1103,7 +1116,7 @@ export async function runCommand(options) {
   const {
     url,
     src = '.',
-    out = '.verax',
+    out: outArg,
     json = false,
     verbose = false,
     debug = false,
@@ -1138,6 +1151,7 @@ export async function runCommand(options) {
   // If source was auto-detected or not-detected, allow missing (limited mode)
   const allowMissing = sourceMode !== 'provided';
   const { projectRoot, srcPath, missing } = resolveAndValidateSrcPath(src, allowMissing);
+  const out = resolveVeraxOutDir(projectRoot, outArg);
   const isLimitedMode = sourceMode === 'not-detected' || missing;
   
   // Load enterprise policy (GATE ENTERPRISE)
@@ -1218,7 +1232,9 @@ export async function runCommand(options) {
   
   try {
     scanId = generateScanId({ url, srcPath, config: { projectRoot, ciMode, minCoverage } });
-    runId = generateUniqueRunId();
+    runId = process.env.VERAX_DETERMINISTIC_MODE === '1'
+      ? generateRunId(url)
+      : generateUniqueRunId();
 
     paths = getRunPaths(projectRoot, out, scanId, runId);
     ensureRunDirectories(paths);

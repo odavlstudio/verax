@@ -15,6 +15,55 @@ import { basename, resolve } from 'path';
 import { getTimeProvider } from './support/time-provider.js';
 import { getRunArtifactDefinitions, ARTIFACT_REGISTRY } from '../../verax/core/artifacts/registry.js';
 import { EXIT_CODES } from '../../verax/shared/exit-codes.js';
+import { validateArtifactIntegrity } from './integrity-validator.js';
+
+function normalizeEvidenceRef(ref) {
+  if (typeof ref !== 'string') return null;
+  const raw = ref.trim();
+  if (!raw) return null;
+  const replaced = raw.replace(/\\/g, '/');
+  const withoutPrefix = replaced.startsWith('./') ? replaced.slice(2) : replaced;
+  if (/^[a-zA-Z]:\//.test(withoutPrefix)) return null;
+  if (withoutPrefix.startsWith('/') || withoutPrefix.startsWith('\\\\')) return null;
+  if (withoutPrefix.includes('..')) return null;
+  return withoutPrefix;
+}
+
+function extractExpNumFromEvidenceFiles(files) {
+  const list = Array.isArray(files) ? files : [];
+  const nums = new Set();
+  for (const f of list) {
+    if (typeof f !== 'string') continue;
+    const m = /(?:^|\/)exp_(\d+)_/i.exec(f);
+    if (!m) continue;
+    const n = Number(m[1]);
+    if (Number.isFinite(n) && n > 0) nums.add(n);
+  }
+  const arr = Array.from(nums).sort((a, b) => a - b);
+  return arr;
+}
+
+function buildObserveEvidenceByExpNum(observe) {
+  /** @type {Map<number, Set<string>>} */
+  const map = new Map();
+  const observations = Array.isArray(observe?.observations) ? observe.observations : [];
+
+  for (const obs of observations) {
+    const evidenceFiles = Array.isArray(obs?.evidenceFiles) ? obs.evidenceFiles : [];
+    const expNums = extractExpNumFromEvidenceFiles(evidenceFiles);
+    if (expNums.length !== 1) continue;
+    const expNum = expNums[0];
+
+    if (!map.has(expNum)) map.set(expNum, new Set());
+    const set = map.get(expNum);
+    for (const f of evidenceFiles) {
+      const n = normalizeEvidenceRef(f);
+      if (n) set.add(n);
+    }
+  }
+
+  return map;
+}
 
 /**
  * Validation result object
@@ -268,6 +317,7 @@ export function validateRunDirectory(runDir) {
   let summary = null;
   let findings = null;
   let runStatus = null;
+  let observe = null;
 
   for (const def of defs) {
     const required = def.required === true || def.status === 'REQUIRED';
@@ -283,6 +333,7 @@ export function validateRunDirectory(runDir) {
       if (def.key === 'summary') summary = parsed;
       if (def.key === 'findings') findings = parsed;
       if (def.key === 'runStatus') runStatus = parsed;
+      if (def.key === 'observe') observe = parsed;
       continue;
     }
 
@@ -331,6 +382,107 @@ export function validateRunDirectory(runDir) {
         findingsStatsTotal: findingsTotal,
         findingsLength: findingsLen,
       });
+    }
+
+    // Invariant: findings must not reference missing evidence files on disk
+    try {
+      const evidenceDir = resolve(runDir, ARTIFACT_REGISTRY.evidenceDir.filename);
+      const integrity = validateArtifactIntegrity({ summary, findingsData: findings, evidenceDir });
+      if (integrity.issues?.missingEvidenceFiles?.length > 0) {
+        result.addError('findings reference missing evidence files', {
+          missingEvidenceFiles: integrity.issues.missingEvidenceFiles.slice(0, 5),
+          missingCount: integrity.issues.missingEvidenceFiles.length,
+        });
+      }
+    } catch {
+      // Non-fatal: validation should not crash on unexpected filesystem issues.
+    }
+  }
+
+  // Manifest coverage law (strict): if integrity.manifest.json exists, it must include all findings evidence refs.
+  const integrityManifestPath = resolve(runDir, 'integrity.manifest.json');
+  if (findings && existsSync(integrityManifestPath)) {
+    try {
+      const content = /** @type {string} */ (readFileSync(integrityManifestPath, 'utf-8'));
+      const manifest = JSON.parse(content);
+      const artifactsArray = Array.isArray(manifest?.artifacts) ? manifest.artifacts : null;
+      if (!artifactsArray) {
+        result.addCorruptedFile(integrityManifestPath, 'Integrity manifest missing artifacts array (cannot verify proof chain)', { required: true });
+      } else {
+        const manifestPaths = new Set(
+          artifactsArray
+            .map((a) => (typeof a?.path === 'string' ? a.path : null))
+            .filter((p) => typeof p === 'string' && p.length > 0)
+            .map((p) => String(p).trim().replace(/\\/g, '/'))
+        );
+
+        const missing = [];
+        const findingsList = Array.isArray(findings.findings) ? findings.findings : [];
+        for (const f of findingsList) {
+          const evidenceFiles = f?.evidence?.evidence_files || f?.evidence?.evidenceFiles || [];
+          if (!Array.isArray(evidenceFiles)) continue;
+          for (const ref of evidenceFiles) {
+            const normalized = normalizeEvidenceRef(ref);
+            if (!normalized) {
+              result.addCorruptedFile(resolve(runDir, ARTIFACT_REGISTRY.findings.filename), 'Invalid evidence file ref in findings.json', { required: true });
+              continue;
+            }
+            const requiredPath = `evidence/${normalized}`;
+            if (!manifestPaths.has(requiredPath)) {
+              missing.push({ findingId: f?.id || null, missingPath: requiredPath });
+              if (missing.length >= 5) break;
+            }
+          }
+          if (missing.length >= 5) break;
+        }
+
+        if (missing.length > 0) {
+          result.addCorruptedFile(
+            integrityManifestPath,
+            'Integrity manifest does not cover findings evidence references (proof chain broken)',
+            { required: true }
+          );
+          result.addError('integrity.manifest.json missing findings evidence paths', { missing });
+        }
+      }
+    } catch (e) {
+      result.addCorruptedFile(integrityManifestPath, `Failed to parse integrity.manifest.json: ${e?.message || 'unknown'}`, { required: true });
+    }
+  }
+
+  // Observe ↔ findings minimal consistency (strict for CONFIRMED silent failures)
+  if (findings && observe) {
+    try {
+      const observeEvidenceByExpNum = buildObserveEvidenceByExpNum(observe);
+      const STRICT_SILENT_FAILURE_TYPES = new Set([
+        'dead_interaction_silent_failure',
+        'broken_navigation_promise',
+        'silent_submission',
+      ]);
+      const findingsList = Array.isArray(findings.findings) ? findings.findings : [];
+      for (const f of findingsList) {
+        if (f?.status !== 'CONFIRMED') continue;
+        if (!STRICT_SILENT_FAILURE_TYPES.has(f?.type)) continue;
+
+        const evidenceFiles = f?.evidence?.evidence_files || f?.evidence?.evidenceFiles || [];
+        const normalizedRefs = Array.isArray(evidenceFiles)
+          ? evidenceFiles.map(normalizeEvidenceRef).filter(Boolean)
+          : [];
+
+        const expNums = extractExpNumFromEvidenceFiles(normalizedRefs);
+        const mapped = expNums.length === 1 ? observeEvidenceByExpNum.get(expNums[0]) : null;
+        const ok = mapped instanceof Set && normalizedRefs.every((r) => mapped.has(r));
+        if (!ok) {
+          result.addCorruptedFile(
+            resolve(runDir, ARTIFACT_REGISTRY.findings.filename),
+            'CONFIRMED silent-failure finding evidence not traceable to observe.json',
+            { required: true }
+          );
+          break;
+        }
+      }
+    } catch {
+      // ignore consistency validation errors
     }
   }
 

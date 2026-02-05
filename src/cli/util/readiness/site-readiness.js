@@ -1,4 +1,5 @@
 import { parse as parseHtml } from 'node-html-parser';
+import { createHash } from 'crypto';
 import { getTimeProvider } from '../support/time-provider.js';
 import { VERSION } from '../../../version.js';
 
@@ -8,7 +9,7 @@ const READINESS_LEVELS = Object.freeze({
   OUT_OF_SCOPE: 'OUT_OF_SCOPE',
 });
 
-const VALUE_BUCKETS = Object.freeze([0, 20, 40, 60]);
+const VALUE_BUCKETS = Object.freeze([0, 20, 40, 60, 80, 100]);
 
 function clampValueBucket(value) {
   const v = Number.isFinite(value) ? value : 0;
@@ -20,11 +21,48 @@ function clampValueBucket(value) {
   return best;
 }
 
-function normalizeUrlForReport(url) {
+function normalizeUrlForFetch(url) {
   try {
-    return new URL(url).toString();
+    const raw = String(url || '').trim();
+    if (!raw) return '';
+    if (raw.includes('://')) return new URL(raw).toString();
+    // Normalize missing scheme to https:// for strict, provable reporting.
+    return new URL(`https://${raw}`).toString();
   } catch {
-    return String(url || '');
+    return String(url || '').trim();
+  }
+}
+
+function sanitizeUrlForReport(url) {
+  const raw = String(url || '').trim();
+  if (!raw) return null;
+
+  const stripped = raw.split('#')[0].split('?')[0];
+  try {
+    const parsed = new URL(stripped);
+    // Never include credentials or deep paths in report outputs.
+    parsed.username = '';
+    parsed.password = '';
+    parsed.search = '';
+    parsed.hash = '';
+    parsed.pathname = '/';
+    return `${parsed.origin}/`;
+  } catch {
+    return null;
+  }
+}
+
+function sha256Hex(value) {
+  return createHash('sha256').update(String(value || ''), 'utf8').digest('hex');
+}
+
+function getOriginMetaFromSafeUrl(safeUrl) {
+  try {
+    const parsed = new URL(String(safeUrl || ''));
+    const scheme = String(parsed.protocol || '').replace(':', '') || null;
+    return { origin: parsed.origin || null, scheme };
+  } catch {
+    return { origin: null, scheme: null };
   }
 }
 
@@ -145,14 +183,20 @@ function estimateValuePercent({ readinessLevel, interactionCounts }) {
   if (readinessLevel === READINESS_LEVELS.OUT_OF_SCOPE) return 0;
   const surface = interactionCounts.forms + interactionCounts.buttons + interactionCounts.links;
   if (surface === 0) return 20;
-  if (interactionCounts.forms > 0) return 60;
-  if (interactionCounts.buttons > 0) return 40;
+  if (interactionCounts.forms > 0 && interactionCounts.buttons > 0) return 100;
+  if (interactionCounts.forms > 0) return 80;
+  if (interactionCounts.buttons > 0) return 60;
+  if (interactionCounts.links > 0) return 40;
   return 20;
 }
 
-export async function analyzeSiteReadiness(url, { timeoutMs = 15000 } = {}) {
+export async function analyzeSiteReadiness(url, { timeoutMs = 15000, anonymizeHost = false } = {}) {
   const timeProvider = getTimeProvider();
-  const normalizedUrl = normalizeUrlForReport(url);
+  const normalizedUrl = normalizeUrlForFetch(url);
+  const safeUrl = sanitizeUrlForReport(normalizedUrl);
+  const { origin: safeOrigin, scheme: safeScheme } = safeUrl ? getOriginMetaFromSafeUrl(safeUrl) : { origin: null, scheme: null };
+  const originHash = safeOrigin ? sha256Hex(safeOrigin) : null;
+  const reportUrl = anonymizeHost ? null : safeUrl;
 
   const stopPoints = [];
   let fetchResult = null;
@@ -162,15 +206,22 @@ export async function analyzeSiteReadiness(url, { timeoutMs = 15000 } = {}) {
     stopPoints.push({ phase: 'fetch', reason: err?.name === 'AbortError' ? 'timeout' : 'fetch_failed' });
     return {
       header:
-        'This report is diagnostic-only. It does NOT evaluate site quality or correctness.',
+        'This report is diagnostic-only. It does NOT evaluate site quality or correctness. ' +
+        'URLs are stored origin-only (path=/, no query/fragment); use --anonymize-host to avoid storing hostnames.',
       command: 'readiness',
       generatedAt: timeProvider.iso(),
-      url: normalizedUrl,
+      url: reportUrl,
       readinessLevel: READINESS_LEVELS.PARTIAL,
       estimatedValuePercent: 20,
       reasons: ['Failed to fetch initial HTML for analysis.'],
       signals: {
-        http: { ok: false, httpStatus: null, contentType: null, finalUrl: null },
+        http: {
+          ok: false,
+          httpStatus: null,
+          contentType: null,
+          finalUrl: anonymizeHost ? null : (safeUrl || null),
+          ...(anonymizeHost ? { originHash, scheme: safeScheme } : {}),
+        },
         page: { isHtmlRendered: false, jsOnlyRenderingBlocker: false, authBoundaryLikely: false },
         app: { isLikelySpa: false, routingSignals: { hasHashLinks: false, hasBaseTag: false }, spaHints: {} },
       },
@@ -217,10 +268,11 @@ export async function analyzeSiteReadiness(url, { timeoutMs = 15000 } = {}) {
 
   return {
     header:
-      'This report is diagnostic-only. It does NOT evaluate site quality or correctness.',
+      'This report is diagnostic-only. It does NOT evaluate site quality or correctness. ' +
+      'URLs are stored origin-only (path=/, no query/fragment); use --anonymize-host to avoid storing hostnames.',
     command: 'readiness',
     generatedAt: timeProvider.iso(),
-    url: normalizedUrl,
+    url: reportUrl,
     readinessLevel,
     estimatedValuePercent,
     reasons,
@@ -229,7 +281,8 @@ export async function analyzeSiteReadiness(url, { timeoutMs = 15000 } = {}) {
         ok: Boolean(fetchResult.ok),
         httpStatus: Number.isFinite(fetchResult.status) ? fetchResult.status : null,
         contentType: fetchResult.contentType || null,
-        finalUrl: fetchResult.finalUrl || null,
+        finalUrl: anonymizeHost ? null : (fetchResult.finalUrl ? sanitizeUrlForReport(fetchResult.finalUrl) : null),
+        ...(anonymizeHost ? { originHash, scheme: safeScheme } : {}),
       },
       page: {
         isHtmlRendered: isHtml,
@@ -251,8 +304,16 @@ export function formatReadinessHuman(report) {
   const lines = [];
   lines.push('VERAX Readiness (pilot, diagnostic-only)');
   lines.push('This does NOT evaluate site quality or correctness.');
+  lines.push('URLs are stored origin-only (path=/, no query/fragment); use --anonymize-host to avoid storing hostnames.');
   lines.push('');
-  lines.push(`URL: ${report.url}`);
+  if (report.url) {
+    lines.push(`URL: ${report.url}`);
+  } else if (report?.signals?.http?.originHash) {
+    const scheme = report?.signals?.http?.scheme ? `${report.signals.http.scheme} ` : '';
+    lines.push(`URL: (anonymized) ${scheme}sha256:${String(report.signals.http.originHash).slice(0, 12)}…`);
+  } else {
+    lines.push('URL: (unavailable)');
+  }
   lines.push(`Readiness: ${report.readinessLevel}`);
   lines.push(`Estimated value: ~${report.estimatedValuePercent}%`);
   lines.push('');

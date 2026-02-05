@@ -20,6 +20,7 @@ function parseArg(args, name) {
 export async function readinessCommand(args = []) {
   const url = parseArg(args, '--url');
   const json = args.includes('--json');
+  const anonymizeHost = args.includes('--anonymize-host');
   const timeoutMsRaw = parseArg(args, '--timeout-ms');
   const timeoutMs = timeoutMsRaw ? Number(timeoutMsRaw) : 15000;
   const timeProvider = getTimeProvider();
@@ -27,7 +28,8 @@ export async function readinessCommand(args = []) {
   if (!url) {
     const report = {
       header:
-        'This report is diagnostic-only. It does NOT evaluate site quality or correctness.',
+        'This report is diagnostic-only. It does NOT evaluate site quality or correctness. ' +
+        'URLs are stored origin-only (path=/, no query/fragment); use --anonymize-host to avoid storing hostnames.',
       command: 'readiness',
       generatedAt: timeProvider.iso(),
       url: null,
@@ -47,11 +49,14 @@ export async function readinessCommand(args = []) {
       text:
         'VERAX Readiness (pilot, diagnostic-only)\n' +
         'This does NOT evaluate site quality or correctness.\n\n' +
-        'Usage: verax readiness --url <url> [--json] [--timeout-ms <ms>]\n',
+        'Usage: verax readiness --url <url> [--json] [--timeout-ms <ms>] [--anonymize-host]\n',
     };
   }
 
-  const report = await analyzeSiteReadiness(url, { timeoutMs: Number.isFinite(timeoutMs) ? timeoutMs : 15000 });
+  const report = await analyzeSiteReadiness(url, {
+    timeoutMs: Number.isFinite(timeoutMs) ? timeoutMs : 15000,
+    anonymizeHost,
+  });
   if (json) {
     return { exitCode: 0, json: true, payload: report };
   }

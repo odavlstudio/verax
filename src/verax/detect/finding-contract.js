@@ -166,6 +166,8 @@ export function canonicalizeFinding(rawFinding) {
   if (rawFinding.enrichment?.ambiguityReasons?.length) enrichment.ambiguityReasons = rawFinding.enrichment.ambiguityReasons;
   if (rawFinding.enrichment?.evidenceCategories?.length) enrichment.evidenceCategories = rawFinding.enrichment.evidenceCategories;
   if (rawFinding.enrichment?.integrityDowngradeReason !== undefined) enrichment.integrityDowngradeReason = rawFinding.enrichment.integrityDowngradeReason;
+  // Phase 10: Proof gates for CONFIRMED eligibility (deterministic codes only)
+  if (Array.isArray(rawFinding.enrichment?.confirmedEligibilityMissing)) enrichment.confirmedEligibilityMissing = rawFinding.enrichment.confirmedEligibilityMissing;
   // PHASE X: Include state context, selector, and source linkage (only if defined)
   if (rawFinding.enrichment?.stateContext !== undefined) enrichment.stateContext = rawFinding.enrichment.stateContext;
   if (rawFinding.enrichment?.selector !== undefined) enrichment.selector = rawFinding.enrichment.selector;

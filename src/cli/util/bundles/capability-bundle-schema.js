@@ -35,6 +35,19 @@ const FORBIDDEN_KEYS = new Set([
   'src',
   'repo',
   'path',
+  'html',
+  'dom',
+  'screenshot',
+  'screenshots',
+  'trace',
+  'traces',
+  'har',
+  'networkLog',
+  'networkLogs',
+  'responseBody',
+  'body',
+  'content',
+  'pageContent',
 ]);
 
 function hasForbiddenKey(obj) {
@@ -77,4 +90,3 @@ export function validateCapabilityBundleJsonOrThrow(json) {
 
   return { ok: true };
 }
-

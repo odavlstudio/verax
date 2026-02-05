@@ -1,6 +1,7 @@
 import { atomicWriteJson } from '../support/atomic-write.js';
 import { ARTIFACT_REGISTRY, getRunArtifactContract } from '../../../verax/core/artifacts/registry.js';
 import { buildTruthBlock } from '../../../verax/core/truth-classifier.js';
+import { isDeterministicOutputMode, normalizeDeterministicArtifact } from '../support/deterministic-output.js';
 
 /**
  * Write summary.json with deterministic digest and truth classification
@@ -127,7 +128,8 @@ export function writeSummaryJson(summaryPath, summaryData, stats = {}, truthResu
     productionSeal: computeProductionSeal(summaryData, stats),
   };
   
-  atomicWriteJson(summaryPath, payload);
+  const normalized = normalizeDeterministicArtifact('summary', payload);
+  atomicWriteJson(summaryPath, normalized, { deterministic: isDeterministicOutputMode() });
 }
 
 function computeProductionSeal(summaryData, stats) {

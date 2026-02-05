@@ -1,5 +1,9 @@
 import { createFinding } from '../../verax/detect/finding-contract.js';
 import { batchValidateFindings } from '../../verax/detect/constitution-validator.js';
+import { inferInteractionIntent, INTERACTION_INTENTS } from './observation/interaction-intent.js';
+import { inferNavigationIntent, evaluateNavigationObservables, NAVIGATION_INTENTS } from './observation/navigation-intent.js';
+import { inferSubmissionIntent, SUBMISSION_INTENTS } from './observation/submission-intent.js';
+import { evaluateSilentFailureConfirmedEligibility, SILENT_FAILURE_TYPES } from './detection/silent-failure-confirmed-eligibility.js';
 
 /**
  * Detection Engine — Convert learn + observe into findings
@@ -139,6 +143,121 @@ function computeRuntimeNavConfidence(signals, evidenceFiles, routeData, blockedW
   return confidence;
 }
 
+function isActionableElementSnapshot(elementSnapshot) {
+  if (!elementSnapshot || typeof elementSnapshot !== 'object') return false;
+  if (elementSnapshot.disabled === true || elementSnapshot.ariaDisabled === true) return false;
+  if (elementSnapshot.visible !== true) return false;
+  const box = elementSnapshot.boundingBox || {};
+  if ((box.width ?? 0) <= 0 || (box.height ?? 0) <= 0) return false;
+  return true;
+}
+
+function hasStateComparisonEvidence(evidenceFiles) {
+  if (!Array.isArray(evidenceFiles)) return false;
+  const hasBefore = evidenceFiles.some(f => typeof f === 'string' && f.includes('before') && f.endsWith('.png'));
+  const hasAfter = evidenceFiles.some(f => typeof f === 'string' && f.includes('after') && f.endsWith('.png'));
+  const hasDomDiff = evidenceFiles.some(f => typeof f === 'string' && f.includes('dom_diff') && f.endsWith('.json'));
+  return hasBefore && hasAfter && hasDomDiff;
+}
+
+function extractBeforeAfterScreenshots(evidenceFiles) {
+  if (!Array.isArray(evidenceFiles)) return { before: null, after: null };
+  const before = evidenceFiles.find(f => typeof f === 'string' && f.includes('before') && f.endsWith('.png')) || null;
+  const after = evidenceFiles.find(f => typeof f === 'string' && f.includes('after') && f.endsWith('.png')) || null;
+  return { before, after };
+}
+
+function capReasonStrings(reasons) {
+  if (!Array.isArray(reasons)) return [];
+  return reasons
+    .filter(r => typeof r === 'string' && r.length > 0)
+    .slice(0, 8)
+    .map(r => (r.length > 80 ? r.slice(0, 80) : r));
+}
+
+function recordIntentBlockedSilence(observation, intentResult) {
+  if (!observation || typeof observation !== 'object') return;
+
+  // Avoid overwriting if something already recorded
+  if (observation.silenceDetected) return;
+
+  const expectationId = observation.id || observation.expectationId || null;
+  observation.silenceDetected = {
+    kind: 'intent_blocked',
+    code: 'unknown_click_intent',
+    scope: 'interaction',
+    action: 'click',
+    expectationId,
+    intent: intentResult?.intent || 'UNKNOWN_INTENT',
+    intentReasons: capReasonStrings(intentResult?.reasons),
+  };
+}
+
+function recordNavigationAmbiguousSilence(observation, navIntentResult, code = 'navigation_intent_unresolved', extra = {}) {
+  if (!observation || typeof observation !== 'object') return;
+  if (observation.silenceDetected) return;
+
+  const expectationId = observation.id || observation.expectationId || null;
+  observation.silenceDetected = {
+    kind: 'navigation_ambiguous',
+    code,
+    scope: 'interaction',
+    action: 'click',
+    expectationId,
+    intent: navIntentResult?.intent || NAVIGATION_INTENTS.UNKNOWN_NAV_INTENT,
+    intentReasons: capReasonStrings(navIntentResult?.reasons),
+    ...extra,
+  };
+}
+
+function recordSubmissionAmbiguousSilence(observation, submissionIntentResult, code, extra = {}) {
+  if (!observation || typeof observation !== 'object') return;
+  if (observation.silenceDetected) return;
+
+  const expectationId = observation.id || observation.expectationId || null;
+  observation.silenceDetected = {
+    kind: 'submission_ambiguous',
+    code,
+    scope: 'interaction',
+    action: 'submit',
+    expectationId,
+    intent: submissionIntentResult?.intent || SUBMISSION_INTENTS.UNKNOWN_SUBMISSION_INTENT,
+    intentReasons: capReasonStrings(submissionIntentResult?.reasons),
+    ...extra,
+  };
+}
+
+function didToggleStateChange(elementSnapshot) {
+  const delta = elementSnapshot?.delta;
+  if (!delta || typeof delta !== 'object') return false;
+  return delta.ariaExpandedChanged === true ||
+    delta.ariaPressedChanged === true ||
+    delta.ariaCheckedChanged === true ||
+    delta.controlCheckedChanged === true;
+}
+
+function observablesShowEffect(intent, signals, elementSnapshot) {
+  const sig = signals || {};
+  const navChanged = sig.navigationChanged === true || sig.routeChanged === true;
+  const feedback = sig.feedbackSeen === true || sig.ariaLiveUpdated === true || sig.ariaRoleAlertsDetected === true;
+  const meaningfulDom = sig.meaningfulDomChange === true || sig.meaningfulUIChange === true;
+  const networkAttempt = sig.correlatedNetworkActivity === true || sig.networkActivity === true;
+
+  switch (intent) {
+    case INTERACTION_INTENTS.NAVIGATION_INTENT:
+      return navChanged;
+    case INTERACTION_INTENTS.SUBMISSION_INTENT:
+      return navChanged || networkAttempt || feedback;
+    case INTERACTION_INTENTS.ASYNC_FEEDBACK_INTENT:
+      return feedback || meaningfulDom || networkAttempt;
+    case INTERACTION_INTENTS.TOGGLE_INTENT:
+      return didToggleStateChange(elementSnapshot) || meaningfulDom;
+    case INTERACTION_INTENTS.UNKNOWN_INTENT:
+    default:
+      return false;
+  }
+}
+
 /**
  * PHASE X: Detect dead interaction silent failure
  * 
@@ -157,58 +276,104 @@ function detectDeadInteraction(observation, expectation) {
   
   const signals = observation.signals || {};
   
-  // Must have attempted but no observable outcome
-  if (!observation.attempted) {
+  // Must have attempted and successfully executed the action
+  if (!observation.attempted || observation.actionSuccess !== true) {
     return null;
   }
+
+  const elementSnapshot = observation.evidence?.interactionIntent?.record || null;
   
-  const noNav = !signals.navigationChanged;
-  const noDomChange = !signals.meaningfulDomChange;
-  const noFeedback = !signals.feedbackSeen;
-  
-  // Silent if: action attempted + no outcome in any channel
-  if (noNav && noDomChange && noFeedback) {
-    // PHASE X: Detect state context
-    const stateContext = detectStateContext(observation, signals);
-    const confidence = computeConfidence(signals, observation.evidenceFiles, stateContext);
-    
-    // PHASE X: Downgrade or suppress if state explains the no-change
-    let status = 'SUSPECTED';
-    if (stateContext.isEmpty || stateContext.isDisabled || stateContext.isNoOp) {
-      status = 'INFORMATIONAL'; // Not a confirmed failure, just informational
-    } else if (confidence >= 0.8) {
-      status = 'CONFIRMED';
-    }
-    
-    return {
-      type: 'dead_interaction_silent_failure',
-      status,
-      severity: 'MEDIUM',
-      confidence,
-      promise: expectation.promise,
-      observed: {
-        result: 'Interaction was attempted but produced no observable outcome'
-      },
-      evidence: {
-        action_attempted: true,
-        navigation_changed: signals.navigationChanged,
-        meaningful_dom_change: signals.meaningfulDomChange,
-        feedback_seen: signals.feedbackSeen,
-        evidence_files: observation.evidenceFiles || []
-      },
-      // PHASE X: Add enrichment with source linkage and state context
-      enrichment: {
-        stateContext: stateContext.reasons.length > 0 ? stateContext.reasons : undefined,
-        selector: observation.selector || expectation.selector,
-        promise_source: expectation.source || 'extracted',
-        file: expectation.sourceFile,
-        line: expectation.sourceLine
-      },
-      impact: `User interacted (${expectation.promise.value}) but received no feedback or change, creating expectation mismatch`
-    };
+  // Must have a valid actionable element snapshot (proves action targeted a real element)
+  if (!isActionableElementSnapshot(elementSnapshot)) {
+    return null;
   }
-  
-  return null;
+
+  // Must have a state-comparison evidence bundle (before/after + dom diff) to prove "no effect"
+  if (!hasStateComparisonEvidence(observation.evidenceFiles)) {
+    return null;
+  }
+
+  const intentResult = inferInteractionIntent({ elementSnapshot, actionType: 'click' });
+
+  // Unknown intent: do NOT emit a finding, but DO record an auditable silence/gap signal.
+  if (intentResult.intent === INTERACTION_INTENTS.UNKNOWN_INTENT) {
+    recordIntentBlockedSilence(observation, intentResult);
+    return null;
+  }
+
+  // If any intent-specific observable indicates an effect, it is NOT a dead interaction.
+  if (observablesShowEffect(intentResult.intent, signals, elementSnapshot)) {
+    return null;
+  }
+
+  // PHASE X: Detect state context
+  const stateContext = detectStateContext(observation, signals);
+
+  let status = 'CONFIRMED';
+  if (stateContext.isEmpty || stateContext.isDisabled || stateContext.isNoOp) {
+    status = 'INFORMATIONAL';
+  }
+
+  const { before: beforeScreenshot, after: afterScreenshot } = extractBeforeAfterScreenshots(observation.evidenceFiles);
+  const confidence = status === 'CONFIRMED' ? 0.9 : computeConfidence(signals, observation.evidenceFiles, stateContext);
+
+  const baseFinding = {
+    type: 'dead_interaction_silent_failure',
+    status,
+    severity: 'MEDIUM',
+    confidence,
+    promise: expectation.promise,
+    observed: {
+      result: `Click was executed (${intentResult.intent}) but produced no intent-satisfying observable effect`
+    },
+    evidence: {
+      action_attempted: true,
+      action_executed: true,
+      intent: intentResult.intent,
+      intent_reasons: intentResult.reasons,
+      navigation_changed: signals.navigationChanged === true || signals.routeChanged === true,
+      feedback_seen: signals.feedbackSeen === true || signals.ariaLiveUpdated === true || signals.ariaRoleAlertsDetected === true,
+      meaningful_dom_change: signals.meaningfulDomChange === true || signals.meaningfulUIChange === true,
+      network_attempt: signals.correlatedNetworkActivity === true || signals.networkActivity === true,
+      toggle_state_changed: didToggleStateChange(elementSnapshot),
+      before_screenshot: beforeScreenshot,
+      after_screenshot: afterScreenshot,
+      evidence_files: observation.evidenceFiles || []
+    },
+    enrichment: {
+      stateContext: stateContext.reasons.length > 0 ? stateContext.reasons : undefined,
+      selector: observation.selector || expectation.selector,
+      promise_source: expectation.source || 'extracted',
+      file: expectation.sourceFile,
+      line: expectation.sourceLine
+    },
+    impact: `User interacted (${expectation.promise.value}) but no observable effect occurred for the inferred intent (${intentResult.intent})`
+  };
+
+  if (baseFinding.status === 'CONFIRMED') {
+    const eligibility = evaluateSilentFailureConfirmedEligibility({
+      type: SILENT_FAILURE_TYPES.DEAD_INTERACTION,
+      attempted: observation.attempted === true,
+      actionSuccess: observation.actionSuccess === true,
+      intent: intentResult.intent,
+      signals,
+      elementSnapshotActionable: true,
+      evidenceFiles: observation.evidenceFiles || [],
+      routeData: observation.evidence?.routeData || null,
+    });
+    if (!eligibility.eligible) {
+      return {
+        ...baseFinding,
+        status: 'SUSPECTED',
+        enrichment: {
+          ...(baseFinding.enrichment || {}),
+          confirmedEligibilityMissing: eligibility.missing,
+        },
+      };
+    }
+  }
+
+  return baseFinding;
 }
 
 /**
@@ -228,12 +393,45 @@ function detectBrokenNavigation(observation, expectation) {
   const signals = observation.signals || {};
   const isRuntimeNav = observation.isRuntimeNav === true || expectation.isRuntimeNav === true || expectation.kind === 'navigation.runtime' || observation.source?.type === 'runtime-dom';
   
-  if (!observation.attempted) {
+  // Must have attempted and executed the action (otherwise it's blocked/timeout, not a broken promise)
+  if (!observation.attempted || observation.actionSuccess !== true) {
     return null;
   }
 
   if (observation.reason && observation.reason.includes('not-found')) {
     // Coverage gap / untestable, not a broken promise
+    return null;
+  }
+
+  // Must have a state-comparison evidence bundle to prove "no effect"
+  if (!hasStateComparisonEvidence(observation.evidenceFiles)) {
+    return null;
+  }
+
+  const elementSnapshot = observation.evidence?.interactionIntent?.record || null;
+  const runtimeNav = observation.runtimeNav || expectation.runtimeNav || null;
+  const navIntent = inferNavigationIntent({ elementSnapshot, runtimeNav, expectation });
+
+  // Unknown/ambiguous intent: never emit broken_navigation_promise; record auditable silence.
+  if (navIntent.intent === NAVIGATION_INTENTS.UNKNOWN_NAV_INTENT) {
+    // Only record when we otherwise qualified for evaluation (attempted + actionSuccess + actionable snapshot OR runtimeNav exists)
+    const qualifies = (runtimeNav && typeof runtimeNav.href === 'string') || isActionableElementSnapshot(elementSnapshot);
+    if (qualifies) {
+      recordNavigationAmbiguousSilence(observation, navIntent, 'navigation_intent_unresolved');
+    }
+    return null;
+  }
+
+  // Intent-specific observable contract
+  const routeData = observation.evidence?.routeData || null;
+  const navObs = evaluateNavigationObservables(navIntent.intent, signals, routeData);
+  if (!navObs.observablesAvailable) {
+    recordNavigationAmbiguousSilence(observation, navIntent, 'navigation_observables_unavailable', { details: navObs.details });
+    return null;
+  }
+
+  // If any intent-specific observable indicates an effect, it is NOT a broken navigation promise.
+  if (navObs.effectObserved) {
     return null;
   }
   
@@ -254,14 +452,14 @@ function detectBrokenNavigation(observation, expectation) {
     const beforeScreenshot = (observation.evidenceFiles || []).find(f => f.includes('before')) || null;
     const afterScreenshot = (observation.evidenceFiles || []).find(f => f.includes('after')) || null;
 
-    return {
+    const baseFinding = {
       type: 'broken_navigation_promise',
       status,
       severity: 'HIGH',
       confidence,
       promise: expectation.promise,
       observed: {
-        result: `Navigation to "${expectation.promise.value}" was attempted but no route change or acknowledgment occurred`
+        result: `Navigation (${navIntent.intent}) to "${expectation.promise.value}" was attempted but no intent-satisfying observable occurred`
       },
       evidence: {
         action_attempted: true,
@@ -269,6 +467,9 @@ function detectBrokenNavigation(observation, expectation) {
         outcome_acknowledged: acknowledged,
         meaningful_ui_change: uiChanged,
         feedback_seen: feedbackSeen,
+        navigation_intent: navIntent.intent,
+        navigation_intent_reasons: navIntent.reasons,
+        navigation_observable_contract: navObs.details,
         route_data: routeData || null,
         outcome_watcher: observation.evidence?.outcomeWatcher || null,
         mutation_summary: observation.evidence?.mutationSummary || null,
@@ -287,26 +488,57 @@ function detectBrokenNavigation(observation, expectation) {
       },
       impact: `Navigation to ${expectation.promise.value} was promised but did not occur, breaking user flow`
     };
+
+    if (baseFinding.status === 'CONFIRMED') {
+      const eligibility = evaluateSilentFailureConfirmedEligibility({
+        type: SILENT_FAILURE_TYPES.BROKEN_NAV,
+        attempted: observation.attempted === true,
+        actionSuccess: observation.actionSuccess === true,
+        navIntent: navIntent.intent,
+        navObservablesAvailable: navObs.observablesAvailable === true,
+        signals,
+        elementSnapshotActionable: (runtimeNav && typeof runtimeNav.href === 'string')
+          ? true
+          : isActionableElementSnapshot(elementSnapshot),
+        evidenceFiles: observation.evidenceFiles || [],
+        routeData: routeData || null,
+      });
+      if (!eligibility.eligible) {
+        return {
+          ...baseFinding,
+          status: 'SUSPECTED',
+          enrichment: {
+            ...(baseFinding.enrichment || {}),
+            confirmedEligibilityMissing: eligibility.missing,
+          },
+        };
+      }
+    }
+
+    return baseFinding;
   }
 
   // Fallback to existing detection for non-runtime navigation promises
   if (!routeChanged) {
     const confidence = computeConfidence(signals, observation.evidenceFiles);
     
-    return {
+    const baseFinding = {
       type: 'broken_navigation_promise',
       status: confidence >= 0.7 ? 'CONFIRMED' : 'SUSPECTED',
       severity: 'HIGH',
       confidence,
       promise: expectation.promise,
       observed: {
-        result: `Navigation to "${expectation.promise.value}" was not completed`
+        result: `Navigation (${navIntent.intent}) to "${expectation.promise.value}" was attempted but no intent-satisfying observable occurred`
       },
       evidence: {
         action_attempted: true,
         navigation_changed: signals.navigationChanged,
         meaningful_dom_change: signals.domChanged,
         feedback_seen: signals.feedbackSeen,
+        navigation_intent: navIntent.intent,
+        navigation_intent_reasons: navIntent.reasons,
+        navigation_observable_contract: navObs.details,
         evidence_files: observation.evidenceFiles || []
       },
       enrichment: {
@@ -319,6 +551,32 @@ function detectBrokenNavigation(observation, expectation) {
       },
       impact: `Navigation to ${expectation.promise.value} was promised but did not occur, breaking user flow`
     };
+
+    if (baseFinding.status === 'CONFIRMED') {
+      const eligibility = evaluateSilentFailureConfirmedEligibility({
+        type: SILENT_FAILURE_TYPES.BROKEN_NAV,
+        attempted: observation.attempted === true,
+        actionSuccess: observation.actionSuccess === true,
+        navIntent: navIntent.intent,
+        navObservablesAvailable: navObs.observablesAvailable === true,
+        signals,
+        elementSnapshotActionable: isActionableElementSnapshot(elementSnapshot),
+        evidenceFiles: observation.evidenceFiles || [],
+        routeData: observation.evidence?.routeData || null,
+      });
+      if (!eligibility.eligible) {
+        return {
+          ...baseFinding,
+          status: 'SUSPECTED',
+          enrichment: {
+            ...(baseFinding.enrichment || {}),
+            confirmedEligibilityMissing: eligibility.missing,
+          },
+        };
+      }
+    }
+
+    return baseFinding;
   }
   
   return null;
@@ -335,59 +593,129 @@ function detectBrokenNavigation(observation, expectation) {
  * PLUS: Include source linkage for forms
  */
 function detectSilentSubmission(observation, expectation) {
-  // Could be triggered by interaction with type 'submit' or direct form submission
-  const isSubmitAction = observation.action === 'submit' || 
-                        observation.type === 'interaction' && expectation.promise?.kind === 'submit';
-  
-  if (!isSubmitAction) {
-    return null;
-  }
-  
+  const isSubmitAction = observation.action === 'submit' ||
+    (observation.type === 'interaction' && expectation.promise?.kind === 'submit');
+
+  if (!isSubmitAction) return null;
+
+  // Silence contracts apply only when we truly attempted and the action was executed.
+  if (!observation.attempted || observation.actionSuccess !== true) return null;
+
   const signals = observation.signals || {};
-  
-  if (!observation.attempted) {
+  const evidenceFiles = observation.evidenceFiles || [];
+
+  // Strict evidence gate: must have before/after screenshots + DOM diff
+  if (!hasStateComparisonEvidence(evidenceFiles)) {
+    recordSubmissionAmbiguousSilence(
+      observation,
+      null,
+      'submission_observables_unavailable',
+      { details: { missing: 'state_comparison_evidence' } }
+    );
     return null;
   }
-  
-  const noNav = !signals.navigationChanged;
-  const noDomChange = !signals.meaningfulDomChange;
-  const noFeedback = !signals.feedbackSeen;
-  
-  // Silent submission: no acknowledgment of the action
-  if (noNav && noDomChange && noFeedback) {
-    const confidence = computeConfidence(signals, observation.evidenceFiles);
-    
-    return {
-      type: 'silent_submission',
-      status: confidence >= 0.7 ? 'CONFIRMED' : 'SUSPECTED',
-      severity: 'HIGH', // Form submissions are critical for user flows
-      confidence,
-      promise: expectation.promise,
-      observed: {
-        result: 'Form submission was attempted but produced no observable confirmation'
-      },
-      evidence: {
-        action_attempted: true,
-        navigation_changed: signals.navigationChanged,
-        meaningful_dom_change: signals.meaningfulDomChange,
-        feedback_seen: signals.feedbackSeen,
-        evidence_files: observation.evidenceFiles || []
-      },
-      // PHASE X: Add source linkage
-      enrichment: {
-        submission_attempted: true,
-        network_activity: signals.networkActivity || signals.correlatedNetworkActivity,
-        stateContext: undefined,
-        selector: observation.selector || expectation.selector,
-        promise_source: expectation.source || 'extracted',
-        file: expectation.sourceFile,
-        line: expectation.sourceLine
-      },
-      impact: `Form submission was attempted (${expectation.promise.value}) but no acknowledgment received, leaving user uncertain of success`
-    };
+
+  const elementSnapshot = observation.evidence?.interactionIntent?.record || null;
+  const intentResult = inferSubmissionIntent({ elementSnapshot, actionType: 'submit' });
+
+  if (intentResult.intent === SUBMISSION_INTENTS.UNKNOWN_SUBMISSION_INTENT) {
+    recordSubmissionAmbiguousSilence(observation, intentResult, 'unknown_submission_intent');
+    return null;
   }
-  
-  return null;
+
+  const submissionTriggered = signals.submissionTriggered;
+  if (submissionTriggered !== true) {
+    if (submissionTriggered === false) {
+      recordSubmissionAmbiguousSilence(observation, intentResult, 'submission_not_triggered');
+    } else {
+      recordSubmissionAmbiguousSilence(
+        observation,
+        intentResult,
+        'submission_observables_unavailable',
+        { details: { missing: 'submissionTriggered' } }
+      );
+    }
+    return null;
+  }
+
+  const netAfter = signals.networkAttemptAfterSubmit;
+  if (netAfter !== true && netAfter !== false) {
+    recordSubmissionAmbiguousSilence(
+      observation,
+      intentResult,
+      'submission_observables_unavailable',
+      { details: { missing: 'networkAttemptAfterSubmit' } }
+    );
+    return null;
+  }
+
+  const navigationChanged = signals.navigationChanged === true || signals.routeChanged === true;
+  const feedbackSeen = signals.feedbackSeen === true || signals.ariaLiveUpdated === true || signals.ariaRoleAlertsDetected === true;
+  const meaningfulDelta = signals.meaningfulDomChange === true || signals.meaningfulUIChange === true;
+  const networkAttemptAfterSubmit = netAfter === true;
+
+  const anyEffect = navigationChanged || feedbackSeen || meaningfulDelta || networkAttemptAfterSubmit;
+  if (anyEffect) return null;
+
+  const confidence = computeConfidence(signals, evidenceFiles);
+  const { before: beforeScreenshot, after: afterScreenshot } = extractBeforeAfterScreenshots(evidenceFiles);
+
+  const baseFinding = {
+    type: 'silent_submission',
+    status: confidence >= 0.7 ? 'CONFIRMED' : 'SUSPECTED',
+    severity: 'HIGH',
+    confidence,
+    promise: expectation.promise,
+    observed: {
+      result: 'Form submission was triggered but produced no observable acknowledgment'
+    },
+    evidence: {
+      action_attempted: true,
+      action_success: true,
+      submission_intent: intentResult.intent,
+      submission_intent_reasons: intentResult.reasons,
+      submission_triggered: true,
+      network_attempt_after_submit: networkAttemptAfterSubmit,
+      navigation_changed: navigationChanged,
+      feedback_seen: feedbackSeen,
+      meaningful_dom_change: signals.meaningfulDomChange === true,
+      meaningful_ui_change: signals.meaningfulUIChange === true,
+      before_screenshot: beforeScreenshot,
+      after_screenshot: afterScreenshot,
+      evidence_files: evidenceFiles,
+    },
+    enrichment: {
+      promise_source: expectation.source || 'extracted',
+      file: expectation.sourceFile,
+      line: expectation.sourceLine
+    },
+    impact: 'Form submission was triggered but the user saw no confirmation, error, navigation, or visible effect'
+  };
+
+  if (baseFinding.status === 'CONFIRMED') {
+    const eligibility = evaluateSilentFailureConfirmedEligibility({
+      type: SILENT_FAILURE_TYPES.SILENT_SUBMISSION,
+      attempted: observation.attempted === true,
+      actionSuccess: observation.actionSuccess === true,
+      submissionTriggered: signals.submissionTriggered === true,
+      signals,
+      elementSnapshotActionable: true,
+      evidenceFiles,
+      routeData: observation.evidence?.routeData || null,
+    });
+    if (!eligibility.eligible) {
+      return {
+        ...baseFinding,
+        status: 'SUSPECTED',
+        enrichment: {
+          ...(baseFinding.enrichment || {}),
+          confirmedEligibilityMissing: eligibility.missing,
+        },
+      };
+    }
+  }
+
+  return baseFinding;
 }
 
 /**
@@ -479,6 +807,7 @@ export async function detectSilentFailures(learnData, observeData) {
     return [];
   }
   
+  /** @type {any[]} */
   const candidates = [];
   
   // Match each observation to its expectation and detect failures
@@ -489,13 +818,13 @@ export async function detectSilentFailures(learnData, observeData) {
     }
     
     // Try to detect each class of silent failure
+    /** @type {any} */
     let finding = detectDeadInteraction(observation, expectation);
     if (finding) {
       candidates.push(finding);
       continue;
     }
     
-    // @ts-expect-error - finding may have optional properties based on detection type
     finding = detectBrokenNavigation(observation, expectation);
     if (finding) {
       candidates.push(finding);
@@ -521,7 +850,9 @@ export async function detectSilentFailures(learnData, observeData) {
       promise: candidate.promise,
       observed: candidate.observed,
       evidence: candidate.evidence,
-      impact: candidate.impact
+      impact: candidate.impact,
+      enrichment: candidate.enrichment || undefined,
+      interaction: candidate.interaction || undefined,
     });
     return finding;
   });

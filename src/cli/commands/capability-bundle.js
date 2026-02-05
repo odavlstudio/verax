@@ -1,9 +1,9 @@
 /*
 Command: verax capability-bundle
-Purpose: Produce a diagnostic-only bundle safe to share with the VERAX team.
+Purpose: Produce a diagnostic-only bundle with minimized data (supports --anonymize-host).
 Required: --url <url>
 Optional: --out <dir>, --zip, --timeout-ms <ms>
-Outputs: Writes <out>/capability-bundles/<timestamp>/capability.json and capability-summary.txt (default out is .verax)
+Outputs: Writes <out>/capability-bundles/<timestamp>/capability.json and capability-summary.txt (default out is OS temp)
 Exit Codes: Always 0 (not a CI signal).
 Forbidden: source code, repo paths, cookies/auth headers, selectors, run artifacts, verdicts.
 */
@@ -15,6 +15,7 @@ import { analyzeSiteReadiness, formatReadinessHuman } from '../util/readiness/si
 import { writeAndVerifyBundleIntegrityManifest, verifyBundleIntegrityOrThrow } from '../util/bundles/bundle-integrity.js';
 import { validateCapabilityBundleJsonOrThrow } from '../util/bundles/capability-bundle-schema.js';
 import { validateCapabilityBundleDirOrThrow } from '../util/bundles/capability-bundle-validator.js';
+import { resolveVeraxOutDir } from '../util/support/default-output-dir.js';
 import { VERSION } from '../../version.js';
 
 function parseArg(args, name) {
@@ -135,11 +136,15 @@ function makeZipStore(entries) {
 
 function redactBundleReport(report) {
   // Defensive: ensure no forbidden keys ever appear.
+  const originHash = report?.signals?.http?.originHash || null;
+  const scheme = report?.signals?.http?.scheme || null;
   return {
     header: report?.header,
     command: 'capability-bundle',
     generatedAt: report?.generatedAt,
-    target: { url: report?.url || null },
+    target: report?.url
+      ? { url: report.url }
+      : { url: null, originHash, scheme },
     readiness: {
       readinessLevel: report?.readinessLevel,
       estimatedValuePercent: report?.estimatedValuePercent,
@@ -160,10 +165,13 @@ function redactBundleReport(report) {
 export async function capabilityBundleCommand(args = []) {
   const url = parseArg(args, '--url');
   const zip = args.includes('--zip');
-  const out = parseArg(args, '--out') || '.verax';
+  const anonymizeHost = args.includes('--anonymize-host');
+  const outArg = parseArg(args, '--out');
   const timeoutMsRaw = parseArg(args, '--timeout-ms');
   const timeoutMs = timeoutMsRaw ? Number(timeoutMsRaw) : 15000;
   const timeProvider = getTimeProvider();
+  const projectRoot = resolve(process.cwd());
+  const outBase = resolveVeraxOutDir(projectRoot, outArg);
 
   if (!url) {
     return {
@@ -171,20 +179,25 @@ export async function capabilityBundleCommand(args = []) {
       text:
         'VERAX Capability Bundle (pilot, diagnostic-only)\n' +
         'This bundle does NOT evaluate site quality or correctness.\n\n' +
-        'Usage: verax capability-bundle --url <url> [--out <dir>] [--zip] [--timeout-ms <ms>]\n',
+        'Usage: verax capability-bundle --url <url> [--out <dir>] [--zip] [--timeout-ms <ms>] [--anonymize-host]\n',
       bundlePath: null,
       zipPath: null,
     };
   }
 
-  const report = await analyzeSiteReadiness(url, { timeoutMs: Number.isFinite(timeoutMs) ? timeoutMs : 15000 });
+  const report = await analyzeSiteReadiness(url, {
+    timeoutMs: Number.isFinite(timeoutMs) ? timeoutMs : 15000,
+    anonymizeHost,
+  });
   const capability = redactBundleReport(report);
 
   const stamp = safeTimestampForPath(timeProvider.iso());
-  const bundleDir = resolve(process.cwd(), out, 'capability-bundles', stamp);
+  const bundleDir = join(outBase, 'capability-bundles', stamp);
   mkdirSync(bundleDir, { recursive: true });
 
-  const header = 'This bundle is diagnostic-only. It does NOT evaluate site quality or correctness.';
+  const header =
+    'This bundle is diagnostic-only. It does NOT evaluate site quality or correctness. ' +
+    'URLs are stored origin-only (path=/, no query/fragment); use --anonymize-host to avoid storing hostnames.';
   const capabilityJsonPath = join(bundleDir, 'capability.json');
   const capabilitySummaryPath = join(bundleDir, 'capability-summary.txt');
 

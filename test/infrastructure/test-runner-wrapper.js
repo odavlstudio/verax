@@ -51,6 +51,17 @@ process.env.npm_command = 'npm';
 let _testRunnerExited = false;
 let testExitCode = 0;
 let cleanupInProgress = false;
+let timedOut = false;
+
+function buildChildTestEnv() {
+  // Running `node --test` from within an existing Node test-runner process can trigger
+  // Node's recursive test-run guard. Clear NODE_TEST* env vars for the child process.
+  const env = { ...process.env };
+  for (const k of Object.keys(env)) {
+    if (k.startsWith('NODE_TEST')) delete env[k];
+  }
+  return env;
+}
 
 /**
  * PHASE 1: Global cleanup with hard guarantees
@@ -158,15 +169,18 @@ function exitProcess(code) {
 
 // Launch test runner with no stdin (prevents Windows hang)
 // Scope: Tier 1 (release) by default, Tier 2 (integration) via env flag
-const testPattern = process.env.VERAX_TEST_INTEGRATION === '1'
-  ? (process.platform === 'win32' ? 'test\\integration\\**\\*.test.js' : 'test/integration/**/*.test.js')
-  : (process.platform === 'win32' ? 'test\\release\\**\\*.test.js' : 'test/release/**/*.test.js');
+const testPattern = process.env.VERAX_TEST_PATTERN || (
+  process.env.VERAX_TEST_INTEGRATION === '1'
+    ? (process.platform === 'win32' ? 'test\\integration\\**\\*.test.js' : 'test/integration/**/*.test.js')
+    : (process.platform === 'win32' ? 'test\\release\\**\\*.test.js' : 'test/release/**/*.test.js')
+);
 
 const testRunner = spawn('node', ['--test', testPattern], {
   cwd: rootDir,
   stdio: ['pipe', 'inherit', 'inherit'],
   shell: true, // enable shell so glob pattern expands appropriately on Windows
   windowsHide: false,
+  env: buildChildTestEnv(),
 });
 
 // Close stdin immediately to prevent hanging
@@ -186,14 +200,21 @@ testRunner.stdin.end();
  * - Framework integration (Vue, Next.js, etc.)
  * - Runtime discovery phases
  */
-const TIER1_TIMEOUT_MS = 60 * 1000;  // 60 seconds for fast default tests
+const TIER1_TIMEOUT_MS = 120 * 1000;  // 120 seconds for fast default tests (cross-platform safe)
 const TIER2_TIMEOUT_MS = 300 * 1000; // 300 seconds for Playwright integration
 
-const TEST_TIMEOUT_MS = process.env.VERAX_TEST_INTEGRATION === '1' 
-  ? TIER2_TIMEOUT_MS 
+const DEFAULT_TIMEOUT_MS = process.env.VERAX_TEST_INTEGRATION === '1'
+  ? TIER2_TIMEOUT_MS
   : TIER1_TIMEOUT_MS;
 
+const overrideTimeoutMsRaw = process.env.VERAX_TEST_TIMEOUT_MS;
+const overrideTimeoutMs = overrideTimeoutMsRaw ? Number(overrideTimeoutMsRaw) : null;
+const TEST_TIMEOUT_MS = Number.isFinite(overrideTimeoutMs) && overrideTimeoutMs > 0
+  ? Math.max(50, overrideTimeoutMs)
+  : DEFAULT_TIMEOUT_MS;
+
 const timeoutHandle = setTimeout(() => {
+  timedOut = true;
   console.error(`\n❌ FATAL: Test runner exceeded ${TEST_TIMEOUT_MS / 1000}-second timeout`);
   console.error('Force closing all Playwright browsers and terminating');
   
@@ -214,13 +235,19 @@ const timeoutHandle = setTimeout(() => {
 }, TEST_TIMEOUT_MS);
 
 // Capture exit code
-testRunner.on('close', (code) => {
+testRunner.on('close', (code, signal) => {
   clearTimeout(timeoutHandle);
   _testRunnerExited = true;
-  testExitCode = code ?? 0;
+
+  // Node will pass `code=null` when the child exited due to a signal.
+  // Treat signals and timeouts as failures.
+  const normalizedExitCode = timedOut
+    ? 1
+    : (typeof code === 'number' ? code : 1);
+  testExitCode = signal ? 1 : normalizedExitCode;
   
   // Force cleanup before exit
-  cleanupAndExit(testExitCode, 'test_complete');
+  cleanupAndExit(testExitCode, timedOut ? 'timeout' : (signal ? `signal_${signal}` : 'test_complete'));
 });
 
 // Handle spawn errors

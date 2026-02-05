@@ -13,7 +13,7 @@ inputs:
   out:
     description: 'Output directory for artifacts'
     required: false
-    default: '.verax'
+    default: ''
   min_coverage:
     description: 'Minimum coverage threshold (0-1)'
     required: false
@@ -41,6 +41,9 @@ outputs:
   bundle_dir:
     description: 'Bundle directory path'
     value: ${{ steps.run_verax.outputs.bundle_dir }}
+  out_dir:
+    description: 'Resolved output directory path'
+    value: ${{ steps.run_verax.outputs.out_dir }}
 
 runs:
   using: 'composite'
@@ -52,6 +55,9 @@ runs:
         set +e  # Don't exit on error, we need to capture exit code
 
         OUT="${{ inputs.out }}"
+        if [ -z "$OUT" ]; then
+          OUT="${RUNNER_TEMP:-/tmp}/verax"
+        fi
         BUNDLE_DIR="$OUT/artifact-bundle"
 
         CMD="npx verax run --url ${{ inputs.url }} --out $OUT --min-coverage ${{ inputs.min_coverage }} --ci-mode ${{ inputs.ci_mode }}"
@@ -63,6 +69,7 @@ runs:
         VERAX_EXIT_CODE=$?
 
         echo "exit_code=$VERAX_EXIT_CODE" >> $GITHUB_OUTPUT
+        echo "out_dir=$OUT" >> $GITHUB_OUTPUT
 
         # Resolve latest run directory (best-effort)
         RUN_DIR=$(node --input-type=module -e "import { findLatestRun } from './node_modules/@veraxhq/verax/src/cli/util/ci/artifact-pack.js'; console.log(findLatestRun('$OUT/runs') || '')" 2>/dev/null)
@@ -101,8 +108,8 @@ runs:
       if: inputs.upload_artifacts == 'true' && always()
       shell: bash
       run: |
-        OUT="${{ inputs.out }}"
-        BUNDLE_DIR="$OUT/artifact-bundle"
+        OUT="${{ steps.run_verax.outputs.out_dir }}"
+        BUNDLE_DIR="${{ steps.run_verax.outputs.bundle_dir }}"
         RUN_DIR=$(node --input-type=module -e "import { findLatestRun } from './node_modules/@veraxhq/verax/src/cli/util/ci/artifact-pack.js'; console.log(findLatestRun('$OUT/runs') || '')" 2>/dev/null)
         if [ -n "$RUN_DIR" ]; then
           npx verax bundle "$RUN_DIR" "$BUNDLE_DIR"
@@ -113,6 +120,6 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: verax-analysis
-        path: ${{ inputs.out }}/artifact-bundle/
+        path: ${{ steps.run_verax.outputs.bundle_dir }}/
         retention-days: 30
         if-no-files-found: ignore

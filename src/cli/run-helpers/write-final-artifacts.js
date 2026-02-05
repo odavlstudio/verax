@@ -23,7 +23,8 @@ export function writeFinalArtifacts(
   budget,
   expectations,
   observeData,
-  detectData
+  detectData,
+  outDir = null
 ) {
   const timeProvider = getTimeProvider();
   const completedAt = timeProvider.iso();
@@ -48,7 +49,7 @@ export function writeFinalArtifacts(
     platform: process.platform,
     cwd: projectRoot,
     command: 'run',
-    args: { url, src, out: '.verax' },
+    args: { url, src, out: outDir },
     url,
     src: srcPath,
     startedAt,

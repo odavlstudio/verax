@@ -12,7 +12,7 @@ function getVersion() {
  * Extracted from runCommand Phase 8 (Error Handling) for readability. No behavior change.
  * Writes error artifacts when run fails.
  */
-export function writeErrorArtifacts(paths, runId, startedAt, projectRoot, url, src, srcPath, error) {
+export function writeErrorArtifacts(paths, runId, startedAt, projectRoot, url, src, srcPath, error, outDir = null) {
   const status = 'INCOMPLETE';
   const incompleteReasons = [error?.message || 'incomplete'];
   if (paths && runId && startedAt) {
@@ -38,7 +38,7 @@ export function writeErrorArtifacts(paths, runId, startedAt, projectRoot, url, s
         platform: process.platform,
         cwd: projectRoot,
         command: 'run',
-        args: { url, src, out: '.verax' },
+        args: { url, src, out: outDir },
         url,
         src: srcPath,
         startedAt,

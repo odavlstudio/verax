@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+/**
+ * Optional local pre-push guardrail (sample).
+ *
+ * Blocks pushes when:
+ * - `HEAD` has a semver tag `vX.Y.Z` but package.json version does not match, OR
+ * - `npm test` fails.
+ *
+ * Install:
+ *   cp scripts/hooks/pre-push.sample .git/hooks/pre-push
+ *   chmod +x .git/hooks/pre-push
+ */
+
+import { execSync, spawnSync } from 'child_process';
+import { readFileSync } from 'fs';
+
+function cmd(command) {
+  return String(execSync(command, { stdio: ['ignore', 'pipe', 'pipe'] })).trim();
+}
+
+function fail(msg) {
+  process.stderr.write(`\nBLOCKED: ${msg}\n`);
+  process.exit(1);
+}
+
+function readPkgVersion() {
+  const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+  return String(pkg.version || '').trim();
+}
+
+function getSemverTagsOnHead() {
+  const out = cmd('git tag --points-at HEAD');
+  return out
+    .split(/\r?\n/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .filter((t) => /^v\d+\.\d+\.\d+$/.test(t));
+}
+
+function runNpmTest() {
+  const proc = spawnSync('npm', ['test'], { stdio: 'inherit', shell: process.platform === 'win32' });
+  const status = typeof proc.status === 'number' ? proc.status : 1;
+  if (status !== 0) fail(`npm test failed (exit ${status})`);
+}
+
+try {
+  const pkgVersion = readPkgVersion();
+  if (!pkgVersion) fail('package.json version is missing');
+
+  const tags = getSemverTagsOnHead();
+  if (tags.length > 0) {
+    const expected = tags[0].slice(1);
+    if (pkgVersion !== expected) {
+      fail(`package.json version=${pkgVersion} but HEAD tag=${tags[0]}`);
+    }
+  }
+
+  runNpmTest();
+} catch (e) {
+  fail(e?.message || String(e));
+}
+
+process.stdout.write('pre-push: ok\n');
+

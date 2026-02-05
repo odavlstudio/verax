@@ -9,18 +9,19 @@ import { readFileSync, existsSync } from 'fs';
 import { runDeterminismCheck } from '../../../verax/core/determinism/engine.js';
 import { verifyRun } from '../../../verax/core/artifacts/verifier.js';
 import { writeDeterminismReport } from './determinism-writer.js';
+import { resolveVeraxOutDir } from './default-output-dir.js';
 
 /**
  * PHASE 18: Run scan with determinism checking
  * 
  * @param {Function} scanFn - Function that executes a scan and returns { runId }
- * @param {Object} options - Options
- * @param {number} options.runs - Number of runs (default: 2)
- * @param {string} options.out - Output directory
+ * @param {{runs?: number, out?: string, [key: string]: any}} [options] - Options
  * @returns {Promise<Object>} Determinism check results
  */
-export async function runWithDeterminism(scanFn, options = { runs: 2, out: '.verax' }) {
-  const { runs = 2, out = '.verax' } = options;
+export async function runWithDeterminism(scanFn, options = {}) {
+  const runs = Number.isFinite(options?.runs) ? options.runs : 2;
+  const projectRoot = resolve(process.cwd());
+  const out = resolveVeraxOutDir(projectRoot, options?.out || null);
   
   // Wrap scan function to return artifact paths
   const runFn = async (runConfig) => {

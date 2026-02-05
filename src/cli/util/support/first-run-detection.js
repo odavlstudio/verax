@@ -14,6 +14,7 @@
 
 import { existsSync, readdirSync, statSync } from 'fs';
 import { resolve } from 'path';
+import { resolveVeraxOutDir } from './default-output-dir.js';
 
 /**
  * Check if a directory contains any scan-* subdirectories
@@ -58,16 +59,16 @@ export function isFirstRun(projectRoot) {
     return false;
   }
   
-  const veraxDir = resolve(projectRoot, '.verax');
-  
-  // No .verax directory at all → first run
-  if (!existsSync(veraxDir)) {
+  const outDir = resolveVeraxOutDir(projectRoot, null);
+
+  // No output directory at all → first run
+  if (!existsSync(outDir)) {
     return true;
   }
-  
-  // Check both legacy (.verax/runs/) and new (.verax/scans/) locations
-  const runsDir = resolve(veraxDir, 'runs');
-  const scansDir = resolve(veraxDir, 'scans');
+
+  // Check both legacy (runs/) and scans/ locations under the output directory
+  const runsDir = resolve(outDir, 'runs');
+  const scansDir = resolve(outDir, 'scans');
   
   // If scan directories exist in either location → NOT first run
   if (hasScanDirectories(runsDir) || hasScanDirectories(scansDir)) {

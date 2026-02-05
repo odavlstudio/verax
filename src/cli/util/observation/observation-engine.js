@@ -7,6 +7,7 @@ import { InteractionPlanner } from './interaction-planner.js';
 import { computeDigest } from '../evidence/digest-engine.js';
 import { createTestModeStub } from './test-mode-stub.js';
 import { injectRouteSensor } from './route-sensor.js';
+import { injectSubmitSensor } from './submit-sensor.js';
 import { applyAuth, buildAuthContextOptions } from '../auth/auth-applier.js';
 import { buildAuthArtifact } from '../auth/auth-utils.js';
 import { verifyAuthEffectiveness } from '../auth/auth-verifier.js';
@@ -14,6 +15,7 @@ import { discoverRuntimeNavigation, createRuntimeNavExpectation } from './runtim
 import { hasAuthInput } from '../auth/auth-config.js';
 import { DiagnosticsCollector, attemptToDiagnostic } from './diagnostics-collector.js';
 import { mapFailureReasons } from '../../../verax/core/failures/failure-mode-matrix.js';
+import { installNetworkWriteFirewall, makeBlockedWriteRecord, summarizeNetworkFirewall } from './network-firewall.js';
 
 /**
  * PHASE H3/M3 - Real Browser Observation Engine
@@ -52,29 +54,32 @@ async function setupBrowserAndPage(authConfig, redactionCounters, browserFactory
 /**
  * Set up network and console event monitoring with redaction
  */
-function setupNetworkAndConsoleMonitoring(page, planner, redactionCounters, _onProgress) {
+async function setupNetworkAndConsoleMonitoring(page, planner, redactionCounters, _onProgress) {
   const timeProvider = getTimeProvider();
   const networkRecordingStartTime = timeProvider.now();
   
   // H5: Route handler for blocking mutating requests (MUST be before page.on)
-  page.route('**/*', async (route) => {
-    const request = route.request();
-    const method = request.method();
-    
-    if (planner.shouldBlockRequest(method)) {
-      const redactedUrl = redactUrl(request.url(), redactionCounters);
-      planner.blockedRequests.push({
-        url: redactedUrl,
-        method: method,
-        reason: 'write-blocked-read-only-mode',
-        timestamp: getTimeProvider().iso(),
-      });
-      await route.abort('blockedbyclient');
-      return;
-    }
-    
-    await route.continue();
+  const firewallInstall = await installNetworkWriteFirewall(page, {
+    shouldBlockRequest: (method) => planner.shouldBlockRequest(method),
+    onBlocked: ({ method, requestUrl, originUrl, code: _code }) => {
+      try {
+        const rawUrl = String(requestUrl || '');
+        const redactedUrl = rawUrl ? redactUrl(rawUrl, redactionCounters) : null;
+        planner.blockedRequests.push({
+          ...makeBlockedWriteRecord({
+            method,
+            requestUrl: rawUrl,
+            reason: 'write-blocked-read-only-mode',
+          }),
+          url: redactedUrl || rawUrl,
+          originUrl: originUrl || null,
+        });
+      } catch {
+        // ignore blocked telemetry errors
+      }
+    },
   });
+  planner.networkFirewall = { enabled: firewallInstall.enabled === true };
   
   page.on('request', (request) => {
     const redactedHeaders = redactHeaders(request.headers(), redactionCounters);
@@ -124,7 +129,15 @@ async function navigateToBaseUrl(page, url, onProgress) {
     });
     initialStatus = response?.status?.() ?? null;
     finalUrl = response?.url?.() ?? null;
-    await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});    const routeSensorResult = await injectRouteSensor(page);
+    await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+    const submitSensorResult = await injectSubmitSensor(page);
+    if (!submitSensorResult.injected && onProgress) {
+      onProgress({
+        event: 'observe:warning',
+        message: 'Submit sensor injection failed: ' + submitSensorResult.error,
+      });
+    }
+    const routeSensorResult = await injectRouteSensor(page);
     if (!routeSensorResult.injected && onProgress) {
       onProgress({
         event: 'observe:warning',
@@ -244,7 +257,7 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
 
     // Set up network monitoring (H5: with write-blocking)
     try {
-      setupNetworkAndConsoleMonitoring(page, planner, redactionCounters, onProgress);
+      await setupNetworkAndConsoleMonitoring(page, planner, redactionCounters, onProgress);
     } catch (e) {
       if (process.env.VERAX_DEBUG === '1') {
         try { console.error('[VERAX DEBUG] setupNetworkAndConsoleMonitoring failed:', e && e.stack ? e.stack : e); } catch (_err) { /* ignore */ }
@@ -410,6 +423,7 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
         isRuntimeNav: Boolean(exp.isRuntimeNav),
         runtimeNav: exp.runtimeNav || null,
         attempted: attempt.attempted,
+        actionSuccess: attempt.actionSuccess === true,
         observed: attempt.signals ? Object.values(attempt.signals).some(v => v === true) : false,
         action: attempt.action,
         reason: attempt.reason,
@@ -488,6 +502,10 @@ export async function observeExpectations(expectations, url, evidencePath, onPro
       observations,
       runtimeExpectations,
       runtime: runtimeSummary,
+      networkFirewall: summarizeNetworkFirewall({
+        enabled: Boolean(planner?.networkFirewall?.enabled),
+        blockedWrites: planner.getBlockedRequests(),
+      }),
       stats: {
         totalExpectations: executionPlan.length,
         attempted,

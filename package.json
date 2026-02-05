@@ -42,7 +42,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "clean": "node -e \"const fs = require('fs'); const path = require('path'); const dirs = ['.verax', 'tmp'].map(d => path.join(__dirname, d)); dirs.forEach(dir => { if (fs.existsSync(dir)) { fs.rmSync(dir, { recursive: true, force: true }); console.log('Cleaned:', dir); } });\"",
     "demo": "cross-env VERAX_FIXTURE_DIR=./demos/hello-verax VERAX_FIXTURE_PORT=4000 node scripts/fixture-server.js",
-    "verax:demo": "cross-env VERAX_FIXTURE_DIR=./demos/hello-verax VERAX_FIXTURE_PORT=4000 node bin/verax.js run --url http://127.0.0.1:4000 --src demos/hello-verax --out .verax/demo --min-coverage 0.6",
+    "verax:demo": "cross-env VERAX_FIXTURE_DIR=./demos/hello-verax VERAX_FIXTURE_PORT=4000 node bin/verax.js run --url http://127.0.0.1:4000 --src demos/hello-verax --min-coverage 0.6",
     "postpack": "node -e \"if (process.env.VERAX_SKIP_POSTPACK_CLEANUP !== '1') { const fs = require('fs'); const glob = require('glob'); glob.sync('*.tgz').forEach(f => { fs.unlinkSync(f); console.log('Auto-removed pack artifact:', f); }); } else { console.log('Postpack cleanup skipped (test mode)'); }\""
   },
   "dependencies": {
@@ -51,7 +51,7 @@
     "glob": "^10.3.10",
     "inquirer": "^9.2.15",
     "node-html-parser": "^7.0.1",
-    "playwright": "^1.40.0",
+    "playwright": "1.57.0",
     "typescript": "^5.9.3",
     "yaml": "^2.8.2"
   },

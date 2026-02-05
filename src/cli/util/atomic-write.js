@@ -119,8 +119,10 @@ export function atomicWriteJsonSync(filePath, data, options = {}) {
   let jsonString;
 
   try {
+    const deterministic = options?.deterministic === true;
+    const normalized = deterministic ? sortJsonKeysDeep(data) : data;
     // Serialize with consistent formatting (2-space indent, newline at end)
-    jsonString = JSON.stringify(data, null, 2) + '\n';
+    jsonString = JSON.stringify(normalized, null, 2) + '\n';
   } catch (error) {
     const errorMsg = `Failed to serialize JSON for ${filePath}: ${error.message}`;
     throw new Error(errorMsg);
@@ -131,6 +133,21 @@ export function atomicWriteJsonSync(filePath, data, options = {}) {
     encoding: 'utf-8',
     ...options,
   });
+}
+
+function sortJsonKeysDeep(value) {
+  if (Array.isArray(value)) {
+    return value.map(sortJsonKeysDeep);
+  }
+  if (!value || typeof value !== 'object') {
+    return value;
+  }
+  const out = {};
+  const keys = Object.keys(value).sort((a, b) => a.localeCompare(b, 'en'));
+  for (const k of keys) {
+    out[k] = sortJsonKeysDeep(value[k]);
+  }
+  return out;
 }
 
 /**

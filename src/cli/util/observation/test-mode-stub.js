@@ -87,6 +87,12 @@ export function createTestModeStub(expectations, url) {
 
   return {
     observations,
+    networkFirewall: {
+      enabled: false,
+      blockedCount: 0,
+      blockedMethods: { POST: 0, PUT: 0, PATCH: 0, DELETE: 0 },
+      sampleBlocked: [],
+    },
     stats: {
       totalExpectations,
       attempted,

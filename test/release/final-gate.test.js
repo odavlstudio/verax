@@ -89,33 +89,43 @@ describe('Final Gate: VERAX Installability & CLI', () => {
   });
 
   test('npm pack creates valid tarball', async () => {
-    const packResult = await runCommand('npm', ['pack'], projectRoot, 30000);
+    const packDest = join(tmpdir(), `verax-pack-dest-${getTimeProvider().now()}`);
+    mkdirSync(packDest, { recursive: true });
+
+    const packResult = await runCommand('npm', ['pack', '--pack-destination', packDest], projectRoot, 30000);
     assert.strictEqual(packResult.code, 0, `npm pack should succeed: ${packResult.stderr}`);
     
-    // Constitutional guarantee: postpack hook removes tarball immediately
-    // Verify pack succeeded by checking stdout contains tarball name
     assert.ok(packResult.stdout.includes('.tgz'), 'npm pack stdout should confirm tarball generation');
     
-    // Verify constitutional cleanup: no tarball remains in project root
+    // Root hygiene guarantee: no tarball should be written to project root
     const tarballs = readdirSync(projectRoot).filter(f => f.endsWith('.tgz'));
-    assert.strictEqual(tarballs.length, 0, 'postpack hook should remove tarball (constitutional guarantee)');
+    assert.strictEqual(tarballs.length, 0, 'npm pack must not write tarball to repo root');
+
+    const packed = readdirSync(packDest).filter(f => f.endsWith('.tgz'));
+    assert.ok(packed.length > 0, 'tarball should exist in pack destination');
+
+    try {
+      rmSync(packDest, { recursive: true, force: true });
+    } catch {
+      // ignore
+    }
   });
 
   test('tarball extracts and package structure is valid', async () => {
     tempDir = join(tmpdir(), `verax-final-gate-${getTimeProvider().now()}`);
     mkdirSync(tempDir, { recursive: true });
+    const packDest = join(tempDir, 'pack');
+    mkdirSync(packDest, { recursive: true });
 
-    // Generate tarball with postpack cleanup temporarily disabled for validation
-    process.env.VERAX_SKIP_POSTPACK_CLEANUP = '1';
-    const packResult = await runCommand('npm', ['pack'], projectRoot, 30000);
-    delete process.env.VERAX_SKIP_POSTPACK_CLEANUP;
+    // Generate tarball into a temp destination (never repo root).
+    const packResult = await runCommand('npm', ['pack', '--pack-destination', packDest], projectRoot, 30000);
     assert.strictEqual(packResult.code, 0, `npm pack should succeed: ${packResult.stderr}`);
 
     // Find the tarball
-    const tarballs = readdirSync(projectRoot).filter(f => f.endsWith('.tgz'));
-    assert.ok(tarballs.length > 0, 'tarball should exist (postpack cleanup skipped for test)');
+    const tarballs = readdirSync(packDest).filter(f => f.endsWith('.tgz'));
+    assert.ok(tarballs.length > 0, 'tarball should exist in pack destination');
     const tarballName = tarballs[0];
-    const tarballPath = join(projectRoot, tarballName);
+    const tarballPath = join(packDest, tarballName);
 
     // Extract tarball to tempDir using system tar (bsdtar on Windows)
     const extract = await runCommand('tar', ['-xf', tarballPath, '-C', tempDir], projectRoot, 30000);
@@ -130,7 +140,7 @@ describe('Final Gate: VERAX Installability & CLI', () => {
     assert.ok(extractedPkg.bin && extractedPkg.bin.verax, 'bin.verax should be defined in package.json');
     assert.ok(existsSync(join(extractedRoot, 'bin', 'verax.js')), 'bin/verax.js should exist');
 
-    // Constitutional cleanup: manually remove test tarball
+    // Cleanup: remove test tarball
     rmSync(tarballPath, { force: true });
   });
 

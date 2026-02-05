@@ -3,6 +3,7 @@ import { atomicWriteJson } from '../support/atomic-write.js';
 import { resolve } from 'path';
 import { findingIdFromExpectationId } from '../support/idgen.js';
 import { ARTIFACT_REGISTRY } from '../../../verax/core/artifacts/registry.js';
+import { isDeterministicOutputMode, normalizeDeterministicArtifact } from '../support/deterministic-output.js';
 
 /**
  * Write findings.json artifact with deterministic IDs
@@ -41,7 +42,8 @@ export function writeFindingsJson(runDir, findingsData) {
     findingsDeterministicOrder: deterministicOrder,
   };
   
-  atomicWriteJson(findingsPath, payload);
+  const normalized = normalizeDeterministicArtifact('findings', payload);
+  atomicWriteJson(findingsPath, normalized, { deterministic: isDeterministicOutputMode() });
 }
 
 

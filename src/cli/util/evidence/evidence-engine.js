@@ -39,6 +39,8 @@ export class EvidenceBundle {
       outcomeAcknowledged: false,
       delayedAcknowledgment: false,
       meaningfulUIChange: false,
+      submissionTriggered: false,
+      networkAttemptAfterSubmit: false,
     };
     this.files = [];
     this.correlatedRequests = []; // Network requests correlated to this action

@@ -21,6 +21,28 @@ import {
   ALLOWED_FINDING_TYPES
 } from './finding-contract.js';
 
+function normalizeEvidenceFileRef(ref) {
+  if (typeof ref !== 'string') return null;
+  const raw = ref.trim();
+  if (!raw) return null;
+  const replaced = raw.replace(/\\/g, '/');
+  const withoutPrefix = replaced.startsWith('./') ? replaced.slice(2) : replaced;
+  // Disallow absolute paths, drive letters, UNC, and traversal.
+  if (/^[a-zA-Z]:\//.test(withoutPrefix)) return null;
+  if (withoutPrefix.startsWith('/') || withoutPrefix.startsWith('\\\\')) return null;
+  if (withoutPrefix.includes('..')) return null;
+  return withoutPrefix;
+}
+
+function hasStrongEvidenceFileClass(evidenceFiles) {
+  const files = Array.isArray(evidenceFiles) ? evidenceFiles : [];
+  const hasDomDiff = files.some((f) => typeof f === 'string' && f.includes('dom_diff') && f.endsWith('.json'));
+  const hasNetwork = files.some((f) => typeof f === 'string' && f.includes('network') && f.endsWith('.json'));
+  const hasBefore = files.some((f) => typeof f === 'string' && f.includes('before') && f.endsWith('.png'));
+  const hasAfter = files.some((f) => typeof f === 'string' && f.includes('after') && f.endsWith('.png'));
+  return hasDomDiff || hasNetwork || (hasBefore && hasAfter);
+}
+
 function isValidPromiseShape(promise) {
   if (!promise || typeof promise !== 'object') return false;
 
@@ -171,14 +193,87 @@ function enforceEvidenceLaw(finding) {
     return { valid: true }; // Only CONFIRMED needs evidence
   }
 
+  // STRICT CONTRACT: For key silent-failure types, CONFIRMED is allowed only when
+  // at least one strong evidence category is present as a *real artifact/signal*,
+  // not merely by having the boolean key present with a false value.
+  const STRICT_SILENT_FAILURE_TYPES = new Set([
+    'dead_interaction_silent_failure',
+    'broken_navigation_promise',
+    'silent_submission',
+  ]);
+
+  function hasStrongSilentFailureEvidence(evidence) {
+    if (!evidence || typeof evidence !== 'object') return false;
+
+    const files = Array.isArray(evidence.evidence_files)
+      ? evidence.evidence_files
+      : (Array.isArray(evidence.evidenceFiles) ? evidence.evidenceFiles : []);
+
+    const hasDomDiffFile = files.some((f) => typeof f === 'string' && f.includes('dom_diff') && f.endsWith('.json'));
+    const hasNetworkFile = files.some((f) => typeof f === 'string' && f.includes('network') && f.endsWith('.json'));
+
+    const hasNavigationEvidence =
+      (evidence.route_data && typeof evidence.route_data === 'object') ||
+      (evidence.routeData && typeof evidence.routeData === 'object') ||
+      (typeof evidence.beforeUrl === 'string' && typeof evidence.afterUrl === 'string') ||
+      (typeof evidence.before_url === 'string' && typeof evidence.after_url === 'string');
+
+    const hasMeaningfulDomEvidence =
+      hasDomDiffFile ||
+      (evidence.dom_diff && typeof evidence.dom_diff === 'object') ||
+      (evidence.domDiff && typeof evidence.domDiff === 'object') ||
+      (evidence.hasDomChange === true) ||
+      (evidence.hasDomChange === false && (evidence.dom_diff || evidence.domDiff));
+
+    const hasFeedbackEvidence =
+      evidence.feedback_seen === true ||
+      evidence.feedbackSeen === true ||
+      typeof evidence.statusMessage === 'string' ||
+      typeof evidence.status_message === 'string' ||
+      typeof evidence.success_message === 'string' ||
+      typeof evidence.successMessage === 'string' ||
+      typeof evidence.aria_live === 'string' ||
+      typeof evidence.ariaLive === 'string';
+
+    const hasNetworkEvidence =
+      hasNetworkFile ||
+      evidence.correlated_network_activity === true ||
+      evidence.correlatedNetworkActivity === true ||
+      evidence.network_activity === true ||
+      evidence.networkActivity === true ||
+      (evidence.network_request && typeof evidence.network_request === 'object') ||
+      (evidence.networkRequest && typeof evidence.networkRequest === 'object') ||
+      (Array.isArray(evidence.networkRequests) && evidence.networkRequests.length > 0);
+
+    return hasNavigationEvidence || hasMeaningfulDomEvidence || hasFeedbackEvidence || hasNetworkEvidence;
+  }
+
   // CONFIRMED requires evidence
   if (!finding.evidence || typeof finding.evidence !== 'object') {
     return {
       valid: false,
       reason: 'Evidence Law v2: CONFIRMED status requires evidence object',
       action: 'DOWNGRADE',
-      downgrade: { status: 'SUSPECTED' }
+      downgrade: {
+        status: 'SUSPECTED',
+        enrichment: { evidenceLawDowngradeReasons: ['missing_evidence_object'] }
+      }
     };
+  }
+
+  if (STRICT_SILENT_FAILURE_TYPES.has(finding.type)) {
+    if (!hasStrongSilentFailureEvidence(finding.evidence)) {
+      return {
+        valid: false,
+        reason: 'Evidence Law v2: Silent-failure CONFIRMED requires at least one strong evidence category (navigation/route, meaningful_dom, feedback, or network)',
+        action: 'DOWNGRADE',
+        downgrade: {
+          status: 'SUSPECTED',
+          enrichment: { evidenceLawDowngradeReasons: ['missing_strong_evidence'] }
+        }
+      };
+    }
+    return { valid: true };
   }
 
   // Classify evidence into strong/weak categories
@@ -190,11 +285,194 @@ function enforceEvidenceLaw(finding) {
       valid: false,
       reason: `Evidence Law v2: CONFIRMED requires strong evidence category (navigation, meaningful_dom, feedback, or network). Found only: ${categories.weak.join(', ') || 'none'}`,
       action: 'DOWNGRADE',
-      downgrade: { status: 'SUSPECTED' }
+      downgrade: {
+        status: 'SUSPECTED',
+        enrichment: { evidenceLawDowngradeReasons: ['missing_strong_evidence'] }
+      }
     };
   }
 
   return { valid: true };
+}
+
+/**
+ * EVIDENCE FILE EXISTENCE LAW (silent failures only)
+ *
+ * For key silent-failure finding types, CONFIRMED must:
+ * - include evidence_files (or evidenceFiles) on evidence object
+ * - reference only safe, relative paths (no traversal/absolute)
+ * - every referenced file must exist in the provided evidenceFileIndex
+ * - include at least one strong evidence file class: dom_diff OR network OR before+after screenshot pair
+ *
+ * Pure: requires a precomputed evidenceFileIndex set (no fs I/O here).
+ *
+ * @private
+ * @param {Object} finding
+ * @param {{ evidenceFileIndex?: Set<string> } | undefined} context
+ */
+function enforceEvidenceFileExistenceLaw(finding, context) {
+  if (!finding || finding.status !== 'CONFIRMED') return { valid: true };
+
+  const STRICT_SILENT_FAILURE_TYPES = new Set([
+    'dead_interaction_silent_failure',
+    'broken_navigation_promise',
+    'silent_submission',
+  ]);
+
+  if (!STRICT_SILENT_FAILURE_TYPES.has(finding.type)) return { valid: true };
+
+  const evidenceFileIndex = context?.evidenceFileIndex;
+  // If no index provided, we cannot prove existence; do not enforce here.
+  // Runtime enforcement is expected to pass an index from the run evidence directory.
+  if (!(evidenceFileIndex instanceof Set)) return { valid: true };
+
+  const evidence = finding.evidence;
+  const evidenceFilesRaw = Array.isArray(evidence?.evidence_files)
+    ? evidence.evidence_files
+    : (Array.isArray(evidence?.evidenceFiles) ? evidence.evidenceFiles : null);
+
+  /** @type {string[]} */
+  const reasons = [];
+  if (!Array.isArray(evidenceFilesRaw) || evidenceFilesRaw.length === 0) {
+    reasons.push('missing_evidence_files_list');
+  }
+
+  /** @type {string[]} */
+  const normalizedRefs = [];
+  if (Array.isArray(evidenceFilesRaw)) {
+    for (const ref of evidenceFilesRaw) {
+      const normalized = normalizeEvidenceFileRef(ref);
+      if (!normalized) {
+        reasons.push('invalid_evidence_file_ref');
+        continue;
+      }
+      normalizedRefs.push(normalized);
+    }
+  }
+
+  for (const ref of normalizedRefs) {
+    if (!evidenceFileIndex.has(ref)) {
+      reasons.push('evidence_file_missing');
+      break;
+    }
+  }
+
+  if (!hasStrongEvidenceFileClass(normalizedRefs)) {
+    reasons.push('missing_strong_evidence_file');
+  }
+
+  if (reasons.length === 0) return { valid: true };
+
+  const uniqueReasons = Array.from(new Set(reasons)).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  return {
+    valid: false,
+    reason: 'Evidence File Existence Law: CONFIRMED silent-failure must reference existing evidence files under run evidence directory',
+    action: 'DOWNGRADE',
+    downgrade: {
+      status: 'SUSPECTED',
+      enrichment: { evidenceFileLawDowngradeReasons: uniqueReasons }
+    }
+  };
+}
+
+function extractExpNumFromEvidenceFiles(files) {
+  const list = Array.isArray(files) ? files : [];
+  const nums = new Set();
+  for (const f of list) {
+    if (typeof f !== 'string') continue;
+    const m = /(?:^|\/)exp_(\d+)_/i.exec(f);
+    if (!m) continue;
+    const n = Number(m[1]);
+    if (Number.isFinite(n) && n > 0) nums.add(n);
+  }
+  const arr = Array.from(nums).sort((a, b) => a - b);
+  return arr;
+}
+
+/**
+ * OBSERVE ↔ FINDINGS MINIMAL CONSISTENCY (silent failures only)
+ *
+ * For key silent-failure finding types, CONFIRMED must be traceable to an observe-recorded evidence set.
+ * Mapping strategy (deterministic):
+ * - derive expNum from evidence_files (exp_<N>_ prefix)
+ * - look up observeEvidenceByExpNum.get(N)
+ * - require every evidence_files ref to be present in that observation evidence set
+ *
+ * If mapping cannot be proven, downgrade to SUSPECTED and record a deterministic note.
+ *
+ * Pure: requires observeEvidenceByExpNum in context (no fs I/O here).
+ *
+ * @private
+ * @param {Object} finding
+ * @param {{ observeEvidenceByExpNum?: Map<number, Set<string>> } | undefined} context
+ */
+function enforceObserveFindingConsistencyLaw(finding, context) {
+  if (!finding || finding.status !== 'CONFIRMED') return { valid: true };
+
+  const STRICT_SILENT_FAILURE_TYPES = new Set([
+    'dead_interaction_silent_failure',
+    'broken_navigation_promise',
+    'silent_submission',
+  ]);
+  if (!STRICT_SILENT_FAILURE_TYPES.has(finding.type)) return { valid: true };
+
+  const observeEvidenceByExpNum = context?.observeEvidenceByExpNum;
+  if (!(observeEvidenceByExpNum instanceof Map)) return { valid: true };
+
+  const evidence = finding.evidence;
+  const evidenceFilesRaw = Array.isArray(evidence?.evidence_files)
+    ? evidence.evidence_files
+    : (Array.isArray(evidence?.evidenceFiles) ? evidence.evidenceFiles : null);
+
+  /** @type {string[]} */
+  const notes = [];
+  if (!Array.isArray(evidenceFilesRaw) || evidenceFilesRaw.length === 0) {
+    notes.push('missing_evidence_files_list');
+  }
+
+  const normalizedRefs = [];
+  if (Array.isArray(evidenceFilesRaw)) {
+    for (const ref of evidenceFilesRaw) {
+      const normalized = normalizeEvidenceFileRef(ref);
+      if (!normalized) {
+        notes.push('invalid_evidence_file_ref');
+        continue;
+      }
+      normalizedRefs.push(normalized);
+    }
+  }
+
+  const expNums = extractExpNumFromEvidenceFiles(normalizedRefs);
+  if (expNums.length === 0) {
+    notes.push('unmapped_to_observation');
+  } else if (expNums.length > 1) {
+    notes.push('ambiguous_observation_mapping');
+  } else {
+    const n = expNums[0];
+    const obsSet = observeEvidenceByExpNum.get(n);
+    if (!(obsSet instanceof Set)) {
+      notes.push('observation_missing');
+    } else {
+      for (const ref of normalizedRefs) {
+        if (!obsSet.has(ref)) {
+          notes.push('evidence_not_in_observation');
+          break;
+        }
+      }
+    }
+  }
+
+  if (notes.length === 0) return { valid: true };
+  const uniqueNotes = Array.from(new Set(notes)).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  return {
+    valid: false,
+    reason: 'Observe/Findings Consistency: CONFIRMED silent-failure evidence must be traceable to observe.json evidence for the interaction',
+    action: 'DOWNGRADE',
+    downgrade: {
+      status: 'SUSPECTED',
+      enrichment: { evidenceCrossArtifactNotes: uniqueNotes },
+    }
+  };
 }
 
 /**
@@ -326,7 +604,7 @@ function enforceRequiredFields(finding) {
  * @param {Object} finding - Finding to validate
  * @returns {ValidationResult} - Validation result with reason if invalid
  */
-export function validateFindingConstitution(finding) {
+export function validateFindingConstitution(finding, context) {
   if (!finding || typeof finding !== 'object') {
     return {
       valid: false,
@@ -345,6 +623,18 @@ export function validateFindingConstitution(finding) {
   const evidenceCheck = enforceEvidenceLaw(finding);
   if (!evidenceCheck.valid) {
     return evidenceCheck;
+  }
+
+  // 2b. Enforce evidence file existence law for strict silent-failure types (context-driven)
+  const fileLawCheck = enforceEvidenceFileExistenceLaw(finding, context);
+  if (!fileLawCheck.valid) {
+    return fileLawCheck;
+  }
+
+  // 2c. Enforce observe↔finding minimal consistency for strict silent-failure types (context-driven)
+  const observeConsistencyCheck = enforceObserveFindingConsistencyLaw(finding, context);
+  if (!observeConsistencyCheck.valid) {
+    return observeConsistencyCheck;
   }
 
   // 3. Detect ambiguities (for enrichment recording, not for rejection)
@@ -401,9 +691,30 @@ export function applyValidationResult(finding, result) {
   }
 
   if (result.action === 'DOWNGRADE' && result.downgrade) {
+    const downgrade = result.downgrade || {};
+    const downgradeEnrichment = downgrade.enrichment;
+    let mergedEnrichment = downgradeEnrichment && typeof downgradeEnrichment === 'object'
+      ? { ...(modified.enrichment || {}), ...downgradeEnrichment }
+      : (modified.enrichment || undefined);
+
+    // Do not clobber existing enrichment arrays for downgrade reason lists.
+    if (mergedEnrichment && typeof mergedEnrichment === 'object') {
+      for (const key of ['evidenceLawDowngradeReasons', 'evidenceFileLawDowngradeReasons', 'evidenceCrossArtifactNotes']) {
+        const existing = modified?.enrichment?.[key];
+        const incoming = downgradeEnrichment?.[key];
+        if (Array.isArray(existing) && Array.isArray(incoming)) {
+          const combined = Array.from(new Set([...existing, ...incoming]))
+            .filter((v) => typeof v === 'string' && v.length > 0)
+            .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+          mergedEnrichment[key] = combined;
+        }
+      }
+    }
+
     return {
       ...modified,
-      ...result.downgrade
+      ...downgrade,
+      ...(mergedEnrichment ? { enrichment: mergedEnrichment } : {})
     };
   }
 
@@ -436,7 +747,7 @@ export function validateAndSanitizeFinding(finding) {
  * @param {Array} findings - Array of findings to validate
  * @returns {Object} - { valid: [], dropped: number, downgraded: number }
  */
-export function batchValidateFindings(findings) {
+export function batchValidateFindings(findings, context) {
   if (!Array.isArray(findings)) {
     return { valid: [], dropped: 1, downgraded: 0 };
   }
@@ -446,7 +757,7 @@ export function batchValidateFindings(findings) {
   let downgraded = 0;
 
   for (const finding of findings) {
-    const result = validateFindingConstitution(finding);
+    const result = validateFindingConstitution(finding, context);
     const sanitized = applyValidationResult(finding, result);
 
     if (sanitized === null) {

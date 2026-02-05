@@ -1,0 +1,113 @@
+{
+  "proofPackVersion": "v0.4.9-final",
+  "version": "0.4.9",
+  "gitSha": "ad135373fe620b76871fd9baa36492c094ddf435",
+  "generatedAt": "2026-02-05T00:00:00.000Z",
+  "env": {
+    "VERAX_TEST_TIME": "2026-02-05T00:00:00.000Z",
+    "VERAX_DETERMINISTIC_MODE": "1"
+  },
+  "fixture": {
+    "dir": "test/fixtures/static-buttons",
+    "url": "http://127.0.0.1:51137/index.html"
+  },
+  "commands": [
+    "VERAX_TEST_TIME=2026-02-05T00:00:00.000Z VERAX_DETERMINISTIC_MODE=1 node bin/verax.js capability-bundle --url http://127.0.0.1:51137/index.html --out proof-pack\\v0.4.9-final\\artifacts\\pilot\\capability-bundle.default --timeout-ms 15000",
+    "VERAX_TEST_TIME=2026-02-05T00:00:00.000Z VERAX_DETERMINISTIC_MODE=1 node bin/verax.js capability-bundle --url http://127.0.0.1:51137/index.html --out proof-pack\\v0.4.9-final\\artifacts\\pilot\\capability-bundle.anonymize-host --timeout-ms 15000 --anonymize-host",
+    "VERAX_TEST_TIME=2026-02-05T00:00:00.000Z VERAX_DETERMINISTIC_MODE=1 node bin/verax.js run --url http://127.0.0.1:51137/index.html --src test/fixtures/static-buttons --out proof-pack\\v0.4.9-final\\artifacts\\bundles\\run-bundle"
+  ],
+  "integrity": {
+    "artifacts/bundles/run-bundle.stdout.txt": {
+      "sha256": "2982d320af7cb3dc0bf9584ec9b0713b8a6ee1dd3f5c25f6339b7cdb950a9bc3",
+      "bytes": 1736
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/.run-complete": {
+      "sha256": "b9e049fce57ec1e2c055b62452c231f12bb5cb9440fc53dd8d29b73caa5a2651",
+      "bytes": 96
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/.run-finalized": {
+      "sha256": "7e04fb55a04c414fd29600b46c417bfdf5969cd022f8c0d206e85136179cdc4c",
+      "bytes": 96
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/.run-started": {
+      "sha256": "695b0eb7348fd923c89016bcaabb66701c8ac7ad27590d37f8126eff59043c2e",
+      "bytes": 94
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/coverage.json": {
+      "sha256": "131e2303674c8462d58ba6f6c76348d00f03dc1fa25a1daa07bee7d19ddff338",
+      "bytes": 315
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/findings.json": {
+      "sha256": "6cc788ef7135d55148aa5326cb88ee1ecbf88985d6c7cc220b1ff89420e8052e",
+      "bytes": 332
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/judgments.json": {
+      "sha256": "4f84696f78b38040e4039c5bd5e7525d68a3e75e6c2b89698ca81aab6c71fc02",
+      "bytes": 176
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/learn.json": {
+      "sha256": "d80864d5c2f7882f89b27bcd81466c0990ae317e25459c197beba7d2bcbf28c9",
+      "bytes": 4036
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/observe.json": {
+      "sha256": "71d6e306f2dda221ac51bfa32854704ed9be1ead8be50ab8e3775ffb6cb25ab9",
+      "bytes": 597
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/project.json": {
+      "sha256": "cee9ecbaeccd9ef466d79bd0710db7b4b6d09558663794587974bc7da789810a",
+      "bytes": 299
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/run-manifest.json": {
+      "sha256": "ec6b56641e0a6babc5c3c305d7f03b1e1a3464ea7747f2733f7745f1d4e3f434",
+      "bytes": 1039
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/run.meta.json": {
+      "sha256": "1ed0aa96d15a9a0c2ac3a1dc6ea904db5f3d2cd631be1e85d24d8d1d854cbe18",
+      "bytes": 694
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/run.status.json": {
+      "sha256": "40bc8164d1122e72e6c8e6a57abd3a0822a8e86517b2107046661a4945c81eda",
+      "bytes": 816
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/summary.json": {
+      "sha256": "75131afdd9539a91c3e8bf7bd3522f8f73e6414ea5a34a6e4370c3caf5355500",
+      "bytes": 4083
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/traces.jsonl": {
+      "sha256": "5116a869c2a8a714cd03c2d9cf28d74f3f63d36fbe70eaeac4c456de52bcd665",
+      "bytes": 9076
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/b0cd8d8c07875f6a/verax-summary.md": {
+      "sha256": "105b46f9f99281e1b4feacd61b80de5c2b95ffb1706cce73d140a6aec11ae417",
+      "bytes": 683
+    },
+    "artifacts/bundles/run-bundle/runs/scan-127-0-0-1-standard-veraxhqverax/latest.json": {
+      "sha256": "0d0152c9f57d8d39a3313fde35016547e6d9cc771d79bbac30d0a78ed0dcb681",
+      "bytes": 237
+    },
+    "artifacts/pilot/capability-bundle.anonymize-host/capability-bundles/2026-02-05T00-00-00-000Z/capability-summary.txt": {
+      "sha256": "159e0943b226e6a76f6a039056bb6b7b02691b14d918031221b5aea4f8c0cb92",
+      "bytes": 724
+    },
+    "artifacts/pilot/capability-bundle.anonymize-host/capability-bundles/2026-02-05T00-00-00-000Z/capability.json": {
+      "sha256": "b609f584e2492faaa2adc5ed2c55b264756aba4b32a213058e740d947e8262bb",
+      "bytes": 1447
+    },
+    "artifacts/pilot/capability-bundle.anonymize-host/capability-bundles/2026-02-05T00-00-00-000Z/integrity.manifest.json": {
+      "sha256": "56bee303b7d74449e37e64e51f77393b614babffb15b2831dcbf2088f9cdae8d",
+      "bytes": 540
+    },
+    "artifacts/pilot/capability-bundle.default/capability-bundles/2026-02-05T00-00-00-000Z/capability-summary.txt": {
+      "sha256": "346202691011ce39f120bfe440a7f8f31710e40af099d0c86c6e5a2172b25a0b",
+      "bytes": 707
+    },
+    "artifacts/pilot/capability-bundle.default/capability-bundles/2026-02-05T00-00-00-000Z/capability.json": {
+      "sha256": "5a92ccc411bed7aa39742107f229af0810e72523b6bb3677118a47504d602d80",
+      "bytes": 1269
+    },
+    "artifacts/pilot/capability-bundle.default/capability-bundles/2026-02-05T00-00-00-000Z/integrity.manifest.json": {
+      "sha256": "f7101c4d8c3a4028640b022d2946af14e514b613fd2fe8c447e52d49c578849d",
+      "bytes": 540
+    }
+  }
+}

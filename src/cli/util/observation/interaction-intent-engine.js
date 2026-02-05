@@ -50,17 +50,10 @@ export function classifyInteractionIntent(record) {
  * Check if element is explicitly marked as non-functional
  */
 function isNoopElement(record) {
-  // href="#" anchor (el.href in browser returns full URL, check if it ends with #)
+  // href noop markers (we store only kind, not the URL value)
   if (record.tagName === 'A') {
-    const href = record.href || '';
-    if (href === '#' || href.endsWith('#')) {
-      return true;
-    }
-    // Also check href attribute directly if available
-    if (record.hrefAttr === '#') {
-      return true;
-    }
-    if (href?.startsWith('javascript:void')) {
+    const hrefKind = record.href?.kind || null;
+    if (hrefKind === 'noop_hash' || hrefKind === 'noop_js') {
       return true;
     }
   }
@@ -71,8 +64,8 @@ function isNoopElement(record) {
   }
 
   // Button with type=button and no onclick/form
-  if (record.tagName === 'BUTTON' && record.type === 'button' && 
-      !record.hasOnClick && !record.hasForm) {
+  if (record.tagName === 'BUTTON' && record.type === 'button' &&
+      !record.hasOnClick && !(record.form?.associated === true)) {
     return true;
   }
 
@@ -177,13 +170,11 @@ export function calculateInteractionConfidence(record, _signals) {
  * @returns {string} Bounded selector path
  */
 export function createBoundedSelectorPath(record) {
-  if (!record?.selectorPath || !Array.isArray(record.selectorPath)) {
-    return 'unknown';
-  }
-
-  // Take last 3 elements of path
-  const bounded = record.selectorPath.slice(-3);
-  return bounded.join(' > ');
+  // NOTE: This function name is legacy; the engine no longer captures selectors.
+  // Provide a coarse, non-identifying location string instead.
+  const container = record?.containerTagName ? String(record.containerTagName) : 'document';
+  const tag = record?.tagName ? String(record.tagName).toLowerCase() : 'unknown';
+  return `${container} > ${tag}`;
 }
 
 /**
@@ -200,9 +191,14 @@ export function generateInteractionIntentId(record) {
   const parts = [
     record.tagName || 'unknown',
     record.eventType || 'unknown',
-    record.selectorPath?.[record.selectorPath.length - 1] || 'unknown',
-    `x${Math.floor(record.boundingBox?.x || 0)}`,
-    `y${Math.floor(record.boundingBox?.y || 0)}`
+    record.role || 'no-role',
+    record.type || 'no-type',
+    record.href?.kind || 'no-href',
+    record.form?.associated === true ? 'in-form' : 'no-form',
+    record.form?.isSubmitControl === true ? 'submit' : 'no-submit',
+    record.aria?.expanded ? `aria-expanded:${record.aria.expanded}` : 'no-aria-expanded',
+    record.aria?.pressed ? `aria-pressed:${record.aria.pressed}` : 'no-aria-pressed',
+    record.aria?.checked ? `aria-checked:${record.aria.checked}` : 'no-aria-checked',
   ];
 
   const stableString = parts.join('|');

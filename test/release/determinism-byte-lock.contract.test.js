@@ -2,7 +2,11 @@
  * Determinism Byte-Lock Regression Test
  * 
  * Verifies that repeated runs against the same fixture produce
- * byte-identical findings.json and summary.json (after normalization).
+ * byte-identical canonical artifacts in deterministic output mode:
+ * - summary.json
+ * - findings.json
+ * - observe.json
+ * - learn.json
  * 
  * This test locks the determinism guarantee contract.
  */
@@ -15,79 +19,34 @@ import { resolve } from 'path';
 import { tmpdir } from 'os';
 import { getTimeProvider as _getTimeProvider } from '../../src/cli/util/support/time-provider.js';
 
-
-/**
- * Normalize fields that are allowed to vary between runs.
- * Allowed variance: startedAt, completedAt, and metrics.totalMs.
- * Everything else must be byte-identical.
- */
-function normalizeForComparison(obj) {
-  if (!obj || typeof obj !== 'object') return obj;
-  
-  const normalized = Array.isArray(obj) ? [...obj] : { ...obj };
-  
-  // Remove timestamp fields
-  delete normalized.startedAt;
-  delete normalized.completedAt;
-  delete normalized.detectedAt;
-  
-  // Remove runId (now unique per execution)
-  delete normalized.runId;
-  delete normalized.scanId;
-  
-  // Remove timing fields (can vary due to system load)
-  if (normalized.metrics) {
-    const metrics = { ...normalized.metrics };
-    delete metrics.totalMs;
-    delete metrics.learnMs;
-    delete metrics.observeMs;
-    delete metrics.detectMs;
-    normalized.metrics = metrics;
-  }
-  
-  // Recursively normalize nested objects
-  for (const key of Object.keys(normalized)) {
-    if (typeof normalized[key] === 'object' && normalized[key] !== null) {
-      normalized[key] = normalizeForComparison(normalized[key]);
-    }
-  }
-  
-  return normalized;
-}
-
-/**
- * Deep equal with deterministic key ordering
- */
-function stableStringify(obj) {
-  return JSON.stringify(obj, Object.keys(obj).sort(), 2);
-}
-
 function runDeterminismFixture() {
   const tmpBase = mkdtempSync(resolve(tmpdir(), 'verax-determinism-test-'));
 
   const fixtureUrl = 'file://' + resolve(process.cwd(), 'test/fixtures/determinism/index.html').replace(/\\/g, '/');
+  const fixtureSrc = resolve(process.cwd(), 'test/fixtures/determinism');
   const out1 = resolve(tmpBase, 'run1');
   const out2 = resolve(tmpBase, 'run2');
 
   mkdirSync(out1, { recursive: true });
   mkdirSync(out2, { recursive: true });
 
-  const env = { ...process.env, VERAX_TEST_TIME: '2026-01-20T00:00:00.000Z', VERAX_TEST_MODE: '1' };
+  const baseEnv = { ...process.env, VERAX_TEST_MODE: '1', VERAX_DETERMINISTIC_MODE: '1' };
 
-  const runOnce = (outDir) => {
+  const runOnce = (outDir, extraEnv = {}) => {
     try {
-      execSync(`node bin/verax.js run --url "${fixtureUrl}" --src . --out "${outDir}" --min-coverage 0`, {
+      execSync(`node bin/verax.js run --url "${fixtureUrl}" --src "${fixtureSrc}" --out "${outDir}" --min-coverage 0`, {
         cwd: process.cwd(),
         stdio: 'pipe',
-        env
+        env: { ...baseEnv, ...extraEnv }
       });
     } catch {
       // Ignore exit code, we only care about artifacts
     }
   };
 
-  runOnce(out1);
-  runOnce(out2);
+  // Adversarial: different test times must not affect deterministic artifacts.
+  runOnce(out1, { VERAX_TEST_TIME: '2026-01-20T00:00:00.000Z' });
+  runOnce(out2, { VERAX_TEST_TIME: '2026-02-21T12:34:56.000Z' });
 
   const runsDir1 = resolve(out1, 'runs');
   const runsDir2 = resolve(out2, 'runs');
@@ -118,6 +77,14 @@ function runDeterminismFixture() {
 
   const summary1 = JSON.parse(readFileSync(resolve(run1Dir, 'summary.json'), 'utf-8'));
   const summary2 = JSON.parse(readFileSync(resolve(run2Dir, 'summary.json'), 'utf-8'));
+  const observe1Raw = readFileSync(resolve(run1Dir, 'observe.json'), 'utf-8');
+  const observe2Raw = readFileSync(resolve(run2Dir, 'observe.json'), 'utf-8');
+  const learn1Raw = readFileSync(resolve(run1Dir, 'learn.json'), 'utf-8');
+  const learn2Raw = readFileSync(resolve(run2Dir, 'learn.json'), 'utf-8');
+  const summary1Raw = readFileSync(resolve(run1Dir, 'summary.json'), 'utf-8');
+  const summary2Raw = readFileSync(resolve(run2Dir, 'summary.json'), 'utf-8');
+  const findings1Raw = readFileSync(resolve(run1Dir, 'findings.json'), 'utf-8');
+  const findings2Raw = readFileSync(resolve(run2Dir, 'findings.json'), 'utf-8');
 
   return {
     tmpBase,
@@ -125,6 +92,14 @@ function runDeterminismFixture() {
     findings2,
     summary1,
     summary2,
+    observe1Raw,
+    observe2Raw,
+    learn1Raw,
+    learn2Raw,
+    summary1Raw,
+    summary2Raw,
+    findings1Raw,
+    findings2Raw,
   };
 }
 
@@ -134,29 +109,22 @@ test.after(() => {
   rmSync(runData.tmpBase, { recursive: true, force: true });
 });
 
-test('Determinism: findings.json is byte-identical across runs (after normalization)', () => {
-  const norm1 = normalizeForComparison(runData.findings1);
-  const norm2 = normalizeForComparison(runData.findings2);
-
-  assert.deepStrictEqual(norm1, norm2, 'Normalized findings.json must be identical');
-
-  const stable1 = stableStringify(norm1);
-  const stable2 = stableStringify(norm2);
-  assert.strictEqual(stable1, stable2, 'Stable stringify must produce identical output');
-
-  const ids1 = runData.findings1.findings?.map(f => f.id) || [];
-  const ids2 = runData.findings2.findings?.map(f => f.id) || [];
-  assert.deepStrictEqual(ids1, ids2, 'Finding IDs and ordering must be identical');
+test('Determinism: findings.json is byte-identical across runs (deterministic output mode)', () => {
+  assert.strictEqual(runData.findings1Raw, runData.findings2Raw, 'findings.json bytes must match');
 });
 
-test('Determinism: summary.json is byte-identical across runs (after normalization)', () => {
-  const norm1 = normalizeForComparison(runData.summary1);
-  const norm2 = normalizeForComparison(runData.summary2);
-
-  assert.deepStrictEqual(norm1, norm2, 'Normalized summary.json must be identical');
-  assert.deepStrictEqual(runData.summary1.digest, runData.summary2.digest, 'Digest must be byte-identical');
+test('Determinism: summary.json is byte-identical across runs (deterministic output mode)', () => {
+  assert.strictEqual(runData.summary1Raw, runData.summary2Raw, 'summary.json bytes must match');
+  assert.deepStrictEqual(runData.summary1.digest, runData.summary2.digest, 'Digest must be identical');
   assert.deepStrictEqual(runData.summary1.findingsCounts, runData.summary2.findingsCounts, 'findingsCounts must match');
-  assert.strictEqual(runData.summary1.findings?.length || 0, runData.summary2.findings?.length || 0, 'findings length must match');
+});
+
+test('Determinism: observe.json is byte-identical across runs (deterministic output mode)', () => {
+  assert.strictEqual(runData.observe1Raw, runData.observe2Raw, 'observe.json bytes must match');
+});
+
+test('Determinism: learn.json is byte-identical across runs (deterministic output mode)', () => {
+  assert.strictEqual(runData.learn1Raw, runData.learn2Raw, 'learn.json bytes must match');
 });
 
 test('Determinism: finding ordering is stable (sourceRef-based sort)', () => {

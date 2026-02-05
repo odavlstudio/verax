@@ -17,7 +17,9 @@ import { test } from 'node:test';
 import * as assert from 'node:assert';
 import { spawnSync } from 'child_process';
 import { dirname, resolve } from 'path';
-import { existsSync, rmSync } from 'fs';
+import { existsSync, rmSync, mkdtempSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 const __dirname = dirname(new URL(import.meta.url).pathname).replaceAll('%20', ' ');
 
@@ -46,7 +48,7 @@ function runVeraxSync(args, cwd) {
 }
 
 test('CLI EXIT CODE CONTRACT', async (t) => {
-  const _testDir = resolve(process.cwd(), 'artifacts', 'test-exit-codes');
+  const _testDir = mkdtempSync(join(tmpdir(), 'verax-test-exit-codes-'));
   let testServer = null;
   let _port = null;
 
@@ -105,7 +107,7 @@ test('CLI EXIT CODE CONTRACT', async (t) => {
     });
 
     await t.test('Exit code 50: bundle non-existent run directory', () => {
-      const fakeRunPath = resolve(process.cwd(), 'artifacts', 'fake-run-that-does-not-exist-ever');
+      const fakeRunPath = resolve(_testDir, 'fake-run-that-does-not-exist-ever');
       const bundleDir = resolve(_testDir, 'bundle');
       const result = runVeraxSync(['bundle', fakeRunPath, bundleDir], process.cwd());
       assert.strictEqual(result.exitCode, 50, `bundle non-existent run directory must exit with 50 (INVARIANT_VIOLATION), got ${result.exitCode}`);

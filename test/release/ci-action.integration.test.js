@@ -48,7 +48,7 @@ test('[ci-action] action.yml is valid YAML', () => {
   assert.equal(parsed.inputs.url.required, true, 'url should be required');
   
   // Validate optional inputs with defaults
-  assert.equal(parsed.inputs.out.default, '.verax', 'out default should be .verax');
+  assert.equal(parsed.inputs.out.default, '', 'out default should be empty (uses runner temp by default)');
   assert.equal(parsed.inputs.ci_mode.default, 'strict', 'ci_mode default should be strict');
   assert.equal(parsed.inputs.fail_on_incomplete.default, 'true', 'fail_on_incomplete default should be true');
   assert.equal(parsed.inputs.upload_artifacts.default, 'true', 'upload_artifacts default should be true');

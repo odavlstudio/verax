@@ -12,6 +12,7 @@ import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { getDefaultVeraxOutDir } from '../../src/cli/util/support/default-output-dir.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -37,13 +38,11 @@ test('Artifact Filtering Compliance Pipeline', async (suite) => {
   });
 
   await suite.test('no raw artifacts in tmp directories', () => {
-    // Check that tmp directories don't contain unredacted output
-    const tmpDirs = globSync(resolve(rootDir, 'tmp/*'));
-    // If tmp has output, verify no .temp files remain (temp files = raw artifacts)
-    tmpDirs.forEach(dir => {
-      const tempFiles = globSync(resolve(dir, '**/*.temp'));
-      assert.equal(tempFiles.length, 0, `${dir} has no leftover .temp files (raw artifacts)`);
-    });
+    const outDir = getDefaultVeraxOutDir(rootDir);
+    if (!existsSync(outDir)) return;
+
+    const tempFiles = globSync(resolve(outDir, '**/*.temp'), { nodir: true });
+    assert.equal(tempFiles.length, 0, `${outDir} has no leftover .temp files (raw artifacts)`);
   });
 
   await suite.test('redaction field in artifact schema', () => {

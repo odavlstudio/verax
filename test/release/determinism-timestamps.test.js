@@ -14,6 +14,7 @@ import { dirname, resolve, join } from 'node:path';
 import { rmSync, readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import http from 'node:http';
+import { tmpdir } from 'node:os';
 import { ARTIFACT_REGISTRY } from '../../src/verax/core/artifacts/registry.js';
 import { getTimeProvider } from '../../src/cli/util/support/time-provider.js';
 
@@ -82,8 +83,8 @@ test('determinism: evidence JSON is byte-identical with fixed VERAX_TEST_TIME', 
   const server = await startServer(fixture, port);
   const url = `http://localhost:${port}`;
 
-  const outDir1 = join(ROOT, `tmp/determinism-timestamps-1-${getTimeProvider().now()}`);
-  const outDir2 = join(ROOT, `tmp/determinism-timestamps-2-${getTimeProvider().now()}`);
+  const outDir1 = join(tmpdir(), `verax-determinism-timestamps-1-${getTimeProvider().now()}`);
+  const outDir2 = join(tmpdir(), `verax-determinism-timestamps-2-${getTimeProvider().now()}`);
 
   try {
     // Run #1

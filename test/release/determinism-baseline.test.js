@@ -2,8 +2,9 @@ import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { RunResult } from '../../src/cli/util/support/run-result.js';
 import { SKIP_REASON } from '../../src/cli/util/support/types.js';
-import { mkdirSync, writeFileSync, existsSync, rmSync } from 'fs';
+import { mkdirSync, writeFileSync, existsSync, rmSync, mkdtempSync } from 'fs';
 import { join } from 'path';
+import { tmpdir } from 'os';
 
 describe('Determinism & Reproducibility Contract', () => {
   let runResult;
@@ -106,19 +107,17 @@ describe('Determinism & Reproducibility Contract', () => {
   });
 
   describe('Run Comparison', () => {
-    const testProjectRoot = join(process.cwd(), 'tmp', 'determinism-comparison-test');
-    const runsDir = join(testProjectRoot, '.verax', 'runs');
+    let testProjectRoot;
+    let runsDir;
 
     beforeEach(() => {
-      // Clean up and create test directory structure
-      if (existsSync(testProjectRoot)) {
-        rmSync(testProjectRoot, { recursive: true, force: true });
-      }
+      testProjectRoot = mkdtempSync(join(tmpdir(), 'verax-determinism-comparison-'));
+      runsDir = join(testProjectRoot, '.verax', 'runs');
       mkdirSync(runsDir, { recursive: true });
     });
 
     afterEach(() => {
-      if (existsSync(testProjectRoot)) {
+      if (testProjectRoot && existsSync(testProjectRoot)) {
         rmSync(testProjectRoot, { recursive: true, force: true });
       }
     });

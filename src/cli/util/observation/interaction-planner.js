@@ -12,10 +12,11 @@ import { watchForOutcome } from './outcome-watcher.js';
 // eslint-disable-next-line no-unused-vars
 import { captureUIMutationSummary, analyzeMutationSummary, resetMutationTracking as _resetMutationTracking } from './ui-mutation-tracker.js';
 import { classifyInteractionIntent, evaluateAcknowledgment } from './interaction-intent-engine.js';
-import { extractIntentRecordFromElement } from '../evidence/interaction-intent-record.js';
+import { extractIntentRecordFromElement, extractAfterSnapshotFromElement, withAfterSnapshot } from '../evidence/interaction-intent-record.js';
 import { EvidenceCaptureService } from './evidence-capture-service.js';
 import { ActionDispatcher } from './action-dispatcher.js';
 import { OutcomeEvaluator } from './outcome-evaluator.js';
+import { readSubmitEventCount } from './submit-sensor.js';
 
 /**
  * Interaction Planner
@@ -101,6 +102,9 @@ export class InteractionPlanner {
     
     // CONSTITUTIONAL: Read-only mode enforced (no writes allowed)
     this.blockedRequests = [];
+
+    /** @type {{ enabled: boolean } | null} */
+    this.networkFirewall = { enabled: false };
   }
   
   /**
@@ -182,6 +186,8 @@ export class InteractionPlanner {
       // Dispatch action based on promise type
       const actionResult = await this.actionDispatcher.dispatch(promise, bundle, attempt);
       const { success: actionSuccess, reason: actionReason, cause: actionCause } = parseActionResult(actionResult);
+      attempt.actionSuccess = actionSuccess === true;
+      attempt.actionFailureReason = actionSuccess ? null : (actionReason || 'action-failed');
       
       if (actionCause && !attempt.cause) {
         attempt.cause = actionCause;
@@ -512,22 +518,60 @@ export class InteractionPlanner {
         bundle.timing.endedAt = getTimeProvider().iso();
         return { success: false, reason: 'element-not-interactable', cause: 'blocked' };
       }      const element = await this.page.locator(resolution.selector).elementHandle();
-      const intentRecord = await extractIntentRecordFromElement(this.page, element);
-      await element?.dispose();
-      if (intentRecord) {
-        bundle.setInteractionIntentRecord(intentRecord);
+      const intentRecordBefore = await extractIntentRecordFromElement(this.page, element);
+      if (intentRecordBefore) {
+        bundle.setInteractionIntentRecord(intentRecordBefore);
+      }
+
+      // Capture submit + network counters immediately before click (for submit-intent gating)
+      const submitCountBefore = await readSubmitEventCount(this.page);
+      const networkCountBefore = this.networkEvents.length;
+      const inferredSubmitControl =
+        intentRecordBefore?.form?.associated === true && intentRecordBefore?.form?.isSubmitControl === true;
+       
+      // Perform click (prefer clicking the exact element we snapshotted)
+      if (element && typeof element.click === 'function') {
+        await element.click({ timeout: 3000 });
+      } else {
+        await this.page.locator(resolution.selector).click({ timeout: 3000 });
       }
       
-      // Perform click
-      await this.page.locator(resolution.selector).click({ timeout: 3000 });
-      
+      // Post-trigger observables: bounded window for submit + network attempts
+      const fastOutcome = process.env.VERAX_TEST_FAST_OUTCOME === '1';
+      const submitWindowMs = fastOutcome ? 50 : 800;
+      await this.page.waitForTimeout(submitWindowMs);
+
+      const submitCountAfter = await readSubmitEventCount(this.page);
+      const networkCountAfter = this.networkEvents.length;
+
+      const submissionTriggered =
+        (typeof submitCountBefore === 'number' && typeof submitCountAfter === 'number')
+          ? (submitCountAfter > submitCountBefore)
+          : (inferredSubmitControl === true);
+
+      bundle.signals.submissionTriggered = submissionTriggered === true;
+      bundle.signals.networkAttemptAfterSubmit = networkCountAfter > networkCountBefore;
+
       // Wait for expected outcome
       const outcomeReached = await this.waitForOutcome(promise.expectedOutcome || 'ui-change');
       
       if (!outcomeReached) {
+        await element?.dispose();
         return { success: false, reason: 'outcome-timeout', cause: 'timeout' };
       }
-      
+
+      // Best-effort: after snapshot for toggle intent contracts
+      try {
+        if (intentRecordBefore && element) {
+          const afterSnapshot = await extractAfterSnapshotFromElement(this.page, element);
+          const merged = withAfterSnapshot(intentRecordBefore, afterSnapshot);
+          bundle.setInteractionIntentRecord(merged);
+        }
+      } catch {
+        // ignore after snapshot failures
+      }
+
+      await element?.dispose();
       return { success: true };
       
     } catch (error) {
@@ -539,7 +583,7 @@ export class InteractionPlanner {
    * Execute form submission
    * Returns: { success: boolean, reason?: string, cause?: string }
    */
-  async executeFormSubmission(promise, _bundle) {
+  async executeFormSubmission(promise, bundle) {
     // Resolve form selector
     const formResolution = await resolveSelector(this.page, promise);
     
@@ -576,13 +620,35 @@ export class InteractionPlanner {
         }
       }
       
+      // Capture submit + network counters immediately before triggering submit
+      const submitCountBefore = await readSubmitEventCount(this.page);
+      const networkCountBefore = this.networkEvents.length;
+      let inferredSubmitControl = false;
+
       // Find and click submit button
       const submitBtn = await findSubmitButton(this.page, formResolution.selector);
       
       let _submitted = false;
       if (submitBtn) {
         try {
-          await submitBtn.click({ timeout: 3000 });
+          const element = await submitBtn.elementHandle();
+          const intentRecordBefore = element
+            ? await extractIntentRecordFromElement(this.page, element)
+            : null;
+          if (intentRecordBefore) {
+            bundle.setInteractionIntentRecord(intentRecordBefore);
+            inferredSubmitControl = intentRecordBefore?.form?.associated === true &&
+              intentRecordBefore?.form?.isSubmitControl === true;
+          }
+
+          // Prefer clicking the exact element we snapshotted
+          if (element && typeof element.click === 'function') {
+            await element.click({ timeout: 3000 });
+          } else {
+            await submitBtn.click({ timeout: 3000 });
+          }
+
+          await element?.dispose();
           _submitted = true;
         } catch (e) {
           return { success: false, reason: 'submit-button-click-failed', cause: 'blocked' };
@@ -592,6 +658,19 @@ export class InteractionPlanner {
         const firstInput = await this.page.locator(`${formResolution.selector} input`).first();
         if (await firstInput.count() > 0) {
           try {
+            // Snapshot the focused input (best-effort). This does NOT prove submit intent.
+            try {
+              const inputHandle = await firstInput.elementHandle();
+              const record = inputHandle
+                ? await extractIntentRecordFromElement(this.page, inputHandle)
+                : null;
+              if (record) {
+                bundle.setInteractionIntentRecord(record);
+              }
+              await inputHandle?.dispose();
+            } catch {
+              // ignore
+            }
             await firstInput.press('Enter');
             _submitted = true;
           } catch (e) {
@@ -608,9 +687,19 @@ export class InteractionPlanner {
       if (!outcomeReached) {
         return { success: false, reason: 'form-submit-prevented', cause: 'prevented-submit' };
       }
-      
+
+      // Post-submit observables: submit + network attempts (bounded by waitForOutcome above)
+      const submitCountAfter = await readSubmitEventCount(this.page);
+      const networkCountAfter = this.networkEvents.length;
+      const submissionTriggered =
+        (typeof submitCountBefore === 'number' && typeof submitCountAfter === 'number')
+          ? (submitCountAfter > submitCountBefore)
+          : (inferredSubmitControl === true);
+      bundle.signals.submissionTriggered = submissionTriggered === true;
+      bundle.signals.networkAttemptAfterSubmit = networkCountAfter > networkCountBefore;
+       
       return { success: true };
-      
+       
     } catch (error) {
       return { success: false, reason: error.message, cause: 'error' };
     }

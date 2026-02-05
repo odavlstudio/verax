@@ -19,7 +19,8 @@
  */
 
 import { execSync, spawn } from 'child_process';
-import { readFileSync, existsSync, readdirSync, rmSync, mkdirSync } from 'fs';
+import { readFileSync, existsSync, readdirSync, rmSync, mkdirSync, mkdtempSync } from 'fs';
+import os from 'os';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { startFixtureServer } from '../test/helpers/fixture-server.helper.js';
@@ -205,22 +206,18 @@ async function main() {
 
   console.log('');
   console.log('Step 1: Running npm pack...');
-  const tempDir = join(projectRoot, '.tmp-verify-release');
+  const tempDir = mkdtempSync(join(os.tmpdir(), 'verax-verify-release-'));
+  const packDest = join(tempDir, 'pack');
   
   try {
-    // Cleanup temp dir if it exists
-    if (existsSync(tempDir)) {
-      rmSync(tempDir, { recursive: true, force: true });
-    }
-    mkdirSync(tempDir, { recursive: true });
+    mkdirSync(packDest, { recursive: true });
 
-    // Run npm pack (skip postpack cleanup so tarball remains on disk for verification)
-    const packOutput = runCommand('npm pack', {
+    // Run npm pack to a dedicated destination to avoid polluting repo root.
+    const packOutput = runCommand(`npm pack --pack-destination "${packDest}"`, {
       cwd: projectRoot,
-      env: { ...process.env, VERAX_SKIP_POSTPACK_CLEANUP: '1' },
     });
     const tarballName = packOutput.split('\n').pop().trim();
-    const tarballPath = resolve(projectRoot, tarballName);
+    const tarballPath = resolve(packDest, tarballName);
 
     if (!existsSync(tarballPath)) {
       throw new Error(`Tarball not found: ${tarballPath}`);

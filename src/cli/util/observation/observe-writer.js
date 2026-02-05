@@ -1,6 +1,8 @@
 import { atomicWriteJson } from '../support/atomic-write.js';
 import { resolve } from 'path';
 import { ARTIFACT_REGISTRY } from '../../../verax/core/artifacts/registry.js';
+import { isDeterministicOutputMode, normalizeDeterministicArtifact } from '../support/deterministic-output.js';
+import { summarizeNetworkFirewall } from './network-firewall.js';
 
 /**
  * Write observe.json artifact
@@ -31,6 +33,10 @@ export function writeObserveJson(runDir, observeData) {
     observations,
     runtimeExpectations: observeData.runtimeExpectations || [],
     runtime: observeData.runtime || null,
+    networkFirewall: summarizeNetworkFirewall({
+      enabled: Boolean(observeData?.networkFirewall?.enabled),
+      blockedWrites: observeData?.blockedWrites || [],
+    }),
     auth: observeData.auth || null,
     stats: {
       totalExpectations,
@@ -49,7 +55,8 @@ export function writeObserveJson(runDir, observeData) {
     diagnostics: observeData.diagnostics || [],
   };
   
-  atomicWriteJson(observePath, payload);
+  const normalized = normalizeDeterministicArtifact('observe', payload);
+  atomicWriteJson(observePath, normalized, { deterministic: isDeterministicOutputMode() });
 }
 
 

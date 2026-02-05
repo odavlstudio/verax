@@ -99,6 +99,8 @@
  *   observed?: number;
  *   silentFailures?: number;
  *   coverageRatio?: number;
+ *   criticalSilenceCount?: number;
+ *   criticalSilenceKinds?: string[];
  *   hasInfraFailure?: boolean;
  *   isIncomplete?: boolean;
  *   incompleteReasons?: string[];
@@ -112,11 +114,14 @@ export function classifyRunTruth(runSummary, thresholds = {}) {
     attempted = 0,
     silentFailures = 0,
     coverageRatio = 0,
+    criticalSilenceCount = 0,
+    criticalSilenceKinds = [],
     hasInfraFailure = false,
     isIncomplete = false,
   } = runSummary || {};
 
   const minCoverage = thresholds?.minCoverage ?? 0.90;
+  const hasCriticalSilence = Number(criticalSilenceCount || 0) > 0;
 
   // === INFRA FAILURE → treated as INCOMPLETE for Vision 1.0 ===
   if (hasInfraFailure || (isIncomplete && attempted === 0 && expectationsTotal > 0)) {
@@ -162,20 +167,27 @@ export function classifyRunTruth(runSummary, thresholds = {}) {
   }
 
   // === INCOMPLETE RUN (must not be treated as safe) ===
-  if (isIncomplete) {
+  if (isIncomplete || hasCriticalSilence) {
     const coverageTooLow = coverageRatio < minCoverage && expectationsTotal > 0;
     const notFullAttempt = attempted < expectationsTotal;
-    const reason =
-      notFullAttempt && coverageTooLow
-        ? `Only ${attempted}/${expectationsTotal} attempted (${(coverageRatio * 100).toFixed(1)}% observed)`
-        : notFullAttempt
-          ? `Only ${attempted}/${expectationsTotal} expectations attempted`
-          : `Coverage ${(coverageRatio * 100).toFixed(1)}% below threshold ${(minCoverage * 100).toFixed(0)}%`;
+    const silenceKinds = Array.isArray(criticalSilenceKinds) ? criticalSilenceKinds : [];
+    const silenceText = hasCriticalSilence
+      ? `Critical ambiguity detected (${Number(criticalSilenceCount || 0)}): ${silenceKinds.slice(0, 3).join(', ') || 'unknown'}.`
+      : '';
+    const reason = hasCriticalSilence
+      ? silenceText
+      : notFullAttempt && coverageTooLow
+          ? `Only ${attempted}/${expectationsTotal} attempted (${(coverageRatio * 100).toFixed(1)}% observed)`
+          : notFullAttempt
+            ? `Only ${attempted}/${expectationsTotal} expectations attempted`
+            : `Coverage ${(coverageRatio * 100).toFixed(1)}% below threshold ${(minCoverage * 100).toFixed(0)}%`;
 
     const confidence =
       attempted === 0
         ? 'LOW'
-        : coverageRatio > 0.5
+        : hasCriticalSilence
+          ? 'MEDIUM'
+          : coverageRatio > 0.5
           ? 'MEDIUM'
           : 'LOW';
 
@@ -184,11 +196,15 @@ export function classifyRunTruth(runSummary, thresholds = {}) {
       confidence,
       reason,
       whatThisMeans:
-        'The run did not complete observation of all public flows. ' +
-        'Results are partial and cannot rule out silent failures in untested areas. ' +
+        (hasCriticalSilence
+          ? 'The run observed one or more interactions with ambiguous intent or missing required observables. '
+          : 'The run did not complete observation of all public flows. ') +
+        'Results are partial and cannot rule out silent failures. ' +
         'THIS RESULT MUST NOT BE TREATED AS SAFE.',
       recommendedAction:
-        'Increase --min-coverage threshold, extend budget, or investigate why observations were limited. ' +
+        (hasCriticalSilence
+          ? 'Review the recorded silence/gap reasons and adjust your site instrumentation or observation settings, then rerun. '
+          : 'Increase --min-coverage threshold, extend budget, or investigate why observations were limited. ') +
         'Re-run to achieve full coverage before trusting results.',
     };
   }
@@ -198,7 +214,7 @@ export function classifyRunTruth(runSummary, thresholds = {}) {
   const noFailures = silentFailures === 0;
   const coverageOk = coverageRatio >= minCoverage;
 
-  if (coverageOk && noFailures) {
+  if (coverageOk && noFailures && !hasCriticalSilence) {
     const reasonMessage = isFull 
       ? `All ${attempted}/${expectationsTotal} expectations attempted, zero failures`
       : `Coverage ${(coverageRatio * 100).toFixed(1)}% meets threshold (${(minCoverage * 100).toFixed(0)}%), no silent failures`;
@@ -258,6 +274,29 @@ export function classifyRunTruth(runSummary, thresholds = {}) {
     whatThisMeans: 'The run result does not match any known pattern. Review logs.',
     recommendedAction: 'Re-run with --debug for detailed diagnostics.',
   };
+}
+
+/**
+ * Count "critical" silence/gap records that must block SUCCESS.
+ * Deterministic: returns kinds in stable sorted order.
+ *
+ * @param {Array<{ silenceDetected?: { kind?: string } }>} observations
+ * @returns {{ criticalSilenceCount: number, criticalSilenceKinds: string[] }}
+ */
+export function summarizeCriticalSilences(observations) {
+  const criticalKinds = new Set(['intent_blocked', 'navigation_ambiguous', 'submission_ambiguous']);
+  /** @type {Record<string, number>} */
+  const counts = {};
+  const list = Array.isArray(observations) ? observations : [];
+  for (const obs of list) {
+    const kind = obs?.silenceDetected?.kind;
+    if (typeof kind !== 'string') continue;
+    if (!criticalKinds.has(kind)) continue;
+    counts[kind] = (counts[kind] || 0) + 1;
+  }
+  const kinds = Object.keys(counts).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  const total = kinds.reduce((acc, k) => acc + Number(counts[k] || 0), 0);
+  return { criticalSilenceCount: total, criticalSilenceKinds: kinds };
 }
 
 /**

@@ -17,7 +17,8 @@ export function readFileSync(path, encoding) {
  * Writes to a temp file and renames to prevent partial writes
  */
 export function atomicWriteJson(filePath, data) {
-  atomicWriteJsonSync(filePath, data);
+  const options = arguments.length >= 3 ? arguments[2] : undefined;
+  atomicWriteJsonSync(filePath, data, options || {});
 }
 
 /**

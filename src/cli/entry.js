@@ -27,6 +27,7 @@ import { enforceReadOnlyOperation } from '../verax/core/product-contract.js';
 import { buildAuthConfig } from './util/auth/auth-config.js';
 import { isFirstRun } from './util/support/first-run-detection.js';
 import { runPreflight } from './util/preflight/run-preflight.js';
+import { resolveVeraxOutDir } from './util/support/default-output-dir.js';
 import { VERSION, getVersionString, getVersionInfo } from '../version.js';
 import {
   PRODUCT_ONE_LINER,
@@ -57,7 +58,7 @@ const PILOT_COMMAND_SPECS = [
   {
     name: 'capability-bundle',
     usage: 'capability-bundle --url <url> [--out <path>] [options]',
-    description: 'Pilot-only: generate a diagnostic bundle (safe to share)',
+    description: 'Pilot-only: generate a diagnostic bundle (minimized data)',
   },
   {
     name: 'version',
@@ -84,6 +85,11 @@ async function loadRunCommand() {
 async function loadBundleCommand() {
   const mod = await import('./commands/bundle.js');
   return mod.bundleCommand;
+}
+
+async function loadBundleCreateCommand() {
+  const mod = await import('./commands/bundle-create.js');
+  return mod.bundleCreateCommand;
 }
 
 async function loadReadinessCommand() {
@@ -239,7 +245,7 @@ async function main() {
     if (!commandExecuted && (outcome.exitCode === EXIT_CODES.SUCCESS || outcome.exitCode === EXIT_CODES.USAGE_ERROR)) {
       assertNoActiveHandles('fast-exit error path');
     }
-    emitOutcome(outcome, { json: false });
+    emitOutcome(outcome, { json: args.includes('--json') });
     process.exit(outcome.exitCode);
   }
 }
@@ -285,7 +291,7 @@ function showHelp({ debug: _debug = false, usageError = false } = {}) {
     ? `OPTIONS:
   --url <url>                    Target URL to scan (required)
   --src <path>                   Source directory (recommended; auto-detected if omitted)
-  --out <path>                   Output directory for artifacts (default: .verax)
+  --out <path>                   Output directory for artifacts (default: OS temp; override via VERAX_OUT_BASE)
   --json                         JSON lines output (progress events + final outcome)
   --debug/--verbose              Verbose output
   --runtime-nav-discovery        Opt-in: discover additional navigation targets at runtime
@@ -303,14 +309,16 @@ function showHelp({ debug: _debug = false, usageError = false } = {}) {
 PILOT-ONLY (diagnostic) COMMAND FLAGS:
   readiness --timeout-ms <ms>        Timeout for initial HTML fetch
   readiness --json                  Emit a single JSON object (no streaming)
-  capability-bundle --out <path>     Output directory root (default: .verax)
+  readiness --anonymize-host         Do not store hostname; store originHash only
+  capability-bundle --out <path>     Output directory root (default: OS temp; override via VERAX_OUT_BASE)
   capability-bundle --timeout-ms <ms> Timeout for initial HTML fetch
   capability-bundle --zip            Also write a small zip next to the folder
+  capability-bundle --anonymize-host Do not store hostname; store originHash only
 `
     : `OPTIONS:
   --url <url>     Target URL to scan (required)
   --src <path>    Source directory (recommended; auto-detected if omitted)
-  --out <path>    Output directory for artifacts (default: .verax)
+  --out <path>    Output directory for artifacts (default: OS temp; override via VERAX_OUT_BASE)
   --json          JSON lines output (machine-readable)
   --verbose       Show advanced options
 
@@ -369,7 +377,7 @@ Artifacts (the product):
   evidence/       screenshots, traces, and supporting files
 
 Next step:
-  Open the run directory under .verax/runs/ (or --out) and review summary.json and findings.json.
+  Open the run directory under the output directory (or --out) and review summary.json and findings.json.
 
 Scope note:
   ${POST_AUTH_DISCLAIMER_LINE}
@@ -416,13 +424,25 @@ function parseMultipleArgs(args, name) {
 // ============================================================================
 
 async function handleBundleCommand(args, { debug: _debug = false } = {}) {
-  const allowedFlags = new Set(['--debug', '--verbose']);
+  const positional = args.slice(1).filter((a) => !a.startsWith('-'));
+  const isCreate = positional[0] === 'create';
+  const allowedFlags = new Set(isCreate ? ['--out', '--debug', '--verbose'] : ['--debug', '--verbose']);
   const unknownFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
   if (unknownFlags.length > 0) {
     throw new UsageError(`Unsupported flag(s) for bundle: ${unknownFlags.join(', ')}`);
   }
 
-  const positional = args.slice(1).filter((a) => !a.startsWith('-'));
+  if (isCreate) {
+    if (positional.length !== 2) {
+      throw new UsageError('bundle create requires create <runDir>');
+    }
+    const runDir = positional[1];
+    const out = parseArg(args, '--out');
+    const bundleCreateCommand = await loadBundleCreateCommand();
+    const { outcome } = await bundleCreateCommand({ runDir, out });
+    return { outcome, emit: true, json: false };
+  }
+
   if (positional.length !== 2) {
     throw new UsageError('bundle requires <runDir> <bundleDir>');
   }
@@ -436,7 +456,7 @@ async function handleBundleCommand(args, { debug: _debug = false } = {}) {
 }
 
 async function handleReadinessCommand(args) {
-  const allowedFlags = new Set(['--url', '--json', '--timeout-ms', '--debug', '--verbose']);
+  const allowedFlags = new Set(['--url', '--json', '--timeout-ms', '--anonymize-host', '--debug', '--verbose']);
   const unknownFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
   if (unknownFlags.length > 0) {
     console.log(`Unsupported flag(s) for readiness: ${unknownFlags.join(', ')}`);
@@ -462,7 +482,7 @@ async function handleReadinessCommand(args) {
 }
 
 async function handleCapabilityBundleCommand(args) {
-  const allowedFlags = new Set(['--url', '--out', '--zip', '--timeout-ms', '--debug', '--verbose']);
+  const allowedFlags = new Set(['--url', '--out', '--zip', '--timeout-ms', '--anonymize-host', '--debug', '--verbose']);
   const unknownFlags = args.slice(1).filter((a) => a.startsWith('-') && !allowedFlags.has(a));
   if (unknownFlags.length > 0) {
     console.log(`Unsupported flag(s) for capability-bundle: ${unknownFlags.join(', ')}`);
@@ -516,7 +536,7 @@ async function handleRunCommand(args, { debug = false } = {}) {
 
   const url = parseArg(args, '--url');
   const srcArg = parseArg(args, '--src');
-  const out = parseArg(args, '--out') || '.verax';
+  const outArg = parseArg(args, '--out');
   const json = args.includes('--json');
   const verboseFlag = args.includes('--verbose');
   const debugFlag = debug || verboseFlag || args.includes('--debug');
@@ -634,7 +654,8 @@ async function handleRunCommand(args, { debug = false } = {}) {
   }
 
   const srcPath = resolve(projectRoot, src);
-  const outPath = resolve(projectRoot, out);
+  const out = resolveVeraxOutDir(projectRoot, outArg);
+  const outPath = out;
   const readOnlyCheck = enforceReadOnlyOperation({ srcPath, outPath, projectRoot });
   if (!readOnlyCheck.enforced) {
     const violation = readOnlyCheck.violations[0];
@@ -758,7 +779,7 @@ main().catch((error) => {
     reason: error instanceof Error ? error.message : (typeof error === 'string' ? error : 'Fatal error'),
     action: 'Re-run with --debug for stack trace',
   });
-  emitOutcome(outcome, { json: false });
+  emitOutcome(outcome, { json: process.argv.includes('--json') });
   process.exit(outcome.exitCode);
 });
 

@@ -2,6 +2,7 @@ import { relative, resolve } from 'path';
 import { atomicWriteJson } from './atomic-write.js';
 import { findingIdFromExpectationId } from './idgen.js';
 import { EXIT_CODES } from '../../../verax/shared/exit-codes.js';
+import { resolveVeraxOutDir } from './default-output-dir.js';
 
 export const DECISION_OUTCOME = {
   SUCCESS: 'SUCCESS',
@@ -204,7 +205,9 @@ export function createDecisionSnapshot(params) {
 }
 
 export function writeDecisionSnapshot(params) {
-  const targetDir = params?.runDir || resolve(params?.outDir || '.verax', 'runs', params?.runId || 'unknown');
+  const projectRoot = resolve(process.cwd());
+  const outDir = resolveVeraxOutDir(projectRoot, params?.outDir || null);
+  const targetDir = params?.runDir || resolve(outDir, 'runs', params?.runId || 'unknown');
   const targetPath = resolve(targetDir, 'decision.json');
   const snapshot = createDecisionSnapshot({ ...params, runDir: targetDir });
   atomicWriteJson(targetPath, snapshot);

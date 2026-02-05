@@ -1,4 +1,4 @@
-import { strictEqual, _deepStrictEqual } from 'node:assert';
+import { strictEqual } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { 
   classifyInteractionIntent, 
@@ -71,7 +71,7 @@ describe('Interaction Intent Engine - Classification', () => {
       disabled: false,
       ariaDisabled: false,
       tagName: 'A',
-      href: '#',
+      href: { present: true, kind: 'noop_hash' },
       boundingBox: { width: 50, height: 20 },
     };
     const result = classifyInteractionIntent(record);
@@ -144,7 +144,7 @@ describe('Interaction Intent Engine - Classification', () => {
       disabled: false,
       ariaDisabled: false,
       tagName: 'A',
-      href: '/page',
+      href: { present: true, kind: 'relative' },
       containerTagName: 'nav',
       role: null,
       boundingBox: { width: 100, height: 40 },
@@ -160,7 +160,7 @@ describe('Interaction Intent Engine - Classification', () => {
       disabled: false,
       ariaDisabled: false,
       tagName: 'A',
-      href: '/page',
+      href: { present: true, kind: 'relative' },
       containerTagName: 'nav',
       role: 'menuitem',
       boundingBox: { width: 100, height: 40 },
@@ -290,26 +290,21 @@ describe('Interaction Intent Engine - Confidence Calculation', () => {
 });
 
 describe('Interaction Intent Engine - Selector Path', () => {
-  it('should create bounded selector path (last 3 levels)', () => {
+  it('should create coarse location string (no selectors)', () => {
     const record = {
-      selectorPath: ['html', 'body', 'main', 'div.content', 'button#submit'],
+      containerTagName: 'main',
+      tagName: 'BUTTON',
     };
     const path = createBoundedSelectorPath(record);
-    strictEqual(path, 'main > div.content > button#submit');
+    strictEqual(path, 'main > button');
   });
 
-  it('should return bounded path for short selector', () => {
+  it('should handle missing container/tag', () => {
     const record = {
-      selectorPath: ['html', 'button'],
+      // empty
     };
     const path = createBoundedSelectorPath(record);
-    strictEqual(path.includes('button'), true);
-  });
-
-  it('should handle missing selector path', () => {
-    const record = {};
-    const path = createBoundedSelectorPath(record);
-    strictEqual(path, 'unknown');
+    strictEqual(path, 'document > unknown');
   });
 });
 
@@ -318,8 +313,11 @@ describe('Interaction Intent Engine - ID Generation', () => {
     const record = {
       tagName: 'BUTTON',
       eventType: 'click',
-      selectorPath: ['body', 'main', 'button#submit'],
-      boundingBox: { x: 100, y: 200 },
+      role: null,
+      type: 'button',
+      href: { present: false, kind: null },
+      form: { associated: false, isSubmitControl: false },
+      aria: { expanded: null, pressed: null, checked: null },
     };
     const id1 = generateInteractionIntentId(record);
     const id2 = generateInteractionIntentId(record);
@@ -330,8 +328,10 @@ describe('Interaction Intent Engine - ID Generation', () => {
     const record = {
       tagName: 'BUTTON',
       eventType: 'click',
-      selectorPath: ['body', 'button'],
-      boundingBox: { x: 0, y: 0 },
+      type: 'button',
+      href: { present: false, kind: null },
+      form: { associated: false, isSubmitControl: false },
+      aria: { expanded: null, pressed: null, checked: null },
     };
     const id = generateInteractionIntentId(record);
     strictEqual(id.startsWith('interaction_'), true);
@@ -342,14 +342,18 @@ describe('Interaction Intent Engine - ID Generation', () => {
     const record1 = {
       tagName: 'BUTTON',
       eventType: 'click',
-      selectorPath: ['body', 'button1'],
-      boundingBox: { x: 0, y: 0 },
+      type: 'button',
+      href: { present: false, kind: null },
+      form: { associated: false, isSubmitControl: false },
+      aria: { expanded: null, pressed: null, checked: null },
     };
     const record2 = {
       tagName: 'A',
       eventType: 'click',
-      selectorPath: ['body', 'a'],
-      boundingBox: { x: 0, y: 0 },
+      role: 'link',
+      href: { present: true, kind: 'relative' },
+      form: { associated: false, isSubmitControl: false },
+      aria: { expanded: null, pressed: null, checked: null },
     };
     const id1 = generateInteractionIntentId(record1);
     const id2 = generateInteractionIntentId(record2);

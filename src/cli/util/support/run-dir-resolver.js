@@ -10,81 +10,70 @@
 
 import { resolve, join, basename } from 'path';
 import { existsSync, readdirSync, readFileSync } from 'fs';
+import { resolveVeraxOutDir } from './default-output-dir.js';
+
+function uniqueBases(bases) {
+  const seen = new Set();
+  const out = [];
+  for (const b of bases) {
+    const k = String(b || '').replace(/\\/g, '/');
+    if (!k || seen.has(k)) continue;
+    seen.add(k);
+    out.push(b);
+  }
+  return out;
+}
 
 /**
  * Resolve run directory from runId, supporting both new and legacy structures
  * 
  * @param {string} projectRoot - Project root directory
  * @param {string} runId - Run identifier
- * @param {string} [scanId] - Optional scan identifier (for new structure)
+ * @param {string} [scanId] - Optional scan identifier
+ * @param {string|null} [outDir] - Optional output directory override (same semantics as --out)
  * @returns {string} Absolute path to run directory
  */
-export function resolveRunDir(projectRoot, runId, scanId = null) {
-  // Strategy 1: If scanId provided, try new structure first
-  if (scanId) {
-    const newPath = resolve(projectRoot, '.verax', 'scans', scanId, 'runs', runId);
-    if (existsSync(newPath)) {
-      return newPath;
+export function resolveRunDir(projectRoot, runId, scanId = null, outDir = null) {
+  const defaultOut = resolveVeraxOutDir(projectRoot, outDir);
+  const legacyOut = resolve(projectRoot, '.verax');
+  const bases = uniqueBases([defaultOut, legacyOut]);
+
+  for (const base of bases) {
+    // Strategy 1: If scanId provided, try nested runs/<scanId>/<runId> first
+    if (scanId) {
+      const nested = resolve(base, 'runs', scanId, runId);
+      if (existsSync(nested)) return nested;
     }
-  }
 
-  // Strategy 2: Search in .verax/scans/ for any scan containing this runId
-  const scansBase = resolve(projectRoot, '.verax', 'scans');
-  if (existsSync(scansBase)) {
-    try {
-      const rawDirents = readdirSync(scansBase, { withFileTypes: true });
-      const scanDirs = Array.isArray(rawDirents)
-        ? rawDirents.filter((/** @type {any} */ e) => Boolean(e) && typeof e === 'object' && 'isDirectory' in e && typeof e.isDirectory === 'function')
-        : [];
-      const scanNames = scanDirs
-        .filter((e) => e.isDirectory())
-        .map((e) => e.name);
+    // Strategy 2: Legacy direct runs/<runId>
+    const direct = resolve(base, 'runs', runId);
+    if (existsSync(direct)) return direct;
 
-      for (const scan of scanNames) {
-        const candidatePath = resolve(scansBase, scan, 'runs', runId);
-        if (existsSync(candidatePath)) {
-          return candidatePath;
+    // Strategy 3: Search nested runs/<scanId>/<runId>
+    const runsRoot = resolve(base, 'runs');
+    if (existsSync(runsRoot)) {
+      try {
+        const rawDirents = readdirSync(runsRoot, { withFileTypes: true });
+        const scanDirs = Array.isArray(rawDirents)
+          ? rawDirents.filter((/** @type {any} */ e) => Boolean(e) && typeof e === 'object' && 'isDirectory' in e && typeof e.isDirectory === 'function')
+          : [];
+        const scanNames = scanDirs
+          .filter((e) => e.isDirectory())
+          .map((e) => e.name);
+
+        for (const scan of scanNames) {
+          const candidatePath = resolve(runsRoot, scan, runId);
+          if (existsSync(candidatePath)) return candidatePath;
         }
+      } catch {
+        // continue
       }
-    } catch {
-      // Continue to fallback
     }
   }
 
-  // Strategy 3: Legacy path - .verax/runs/<runId>/
-  const legacyDirect = resolve(projectRoot, '.verax', 'runs', runId);
-  if (existsSync(legacyDirect)) {
-    return legacyDirect;
-  }
-
-  // Strategy 4: Legacy nested path - .verax/runs/<scanId>/<runId>/
-  const legacyNested = resolve(projectRoot, '.verax', 'runs');
-  if (existsSync(legacyNested)) {
-    try {
-      const rawDirents = readdirSync(legacyNested, { withFileTypes: true });
-      const scanDirs = Array.isArray(rawDirents)
-        ? rawDirents.filter((/** @type {any} */ e) => Boolean(e) && typeof e === 'object' && 'isDirectory' in e && typeof e.isDirectory === 'function')
-        : [];
-      const scanNames = scanDirs
-        .filter((e) => e.isDirectory())
-        .map((e) => e.name);
-
-      for (const scan of scanNames) {
-        const candidatePath = resolve(legacyNested, scan, runId);
-        if (existsSync(candidatePath)) {
-          return candidatePath;
-        }
-      }
-    } catch {
-      // Not found
-    }
-  }
-
-  // Not found - return the preferred new path (caller will handle missing dir)
-  if (scanId) {
-    return resolve(projectRoot, '.verax', 'scans', scanId, 'runs', runId);
-  }
-  return resolve(projectRoot, '.verax', 'runs', runId);
+  // Not found - return preferred location in default output directory
+  if (scanId) return resolve(defaultOut, 'runs', scanId, runId);
+  return resolve(defaultOut, 'runs', runId);
 }
 
 /**
@@ -156,20 +145,14 @@ export function resolveRunPath(projectRoot, pathOrRunId) {
 export function extractIdentifiers(runDirPath) {
   const normalized = runDirPath.replace(/\\/g, '/');
   
-  // New structure: .verax/scans/<scanId>/runs/<runId>
-  const newMatch = normalized.match(/\.verax\/scans\/([^/]+)\/runs\/([^/]+)/);
-  if (newMatch) {
-    return { scanId: newMatch[1], runId: newMatch[2] };
-  }
-
   // Legacy nested: .verax/runs/<scanId>/<runId>
-  const legacyNestedMatch = normalized.match(/\.verax\/runs\/([^/]+)\/([^/]+)/);
+  const legacyNestedMatch = normalized.match(/\/runs\/([^/]+)\/([^/]+)(?:\/|$)/);
   if (legacyNestedMatch) {
     return { scanId: legacyNestedMatch[1], runId: legacyNestedMatch[2] };
   }
 
   // Legacy direct: .verax/runs/<runId>
-  const legacyDirectMatch = normalized.match(/\.verax\/runs\/([^/]+)/);
+  const legacyDirectMatch = normalized.match(/\/runs\/([^/]+)(?:\/|$)/);
   if (legacyDirectMatch) {
     return { scanId: null, runId: legacyDirectMatch[1] };
   }

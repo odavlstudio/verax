@@ -9,7 +9,7 @@
 
       "improvements": [
         "Pilot surface commands are locked and contract-tested (run, bundle, readiness, capability-bundle, version, help)",
-        "Pilot-only diagnostics: readiness (no scan) and capability-bundle (safe-to-share bundle)",
+        "Pilot-only diagnostics: readiness (no scan) and capability-bundle (diagnostic-only bundle with minimized data; supports --anonymize-host)",
         "Bundling validates required run artifacts and includes integrity metadata"
       ],
 

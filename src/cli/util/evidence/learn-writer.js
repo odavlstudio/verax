@@ -2,6 +2,7 @@ import { resolve } from 'path';
 import { atomicWriteJson } from '../support/atomic-write.js';
 import { compareExpectations } from '../support/idgen.js';
 import { ARTIFACT_REGISTRY } from '../../../verax/core/artifacts/registry.js';
+import { isDeterministicOutputMode, normalizeDeterministicArtifact } from '../support/deterministic-output.js';
 
 /**
  * Write learn.json artifact
@@ -58,7 +59,8 @@ export function writeLearnJson(runPaths, expectations, skipped) {
     },
   };
   
-  atomicWriteJson(learnJsonPath, learnJson);
+  const normalized = normalizeDeterministicArtifact('learn', learnJson);
+  atomicWriteJson(learnJsonPath, normalized, { deterministic: isDeterministicOutputMode() });
   
   return learnJsonPath;
 }
